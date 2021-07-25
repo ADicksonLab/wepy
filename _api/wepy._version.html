@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy._version module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy._version.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -55,10 +53,161 @@
             
   <div class="section" id="module-wepy._version">
 <span id="wepy-version-module"></span><h1>wepy._version module<a class="headerlink" href="#module-wepy._version" title="Permalink to this headline">¶</a></h1>
+<p>Git implementation of _version.py.</p>
+<dl class="py function">
+<dt id="wepy._version.get_keywords">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">get_keywords</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#get_keywords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.get_keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the keywords needed to look up the version information.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt id="wepy._version.VersioneerConfig">
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">VersioneerConfig</span></code><a class="reference internal" href="../_modules/wepy/_version.html#VersioneerConfig"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.VersioneerConfig" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Container for Versioneer configuration parameters.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.get_config">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">get_config</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#get_config"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.get_config" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create, populate and return the VersioneerConfig() object.</p>
+</dd></dl>
+
+<dl class="py exception">
+<dt id="wepy._version.NotThisMethod">
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">NotThisMethod</span></code><a class="reference internal" href="../_modules/wepy/_version.html#NotThisMethod"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.NotThisMethod" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
+<p>Exception raised if a method is not valid for the current scenario.</p>
+<dl class="py attribute">
+<dt id="wepy._version.NotThisMethod.args">
+<code class="sig-name descname"><span class="pre">args</span></code><a class="headerlink" href="#wepy._version.NotThisMethod.args" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt id="wepy._version.NotThisMethod.with_traceback">
+<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy._version.NotThisMethod.with_traceback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception.with_traceback(tb) –
+set self.__traceback__ to tb and return self.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.register_vcs_handler">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">register_vcs_handler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">vcs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">method</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#register_vcs_handler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.register_vcs_handler" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator to mark a method as the handler for a particular VCS.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.run_command">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">run_command</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">commands</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cwd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">hide_stderr</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#run_command"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.run_command" title="Permalink to this definition">¶</a></dt>
+<dd><p>Call the given command(s).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.versions_from_parentdir">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">versions_from_parentdir</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parentdir_prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">root</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#versions_from_parentdir"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.versions_from_parentdir" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to determine the version from the parent directory name.</p>
+<p>Source tarballs conventionally unpack into a directory that includes both
+the project name and a version string. We will also support searching up
+two directory levels for an appropriately named parent directory</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.git_get_keywords">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">git_get_keywords</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">versionfile_abs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#git_get_keywords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.git_get_keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Extract version information from the given file.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.git_versions_from_keywords">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">git_versions_from_keywords</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keywords</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tag_prefix</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#git_versions_from_keywords"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.git_versions_from_keywords" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get version information from git keywords.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.git_pieces_from_vcs">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">git_pieces_from_vcs</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">tag_prefix</span></em>, <em class="sig-param"><span class="pre">root</span></em>, <em class="sig-param"><span class="pre">verbose</span></em>, <em class="sig-param"><span class="pre">run_command=&lt;function</span> <span class="pre">run_command&gt;</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#git_pieces_from_vcs"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.git_pieces_from_vcs" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get version from ‘git describe’ in the root of the source tree.</p>
+<p>This only gets called if the git-archive ‘subst’ keywords were <em>not</em>
+expanded, and _version.py hasn’t already been rewritten with a short
+version string, meaning we’re inside a checked out source tree.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.plus_or_dot">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">plus_or_dot</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#plus_or_dot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.plus_or_dot" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a + if we don’t already have one, else return a .</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render_pep440">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render_pep440</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render_pep440"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render_pep440" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build up version string, with post-release “local version identifier”.</p>
+<p>Our goal: TAG[+DISTANCE.gHEX[.dirty]] . Note that if you
+get a tagged build and then dirty it, you’ll get TAG+0.gHEX.dirty</p>
+<p>Exceptions:
+1: no tags. git_describe was just HEX. 0+untagged.DISTANCE.gHEX[.dirty]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render_pep440_pre">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render_pep440_pre</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render_pep440_pre"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render_pep440_pre" title="Permalink to this definition">¶</a></dt>
+<dd><p>TAG[.post.devDISTANCE] – No -dirty.</p>
+<p>Exceptions:
+1: no tags. 0.post.devDISTANCE</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render_pep440_post">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render_pep440_post</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render_pep440_post"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render_pep440_post" title="Permalink to this definition">¶</a></dt>
+<dd><p>TAG[.postDISTANCE[.dev0]+gHEX] .</p>
+<p>The “.dev0” means dirty. Note that .dev0 sorts backwards
+(a dirty tree will appear “older” than the corresponding clean one),
+but you shouldn’t be releasing software with -dirty anyways.</p>
+<p>Exceptions:
+1: no tags. 0.postDISTANCE[.dev0]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render_pep440_old">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render_pep440_old</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render_pep440_old"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render_pep440_old" title="Permalink to this definition">¶</a></dt>
+<dd><p>TAG[.postDISTANCE[.dev0]] .</p>
+<p>The “.dev0” means dirty.</p>
+<p>Eexceptions:
+1: no tags. 0.postDISTANCE[.dev0]</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render_git_describe">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render_git_describe</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render_git_describe"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render_git_describe" title="Permalink to this definition">¶</a></dt>
+<dd><p>TAG[-DISTANCE-gHEX][-dirty].</p>
+<p>Like ‘git describe –tags –dirty –always’.</p>
+<p>Exceptions:
+1: no tags. HEX[-dirty]  (note: no ‘g’ prefix)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render_git_describe_long">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render_git_describe_long</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render_git_describe_long"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render_git_describe_long" title="Permalink to this definition">¶</a></dt>
+<dd><p>TAG-DISTANCE-gHEX[-dirty].</p>
+<p>Like ‘git describe –tags –dirty –always -long’.
+The distance/hash is unconditional.</p>
+<p>Exceptions:
+1: no tags. HEX[-dirty]  (note: no ‘g’ prefix)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt id="wepy._version.render">
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">render</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pieces</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">style</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#render"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.render" title="Permalink to this definition">¶</a></dt>
+<dd><p>Render the given version pieces into the requested style.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt id="wepy._version.get_versions">
-<code class="sig-prename descclassname">wepy._version.</code><code class="sig-name descname">get_versions</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#get_versions"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy._version.get_versions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-prename descclassname"><span class="pre">wepy._version.</span></code><code class="sig-name descname"><span class="pre">get_versions</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/_version.html#get_versions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy._version.get_versions" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get version information or return default if unable to do so.</p>
+</dd></dl>
 
 </div>
 
@@ -171,7 +320,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

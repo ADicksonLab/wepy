@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.reporter.dashboard module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.reporter.dashboard.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -59,8 +57,8 @@
 information on the progress of a simulation.</p>
 <dl class="py class">
 <dt id="wepy.reporter.dashboard.DashboardReporter">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.dashboard.</code><code class="sig-name descname">DashboardReporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">resampler_dash</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">runner_dash</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">bc_dash</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.ProgressiveFileReporter" title="wepy.reporter.reporter.ProgressiveFileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.ProgressiveFileReporter</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.dashboard.</span></code><code class="sig-name descname"><span class="pre">DashboardReporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resampler_dash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">runner_dash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc_dash</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.reporter.reporter.html#wepy.reporter.reporter.ProgressiveFileReporter" title="wepy.reporter.reporter.ProgressiveFileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.ProgressiveFileReporter</span></code></a></p>
 <p>A text based report of the status of a wepy simulation.</p>
 <p>This serves as a container for different dashboard components to
 go inside.</p>
@@ -75,32 +73,35 @@ go inside.</p>
 </dl>
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.FILE_ORDER">
-<code class="sig-name descname">FILE_ORDER</code><em class="property"> = ('dashboard_path',)</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">FILE_ORDER</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('dashboard_path',)</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify an ordering of file paths. Should be customized.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.SUGGESTED_EXTENSIONS">
-<code class="sig-name descname">SUGGESTED_EXTENSIONS</code><em class="property"> = ('dash.org',)</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SUGGESTED_EXTENSIONS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('dash.org',)</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggested extensions for file paths for use with the automatic
+reparametrization feature. Should be customized.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.SIMULATION_SECTION_TEMPLATE">
-<code class="sig-name descname">SIMULATION_SECTION_TEMPLATE</code><em class="property"> = '\nInit Datetime: {{ init_date_time }}\nLast write Datetime: {{ curr_date_time }}\n\nTotal Run time: {{ total_run_time }} s\n\nLast Cycle Index: {{ last_cycle_idx }}\nNumber of Cycles: {{ n_cycles }}\n\n** Walkers Summary\n\n{{ walker_cycle_summary_table }}\n\n'</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.SIMULATION_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">SIMULATION_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\nInit</span> <span class="pre">Datetime:</span> <span class="pre">{{</span> <span class="pre">init_date_time</span> <span class="pre">}}\nLast</span> <span class="pre">write</span> <span class="pre">Datetime:</span> <span class="pre">{{</span> <span class="pre">curr_date_time</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Run</span> <span class="pre">time:</span> <span class="pre">{{</span> <span class="pre">total_run_time</span> <span class="pre">}}</span> <span class="pre">s\n\nLast</span> <span class="pre">Cycle</span> <span class="pre">Index:</span> <span class="pre">{{</span> <span class="pre">last_cycle_idx</span> <span class="pre">}}\nNumber</span> <span class="pre">of</span> <span class="pre">Cycles:</span> <span class="pre">{{</span> <span class="pre">n_cycles</span> <span class="pre">}}\n\n**</span> <span class="pre">Walkers</span> <span class="pre">Summary\n\n{{</span> <span class="pre">walker_cycle_summary_table</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.SIMULATION_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.PERFORMANCE_SECTION_TEMPLATE">
-<code class="sig-name descname">PERFORMANCE_SECTION_TEMPLATE</code><em class="property"> = '\nAverage Cycle Time: {{ avg_cycle_time }}\n\n{% if avg_runner_time %}Average Runner Time: {{ avg_runner_time }}{% else %}{% endif %}\n{% if avg_bc_time %}Average Boundary Conditions Time: {{ avg_bc_time }}{% else %}{% endif %}\n{% if avg_resampling_time %}Average Resampling Time: {{ avg_resampling_time }}{% else %}{% endif %}\n\n\nWorker Avg. Segment Times:\n\n{{ worker_avg_segment_time }}\n\n** Cycle Performance Log\n\n{{ cycle_log }}\n\n** Worker Performance Log\n\n{{ performance_log }}\n\n\n'</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.PERFORMANCE_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">PERFORMANCE_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\nAverage</span> <span class="pre">Cycle</span> <span class="pre">Time:</span> <span class="pre">{{</span> <span class="pre">avg_cycle_time</span> <span class="pre">}}\n\n{%</span> <span class="pre">if</span> <span class="pre">avg_runner_time</span> <span class="pre">%}Average</span> <span class="pre">Runner</span> <span class="pre">Time:</span> <span class="pre">{{</span> <span class="pre">avg_runner_time</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n{%</span> <span class="pre">if</span> <span class="pre">avg_bc_time</span> <span class="pre">%}Average</span> <span class="pre">Boundary</span> <span class="pre">Conditions</span> <span class="pre">Time:</span> <span class="pre">{{</span> <span class="pre">avg_bc_time</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n{%</span> <span class="pre">if</span> <span class="pre">avg_resampling_time</span> <span class="pre">%}Average</span> <span class="pre">Resampling</span> <span class="pre">Time:</span> <span class="pre">{{</span> <span class="pre">avg_resampling_time</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n\n\nWorker</span> <span class="pre">Avg.</span> <span class="pre">Segment</span> <span class="pre">Times:\n\n{{</span> <span class="pre">worker_avg_segment_time</span> <span class="pre">}}\n\n**</span> <span class="pre">Cycle</span> <span class="pre">Performance</span> <span class="pre">Log\n\n{{</span> <span class="pre">cycle_log</span> <span class="pre">}}\n\n**</span> <span class="pre">Worker</span> <span class="pre">Performance</span> <span class="pre">Log\n\n{{</span> <span class="pre">performance_log</span> <span class="pre">}}\n\n\n'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.PERFORMANCE_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.DASHBOARD_TEMPLATE">
-<code class="sig-name descname">DASHBOARD_TEMPLATE</code><em class="property"> = '* Simulation\n\n{{ simulation }}\n\n{% if resampler %}* Resampler{% else %}{% endif %}\n{% if resampler %}{{ resampler }}{% else %}{% endif %}\n\n{% if boundary_condition %}* Boundary Condition{% else %}{% endif %}\n{% if boundary_condition %}{{ boundary_condition }}{% else %}{% endif %}\n\n{% if runner %}* Runner{% else %}{% endif %}\n{% if runner %}{{ runner }}{% else %}{% endif %}\n\n* Performance\n\n{{ performance }}\n\n'</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.DASHBOARD_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">DASHBOARD_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'*</span> <span class="pre">Simulation\n\n{{</span> <span class="pre">simulation</span> <span class="pre">}}\n\n{%</span> <span class="pre">if</span> <span class="pre">resampler</span> <span class="pre">%}*</span> <span class="pre">Resampler{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n{%</span> <span class="pre">if</span> <span class="pre">resampler</span> <span class="pre">%}{{</span> <span class="pre">resampler</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n\n{%</span> <span class="pre">if</span> <span class="pre">boundary_condition</span> <span class="pre">%}*</span> <span class="pre">Boundary</span> <span class="pre">Condition{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n{%</span> <span class="pre">if</span> <span class="pre">boundary_condition</span> <span class="pre">%}{{</span> <span class="pre">boundary_condition</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n\n{%</span> <span class="pre">if</span> <span class="pre">runner</span> <span class="pre">%}*</span> <span class="pre">Runner{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n{%</span> <span class="pre">if</span> <span class="pre">runner</span> <span class="pre">%}{{</span> <span class="pre">runner</span> <span class="pre">}}{%</span> <span class="pre">else</span> <span class="pre">%}{%</span> <span class="pre">endif</span> <span class="pre">%}\n\n*</span> <span class="pre">Performance\n\n{{</span> <span class="pre">performance</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.DASHBOARD_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.init" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a ProgressiveFileReporter.</p>
 <p>This is exactly the same as the FileReporter.</p>
 <dl class="field-list simple">
@@ -115,44 +116,44 @@ go inside.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter()</span></code></a></p>
+<p><a class="reference internal" href="wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter</span></code></a></p>
 </div>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.calc_walker_summary">
-<code class="sig-name descname">calc_walker_summary</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.calc_walker_summary"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.calc_walker_summary" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">calc_walker_summary</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.calc_walker_summary"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.calc_walker_summary" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.update_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.update_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.update_performance_values">
-<code class="sig-name descname">update_performance_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.update_performance_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.update_performance_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_performance_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.update_performance_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.update_performance_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.write_dashboard">
-<code class="sig-name descname">write_dashboard</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">report_str</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.write_dashboard"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.write_dashboard" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">write_dashboard</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">report_str</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.write_dashboard"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.write_dashboard" title="Permalink to this definition">¶</a></dt>
 <dd><p>Write the dashboard to the file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.gen_sim_section">
-<code class="sig-name descname">gen_sim_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.gen_sim_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.gen_sim_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_sim_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.gen_sim_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.gen_sim_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.gen_performance_section">
-<code class="sig-name descname">gen_performance_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.gen_performance_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.gen_performance_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_performance_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.gen_performance_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.gen_performance_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.report">
-<code class="sig-name descname">report</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#DashboardReporter.report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given data concerning the main simulation components state, perform
 I/O operations to persist that data.</p>
 <p>Void method for reporter base class.</p>
@@ -189,27 +190,47 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.DEFAULT_MODE">
-<code class="sig-name descname">DEFAULT_MODE</code><em class="property"> = 'x'</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_MODE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'x'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default mode to set for opening files if none is specified
+(create if doesn’t exist, fail if it does.)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.DEFAULT_SUGGESTED_EXTENSION">
-<code class="sig-name descname">DEFAULT_SUGGESTED_EXTENSION</code><em class="property"> = 'report'</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_SUGGESTED_EXTENSION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'report'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default file extension used for files during dynamic
+reparametrization, if none is specified</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.MODES">
-<code class="sig-name descname">MODES</code><em class="property"> = ('x', 'w', 'w-', 'r', 'r+')</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.MODES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">MODES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('x',</span> <span class="pre">'w',</span> <span class="pre">'w-',</span> <span class="pre">'r',</span> <span class="pre">'r+')</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.MODES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Valid modes accepted for files.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.DashboardReporter.SUGGESTED_FILENAME_TEMPLATE">
-<code class="sig-name descname">SUGGESTED_FILENAME_TEMPLATE</code><em class="property"> = '{config}{narration}{reporter_class}.{ext}'</em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SUGGESTED_FILENAME_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'{config}{narration}{reporter_class}.{ext}'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template to use for dynamic reparametrization of file path names.</p>
+<p>The fields in the template are:</p>
+<p>config : indicator of the runtime configuration used</p>
+<p>narration : freeform description of the instance</p>
+<dl class="simple">
+<dt>reporter_class<span class="classifier">the name of the class that produced the</span></dt><dd><p>output. When no specific name is given for a file report generated
+from a reporter this is used to disambiguate, along with the
+extension.</p>
+</dd>
+</dl>
+<p>ext : The file extension, for multiple files produced from one
+reporter this should be sufficient to disambiguate the files.</p>
+<p>The ‘config’ and ‘narration’ should be the same across all
+reporters in the same simulation manager, and the ‘narration’ is
+considered optional.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter._validate_mode">
-<code class="sig-name descname">_validate_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_validate_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the mode spec is a valid one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -226,7 +247,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.cleanup">
-<code class="sig-name descname">cleanup</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.cleanup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.cleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teardown routines for the reporter at the end of the simulation.</p>
 <p>Use to cleanly and safely close I/O connections or other
 cleanup I/O.</p>
@@ -248,31 +269,31 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.file_path">
-<em class="property">property </em><code class="sig-name descname">file_path</code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.file_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_path</span></code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the file path to that file spec.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.file_paths">
-<em class="property">property </em><code class="sig-name descname">file_paths</code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.file_paths" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_paths</span></code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.file_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>The file paths for this reporter, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.mode">
-<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.mode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the mode of that file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.modes">
-<em class="property">property </em><code class="sig-name descname">modes</code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.modes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modes</span></code><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The modes for the files, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.reparametrize">
-<code class="sig-name descname">reparametrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span></em>, <em class="sig-param"><span class="n">modes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reparametrize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the file paths and modes for all files in the reporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -286,7 +307,7 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.set_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.set_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the mode for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -300,7 +321,7 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.DashboardReporter.set_path">
-<code class="sig-name descname">set_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.set_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_path</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.dashboard.DashboardReporter.set_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the path for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -316,83 +337,83 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py class">
 <dt id="wepy.reporter.dashboard.ResamplerDashboardSection">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.dashboard.</code><code class="sig-name descname">ResamplerDashboardSection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">resampler</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.dashboard.</span></code><code class="sig-name descname"><span class="pre">ResamplerDashboardSection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.ResamplerDashboardSection.RESAMPLER_SECTION_TEMPLATE">
-<code class="sig-name descname">RESAMPLER_SECTION_TEMPLATE</code><em class="property"> = '\nResampler: {{ name }}\n'</em><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.RESAMPLER_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">RESAMPLER_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\nResampler:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.RESAMPLER_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.ResamplerDashboardSection.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection.update_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection.update_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.ResamplerDashboardSection.gen_fields">
-<code class="sig-name descname">gen_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection.gen_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.ResamplerDashboardSection.gen_resampler_section">
-<code class="sig-name descname">gen_resampler_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection.gen_resampler_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.gen_resampler_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_resampler_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#ResamplerDashboardSection.gen_resampler_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.ResamplerDashboardSection.gen_resampler_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="wepy.reporter.dashboard.RunnerDashboardSection">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.dashboard.</code><code class="sig-name descname">RunnerDashboardSection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">runner</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.dashboard.</span></code><code class="sig-name descname"><span class="pre">RunnerDashboardSection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runner</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.RunnerDashboardSection.RUNNER_SECTION_TEMPLATE">
-<code class="sig-name descname">RUNNER_SECTION_TEMPLATE</code><em class="property"> = '\nRunner: {{ name }}\n'</em><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.RUNNER_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">RUNNER_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\nRunner:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.RUNNER_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.RunnerDashboardSection.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection.update_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection.update_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.RunnerDashboardSection.gen_fields">
-<code class="sig-name descname">gen_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection.gen_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.RunnerDashboardSection.gen_runner_section">
-<code class="sig-name descname">gen_runner_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection.gen_runner_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.gen_runner_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_runner_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#RunnerDashboardSection.gen_runner_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.RunnerDashboardSection.gen_runner_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="wepy.reporter.dashboard.BCDashboardSection">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.dashboard.</code><code class="sig-name descname">BCDashboardSection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">discontinuities</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.dashboard.</span></code><code class="sig-name descname"><span class="pre">BCDashboardSection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discontinuities</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.BCDashboardSection.BC_SECTION_TEMPLATE">
-<code class="sig-name descname">BC_SECTION_TEMPLATE</code><em class="property"> = '\n\nBoundary Condition: {{ name }}\n\nTotal Number of Dynamics segments: {{ total_n_walker_segments }}\n\nTotal Number of Crossings: {{ total_crossings }}\n\nCumulative Boundary Crossed Weight: {{ total_crossed_weight }}\n\n** Warping Log\n\n{{ warping_log }}\n\n'</em><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">BC_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\n\nBoundary</span> <span class="pre">Condition:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Dynamics</span> <span class="pre">segments:</span> <span class="pre">{{</span> <span class="pre">total_n_walker_segments</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Crossings:</span> <span class="pre">{{</span> <span class="pre">total_crossings</span> <span class="pre">}}\n\nCumulative</span> <span class="pre">Boundary</span> <span class="pre">Crossed</span> <span class="pre">Weight:</span> <span class="pre">{{</span> <span class="pre">total_crossed_weight</span> <span class="pre">}}\n\n**</span> <span class="pre">Warping</span> <span class="pre">Log\n\n{{</span> <span class="pre">warping_log</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.dashboard.BCDashboardSection.WARP_RECORD_COLNAMES">
-<code class="sig-name descname">WARP_RECORD_COLNAMES</code><em class="property"> = ('cycle_idx', 'walker_idx', 'weight', 'target_idx', 'discontinuous')</em><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">WARP_RECORD_COLNAMES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('cycle_idx',</span> <span class="pre">'walker_idx',</span> <span class="pre">'weight',</span> <span class="pre">'target_idx',</span> <span class="pre">'discontinuous')</span></em><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.BCDashboardSection.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection.update_values"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection.update_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.BCDashboardSection.gen_fields">
-<code class="sig-name descname">gen_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection.gen_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.dashboard.BCDashboardSection.gen_bc_section">
-<code class="sig-name descname">gen_bc_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection.gen_bc_section"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_bc_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/dashboard.html#BCDashboardSection.gen_bc_section"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.dashboard.BCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -510,7 +531,7 @@ passed to them during a simulation by the sim_manager.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

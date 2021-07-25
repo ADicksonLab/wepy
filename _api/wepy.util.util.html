@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.util.util module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.util.util.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -57,8 +55,16 @@
 <span id="wepy-util-util-module"></span><h1>wepy.util.util module<a class="headerlink" href="#module-wepy.util.util" title="Permalink to this headline">¶</a></h1>
 <p>Miscellaneous functions needed by wepy.</p>
 <dl class="py function">
+<dt id="wepy.util.util.set_loglevel">
+<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">set_loglevel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loglevel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#set_loglevel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.set_loglevel" title="Permalink to this definition">¶</a></dt>
+<dd><p>
+:param loglevel:</p>
+<p></p>
+</dd></dl>
+
+<dl class="py function">
 <dt id="wepy.util.util.traj_box_vectors_to_lengths_angles">
-<code class="sig-prename descclassname">wepy.util.util.</code><code class="sig-name descname">traj_box_vectors_to_lengths_angles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traj_box_vectors</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#traj_box_vectors_to_lengths_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.util.traj_box_vectors_to_lengths_angles" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">traj_box_vectors_to_lengths_angles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_box_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#traj_box_vectors_to_lengths_angles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.traj_box_vectors_to_lengths_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert box vectors for multiple ‘frames’ (a ‘trajectory’) to box lengths and angles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -76,7 +82,7 @@
 
 <dl class="py function">
 <dt id="wepy.util.util.box_vectors_to_lengths_angles">
-<code class="sig-prename descclassname">wepy.util.util.</code><code class="sig-name descname">box_vectors_to_lengths_angles</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">box_vectors</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#box_vectors_to_lengths_angles"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.util.box_vectors_to_lengths_angles" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">box_vectors_to_lengths_angles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#box_vectors_to_lengths_angles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.box_vectors_to_lengths_angles" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert box vectors for a single ‘frame’ to lengths and angles.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -94,7 +100,7 @@
 
 <dl class="py function">
 <dt id="wepy.util.util.lengths_and_angles_to_box_vectors">
-<code class="sig-prename descclassname">wepy.util.util.</code><code class="sig-name descname">lengths_and_angles_to_box_vectors</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">a_length</span></em>, <em class="sig-param"><span class="n">b_length</span></em>, <em class="sig-param"><span class="n">c_length</span></em>, <em class="sig-param"><span class="n">alpha</span></em>, <em class="sig-param"><span class="n">beta</span></em>, <em class="sig-param"><span class="n">gamma</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#lengths_and_angles_to_box_vectors"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.util.lengths_and_angles_to_box_vectors" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">lengths_and_angles_to_box_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#lengths_and_angles_to_box_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.lengths_and_angles_to_box_vectors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert from the lengths/angles of the unit cell to the box
 vectors (Bravais vectors). The angles should be in degrees.</p>
 <dl class="field-list simple">
@@ -133,7 +139,7 @@ will be (n_frames, 3)</p></li>
 
 <dl class="py function">
 <dt id="wepy.util.util.concat_traj_fields">
-<code class="sig-prename descclassname">wepy.util.util.</code><code class="sig-name descname">concat_traj_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">trajs_fields</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#concat_traj_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.util.util.concat_traj_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">concat_traj_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajs_fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#concat_traj_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.concat_traj_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -249,7 +255,7 @@ will be (n_frames, 3)</p></li>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

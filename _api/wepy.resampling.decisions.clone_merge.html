@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.decisions.clone_merge module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.resampling.decisions.clone_merge.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -57,7 +55,7 @@
 <span id="wepy-resampling-decisions-clone-merge-module"></span><h1>wepy.resampling.decisions.clone_merge module<a class="headerlink" href="#module-wepy.resampling.decisions.clone_merge" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.decisions.clone_merge.</code><code class="sig-name descname">CloneMergeDecisionEnum</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#CloneMergeDecisionEnum"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.resampling.decisions.clone_merge.</span></code><code class="sig-name descname"><span class="pre">CloneMergeDecisionEnum</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#CloneMergeDecisionEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">enum.Enum</span></code></a></p>
 <p>Enum definition for cloning and merging decision values.”</p>
 <ul class="simple">
@@ -68,26 +66,26 @@
 </ul>
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.NOTHING">
-<code class="sig-name descname">NOTHING</code><em class="property"> = 1</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.NOTHING" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">NOTHING</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.NOTHING" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do nothing with the walker sample.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.CLONE">
-<code class="sig-name descname">CLONE</code><em class="property"> = 2</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.CLONE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">CLONE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">2</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.CLONE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clone the walker into multiple children equally splitting the weight.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.SQUASH">
-<code class="sig-name descname">SQUASH</code><em class="property"> = 3</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.SQUASH" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">SQUASH</span></code><em class="property"> <span class="pre">=</span> <span class="pre">3</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.SQUASH" title="Permalink to this definition">¶</a></dt>
 <dd><p>Destroy the walker sample value (state) and donate the sample
 weight to another KEEP_MERGE walker sample.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.KEEP_MERGE">
-<code class="sig-name descname">KEEP_MERGE</code><em class="property"> = 4</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.KEEP_MERGE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">KEEP_MERGE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">4</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum.KEEP_MERGE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Do nothing with the sample value (state) but squashed walkers will
 donate their weight to it.</p>
 </dd></dl>
@@ -96,8 +94,8 @@ donate their weight to it.</p>
 
 <dl class="py class">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.decisions.clone_merge.</code><code class="sig-name descname">MultiCloneMergeDecision</code><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.resampling.decisions.clone_merge.</span></code><code class="sig-name descname"><span class="pre">MultiCloneMergeDecision</span></code><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.resampling.decisions.decision.html#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.decision.Decision</span></code></a></p>
 <p>Decision encoding cloning and merging decisions for weighted ensemble.</p>
 <p>The decision records have in addition to the ‘decision_id’ a field
 called ‘target_idxs’. This field has differing interpretations
@@ -113,43 +111,48 @@ will be placed in. This field is variable length and the length
 corresponds to the number of clones.</p>
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ENUM">
-<code class="sig-name descname">ENUM</code><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ENUM" title="Permalink to this definition">¶</a></dt>
-<dd><p>alias of <a class="reference internal" href="../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum" title="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">CloneMergeDecisionEnum</span></code></a></p>
+<code class="sig-name descname"><span class="pre">ENUM</span></code><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ENUM" title="Permalink to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum" title="wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum</span></code></a></p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DEFAULT_DECISION">
-<code class="sig-name descname">DEFAULT_DECISION</code><em class="property"> = 1</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DEFAULT_DECISION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_DECISION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">1</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DEFAULT_DECISION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default decision to choose.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.FIELDS">
-<code class="sig-name descname">FIELDS</code><em class="property"> = ('decision_id', 'target_idxs')</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.FIELDS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">FIELDS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('decision_id',</span> <span class="pre">'target_idxs')</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The names of the fields that go into the decision record.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.SHAPES">
-<code class="sig-name descname">SHAPES</code><em class="property"> = ((1,), Ellipsis)</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.SHAPES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SHAPES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">((1,),</span> <span class="pre">Ellipsis)</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.SHAPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field data shapes.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DTYPES">
-<code class="sig-name descname">DTYPES</code><em class="property"> = (&lt;class 'int'&gt;, &lt;class 'int'&gt;)</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DTYPES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DTYPES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">(&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.DTYPES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Field data types.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.RECORD_FIELDS">
-<code class="sig-name descname">RECORD_FIELDS</code><em class="property"> = ('decision_id', 'target_idxs')</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">RECORD_FIELDS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('decision_id',</span> <span class="pre">'target_idxs')</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.RECORD_FIELDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>The fields that could be used in a reduced table-like representation.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.default_decision">
-<em class="property">classmethod </em><code class="sig-name descname">default_decision</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.default_decision" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">default_decision</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.default_decision" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_by_name">
-<em class="property">classmethod </em><code class="sig-name descname">enum_by_name</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">enum_name</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_by_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">enum_by_name</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the enum name for an enum_value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -166,7 +169,7 @@ corresponds to the number of clones.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_by_value">
-<em class="property">classmethod </em><code class="sig-name descname">enum_by_value</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">enum_value</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_by_value" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">enum_by_value</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_by_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the enum name for an enum_value.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -183,37 +186,37 @@ corresponds to the number of clones.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_dict_by_name">
-<em class="property">classmethod </em><code class="sig-name descname">enum_dict_by_name</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_dict_by_name" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">enum_dict_by_name</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_dict_by_name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the decision enumeration as a dict mapping name to integer.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_dict_by_value">
-<em class="property">classmethod </em><code class="sig-name descname">enum_dict_by_value</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_dict_by_value" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">enum_dict_by_value</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.enum_dict_by_value" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the decision enumeration as a dict mapping integer to name.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_dtypes">
-<em class="property">classmethod </em><code class="sig-name descname">field_dtypes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_dtypes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">field_dtypes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_dtypes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Field data types.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_names">
-<em class="property">classmethod </em><code class="sig-name descname">field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_names" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">field_names</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>Names of the decision record fields.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_shapes">
-<em class="property">classmethod </em><code class="sig-name descname">field_shapes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_shapes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">field_shapes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.field_shapes" title="Permalink to this definition">¶</a></dt>
 <dd><p>Field data shapes.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.fields">
-<em class="property">classmethod </em><code class="sig-name descname">fields</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.fields" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">fields</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.fields" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specs for each field.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns</dt>
@@ -227,7 +230,7 @@ corresponds to the number of clones.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.parents">
-<em class="property">classmethod </em><code class="sig-name descname">parents</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">step</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.parents" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">parents</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.parents" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given a step of resampling records (for a single resampling step)
 returns the parents of the children of this step.</p>
 <dl class="field-list simple">
@@ -247,18 +250,20 @@ index of it’s parent before the decision action.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record_field_names">
-<em class="property">classmethod </em><code class="sig-name descname">record_field_names</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record_field_names" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">record_field_names</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record_field_names" title="Permalink to this definition">¶</a></dt>
 <dd><p>The fields that could be used in a reduced table-like representation.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ANCESTOR_DECISION_IDS">
-<code class="sig-name descname">ANCESTOR_DECISION_IDS</code><em class="property"> = (1, 4, 2)</em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ANCESTOR_DECISION_IDS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">ANCESTOR_DECISION_IDS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">(1,</span> <span class="pre">4,</span> <span class="pre">2)</span></em><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.ANCESTOR_DECISION_IDS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify the enum values where their walker state sample value is
+passed on in the next generation, i.e. after performing the action.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">
-<em class="property">classmethod </em><code class="sig-name descname">record</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">enum_value</span></em>, <em class="sig-param"><span class="n">target_idxs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.record"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">record</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_value</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_idxs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate a record for the enum_value and the other fields.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -275,7 +280,7 @@ index of it’s parent before the decision action.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">
-<em class="property">classmethod </em><code class="sig-name descname">action</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">decisions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.action"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">action</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/clone_merge.html#MultiCloneMergeDecision.action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform the instructions for a set of resampling records on
 walkers.</p>
 <p>The decisions are a collection of decision records which
@@ -421,7 +426,7 @@ instructions to apply to the walkers.</p></li>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.decisions.clone_merge &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script src="../../../../_static/jquery.js"></script>
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/resampling/decisions/clone_merge.html" />
     <link rel="shortcut icon" href="../../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -56,7 +54,7 @@
 
 <span class="c1"># the possible types of decisions that can be made enumerated for</span>
 <span class="c1"># storage, these each correspond to specific instruction type</span>
-<div class="viewcode-block" id="CloneMergeDecisionEnum"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeDecisionEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<div class="viewcode-block" id="CloneMergeDecisionEnum"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.CloneMergeDecisionEnum">[docs]</a><span class="k">class</span> <span class="nc">CloneMergeDecisionEnum</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Enum definition for cloning and merging decision values.&quot;</span>
 
 <span class="sd">    - NOTHING : 1</span>
@@ -82,7 +80,7 @@
 
 
 
-<div class="viewcode-block" id="MultiCloneMergeDecision"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">[docs]</a><span class="k">class</span> <span class="nc">MultiCloneMergeDecision</span><span class="p">(</span><span class="n">Decision</span><span class="p">):</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision">[docs]</a><span class="k">class</span> <span class="nc">MultiCloneMergeDecision</span><span class="p">(</span><span class="n">Decision</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Decision encoding cloning and merging decisions for weighted ensemble.</span>
 
 <span class="sd">    The decision records have in addition to the &#39;decision_id&#39; a field</span>
@@ -122,14 +120,14 @@
 
 
     <span class="c1"># TODO deprecate in favor of Decision implementation</span>
-<div class="viewcode-block" id="MultiCloneMergeDecision.record"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision.record"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.record">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">record</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">enum_value</span><span class="p">,</span> <span class="n">target_idxs</span><span class="p">):</span>
         <span class="n">record</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">record</span><span class="p">(</span><span class="n">enum_value</span><span class="p">)</span>
         <span class="n">record</span><span class="p">[</span><span class="s1">&#39;target_idxs&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">target_idxs</span>
 
         <span class="k">return</span> <span class="n">record</span></div>
 
-<div class="viewcode-block" id="MultiCloneMergeDecision.action"><a class="viewcode-back" href="../../../../api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="MultiCloneMergeDecision.action"><a class="viewcode-back" href="../../../../_api/wepy.resampling.decisions.clone_merge.html#wepy.resampling.decisions.clone_merge.MultiCloneMergeDecision.action">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">action</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">decisions</span><span class="p">):</span>
 
         <span class="c1"># list for the modified walkers</span>
@@ -324,7 +322,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

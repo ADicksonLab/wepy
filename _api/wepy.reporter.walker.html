@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.reporter.walker module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.reporter.walker.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -61,8 +59,8 @@ walkers.</p>
 simulation as it progresses.</p>
 <dl class="py class">
 <dt id="wepy.reporter.walker.WalkerReporter">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.walker.</code><code class="sig-name descname">WalkerReporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span></em>, <em class="sig-param"><span class="n">init_state</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">json_topology</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">main_rep_idxs</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker.html#WalkerReporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.ProgressiveFileReporter" title="wepy.reporter.reporter.ProgressiveFileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.ProgressiveFileReporter</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.walker.</span></code><code class="sig-name descname"><span class="pre">WalkerReporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">json_topology</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_rep_idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker.html#WalkerReporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.reporter.reporter.html#wepy.reporter.reporter.ProgressiveFileReporter" title="wepy.reporter.reporter.ProgressiveFileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.ProgressiveFileReporter</span></code></a></p>
 <p>Reporter for generating 3D molecular structure files of the walkers
 produced by a cycle.</p>
 <p>It generates two different files using the mdtraj library: a PDB
@@ -93,44 +91,67 @@ matches the main_rep_idxs.</p></li>
 </dl>
 <dl class="py attribute">
 <dt id="wepy.reporter.walker.WalkerReporter.FILE_ORDER">
-<code class="sig-name descname">FILE_ORDER</code><em class="property"> = ('init_state_path', 'walker_path')</em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">FILE_ORDER</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('init_state_path',</span> <span class="pre">'walker_path')</span></em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify an ordering of file paths. Should be customized.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.walker.WalkerReporter.SUGGESTED_EXTENSIONS">
-<code class="sig-name descname">SUGGESTED_EXTENSIONS</code><em class="property"> = ('init_top.pdb', 'walkers.dcd')</em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SUGGESTED_EXTENSIONS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('init_top.pdb',</span> <span class="pre">'walkers.dcd')</span></em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggested extensions for file paths for use with the automatic
+reparametrization feature. Should be customized.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker.html#WalkerReporter.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.init" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker.html#WalkerReporter.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialize the reporter at simulation time.</p>
 <p>This will generate the initial state PDB file.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.walker.WalkerReporter.DEFAULT_MODE">
-<code class="sig-name descname">DEFAULT_MODE</code><em class="property"> = 'x'</em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_MODE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'x'</span></em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default mode to set for opening files if none is specified
+(create if doesn’t exist, fail if it does.)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.walker.WalkerReporter.DEFAULT_SUGGESTED_EXTENSION">
-<code class="sig-name descname">DEFAULT_SUGGESTED_EXTENSION</code><em class="property"> = 'report'</em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_SUGGESTED_EXTENSION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'report'</span></em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default file extension used for files during dynamic
+reparametrization, if none is specified</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.walker.WalkerReporter.MODES">
-<code class="sig-name descname">MODES</code><em class="property"> = ('x', 'w', 'w-', 'r', 'r+')</em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.MODES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">MODES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('x',</span> <span class="pre">'w',</span> <span class="pre">'w-',</span> <span class="pre">'r',</span> <span class="pre">'r+')</span></em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.MODES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Valid modes accepted for files.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.walker.WalkerReporter.SUGGESTED_FILENAME_TEMPLATE">
-<code class="sig-name descname">SUGGESTED_FILENAME_TEMPLATE</code><em class="property"> = '{config}{narration}{reporter_class}.{ext}'</em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SUGGESTED_FILENAME_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'{config}{narration}{reporter_class}.{ext}'</span></em><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template to use for dynamic reparametrization of file path names.</p>
+<p>The fields in the template are:</p>
+<p>config : indicator of the runtime configuration used</p>
+<p>narration : freeform description of the instance</p>
+<dl class="simple">
+<dt>reporter_class<span class="classifier">the name of the class that produced the</span></dt><dd><p>output. When no specific name is given for a file report generated
+from a reporter this is used to disambiguate, along with the
+extension.</p>
+</dd>
+</dl>
+<p>ext : The file extension, for multiple files produced from one
+reporter this should be sufficient to disambiguate the files.</p>
+<p>The ‘config’ and ‘narration’ should be the same across all
+reporters in the same simulation manager, and the ‘narration’ is
+considered optional.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter._validate_mode">
-<code class="sig-name descname">_validate_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_validate_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the mode spec is a valid one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -147,7 +168,7 @@ matches the main_rep_idxs.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.cleanup">
-<code class="sig-name descname">cleanup</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.cleanup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.cleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teardown routines for the reporter at the end of the simulation.</p>
 <p>Use to cleanly and safely close I/O connections or other
 cleanup I/O.</p>
@@ -169,31 +190,31 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.file_path">
-<em class="property">property </em><code class="sig-name descname">file_path</code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.file_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_path</span></code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the file path to that file spec.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.file_paths">
-<em class="property">property </em><code class="sig-name descname">file_paths</code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.file_paths" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_paths</span></code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.file_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>The file paths for this reporter, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.mode">
-<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.mode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the mode of that file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.modes">
-<em class="property">property </em><code class="sig-name descname">modes</code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.modes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modes</span></code><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The modes for the files, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.reparametrize">
-<code class="sig-name descname">reparametrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span></em>, <em class="sig-param"><span class="n">modes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reparametrize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the file paths and modes for all files in the reporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -207,7 +228,7 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.report">
-<code class="sig-name descname">report</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cycle_idx</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">new_walkers</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker.html#WalkerReporter.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_walkers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker.html#WalkerReporter.report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Report the current cycle’s walker states as 3D molecular
 structures.</p>
 <dl class="field-list simple">
@@ -222,7 +243,7 @@ structures.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.set_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.set_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the mode for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -236,7 +257,7 @@ structures.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.walker.WalkerReporter.set_path">
-<code class="sig-name descname">set_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.set_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_path</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker.WalkerReporter.set_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the path for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -363,7 +384,7 @@ structures.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Changelog &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/changelog.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -58,8 +56,8 @@
 <p>Adapted from <a class="reference external" href="https://keepachangelog.com">keepachangelog.com</a> for
 org-mode.</p>
 <p>See the git commit log history for full details.</p>
-<div class="section" id="unreleased">
-<h2>1.0.8 - Unreleased<a class="headerlink" href="#unreleased" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-1">
+<span id="id1"></span><h2>1.1.0 - 2021-03-22<a class="headerlink" href="#section-1" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes uninitialized discontinuities when not using boundary
 conditions in a <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code>. (Fixes: 10.gh<sub>issue</sub>)</p></li>
@@ -68,11 +66,65 @@ conditions in a <code class="docutils literal notranslate"><span class="pre">Con
 <li><p>Adds an option to account for discontinuities in
 <code class="docutils literal notranslate"><span class="pre">ContigTree.lineages</span></code>.</p></li>
 <li><p>Fixes the <code class="docutils literal notranslate"><span class="pre">WepyHDF5.observable_field_names</span></code> function.</p></li>
-<li><p>Fixes the ContigTreeProfiler functions for FE profiles</p></li>
+<li><p>Fixes the <code class="docutils literal notranslate"><span class="pre">ContigTreeProfiler</span></code> functions for partitioning FE
+profiles into tranches: <code class="docutils literal notranslate"><span class="pre">_tranche_cumulative_partitions</span></code></p></li>
+<li><p>Fixes the setting of continuations in <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code> initialization.</p></li>
+<li><p>Fixes computation of <code class="docutils literal notranslate"><span class="pre">ContigTreeProfiler.fe_profile_all</span></code>.</p></li>
+<li><p>Fix the arguments to the mapped function in
+<code class="docutils literal notranslate"><span class="pre">MacroStateNetwork.node_fields_map</span></code></p></li>
+<li><p>Removed all implicit file opening in <code class="docutils literal notranslate"><span class="pre">MacroStateNetwork</span></code> except for
+in the <code class="docutils literal notranslate"><span class="pre">BaseMacroStateNetwork</span></code> constructor. This allows for
+parallel processing.</p></li>
+<li><p>Improves calculations of transition counts when constructing
+<code class="docutils literal notranslate"><span class="pre">BaseMacroStateNetwork</span></code> objects. Now instead of only calculating
+the “weighted counts” for edges the “unweighted counts” are also
+calculated and the full set of transition sample weights are also
+saved as edge attributes. This change in interface is the reason for
+the <strong>breakages</strong> and <strong>regressions</strong>, see below.</p></li>
+<li><p>Addition of the <code class="docutils literal notranslate"><span class="pre">edge_attribute_to_matrix</span></code> to the
+<code class="docutils literal notranslate"><span class="pre">BaseMacroStateNetwork</span></code> (and <code class="docutils literal notranslate"><span class="pre">MacroStateNetwork</span></code>) classes. This
+generalizes and supercedes the use of the precomputed <code class="docutils literal notranslate"><span class="pre">countsmat</span></code>
+and <code class="docutils literal notranslate"><span class="pre">probmat</span></code> attributes. And makes the source-to-sink orientation
+of the matrix explicit and user controlled.</p></li>
+<li><p>Addition of edge attribute getting methods similar to the node ones:
+<code class="docutils literal notranslate"><span class="pre">get_edge_attribute</span></code>, <code class="docutils literal notranslate"><span class="pre">get_edge_attributes</span></code>,
+<code class="docutils literal notranslate"><span class="pre">get_edges_attributes</span></code>.</p></li>
+<li><p>Fixes the setting of the platform in the <code class="docutils literal notranslate"><span class="pre">OpenMMRunner</span></code> when the
+<code class="docutils literal notranslate"><span class="pre">pre_cycle()</span></code> is called without a platform.</p></li>
+<li><p>Moves the <code class="docutils literal notranslate"><span class="pre">set_loglevel</span></code> function into <code class="docutils literal notranslate"><span class="pre">wepy.util.util</span></code> thus
+making it a general purpose function rather than a helper to the
+orchestration CLI (see breakages, but we don’t expect anyone to have
+used this and is minor).</p></li>
+</ul>
+<div class="section" id="breakages">
+<h3>Breakages<a class="headerlink" href="#breakages" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>The two attributes <code class="docutils literal notranslate"><span class="pre">countsmat</span></code> and <code class="docutils literal notranslate"><span class="pre">probmat</span></code> for
+<code class="docutils literal notranslate"><span class="pre">(Base)MacroStateNetwork</span></code> classes have been removed, and superceded
+by the <code class="docutils literal notranslate"><span class="pre">edge_attribute_to_matrix</span></code> method.</p></li>
+<li><p>The values of the columns of the nodes and edges dataframe have
+changed. They no longer have the ‘Weight’ column, which was for
+support of gephi tables, and was too tight a coupling. The edges
+dataframe will no longer have the ‘transition probability’ or ‘type’
+columns. The latter for similar reasons and the former because this
+value is no longer calculated.</p></li>
+<li><p>The <code class="docutils literal notranslate"><span class="pre">set_loglevel</span></code> function was removed from
+<code class="docutils literal notranslate"><span class="pre">wepy.orchestration.cli</span></code> to <code class="docutils literal notranslate"><span class="pre">wepy.util.util</span></code>, risk of breaking
+other peoples code is low (we can put a stub in for backwards
+compatibility if needed).</p></li>
 </ul>
 </div>
-<div class="section" id="section-1">
-<span id="id1"></span><h2>1.0.7 - 2020-11-12<a class="headerlink" href="#section-1" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="regression">
+<h3>Regression<a class="headerlink" href="#regression" title="Permalink to this headline">¶</a></h3>
+<ul class="simple">
+<li><p>As stated in the Growth items, a potentially large amount of
+transition sample weights are stored in the <code class="docutils literal notranslate"><span class="pre">BaseMacroStateNetwork</span></code>
+object now.</p></li>
+</ul>
+</div>
+</div>
+<div class="section" id="section-2">
+<span id="id2"></span><h2>1.0.7 - 2020-11-12<a class="headerlink" href="#section-2" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Adds a check to make sure the <code class="docutils literal notranslate"><span class="pre">platform</span></code> for the
 <code class="docutils literal notranslate"><span class="pre">runners.openmm.OpenMMRunner</span></code> is a string and not an actual
@@ -83,8 +135,8 @@ conditions in a <code class="docutils literal notranslate"><span class="pre">Con
 breaking API changes.</p></li>
 </ul>
 </div>
-<div class="section" id="section-2">
-<span id="id2"></span><h2>1.0.6 - 2020-09-28<a class="headerlink" href="#section-2" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-3">
+<span id="id3"></span><h2>1.0.6 - 2020-09-28<a class="headerlink" href="#section-3" title="Permalink to this headline">¶</a></h2>
 <ul>
 <li><p>Fixes the <code class="docutils literal notranslate"><span class="pre">WepyHDF5.get_trace_field</span></code> function.</p>
 <p>Previously I had implemented a chunking strategy to improve
@@ -96,43 +148,43 @@ version is introduced it will be made explicit (either in the
 </li>
 </ul>
 </div>
-<div class="section" id="section-3">
-<span id="id3"></span><h2>1.0.5 - 2020-09-14<a class="headerlink" href="#section-3" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-4">
+<span id="id4"></span><h2>1.0.5 - 2020-09-14<a class="headerlink" href="#section-4" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Work around fix for final snapshot in orchestrator being deleted if
 it is the same hash as the last checkpoint snapshot.</p></li>
 </ul>
 </div>
-<div class="section" id="section-4">
-<span id="id4"></span><h2>1.0.4 - 2020-08-27<a class="headerlink" href="#section-4" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-5">
+<span id="id5"></span><h2>1.0.4 - 2020-08-27<a class="headerlink" href="#section-5" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes the broken CLI interface. Moves it into the standard
 <code class="docutils literal notranslate"><span class="pre">__main__.py</span></code> module.</p></li>
 </ul>
 </div>
-<div class="section" id="section-5">
-<span id="id5"></span><h2>1.0.3 - 2020-08-19<a class="headerlink" href="#section-5" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-6">
+<span id="id6"></span><h2>1.0.3 - 2020-08-19<a class="headerlink" href="#section-6" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>This fixes an issue with the MacroStateNetwork that allows for</p></li>
 </ul>
 <p>different shapes of state assignment arrays. This was previously an
 issue but did not completely solve the issue.</p>
 </div>
-<div class="section" id="section-6">
-<span id="id6"></span><h2>1.0.2 - 2020-08-13<a class="headerlink" href="#section-6" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-7">
+<span id="id7"></span><h2>1.0.2 - 2020-08-13<a class="headerlink" href="#section-7" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes too-large chunk size when copying observable run data to other
 files in <code class="docutils literal notranslate"><span class="pre">WepyHDF5.copy_run_slice</span></code></p></li>
 <li><p>Improves docstrings for the MacroStateNetwork methods</p></li>
 </ul>
 </div>
-<div class="section" id="section-7">
-<span id="id7"></span><h2>1.0.1 - 2020-08-07<a class="headerlink" href="#section-7" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-8">
+<span id="id8"></span><h2>1.0.1 - 2020-08-07<a class="headerlink" href="#section-8" title="Permalink to this headline">¶</a></h2>
 <p>This fixes an issue with the MacroStateNetwork that allows for different
 shapes of state assignment arrays.</p>
 </div>
-<div class="section" id="section-8">
-<span id="id8"></span><h2>1.0.0 - 2020-08-04<a class="headerlink" href="#section-8" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="section-9">
+<span id="id9"></span><h2>1.0.0 - 2020-08-04<a class="headerlink" href="#section-9" title="Permalink to this headline">¶</a></h2>
 <p>Changes in rc6:</p>
 <ul class="simple">
 <li><p>adds feature to make weighted transition counts from simulation data.
@@ -299,7 +351,7 @@ resamplers.</p></li>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

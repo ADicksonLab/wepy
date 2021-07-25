@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.boundary_conditions.receptor &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/boundary_conditions/receptor.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -69,7 +67,7 @@
 
 <span class="kn">from</span> <span class="nn">wepy.boundary_conditions.boundary</span> <span class="kn">import</span> <span class="n">BoundaryConditions</span>
 
-<div class="viewcode-block" id="ReceptorBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC">[docs]</a><span class="k">class</span> <span class="nc">ReceptorBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBC"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC">[docs]</a><span class="k">class</span> <span class="nc">ReceptorBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for ligand-receptor based boundary conditions.</span>
 
 <span class="sd">    Provides shared utilities for warping walkers to any number of</span>
@@ -195,7 +193,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receptor_idxs</span>
 
 
-<div class="viewcode-block" id="ReceptorBC._progress"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC._progress">[docs]</a>    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBC._progress"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC._progress">[docs]</a>    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;The method that must be implemented in non-abstract subclasses.</span>
 
 <span class="sd">        Should decide if a walker should be warped or not and what its</span>
@@ -218,7 +216,7 @@
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="ReceptorBC._warp"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC._warp">[docs]</a>    <span class="k">def</span> <span class="nf">_warp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBC._warp"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC._warp">[docs]</a>    <span class="k">def</span> <span class="nf">_warp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform the warping of a walker.</span>
 
 <span class="sd">        Chooses an initial state to replace the walker&#39;s state with</span>
@@ -260,7 +258,7 @@
         <span class="k">return</span> <span class="n">warped_walker</span><span class="p">,</span> <span class="n">warp_data</span></div>
 
 
-<div class="viewcode-block" id="ReceptorBC._update_bc"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC._update_bc">[docs]</a>    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBC._update_bc"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC._update_bc">[docs]</a>    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform an update to the boundary conditions.</span>
 
 <span class="sd">        No updates to the bc are ever done in this null</span>
@@ -288,7 +286,7 @@
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
-<div class="viewcode-block" id="ReceptorBC.warp_walkers"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<div class="viewcode-block" id="ReceptorBC.warp_walkers"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC.warp_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Test the progress of all the walkers, warp if required, and update</span>
 <span class="sd">        the boundary conditions.</span>
 
@@ -374,7 +372,7 @@
 
         <span class="k">return</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span></div>
 
-<div class="viewcode-block" id="ReceptorBC.warping_discontinuity"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="ReceptorBC.warping_discontinuity"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.ReceptorBC.warping_discontinuity">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Tests whether a warping record generated by this class is</span>
 <span class="sd">        discontinuous or not.</span>
@@ -411,7 +409,7 @@
             <span class="k">return</span> <span class="kc">False</span></div></div>
 
 
-<div class="viewcode-block" id="RebindingBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.RebindingBC">[docs]</a><span class="k">class</span> <span class="nc">RebindingBC</span><span class="p">(</span><span class="n">ReceptorBC</span><span class="p">):</span>
+<div class="viewcode-block" id="RebindingBC"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.RebindingBC">[docs]</a><span class="k">class</span> <span class="nc">RebindingBC</span><span class="p">(</span><span class="n">ReceptorBC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Boundary condition for doing re-binding simulations of ligands to a</span>
 <span class="sd">    receptor.</span>
 
@@ -557,7 +555,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_receptor_idxs</span>
 
-<div class="viewcode-block" id="RebindingBC._progress"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.RebindingBC._progress">[docs]</a>    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<div class="viewcode-block" id="RebindingBC._progress"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.RebindingBC._progress">[docs]</a>    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate if the walker has bound and provide progress record.</span>
 
 <span class="sd">        Parameters</span>
@@ -603,7 +601,7 @@
         <span class="k">return</span> <span class="n">rebound</span><span class="p">,</span> <span class="n">progress_data</span></div></div>
 
 
-<div class="viewcode-block" id="UnbindingBC"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC">[docs]</a><span class="k">class</span> <span class="nc">UnbindingBC</span><span class="p">(</span><span class="n">ReceptorBC</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingBC"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC">[docs]</a><span class="k">class</span> <span class="nc">UnbindingBC</span><span class="p">(</span><span class="n">ReceptorBC</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Boundary condition for ligand unbinding.</span>
 
 <span class="sd">    Walkers will be warped (discontinuously) if all atoms in the</span>
@@ -735,7 +733,7 @@
         <span class="sd">&quot;&quot;&quot;JSON string topology of the system.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_topology</span>
 
-<div class="viewcode-block" id="UnbindingBC._calc_min_distance"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC._calc_min_distance">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_min_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingBC._calc_min_distance"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC._calc_min_distance">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_min_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Min-min distance for a walker.</span>
 
 <span class="sd">        Parameters</span>
@@ -771,7 +769,7 @@
 
         <span class="k">return</span> <span class="n">min_distance</span></div>
 
-<div class="viewcode-block" id="UnbindingBC._progress"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC._progress">[docs]</a>    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingBC._progress"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC._progress">[docs]</a>    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculate whether a walker has unbound and also provide a</span>
 <span class="sd">        dictionary for a single walker in the progress records.</span>
 
@@ -801,7 +799,7 @@
 
         <span class="k">return</span> <span class="n">unbound</span><span class="p">,</span> <span class="n">progress_data</span></div>
 
-<div class="viewcode-block" id="UnbindingBC._update_bc"><a class="viewcode-back" href="../../../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC._update_bc">[docs]</a>    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<div class="viewcode-block" id="UnbindingBC._update_bc"><a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC._update_bc">[docs]</a>    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform an update to the boundary conditions.</span>
 
 <span class="sd">        This is only used on the first cycle to keep a record of the</span>
@@ -930,7 +928,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

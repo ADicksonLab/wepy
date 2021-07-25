@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.network_layouts.layout_graph &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script src="../../../../_static/jquery.js"></script>
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/analysis/network_layouts/layout_graph.html" />
     <link rel="shortcut icon" href="../../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -56,7 +54,7 @@
 
 <span class="sd">&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="LayoutGraph"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph">[docs]</a><span class="k">class</span> <span class="nc">LayoutGraph</span><span class="p">():</span>
+<div class="viewcode-block" id="LayoutGraph"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph">[docs]</a><span class="k">class</span> <span class="nc">LayoutGraph</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;Base class for networks that will be given layouts for visualization.</span>
 
 <span class="sd">    For the graph it wraps it will create a mirror graph which only</span>
@@ -136,7 +134,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_viz_graph</span>
 
 
-<div class="viewcode-block" id="LayoutGraph.get_node_attributes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_attributes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Gets attributes from the data graph and returns as a dictionary</span>
 <span class="sd">        which is compatible with the set_node_viz_attributes methods.</span>
 
@@ -170,7 +168,7 @@
 
 
     <span class="c1"># for setting visualization values of the network in a format agnostic way</span>
-<div class="viewcode-block" id="LayoutGraph.set_node_viz_attributes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_viz_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">node_attribute_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_viz_attributes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_viz_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">,</span> <span class="n">node_attribute_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets attributes of the viz_graph in a format agnostic way.</span>
 
 <span class="sd">        Parameters</span>
@@ -186,7 +184,7 @@
         <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">node_attribute_dict</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="n">attribute_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_positions"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_positions"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set positions of the nodes in the viz graph in a format agnostic way.</span>
 
 <span class="sd">        Parameters</span>
@@ -197,7 +195,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">POSITION</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_colors"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_colors">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_colors"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_colors">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set colors of the nodes in the viz graph in a format agnostic way.</span>
 
 <span class="sd">        Parameters</span>
@@ -207,7 +205,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">COLOR</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_sizes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_sizes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set sizes of the nodes in the viz graph in a format agnostic way.</span>
 
 <span class="sd">        Parameters</span>
@@ -217,7 +215,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SIZE</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_shapes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_shapes_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_shapes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_shapes_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Set the shapes of the nodes in the viz graph in a format agnostic way.</span>
 
 <span class="sd">        Parameters</span>
@@ -229,7 +227,7 @@
 
 
     <span class="c1"># getters</span>
-<div class="viewcode-block" id="LayoutGraph.get_node_viz_attributes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_viz_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_viz_attributes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_viz_attributes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attribute_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the format agnostic attributes of nodes in the viz graph.</span>
 
 <span class="sd">        Parameters</span>
@@ -247,7 +245,7 @@
 
         <span class="k">return</span> <span class="n">node_attr_dict</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.get_node_positions"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_positions"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_positions">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the format agnostic positions of the nodes in the viz graph.</span>
 
 <span class="sd">        Returns</span>
@@ -258,7 +256,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">POSITION</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.get_node_colors"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_colors">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_colors"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_colors">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_colors</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the format agnostic colors of the nodes in the viz graph.</span>
 
 <span class="sd">        Returns</span>
@@ -269,7 +267,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">COLOR</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.get_node_sizes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_sizes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the format agnostic size of the nodes in the viz graph.</span>
 
 <span class="sd">        Returns</span>
@@ -280,7 +278,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">get_node_viz_attributes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">SIZE</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.get_node_shapes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.get_node_shapes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">get_node_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the format agnostic shapes of the nodes in the viz graph.</span>
 
 <span class="sd">        Returns</span>
@@ -291,7 +289,7 @@
 
 
 
-<div class="viewcode-block" id="LayoutGraph.RGBA_to_hex"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.RGBA_to_hex">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LayoutGraph.RGBA_to_hex"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.RGBA_to_hex">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">RGBA_to_hex</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">color_vec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Convert an RGBA color tuple to the hex representation.</span>
 
@@ -315,7 +313,7 @@
 
 
     <span class="c1"># methods for setting gexf visualization attributes</span>
-<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_position"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_position">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_position"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_position">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">feature_vector_to_gexf_viz_position</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">coord_vec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts an array_like of positions to the corresponding x, y, z</span>
 <span class="sd">        representation for GEXF representation.</span>
@@ -335,7 +333,7 @@
                 <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_POSITION_Y</span> <span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">coord_vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_POSITION_Z</span> <span class="p">:</span> <span class="nb">float</span><span class="p">(</span><span class="n">coord_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">])}</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_color_RGB"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGB">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_color_RGB"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGB">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">feature_vector_to_gexf_viz_color_RGB</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">color_vec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts an array_like of positions to the corresponding RGB</span>
 <span class="sd">        representation for GEXF representation.</span>
@@ -356,7 +354,7 @@
                 <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_GREEN</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_BLUE</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">])}</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_color_RGBA"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGBA">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="LayoutGraph.feature_vector_to_gexf_viz_color_RGBA"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGBA">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">feature_vector_to_gexf_viz_color_RGBA</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">color_vec</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Converts an array_like of positions to the corresponding RGBA</span>
 <span class="sd">        representation for GEXF representation.</span>
@@ -378,7 +376,7 @@
                 <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_BLUE</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
                 <span class="bp">cls</span><span class="o">.</span><span class="n">GEXF_VIZ_COLOR_ALPHA</span> <span class="p">:</span> <span class="nb">int</span><span class="p">(</span><span class="n">color_vec</span><span class="p">[</span><span class="mi">3</span><span class="p">])}</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_gexf_viz"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_viz">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viz_key</span><span class="p">,</span> <span class="n">node_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_viz"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_viz">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">viz_key</span><span class="p">,</span> <span class="n">node_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets GEXF formatted visualization attributes for all nodes.</span>
 
 <span class="sd">        GEXF has a structure where each node has a special compound</span>
@@ -399,7 +397,7 @@
 
             <span class="bp">self</span><span class="o">.</span><span class="n">viz_graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ</span><span class="p">][</span><span class="n">viz_key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_gexf_positions"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_positions"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_positions">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_positions</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_positions_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets GEXF specific positions attribute for visualization to nodes.</span>
 
 <span class="sd">        Parameters</span>
@@ -414,7 +412,7 @@
                           <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_vector_to_gexf_viz_position</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
                            <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">node_positions_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_gexf_colors_rgb"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_colors_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_colors_rgb"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgb">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_colors_rgb</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets GEXF specific RGB color attribute for visualization to nodes.</span>
 
 <span class="sd">        Parameters</span>
@@ -429,7 +427,7 @@
                                <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_vector_to_gexf_viz_color_RGB</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">node_colors_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_gexf_colors_rgba"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgba">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_colors_rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_colors_rgba"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgba">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_colors_rgba</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_colors_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets GEXF specific RGBA color attribute for visualization to nodes.</span>
 
 <span class="sd">        Parameters</span>
@@ -444,7 +442,7 @@
                                <span class="p">{</span><span class="n">node_id</span> <span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">feature_vector_to_gexf_viz_color_RGBA</span><span class="p">(</span><span class="n">coord</span><span class="p">)</span>
                                 <span class="k">for</span> <span class="n">node_id</span><span class="p">,</span> <span class="n">coord</span> <span class="ow">in</span> <span class="n">node_colors_dict</span><span class="o">.</span><span class="n">items</span><span class="p">()})</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_gexf_sizes"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_sizes"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_sizes">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_sizes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets GEXF specific node size attribute for visualization to nodes.</span>
 
 <span class="sd">        Parameters</span>
@@ -455,7 +453,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">set_node_gexf_viz</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">GEXF_VIZ_SIZE</span><span class="p">,</span> <span class="n">node_sizes_dict</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="LayoutGraph.set_node_gexf_shape"><a class="viewcode-back" href="../../../../api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_shape">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_shape_dict</span><span class="p">):</span>
+<div class="viewcode-block" id="LayoutGraph.set_node_gexf_shape"><a class="viewcode-back" href="../../../../_api/wepy.analysis.network_layouts.layout_graph.html#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_shape">[docs]</a>    <span class="k">def</span> <span class="nf">set_node_gexf_shape</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node_shape_dict</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Sets GEXF specific node shape attribute for visualization to nodes.</span>
 
 <span class="sd">        Parameters</span>
@@ -738,7 +736,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

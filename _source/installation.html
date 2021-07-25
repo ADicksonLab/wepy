@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Installation &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/installation.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -59,18 +57,14 @@
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install wepy
 </pre></div>
 </div>
-<p>To install the optional, but likely desired feature, OpenMM you should
-probably just use the omnia channel on conda, otherwise you will need to
-compile it yourself.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c omnia openmm
+<p>To install the optional, but likely desired feature – OpenMM – see the
+<a class="reference external" href="http://docs.openmm.org/latest/userguide/application.html#installing-openmm">documentation</a>
+for installing the version and build you want. For simply trying things
+out on a local machine running this should get you started:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c conda-forge openmm
 </pre></div>
 </div>
-<p>A helpful tip is to use the channel to specify which version of CUDA you
-want OpenMM compiled with. For example if you want OpenMM compiled on
-CUDA 10.0 you can use the channel ‘omnia/label/cuda100’, e.g.:</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">omnia</span><span class="o">/</span><span class="n">label</span><span class="o">/</span><span class="n">cuda100</span> <span class="n">openmm</span>
-</pre></div>
-</div>
+<p>If this doesn’t work for some platform consult the OpenMM documentation.</p>
 <p>There are some optional features you can install as well using the
 “extras” spec in pip. The base package aims to be very easy to install
 but lacks a lot of functionality that makes <code class="docutils literal notranslate"><span class="pre">wepy</span></code> useful for
@@ -206,7 +200,7 @@ for working with orchestration available:</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

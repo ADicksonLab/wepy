@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.orchestration.configuration &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/orchestration/configuration.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -52,7 +50,7 @@
 <span class="kn">from</span> <span class="nn">wepy.work_mapper.mapper</span> <span class="kn">import</span> <span class="n">Mapper</span><span class="p">,</span> <span class="n">WorkerMapper</span>
 <span class="kn">from</span> <span class="nn">wepy.work_mapper.worker</span> <span class="kn">import</span> <span class="n">Worker</span>
 
-<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">():</span>
+<div class="viewcode-block" id="Configuration"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration">[docs]</a><span class="k">class</span> <span class="nc">Configuration</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="n">DEFAULT_WORKDIR</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="n">osp</span><span class="o">.</span><span class="n">curdir</span><span class="p">)</span>
@@ -268,7 +266,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_apparatus_opts</span>
 
 
-<div class="viewcode-block" id="Configuration._gen_reporters"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_reporters">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Configuration._gen_reporters"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_reporters">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_reporters</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
         <span class="c1"># check the extensions of all the reporters. If any of them</span>
@@ -338,7 +336,7 @@
         <span class="k">return</span> <span class="n">reporters</span></div>
 
     <span class="c1"># TODO: remove, not used</span>
-<div class="viewcode-block" id="Configuration._gen_work_mapper"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_work_mapper">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Configuration._gen_work_mapper"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration._gen_work_mapper">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_work_mapper</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
         <span class="n">work_mapper</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper_class</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_default_n_workers</span><span class="p">)</span>
@@ -355,7 +353,7 @@
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_work_mapper</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Configuration.reparametrize"><a class="viewcode-back" href="../../../api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="Configuration.reparametrize"><a class="viewcode-back" href="../../../_api/wepy.orchestration.configuration.html#wepy.orchestration.configuration.Configuration.reparametrize">[docs]</a>    <span class="k">def</span> <span class="nf">reparametrize</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -509,7 +507,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

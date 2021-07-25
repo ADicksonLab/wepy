@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.util.json_top &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/util/json_top.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -55,7 +53,7 @@
 <span class="n">RESIDUE_ATTR_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="n">RESIDUE_KEY</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;resSeq&#39;</span><span class="p">,</span> <span class="s1">&#39;segmentID&#39;</span><span class="p">)</span>
 <span class="n">ATOM_ATTR_KEYS</span> <span class="o">=</span> <span class="p">(</span><span class="n">ATOM_KEY</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;element&#39;</span><span class="p">)</span>
 
-<div class="viewcode-block" id="json_top_chain_fields"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_chain_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_chain_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_chain_fields"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_chain_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_chain_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a fields dictionary for all of the chains in a topology.</span>
 
 <span class="sd">    Parameters</span>
@@ -82,7 +80,7 @@
 
     <span class="k">return</span> <span class="n">chain_cols</span></div>
 
-<div class="viewcode-block" id="json_top_chain_df"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_chain_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_chain_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_chain_df"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_chain_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_chain_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make a pandas dataframe for the chains in the JSON topology.</span>
 
 <span class="sd">    Parameters</span>
@@ -100,7 +98,7 @@
 
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_top_chain_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="json_top_residue_fields"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_residue_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_residue_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_residue_fields"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_residue_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_residue_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a fields dictionary for all of the residues in a topology.</span>
 
 <span class="sd">    Parameters</span>
@@ -130,7 +128,7 @@
 
     <span class="k">return</span> <span class="n">residue_cols</span></div>
 
-<div class="viewcode-block" id="json_top_residue_df"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_residue_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_residue_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_residue_df"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_residue_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_residue_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make a pandas dataframe for the residues in the JSON topology.</span>
 
 <span class="sd">    Parameters</span>
@@ -149,7 +147,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_top_residue_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="json_top_atom_fields"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_atom_fields"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_fields">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Creates a fields dictionary for all of the atoms in a topology.</span>
 
 <span class="sd">    Parameters</span>
@@ -181,7 +179,7 @@
 
     <span class="k">return</span> <span class="n">atom_cols</span></div>
 
-<div class="viewcode-block" id="json_top_atom_df"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_atom_df"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_df">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_df</span><span class="p">(</span><span class="n">json_topology</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make a pandas dataframe for the atoms in the JSON topology.</span>
 
 <span class="sd">    Parameters</span>
@@ -200,7 +198,7 @@
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">json_top_atom_fields</span><span class="p">(</span><span class="n">json_topology</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="json_top_atom_count"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_count">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_count</span><span class="p">(</span><span class="n">json_str</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_atom_count"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_atom_count">[docs]</a><span class="k">def</span> <span class="nf">json_top_atom_count</span><span class="p">(</span><span class="n">json_str</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Count the number of atoms in the JSON topology used by wepy HDF5.</span>
 
 <span class="sd">    Parameters</span>
@@ -225,7 +223,7 @@
 
     <span class="k">return</span> <span class="n">atom_count</span></div>
 
-<div class="viewcode-block" id="json_top_subset"><a class="viewcode-back" href="../../../api/wepy.util.json_top.html#wepy.util.json_top.json_top_subset">[docs]</a><span class="k">def</span> <span class="nf">json_top_subset</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">atom_idxs</span><span class="p">):</span>
+<div class="viewcode-block" id="json_top_subset"><a class="viewcode-back" href="../../../_api/wepy.util.json_top.html#wepy.util.json_top.json_top_subset">[docs]</a><span class="k">def</span> <span class="nf">json_top_subset</span><span class="p">(</span><span class="n">json_str</span><span class="p">,</span> <span class="n">atom_idxs</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Given a JSON topology and atom indices from that topology returns</span>
 <span class="sd">    another JSON topology which is a subset of the first, preserving</span>
 <span class="sd">    the topology between remaining atoms. The atoms will be ordered in</span>
@@ -467,7 +465,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

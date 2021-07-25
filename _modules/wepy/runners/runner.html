@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.runners.runner &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/runners/runner.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -65,10 +63,10 @@
 
 <span class="kn">from</span> <span class="nn">eliot</span> <span class="kn">import</span> <span class="n">log_call</span><span class="p">,</span> <span class="n">start_action</span>
 
-<div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Runner"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.runner.Runner">[docs]</a><span class="k">class</span> <span class="nc">Runner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract base class for the Runner interface.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="Runner.pre_cycle"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.pre_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+<div class="viewcode-block" id="Runner.pre_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.runner.Runner.pre_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
               <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">pre_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform pre-cycle behavior. run_segment will be called for each</span>
@@ -86,7 +84,7 @@
         <span class="c1"># by default just pass since subclasses need not implement this</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Runner.post_cycle"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.post_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+<div class="viewcode-block" id="Runner.post_cycle"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.runner.Runner.post_cycle">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
               <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">post_cycle</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Perform post-cycle behavior. run_segment will be called for each</span>
@@ -104,7 +102,7 @@
         <span class="c1"># by default just pass since subclasses need not implement this</span>
         <span class="k">pass</span></div>
 
-<div class="viewcode-block" id="Runner.run_segment"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.Runner.run_segment">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;segment_length&#39;</span><span class="p">],</span>
+<div class="viewcode-block" id="Runner.run_segment"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.runner.Runner.run_segment">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;segment_length&#39;</span><span class="p">],</span>
               <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Run dynamics for the walker.</span>
@@ -125,13 +123,13 @@
 
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div></div>
 
-<div class="viewcode-block" id="NoRunner"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.NoRunner">[docs]</a><span class="k">class</span> <span class="nc">NoRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
+<div class="viewcode-block" id="NoRunner"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.runner.NoRunner">[docs]</a><span class="k">class</span> <span class="nc">NoRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Stub Runner that just returns the walkers back with the same state.</span>
 
 <span class="sd">    May be useful for testing.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="NoRunner.run_segment"><a class="viewcode-back" href="../../../api/wepy.runners.runner.html#wepy.runners.randomwalk.NoRunner.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="NoRunner.run_segment"><a class="viewcode-back" href="../../../_api/wepy.runners.runner.html#wepy.runners.runner.NoRunner.run_segment">[docs]</a>    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
         <span class="c1"># documented in superclass</span>
         <span class="k">return</span> <span class="n">walker</span></div></div>
 </pre></div>
@@ -232,7 +230,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

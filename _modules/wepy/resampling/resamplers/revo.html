@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.resamplers.revo &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script src="../../../../_static/jquery.js"></script>
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/resampling/resamplers/revo.html" />
     <link rel="shortcut icon" href="../../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -57,7 +55,7 @@
 <span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.clone_merge</span>  <span class="kn">import</span> <span class="n">CloneMergeResampler</span>
 <span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="kn">import</span> <span class="n">MultiCloneMergeDecision</span>
 
-<div class="viewcode-block" id="REVOResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler">[docs]</a><span class="k">class</span> <span class="nc">REVOResampler</span><span class="p">(</span><span class="n">CloneMergeResampler</span><span class="p">):</span>
+<div class="viewcode-block" id="REVOResampler"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler">[docs]</a><span class="k">class</span> <span class="nc">REVOResampler</span><span class="p">(</span><span class="n">CloneMergeResampler</span><span class="p">):</span>
     <span class="sa">r</span><span class="sd">&quot;&quot;&quot;Resampler implementing the REVO algorithm.</span>
 
 <span class="sd">    You can find more detailed information in the paper &quot;REVO:</span>
@@ -249,7 +247,7 @@
         <span class="n">image</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">distance</span><span class="o">.</span><span class="n">image</span><span class="p">(</span><span class="n">init_state</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">image_dtype</span> <span class="o">=</span> <span class="n">image</span><span class="o">.</span><span class="n">dtype</span>
 
-<div class="viewcode-block" id="REVOResampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="REVOResampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Finds out the datatype of the image.</span>
 
 <span class="sd">        Returns</span>
@@ -268,7 +266,7 @@
 
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dtypes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="REVOResampler._novelty"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler._novelty">[docs]</a>    <span class="k">def</span> <span class="nf">_novelty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weight</span><span class="p">,</span> <span class="n">num_walker_copy</span><span class="p">):</span>
+<div class="viewcode-block" id="REVOResampler._novelty"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler._novelty">[docs]</a>    <span class="k">def</span> <span class="nf">_novelty</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weight</span><span class="p">,</span> <span class="n">num_walker_copy</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the novelty fuction value.</span>
 
 <span class="sd">        Parameters</span>
@@ -305,7 +303,7 @@
 
         <span class="k">return</span> <span class="n">novelty</span></div>
 
-<div class="viewcode-block" id="REVOResampler._calcvariation"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler._calcvariation">[docs]</a>    <span class="k">def</span> <span class="nf">_calcvariation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="REVOResampler._calcvariation"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler._calcvariation">[docs]</a>    <span class="k">def</span> <span class="nf">_calcvariation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Calculates the variation value.</span>
 
 <span class="sd">        Parameters</span>
@@ -365,7 +363,7 @@
 
         <span class="k">return</span> <span class="n">variation</span><span class="p">,</span> <span class="n">walker_variations</span></div>
 
-<div class="viewcode-block" id="REVOResampler.decide"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.decide">[docs]</a>    <span class="k">def</span> <span class="nf">decide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="REVOResampler.decide"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.decide">[docs]</a>    <span class="k">def</span> <span class="nf">decide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">num_walker_copies</span><span class="p">,</span> <span class="n">distance_matrix</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Optimize the trajectory variation by making decisions for resampling.</span>
 
 <span class="sd">        Parameters</span>
@@ -563,7 +561,7 @@
 
         <span class="k">return</span> <span class="n">walker_actions</span><span class="p">,</span> <span class="n">variations</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="REVOResampler._all_to_all_distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler._all_to_all_distance">[docs]</a>    <span class="k">def</span> <span class="nf">_all_to_all_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="REVOResampler._all_to_all_distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler._all_to_all_distance">[docs]</a>    <span class="k">def</span> <span class="nf">_all_to_all_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Calculate the pairwise all-to-all distances between walkers.</span>
 
 <span class="sd">        Parameters</span>
@@ -599,7 +597,7 @@
 
         <span class="k">return</span> <span class="p">[</span><span class="n">walker_dists</span> <span class="k">for</span> <span class="n">walker_dists</span> <span class="ow">in</span> <span class="n">dist_mat</span><span class="p">],</span> <span class="n">images</span></div>
 
-<div class="viewcode-block" id="REVOResampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.resample">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+<div class="viewcode-block" id="REVOResampler.resample"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler.resample">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
               <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Resamples walkers based on REVO algorithm</span>
@@ -751,7 +749,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

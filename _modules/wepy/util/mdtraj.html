@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.util.mdtraj &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/util/mdtraj.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -107,7 +105,7 @@
 <span class="c1"># USE OR OTHER DEALINGS IN THE SOFTWARE.</span>
 <span class="c1">##############################################################################</span>
 
-<div class="viewcode-block" id="mdtraj_to_json_topology"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj.mdtraj_to_json_topology">[docs]</a><span class="k">def</span> <span class="nf">mdtraj_to_json_topology</span><span class="p">(</span><span class="n">mdj_top</span><span class="p">):</span>
+<div class="viewcode-block" id="mdtraj_to_json_topology"><a class="viewcode-back" href="../../../_api/wepy.util.mdtraj.html#wepy.util.mdtraj.mdtraj_to_json_topology">[docs]</a><span class="k">def</span> <span class="nf">mdtraj_to_json_topology</span><span class="p">(</span><span class="n">mdj_top</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generate a JSON string topology from an mdtraj.Topology object.</span>
 
 <span class="sd">    This is the primary way in which JSON toplogies can be</span>
@@ -180,7 +178,7 @@
 
     <span class="k">return</span> <span class="n">top_json_str</span></div>
 
-<div class="viewcode-block" id="json_to_mdtraj_topology"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj.json_to_mdtraj_topology">[docs]</a><span class="k">def</span> <span class="nf">json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_string</span><span class="p">):</span>
+<div class="viewcode-block" id="json_to_mdtraj_topology"><a class="viewcode-back" href="../../../_api/wepy.util.mdtraj.html#wepy.util.mdtraj.json_to_mdtraj_topology">[docs]</a><span class="k">def</span> <span class="nf">json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_string</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert a JSON string topology to an mdtraj.Toplogy object.</span>
 
 <span class="sd">    This can be used to write out different topology formats from</span>
@@ -237,7 +235,7 @@
     <span class="k">return</span> <span class="n">topology</span></div>
 
 
-<div class="viewcode-block" id="_new_json_to_mdtraj_topology"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj._new_json_to_mdtraj_topology">[docs]</a><span class="k">def</span> <span class="nf">_new_json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_string</span><span class="p">):</span>
+<div class="viewcode-block" id="_new_json_to_mdtraj_topology"><a class="viewcode-back" href="../../../_api/wepy.util.mdtraj.html#wepy.util.mdtraj._new_json_to_mdtraj_topology">[docs]</a><span class="k">def</span> <span class="nf">_new_json_to_mdtraj_topology</span><span class="p">(</span><span class="n">json_string</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Another implementation of converting JSON to mdtraj.</span>
 
 <span class="sd">    TODO what is the difference between this and the other one?</span>
@@ -304,7 +302,7 @@
 
     <span class="k">return</span> <span class="n">topology</span></div>
 
-<div class="viewcode-block" id="traj_fields_to_mdtraj"><a class="viewcode-back" href="../../../api/wepy.util.mdtraj.html#wepy.util.mdtraj.traj_fields_to_mdtraj">[docs]</a><span class="k">def</span> <span class="nf">traj_fields_to_mdtraj</span><span class="p">(</span><span class="n">traj_fields</span><span class="p">,</span> <span class="n">json_topology</span><span class="p">,</span> <span class="n">rep_key</span><span class="o">=</span><span class="s1">&#39;positions&#39;</span><span class="p">):</span>
+<div class="viewcode-block" id="traj_fields_to_mdtraj"><a class="viewcode-back" href="../../../_api/wepy.util.mdtraj.html#wepy.util.mdtraj.traj_fields_to_mdtraj">[docs]</a><span class="k">def</span> <span class="nf">traj_fields_to_mdtraj</span><span class="p">(</span><span class="n">traj_fields</span><span class="p">,</span> <span class="n">json_topology</span><span class="p">,</span> <span class="n">rep_key</span><span class="o">=</span><span class="s1">&#39;positions&#39;</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Create an mdtraj.Trajectory object directly from a dictionary of</span>
 <span class="sd">    fields values.</span>
 
@@ -441,7 +439,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

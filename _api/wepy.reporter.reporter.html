@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.reporter.reporter module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.reporter.reporter.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -57,16 +55,16 @@
 <span id="wepy-reporter-reporter-module"></span><h1>wepy.reporter.reporter module<a class="headerlink" href="#module-wepy.reporter.reporter" title="Permalink to this headline">¶</a></h1>
 <dl class="py exception">
 <dt id="wepy.reporter.reporter.ReporterError">
-<em class="property">exception </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">ReporterError</code><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ReporterError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.ReporterError" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.reporter.</span></code><code class="sig-name descname"><span class="pre">ReporterError</span></code><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ReporterError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.ReporterError" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#Exception" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Exception</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ReporterError.args">
-<code class="sig-name descname">args</code><a class="headerlink" href="#wepy.reporter.reporter.ReporterError.args" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">args</span></code><a class="headerlink" href="#wepy.reporter.reporter.ReporterError.args" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ReporterError.with_traceback">
-<code class="sig-name descname">with_traceback</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ReporterError.with_traceback" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ReporterError.with_traceback" title="Permalink to this definition">¶</a></dt>
 <dd><p>Exception.with_traceback(tb) –
 set self.__traceback__ to tb and return self.</p>
 </dd></dl>
@@ -75,7 +73,7 @@ set self.__traceback__ to tb and return self.</p>
 
 <dl class="py class">
 <dt id="wepy.reporter.reporter.Reporter">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">Reporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.reporter.</span></code><code class="sig-name descname"><span class="pre">Reporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Abstract base class for wepy reporters.</p>
 <p>All reporters must customize and override minimally the ‘report’
@@ -83,7 +81,7 @@ method. Optionally the ‘init’ and ‘cleanup’ can be overriden.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><a class="reference internal" href="../api/wepy.sim_manager.html#module-wepy.sim_manager" title="wepy.sim_manager"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.sim_manager</span></code></a></dt><dd><p>details of calls to reporter methods.</p>
+<dt><a class="reference internal" href="wepy.sim_manager.html#module-wepy.sim_manager" title="wepy.sim_manager"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.sim_manager</span></code></a></dt><dd><p>details of calls to reporter methods.</p>
 </dd>
 </dl>
 </div>
@@ -97,7 +95,7 @@ compatibility.</p>
 </dl>
 <dl class="py method">
 <dt id="wepy.reporter.reporter.Reporter.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter.init" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialization routines for the reporter at simulation runtime.</p>
 <p>Initialize I/O connections including file descriptors,
 database connections, timers, stdout/stderr etc.</p>
@@ -123,7 +121,7 @@ same file.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.Reporter.report">
-<code class="sig-name descname">report</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter.report"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter.report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter.report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter.report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given data concerning the main simulation components state, perform
 I/O operations to persist that data.</p>
 <p>Void method for reporter base class.</p>
@@ -160,7 +158,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.Reporter.cleanup">
-<code class="sig-name descname">cleanup</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter.cleanup"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter.cleanup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#Reporter.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.Reporter.cleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teardown routines for the reporter at the end of the simulation.</p>
 <p>Use to cleanly and safely close I/O connections or other
 cleanup I/O.</p>
@@ -184,8 +182,8 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py class">
 <dt id="wepy.reporter.reporter.FileReporter">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">FileReporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter" title="wepy.reporter.reporter.Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.Reporter</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.reporter.</span></code><code class="sig-name descname"><span class="pre">FileReporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.reporter.reporter.Reporter" title="wepy.reporter.reporter.Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.Reporter</span></code></a></p>
 <p>Abstract reporter that handles specifying file paths for a
 reporter.</p>
 <p>This abstract class doesn’t perform any operations that involve
@@ -223,20 +221,20 @@ where order is important for associating other features.</p>
 </dl>
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.FileReporter.MODES">
-<code class="sig-name descname">MODES</code><em class="property"> = ('x', 'w', 'w-', 'r', 'r+')</em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.MODES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">MODES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('x',</span> <span class="pre">'w',</span> <span class="pre">'w-',</span> <span class="pre">'r',</span> <span class="pre">'r+')</span></em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.MODES" title="Permalink to this definition">¶</a></dt>
 <dd><p>Valid modes accepted for files.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.FileReporter.DEFAULT_MODE">
-<code class="sig-name descname">DEFAULT_MODE</code><em class="property"> = 'x'</em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">DEFAULT_MODE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'x'</span></em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default mode to set for opening files if none is specified
 (create if doesn’t exist, fail if it does.)</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.FileReporter.SUGGESTED_FILENAME_TEMPLATE">
-<code class="sig-name descname">SUGGESTED_FILENAME_TEMPLATE</code><em class="property"> = '{config}{narration}{reporter_class}.{ext}'</em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">SUGGESTED_FILENAME_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'{config}{narration}{reporter_class}.{ext}'</span></em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd><p>Template to use for dynamic reparametrization of file path names.</p>
 <p>The fields in the template are:</p>
 <p>config : indicator of the runtime configuration used</p>
@@ -256,27 +254,27 @@ considered optional.</p>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.FileReporter.DEFAULT_SUGGESTED_EXTENSION">
-<code class="sig-name descname">DEFAULT_SUGGESTED_EXTENSION</code><em class="property"> = 'report'</em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">DEFAULT_SUGGESTED_EXTENSION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'report'</span></em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
 <dd><p>The default file extension used for files during dynamic
 reparametrization, if none is specified</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.FileReporter.FILE_ORDER">
-<code class="sig-name descname">FILE_ORDER</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">FILE_ORDER</span></code><em class="property"> <span class="pre">=</span> <span class="pre">()</span></em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
 <dd><p>Specify an ordering of file paths. Should be customized.</p>
 </dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.FileReporter.SUGGESTED_EXTENSIONS">
-<code class="sig-name descname">SUGGESTED_EXTENSIONS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">SUGGESTED_EXTENSIONS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">()</span></em><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
 <dd><p>Suggested extensions for file paths for use with the automatic
 reparametrization feature. Should be customized.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter._validate_mode">
-<code class="sig-name descname">_validate_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter._validate_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_validate_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter._validate_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the mode spec is a valid one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -293,19 +291,19 @@ reparametrization feature. Should be customized.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.mode">
-<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.mode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the mode of that file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.file_path">
-<em class="property">property </em><code class="sig-name descname">file_path</code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.file_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_path</span></code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the file path to that file spec.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.cleanup">
-<code class="sig-name descname">cleanup</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.cleanup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.cleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teardown routines for the reporter at the end of the simulation.</p>
 <p>Use to cleanly and safely close I/O connections or other
 cleanup I/O.</p>
@@ -327,13 +325,13 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.file_paths">
-<em class="property">property </em><code class="sig-name descname">file_paths</code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.file_paths" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_paths</span></code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.file_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>The file paths for this reporter, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.init" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Initialization routines for the reporter at simulation runtime.</p>
 <p>Initialize I/O connections including file descriptors,
 database connections, timers, stdout/stderr etc.</p>
@@ -359,7 +357,7 @@ same file.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.report">
-<code class="sig-name descname">report</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given data concerning the main simulation components state, perform
 I/O operations to persist that data.</p>
 <p>Void method for reporter base class.</p>
@@ -396,7 +394,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.set_path">
-<code class="sig-name descname">set_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter.set_path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.set_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_path</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter.set_path"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.set_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the path for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -410,13 +408,13 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.modes">
-<em class="property">property </em><code class="sig-name descname">modes</code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.modes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modes</span></code><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The modes for the files, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter.set_mode"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.set_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter.set_mode"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.set_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the mode for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -430,7 +428,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.FileReporter.reparametrize">
-<code class="sig-name descname">reparametrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span></em>, <em class="sig-param"><span class="n">modes</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter.reparametrize"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reparametrize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#FileReporter.reparametrize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.FileReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the file paths and modes for all files in the reporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -446,8 +444,8 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py class">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.reporter.</code><code class="sig-name descname">ProgressiveFileReporter</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">modes</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">file_path</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">mode</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ProgressiveFileReporter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.reporter.</span></code><code class="sig-name descname"><span class="pre">ProgressiveFileReporter</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">file_path</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ProgressiveFileReporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter</span></code></a></p>
 <p>Super class for a reporter that will successively overwrite the
 same file over and over again. The base FileReporter really only
 supports creation of file one time.</p>
@@ -469,37 +467,60 @@ where order is important for associating other features.</p>
 </dl>
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.DEFAULT_MODE">
-<code class="sig-name descname">DEFAULT_MODE</code><em class="property"> = 'x'</em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_MODE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'x'</span></em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default mode to set for opening files if none is specified
+(create if doesn’t exist, fail if it does.)</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.DEFAULT_SUGGESTED_EXTENSION">
-<code class="sig-name descname">DEFAULT_SUGGESTED_EXTENSION</code><em class="property"> = 'report'</em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">DEFAULT_SUGGESTED_EXTENSION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'report'</span></em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.DEFAULT_SUGGESTED_EXTENSION" title="Permalink to this definition">¶</a></dt>
+<dd><p>The default file extension used for files during dynamic
+reparametrization, if none is specified</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.FILE_ORDER">
-<code class="sig-name descname">FILE_ORDER</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">FILE_ORDER</span></code><em class="property"> <span class="pre">=</span> <span class="pre">()</span></em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.FILE_ORDER" title="Permalink to this definition">¶</a></dt>
+<dd><p>Specify an ordering of file paths. Should be customized.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.MODES">
-<code class="sig-name descname">MODES</code><em class="property"> = ('x', 'w', 'w-', 'r', 'r+')</em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.MODES" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">MODES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('x',</span> <span class="pre">'w',</span> <span class="pre">'w-',</span> <span class="pre">'r',</span> <span class="pre">'r+')</span></em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.MODES" title="Permalink to this definition">¶</a></dt>
+<dd><p>Valid modes accepted for files.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.SUGGESTED_EXTENSIONS">
-<code class="sig-name descname">SUGGESTED_EXTENSIONS</code><em class="property"> = ()</em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SUGGESTED_EXTENSIONS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">()</span></em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.SUGGESTED_EXTENSIONS" title="Permalink to this definition">¶</a></dt>
+<dd><p>Suggested extensions for file paths for use with the automatic
+reparametrization feature. Should be customized.</p>
+</dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.SUGGESTED_FILENAME_TEMPLATE">
-<code class="sig-name descname">SUGGESTED_FILENAME_TEMPLATE</code><em class="property"> = '{config}{narration}{reporter_class}.{ext}'</em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<code class="sig-name descname"><span class="pre">SUGGESTED_FILENAME_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'{config}{narration}{reporter_class}.{ext}'</span></em><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.SUGGESTED_FILENAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<dd><p>Template to use for dynamic reparametrization of file path names.</p>
+<p>The fields in the template are:</p>
+<p>config : indicator of the runtime configuration used</p>
+<p>narration : freeform description of the instance</p>
+<dl class="simple">
+<dt>reporter_class<span class="classifier">the name of the class that produced the</span></dt><dd><p>output. When no specific name is given for a file report generated
+from a reporter this is used to disambiguate, along with the
+extension.</p>
+</dd>
+</dl>
+<p>ext : The file extension, for multiple files produced from one
+reporter this should be sufficient to disambiguate the files.</p>
+<p>The ‘config’ and ‘narration’ should be the same across all
+reporters in the same simulation manager, and the ‘narration’ is
+considered optional.</p>
+</dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter._validate_mode">
-<code class="sig-name descname">_validate_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">_validate_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter._validate_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Check if the mode spec is a valid one.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -516,7 +537,7 @@ where order is important for associating other features.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.cleanup">
-<code class="sig-name descname">cleanup</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.cleanup" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.cleanup" title="Permalink to this definition">¶</a></dt>
 <dd><p>Teardown routines for the reporter at the end of the simulation.</p>
 <p>Use to cleanly and safely close I/O connections or other
 cleanup I/O.</p>
@@ -538,31 +559,31 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.file_path">
-<em class="property">property </em><code class="sig-name descname">file_path</code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.file_path" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_path</span></code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.file_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the file path to that file spec.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.file_paths">
-<em class="property">property </em><code class="sig-name descname">file_paths</code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.file_paths" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">file_paths</span></code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.file_paths" title="Permalink to this definition">¶</a></dt>
 <dd><p>The file paths for this reporter, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.mode">
-<em class="property">property </em><code class="sig-name descname">mode</code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.mode" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>For single file path reporters the mode of that file.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.modes">
-<em class="property">property </em><code class="sig-name descname">modes</code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.modes" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">modes</span></code><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.modes" title="Permalink to this definition">¶</a></dt>
 <dd><p>The modes for the files, in order.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.reparametrize">
-<code class="sig-name descname">reparametrize</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_paths</span></em>, <em class="sig-param"><span class="n">modes</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">reparametrize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.reparametrize" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the file paths and modes for all files in the reporter.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -576,7 +597,7 @@ passed to them during a simulation by the sim_manager.</p>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.report">
-<code class="sig-name descname">report</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.report" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">report</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.report" title="Permalink to this definition">¶</a></dt>
 <dd><p>Given data concerning the main simulation components state, perform
 I/O operations to persist that data.</p>
 <p>Void method for reporter base class.</p>
@@ -613,7 +634,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.set_mode">
-<code class="sig-name descname">set_mode</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">mode</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.set_mode" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_mode</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.set_mode" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the mode for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -627,7 +648,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.set_path">
-<code class="sig-name descname">set_path</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">file_idx</span></em>, <em class="sig-param"><span class="n">path</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.set_path" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">set_path</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.set_path" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set the path for a single indexed file.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -641,7 +662,7 @@ from applying resampling and boundary conditions.</p></li>
 
 <dl class="py method">
 <dt id="wepy.reporter.reporter.ProgressiveFileReporter.init">
-<code class="sig-name descname">init</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ProgressiveFileReporter.init"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.init" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/reporter.html#ProgressiveFileReporter.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.reporter.ProgressiveFileReporter.init" title="Permalink to this definition">¶</a></dt>
 <dd><p>Construct a ProgressiveFileReporter.</p>
 <p>This is exactly the same as the FileReporter.</p>
 <dl class="field-list simple">
@@ -656,7 +677,7 @@ from applying resampling and boundary conditions.</p></li>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="../api/wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-meth docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter()</span></code></a></p>
+<p><a class="reference internal" href="#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.reporter.reporter.FileReporter</span></code></a></p>
 </div>
 </dd></dl>
 
@@ -775,7 +796,7 @@ from applying resampling and boundary conditions.</p></li>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

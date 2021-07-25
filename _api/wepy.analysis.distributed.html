@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.distributed module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.analysis.distributed.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -162,7 +160,7 @@ inundated with too many tasks (chunk sizes too small, say of only 1
 frame).</p>
 <dl class="py function">
 <dt id="wepy.analysis.distributed.traj_fields_chunk_items">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">traj_fields_chunk_items</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wepy_h5_path</span></em>, <em class="sig-param"><span class="n">fields</span></em>, <em class="sig-param"><span class="n">run_idxs</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">chunk_size</span><span class="o">=</span><span class="default_value">Ellipsis</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#traj_fields_chunk_items"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.traj_fields_chunk_items" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">traj_fields_chunk_items</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wepy_h5_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Ellipsis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Ellipsis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#traj_fields_chunk_items"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.traj_fields_chunk_items" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generate items that can be used to create a dask.bag object.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -186,50 +184,50 @@ partition these chunks as it sees fit.</p></li>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.load_chunk">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">load_chunk</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chunk_spec</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#load_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.load_chunk" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">load_chunk</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#load_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.load_chunk" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.chunk_func_funcgen">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_func_funcgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">input_keys</span><span class="o">=</span><span class="default_value">['traj_fields']</span></em>, <em class="sig-param"><span class="n">result_name</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">keep_inputs</span><span class="o">=</span><span class="default_value">False</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_func_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_func_funcgen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">chunk_func_funcgen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">['traj_fields']</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">result_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_inputs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_func_funcgen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_func_funcgen" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.unwrap_chunk_funcgen">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">unwrap_chunk_funcgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">keys</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#unwrap_chunk_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.unwrap_chunk_funcgen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">unwrap_chunk_funcgen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">keys</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#unwrap_chunk_funcgen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.unwrap_chunk_funcgen" title="Permalink to this definition">¶</a></dt>
 <dd><p>Consider first using the bag.pluck method</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.chunk_key_func">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_key_func</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">chunk_spec</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_key_func"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_key_func" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">chunk_key_func</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">chunk_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_key_func"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_key_func" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.init_chunk">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">init_chunk</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#init_chunk"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.init_chunk" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">init_chunk</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#init_chunk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.init_chunk" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.chunk_concat_funcgen">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_concat_funcgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">*</span><span class="n">concat_funcs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_concat_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_concat_funcgen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">chunk_concat_funcgen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">concat_funcs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_concat_funcgen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_concat_funcgen" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.chunk_array_concat_funcgen">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_array_concat_funcgen</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">field</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_array_concat_funcgen"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_array_concat_funcgen" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">chunk_array_concat_funcgen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_array_concat_funcgen"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_array_concat_funcgen" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.chunk_traj_fields_concat">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">chunk_traj_fields_concat</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">cum_chunk_spec</span></em>, <em class="sig-param"><span class="n">new_chunk_spec</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_traj_fields_concat"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_traj_fields_concat" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">chunk_traj_fields_concat</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cum_chunk_spec</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_chunk_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#chunk_traj_fields_concat"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.chunk_traj_fields_concat" title="Permalink to this definition">¶</a></dt>
 <dd><p>Binary operation for dask foldby reductions for concatenating chunk
 specs with a traj_fields payload</p>
 </dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed._by_traj_to_multidimensional">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">_by_traj_to_multidimensional</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">traj_d</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#_by_traj_to_multidimensional"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed._by_traj_to_multidimensional" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">_by_traj_to_multidimensional</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#_by_traj_to_multidimensional"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed._by_traj_to_multidimensional" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a dictionary of keys (run_idx, traj_idx) and values (of
 dimension val_dim) as arrays to a list of lists of the value
 arrays.</p>
@@ -237,12 +235,12 @@ arrays.</p>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.compute_observable">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">compute_observable</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">wepy_h5_path</span></em>, <em class="sig-param"><span class="n">dask_client</span></em>, <em class="sig-param"><span class="n">fields</span></em>, <em class="sig-param"><span class="n">chunk_size</span><span class="o">=</span><span class="default_value">Ellipsis</span></em>, <em class="sig-param"><span class="n">num_partitions</span><span class="o">=</span><span class="default_value">100</span></em>, <em class="sig-param"><span class="n">run_idxs</span><span class="o">=</span><span class="default_value">Ellipsis</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#compute_observable"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.compute_observable" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">compute_observable</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wepy_h5_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dask_client</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fields</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Ellipsis</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_partitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">Ellipsis</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#compute_observable"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.compute_observable" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py function">
 <dt id="wepy.analysis.distributed.compute_observable_graph">
-<code class="sig-prename descclassname">wepy.analysis.distributed.</code><code class="sig-name descname">compute_observable_graph</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">func</span></em>, <em class="sig-param"><span class="n">chunk_bag</span></em>, <em class="sig-param"><span class="n">chunk_size</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#compute_observable_graph"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.distributed.compute_observable_graph" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.distributed.</span></code><code class="sig-name descname"><span class="pre">compute_observable_graph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_bag</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chunk_size</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/distributed.html#compute_observable_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.distributed.compute_observable_graph" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </div>
@@ -358,7 +356,7 @@ arrays.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

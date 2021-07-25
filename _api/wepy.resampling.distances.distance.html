@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.distances.distance module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.resampling.distances.distance.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -74,13 +72,13 @@ high cost.</p>
 the ‘image_distance’ to compute distances using only those images.</p>
 <dl class="py class">
 <dt id="wepy.resampling.distances.distance.Distance">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.distance.</code><code class="sig-name descname">Distance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.resampling.distances.distance.</span></code><code class="sig-name descname"><span class="pre">Distance</span></code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Abstract Base class for Distance classes.</p>
 <p>Constructor for Distance class.</p>
 <dl class="py method">
 <dt id="wepy.resampling.distances.distance.Distance.image">
-<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the ‘image’ of a walker state which should be some
 transformation of the walker state that is more
 convenient. E.g. for precomputation of expensive operations or
@@ -102,7 +100,7 @@ state itself, thus it is the identity function.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.distances.distance.Distance.image_distance">
-<code class="sig-name descname">image_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_a</span></em>, <em class="sig-param"><span class="n">image_b</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image_distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">image_distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.image_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.image_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the distance between two images of walker states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -123,7 +121,7 @@ state itself, thus it is the identity function.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.distances.distance.Distance.distance">
-<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state_a</span></em>, <em class="sig-param"><span class="n">state_b</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#Distance.distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.Distance.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the distance between two states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -145,14 +143,14 @@ state itself, thus it is the identity function.</p>
 
 <dl class="py class">
 <dt id="wepy.resampling.distances.distance.XYEuclideanDistance">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.distance.</code><code class="sig-name descname">XYEuclideanDistance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.resampling.distances.distance.</span></code><code class="sig-name descname"><span class="pre">XYEuclideanDistance</span></code><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
 <p>2 dimensional euclidean distance between points.</p>
 <p>States have the attributes ‘x’ and ‘y’.</p>
 <p>Constructor for Distance class.</p>
 <dl class="py method">
 <dt id="wepy.resampling.distances.distance.XYEuclideanDistance.image">
-<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the ‘image’ of a walker state which should be some
 transformation of the walker state that is more
 convenient. E.g. for precomputation of expensive operations or
@@ -174,7 +172,7 @@ state itself, thus it is the identity function.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.distances.distance.XYEuclideanDistance.image_distance">
-<code class="sig-name descname">image_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_a</span></em>, <em class="sig-param"><span class="n">image_b</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.image_distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">image_distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/distance.html#XYEuclideanDistance.image_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.image_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the distance between two images of walker states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -195,7 +193,7 @@ state itself, thus it is the identity function.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.distances.distance.XYEuclideanDistance.distance">
-<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state_a</span></em>, <em class="sig-param"><span class="n">state_b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.distances.distance.XYEuclideanDistance.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the distance between two states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -330,7 +328,7 @@ state itself, thus it is the identity function.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

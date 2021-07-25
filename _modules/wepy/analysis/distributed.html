@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.distributed &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/analysis/distributed.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -173,7 +171,7 @@
 
 <span class="n">RESULT_FIELD_NAME</span> <span class="o">=</span> <span class="s1">&#39;observable&#39;</span>
 
-<div class="viewcode-block" id="traj_fields_chunk_items"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.traj_fields_chunk_items">[docs]</a><span class="k">def</span> <span class="nf">traj_fields_chunk_items</span><span class="p">(</span><span class="n">wepy_h5_path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
+<div class="viewcode-block" id="traj_fields_chunk_items"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.traj_fields_chunk_items">[docs]</a><span class="k">def</span> <span class="nf">traj_fields_chunk_items</span><span class="p">(</span><span class="n">wepy_h5_path</span><span class="p">,</span> <span class="n">fields</span><span class="p">,</span>
                             <span class="n">run_idxs</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">,</span>
                             <span class="n">chunk_size</span><span class="o">=</span><span class="bp">Ellipsis</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generate items that can be used to create a dask.bag object.</span>
@@ -246,7 +244,7 @@
 
     <span class="k">return</span> <span class="n">chunk_specs</span></div>
 
-<div class="viewcode-block" id="load_chunk"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.load_chunk">[docs]</a><span class="k">def</span> <span class="nf">load_chunk</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
+<div class="viewcode-block" id="load_chunk"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.load_chunk">[docs]</a><span class="k">def</span> <span class="nf">load_chunk</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
 
     <span class="n">wepy_h5</span> <span class="o">=</span> <span class="n">WepyHDF5</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;wepy_h5_path&#39;</span><span class="p">],</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r&#39;</span><span class="p">)</span>
 
@@ -263,7 +261,7 @@
 
     <span class="k">return</span> <span class="n">chunk_spec</span></div>
 
-<div class="viewcode-block" id="chunk_func_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_func_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_func_funcgen</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
+<div class="viewcode-block" id="chunk_func_funcgen"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_func_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_func_funcgen</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
                        <span class="n">input_keys</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;traj_fields&#39;</span><span class="p">],</span>
                        <span class="n">result_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">keep_inputs</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -301,7 +299,7 @@
 
 <span class="c1"># NOTE: probably shouldn&#39;t need this. THere is a dask function called</span>
 <span class="c1"># &#39;pluck&#39; which does the same thing, except only for 1 key</span>
-<div class="viewcode-block" id="unwrap_chunk_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.unwrap_chunk_funcgen">[docs]</a><span class="k">def</span> <span class="nf">unwrap_chunk_funcgen</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="unwrap_chunk_funcgen"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.unwrap_chunk_funcgen">[docs]</a><span class="k">def</span> <span class="nf">unwrap_chunk_funcgen</span><span class="p">(</span><span class="n">keys</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Consider first using the bag.pluck method&quot;&quot;&quot;</span>
 
     <span class="k">assert</span> <span class="n">keys</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;must give at least one key or this is useless&quot;</span>
@@ -315,10 +313,10 @@
     <span class="k">return</span> <span class="n">unwrap_chunk_func</span></div>
 
 <span class="c1"># for reduction</span>
-<div class="viewcode-block" id="chunk_key_func"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_key_func">[docs]</a><span class="k">def</span> <span class="nf">chunk_key_func</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
+<div class="viewcode-block" id="chunk_key_func"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_key_func">[docs]</a><span class="k">def</span> <span class="nf">chunk_key_func</span><span class="p">(</span><span class="n">chunk_spec</span><span class="p">):</span>
     <span class="k">return</span> <span class="p">(</span><span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;run_idx&#39;</span><span class="p">],</span> <span class="n">chunk_spec</span><span class="p">[</span><span class="s1">&#39;traj_idx&#39;</span><span class="p">])</span></div>
 
-<div class="viewcode-block" id="init_chunk"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.init_chunk">[docs]</a><span class="k">def</span> <span class="nf">init_chunk</span><span class="p">():</span>
+<div class="viewcode-block" id="init_chunk"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.init_chunk">[docs]</a><span class="k">def</span> <span class="nf">init_chunk</span><span class="p">():</span>
 
     <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;wepy_h5_path&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;run_idx&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
@@ -326,7 +324,7 @@
             <span class="s1">&#39;fields&#39;</span> <span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
             <span class="s1">&#39;frame_idxs&#39;</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([])}</span></div>
 
-<div class="viewcode-block" id="chunk_concat_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_concat_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_concat_funcgen</span><span class="p">(</span><span class="o">*</span><span class="n">concat_funcs</span><span class="p">):</span>
+<div class="viewcode-block" id="chunk_concat_funcgen"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_concat_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_concat_funcgen</span><span class="p">(</span><span class="o">*</span><span class="n">concat_funcs</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">chunk_concat</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
 
@@ -362,7 +360,7 @@
     <span class="k">return</span> <span class="n">chunk_concat</span></div>
 
 
-<div class="viewcode-block" id="chunk_array_concat_funcgen"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_array_concat_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_array_concat_funcgen</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
+<div class="viewcode-block" id="chunk_array_concat_funcgen"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_array_concat_funcgen">[docs]</a><span class="k">def</span> <span class="nf">chunk_array_concat_funcgen</span><span class="p">(</span><span class="n">field</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="nf">func</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
 
@@ -378,7 +376,7 @@
 
     <span class="k">return</span> <span class="n">func</span></div>
 
-<div class="viewcode-block" id="chunk_traj_fields_concat"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_traj_fields_concat">[docs]</a><span class="k">def</span> <span class="nf">chunk_traj_fields_concat</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
+<div class="viewcode-block" id="chunk_traj_fields_concat"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.chunk_traj_fields_concat">[docs]</a><span class="k">def</span> <span class="nf">chunk_traj_fields_concat</span><span class="p">(</span><span class="n">cum_chunk_spec</span><span class="p">,</span> <span class="n">new_chunk_spec</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Binary operation for dask foldby reductions for concatenating chunk</span>
 <span class="sd">    specs with a traj_fields payload&quot;&quot;&quot;</span>
 
@@ -419,7 +417,7 @@
 <span class="c1">#             traj_id, struct = last_step.take(1)</span>
 <span class="c1">#             yield (traj_id, struct[&#39;observable&#39;])</span>
 
-<div class="viewcode-block" id="_by_traj_to_multidimensional"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed._by_traj_to_multidimensional">[docs]</a><span class="k">def</span> <span class="nf">_by_traj_to_multidimensional</span><span class="p">(</span><span class="n">traj_d</span><span class="p">):</span>
+<div class="viewcode-block" id="_by_traj_to_multidimensional"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed._by_traj_to_multidimensional">[docs]</a><span class="k">def</span> <span class="nf">_by_traj_to_multidimensional</span><span class="p">(</span><span class="n">traj_d</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert a dictionary of keys (run_idx, traj_idx) and values (of</span>
 <span class="sd">    dimension val_dim) as arrays to a list of lists of the value</span>
 <span class="sd">    arrays.</span>
@@ -452,7 +450,7 @@
     <span class="k">return</span> <span class="n">runs_arr</span></div>
 
 
-<div class="viewcode-block" id="compute_observable"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.compute_observable">[docs]</a><span class="k">def</span> <span class="nf">compute_observable</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
+<div class="viewcode-block" id="compute_observable"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.compute_observable">[docs]</a><span class="k">def</span> <span class="nf">compute_observable</span><span class="p">(</span><span class="n">func</span><span class="p">,</span>
                        <span class="n">wepy_h5_path</span><span class="p">,</span>
                        <span class="n">dask_client</span><span class="p">,</span>
                        <span class="n">fields</span><span class="p">,</span>
@@ -487,7 +485,7 @@
         <span class="k">return</span> <span class="n">results_arr</span></div>
 
 
-<div class="viewcode-block" id="compute_observable_graph"><a class="viewcode-back" href="../../../api/wepy.analysis.distributed.html#wepy.analysis.distributed.compute_observable_graph">[docs]</a><span class="k">def</span> <span class="nf">compute_observable_graph</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">chunk_bag</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
+<div class="viewcode-block" id="compute_observable_graph"><a class="viewcode-back" href="../../../_api/wepy.analysis.distributed.html#wepy.analysis.distributed.compute_observable_graph">[docs]</a><span class="k">def</span> <span class="nf">compute_observable_graph</span><span class="p">(</span><span class="n">func</span><span class="p">,</span> <span class="n">chunk_bag</span><span class="p">,</span> <span class="n">chunk_size</span><span class="p">):</span>
 
     <span class="c1"># since the inputs to any mapped function will be chunk</span>
     <span class="c1"># structs (i.e. having metadata about the identity of the</span>
@@ -641,7 +639,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

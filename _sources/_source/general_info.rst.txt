@@ -23,9 +23,8 @@ DOI: `10.5281/zenodo.3973431 <https://doi.org/10.5281/zenodo.3973431>`__
 Community & Related Projects
 ----------------------------
 
-Discussion takes place on riot.im (#wepy:matrix.org) which is a
-slack-like app that works on the Matrix protocol:
-`https://riot.im/app/#/room/#wepy:matrix.org <https://riot.im/app/#/room/#wepy:matrix.org>`__
+General chat and discussion takes place on
+`gitter.im <https://gitter.im/wepy/general>`__.
 
 We will also list any projects using ``wepy`` in the
 :doc:`Introduction <introduction>`.
@@ -36,5 +35,6 @@ Contacting the developers
 -------------------------
 
 You can contact developers directly via their contact info on the
-`Dickson Lab website <https://www.egr.msu.edu/~alexrd/>`__ or using the
-`issue tracker <https://github.com/ADicksonLab/wepy/issues>`__.
+`Dickson Lab website <https://www.egr.msu.edu/~alexrd/>`__, using the
+`issue tracker <https://github.com/ADicksonLab/wepy/issues>`__, or on
+`gitter.im <https://gitter.im/wepy/general>`__ chat.

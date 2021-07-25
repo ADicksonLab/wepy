@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.resamplers.wexplore &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script src="../../../../_static/jquery.js"></script>
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/resampling/resamplers/wexplore.html" />
     <link rel="shortcut icon" href="../../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -60,7 +58,7 @@
 <span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.clone_merge</span>  <span class="kn">import</span> <span class="n">CloneMergeResampler</span>
 <span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="kn">import</span> <span class="n">MultiCloneMergeDecision</span>
 
-<div class="viewcode-block" id="RegionTreeError"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTreeError">[docs]</a><span class="k">class</span> <span class="nc">RegionTreeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTreeError"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTreeError">[docs]</a><span class="k">class</span> <span class="nc">RegionTreeError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Errors related to violations of constraints in RegionTree algorithms.&quot;&quot;&quot;</span>
     <span class="k">pass</span></div>
 
@@ -68,7 +66,7 @@
 <span class="c1">## Merge methods</span>
 
 <span class="c1"># algorithms for finding the number of mergeable walkers in a group</span>
-<div class="viewcode-block" id="calc_squashable_walkers_single_method"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.calc_squashable_walkers_single_method">[docs]</a><span class="k">def</span> <span class="nf">calc_squashable_walkers_single_method</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">,</span> <span class="n">max_weight</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_squashable_walkers_single_method"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.calc_squashable_walkers_single_method">[docs]</a><span class="k">def</span> <span class="nf">calc_squashable_walkers_single_method</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">,</span> <span class="n">max_weight</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Calculate the maximum number of squashable walkers in collection of</span>
 <span class="sd">    walkers, that still satisfies the max weight constraint.</span>
 
@@ -149,7 +147,7 @@
 
 
 <span class="c1"># algorithms for actually generating the merge groups</span>
-<div class="viewcode-block" id="decide_merge_groups_single_method"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.decide_merge_groups_single_method">[docs]</a><span class="k">def</span> <span class="nf">decide_merge_groups_single_method</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">,</span> <span class="n">balance</span><span class="p">,</span> <span class="n">max_weight</span><span class="p">):</span>
+<div class="viewcode-block" id="decide_merge_groups_single_method"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.decide_merge_groups_single_method">[docs]</a><span class="k">def</span> <span class="nf">decide_merge_groups_single_method</span><span class="p">(</span><span class="n">walker_weights</span><span class="p">,</span> <span class="n">balance</span><span class="p">,</span> <span class="n">max_weight</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Use the &#39;single&#39; method for determining the merge groups.</span>
 
 <span class="sd">    Determine a solution to the backpack-like problem of assigning</span>
@@ -200,7 +198,7 @@
     <span class="k">return</span> <span class="p">[</span><span class="n">chosen_idxs</span><span class="p">],</span> <span class="n">result</span></div>
 
 <span class="c1">## Clone methods</span>
-<div class="viewcode-block" id="calc_max_num_clones"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.calc_max_num_clones">[docs]</a><span class="k">def</span> <span class="nf">calc_max_num_clones</span><span class="p">(</span><span class="n">walker_weight</span><span class="p">,</span> <span class="n">min_weight</span><span class="p">,</span> <span class="n">max_num_walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="calc_max_num_clones"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.calc_max_num_clones">[docs]</a><span class="k">def</span> <span class="nf">calc_max_num_clones</span><span class="p">(</span><span class="n">walker_weight</span><span class="p">,</span> <span class="n">min_weight</span><span class="p">,</span> <span class="n">max_num_walkers</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    Parameters</span>
@@ -241,7 +239,7 @@
     <span class="k">return</span> <span class="n">max_n_clones</span></div>
 
 
-<div class="viewcode-block" id="RegionTree"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree">[docs]</a><span class="k">class</span> <span class="nc">RegionTree</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree">[docs]</a><span class="k">class</span> <span class="nc">RegionTree</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">DiGraph</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Used internally in the WExploreResampler module. Not really</span>
 <span class="sd">    intended to be used outside this module.&quot;&quot;&quot;</span>
 
@@ -389,7 +387,7 @@
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_regions</span>
 
-<div class="viewcode-block" id="RegionTree.add_child"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">image_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.add_child"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.add_child">[docs]</a>    <span class="k">def</span> <span class="nf">add_child</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">image_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -421,7 +419,7 @@
 
         <span class="k">return</span> <span class="n">child_id</span></div>
 
-<div class="viewcode-block" id="RegionTree.children"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.children">[docs]</a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.children"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.children">[docs]</a>    <span class="k">def</span> <span class="nf">children</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -438,7 +436,7 @@
         <span class="n">children_ids</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="k">return</span> <span class="n">children_ids</span></div>
 
-<div class="viewcode-block" id="RegionTree.level_nodes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.level_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">level_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.level_nodes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.level_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">level_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the nodes/regions at the specified level.</span>
 
 <span class="sd">        Parameters</span>
@@ -457,11 +455,11 @@
         <span class="k">return</span> <span class="p">[</span><span class="n">node_id</span> <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">nodes</span>
                 <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">node_id</span><span class="p">)</span> <span class="o">==</span> <span class="n">level</span><span class="p">]</span></div>
 
-<div class="viewcode-block" id="RegionTree.leaf_nodes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.leaf_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.leaf_nodes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.leaf_nodes">[docs]</a>    <span class="k">def</span> <span class="nf">leaf_nodes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">level_nodes</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">n_levels</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RegionTree.branch_tree"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.branch_tree">[docs]</a>    <span class="k">def</span> <span class="nf">branch_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.branch_tree"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.branch_tree">[docs]</a>    <span class="k">def</span> <span class="nf">branch_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">image</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -566,7 +564,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_min_num_walkers</span> <span class="o">=</span> <span class="kc">None</span>
 
 
-<div class="viewcode-block" id="RegionTree.assign"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.assign">[docs]</a>    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.assign"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.assign">[docs]</a>    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -642,7 +640,7 @@
 
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">assignment</span><span class="p">),</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">dists</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RegionTree.clear_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.clear_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">clear_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.clear_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.clear_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">clear_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Remove all walkers from the regions.&quot;&quot;&quot;</span>
 
         <span class="c1"># reset the walker assignments to an empty list</span>
@@ -659,7 +657,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node_id</span><span class="p">][</span><span class="s1">&#39;balance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span></div>
 
 
-<div class="viewcode-block" id="RegionTree.place_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.place_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">place_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.place_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.place_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">place_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -764,7 +762,7 @@
 
         <span class="k">return</span> <span class="n">new_branches</span></div>
 
-<div class="viewcode-block" id="RegionTree._max_n_merges"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._max_n_merges">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="RegionTree._max_n_merges"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._max_n_merges">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_max_n_merges</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">pmax</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">weights</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -839,7 +837,7 @@
 
         <span class="k">return</span> <span class="n">max_n_merges</span></div>
 
-<div class="viewcode-block" id="RegionTree._calc_squashable_walkers"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._calc_squashable_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_squashable_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._calc_squashable_walkers"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._calc_squashable_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_squashable_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -859,7 +857,7 @@
 
         <span class="k">return</span> <span class="n">n_squashable</span></div>
 
-<div class="viewcode-block" id="RegionTree._calc_max_num_clones"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._calc_max_num_clones">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_max_num_clones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weight</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._calc_max_num_clones"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._calc_max_num_clones">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_max_num_clones</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weight</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -874,7 +872,7 @@
 
         <span class="k">return</span> <span class="n">calc_max_num_clones</span><span class="p">(</span><span class="n">walker_weight</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">pmin</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_num_walkers</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="RegionTree._propagate_and_balance_shares"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._propagate_and_balance_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_propagate_and_balance_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_node_ids</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._propagate_and_balance_shares"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._propagate_and_balance_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_propagate_and_balance_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_node_ids</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -958,7 +956,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">child_node_id</span><span class="p">][</span><span class="s1">&#39;balance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">child_net_balance</span></div>
 
 
-<div class="viewcode-block" id="RegionTree._dispense_parental_shares"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._dispense_parental_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_dispense_parental_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._dispense_parental_shares"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._dispense_parental_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_dispense_parental_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
                                   <span class="n">children_donatable_shares</span><span class="p">,</span>
                                   <span class="n">children_receivable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a parental balance and a set of children nodes, we dispense</span>
@@ -1028,7 +1026,7 @@
 
         <span class="k">return</span> <span class="n">children_dispensations</span></div>
 
-<div class="viewcode-block" id="RegionTree._dispense_debit_shares"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._dispense_debit_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_dispense_debit_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._dispense_debit_shares"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._dispense_debit_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_dispense_debit_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
                                <span class="n">children_donatable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;For a negative parental balance we dispense it to the children</span>
 <span class="sd">        nodes</span>
@@ -1101,7 +1099,7 @@
 
         <span class="k">return</span> <span class="n">children_dispensations</span></div>
 
-<div class="viewcode-block" id="RegionTree._dispense_credit_shares"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._dispense_credit_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_dispense_credit_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._dispense_credit_shares"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._dispense_credit_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_dispense_credit_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">parental_balance</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
                                 <span class="n">children_receivable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1176,7 +1174,7 @@
 
         <span class="k">return</span> <span class="n">children_dispensations</span></div>
 
-<div class="viewcode-block" id="RegionTree._balance_children_shares"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._balance_children_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_balance_children_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._balance_children_shares"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._balance_children_shares">[docs]</a>    <span class="k">def</span> <span class="nf">_balance_children_shares</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
                                  <span class="n">children_donatable_shares</span><span class="p">,</span>
                                  <span class="n">children_receivable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a dictionary mapping the child node_ids to the total number</span>
@@ -1268,7 +1266,7 @@
         <span class="k">return</span> <span class="n">children_shares</span></div>
 
 
-<div class="viewcode-block" id="RegionTree._gen_best_donation"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._gen_best_donation">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_best_donation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._gen_best_donation"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._gen_best_donation">[docs]</a>    <span class="k">def</span> <span class="nf">_gen_best_donation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">children_shares</span><span class="p">,</span>
                                  <span class="n">children_donatable_shares</span><span class="p">,</span>
                                  <span class="n">children_receivable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a the children shares generate the best donation. Returns the</span>
@@ -1419,7 +1417,7 @@
         <span class="k">return</span> <span class="n">donor_node_id</span><span class="p">,</span> <span class="n">acceptor_node_id</span><span class="p">,</span> <span class="n">best_donation_amount</span></div>
 
 
-<div class="viewcode-block" id="RegionTree._find_best_donation_pair"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._find_best_donation_pair">[docs]</a>    <span class="k">def</span> <span class="nf">_find_best_donation_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">children_donatable_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._find_best_donation_pair"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._find_best_donation_pair">[docs]</a>    <span class="k">def</span> <span class="nf">_find_best_donation_pair</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">children_donatable_shares</span><span class="p">,</span>
                                        <span class="n">children_receivable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This method just returns which children have the most and least</span>
 <span class="sd">        number of &#39;shares&#39; which are the effective number of walker</span>
@@ -1504,7 +1502,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">donor_child_node_id</span><span class="p">,</span> <span class="n">acceptor_child_node_id</span></div>
 
-<div class="viewcode-block" id="RegionTree._calc_share_donation"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._calc_share_donation">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_share_donation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">donor_n_shares</span><span class="p">,</span> <span class="n">acceptor_n_shares</span><span class="p">,</span>
+<div class="viewcode-block" id="RegionTree._calc_share_donation"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._calc_share_donation">[docs]</a>    <span class="k">def</span> <span class="nf">_calc_share_donation</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">donor_n_shares</span><span class="p">,</span> <span class="n">acceptor_n_shares</span><span class="p">,</span>
                                    <span class="n">donor_donatable_shares</span><span class="p">,</span> <span class="n">acceptor_receivable_shares</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -1542,7 +1540,7 @@
 
         <span class="k">return</span> <span class="n">actual_donation</span></div>
 
-<div class="viewcode-block" id="RegionTree._decide_merge_leaf"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._decide_merge_leaf">[docs]</a>    <span class="k">def</span> <span class="nf">_decide_merge_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._decide_merge_leaf"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._decide_merge_leaf">[docs]</a>    <span class="k">def</span> <span class="nf">_decide_merge_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -1643,7 +1641,7 @@
 
         <span class="k">return</span> <span class="n">merge_groups</span></div>
 
-<div class="viewcode-block" id="RegionTree._solve_merge_groupings"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._solve_merge_groupings">[docs]</a>    <span class="k">def</span> <span class="nf">_solve_merge_groupings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">balance</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._solve_merge_groupings"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._solve_merge_groupings">[docs]</a>    <span class="k">def</span> <span class="nf">_solve_merge_groupings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker_weights</span><span class="p">,</span> <span class="n">balance</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -1687,7 +1685,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">full_merge_groups</span></div>
 
-<div class="viewcode-block" id="RegionTree._decide_clone_leaf"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._decide_clone_leaf">[docs]</a>    <span class="k">def</span> <span class="nf">_decide_clone_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walkers_num_clones</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._decide_clone_leaf"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._decide_clone_leaf">[docs]</a>    <span class="k">def</span> <span class="nf">_decide_clone_leaf</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">leaf</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walkers_num_clones</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -1808,7 +1806,7 @@
 
         <span class="k">return</span> <span class="n">walkers_num_clones</span></div>
 
-<div class="viewcode-block" id="RegionTree._decide_settle_balance"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._decide_settle_balance">[docs]</a>    <span class="k">def</span> <span class="nf">_decide_settle_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._decide_settle_balance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._decide_settle_balance">[docs]</a>    <span class="k">def</span> <span class="nf">_decide_settle_balance</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given the balances of all the leaves figure out actually how to</span>
 <span class="sd">        settle all the balances. Returns the merge_groups and</span>
 <span class="sd">        walkers_num_clones</span>
@@ -1876,7 +1874,7 @@
 
         <span class="k">return</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walkers_num_clones</span></div>
 
-<div class="viewcode-block" id="RegionTree._check_clone_merge_specs"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._check_clone_merge_specs">[docs]</a>    <span class="k">def</span> <span class="nf">_check_clone_merge_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walkers_num_clones</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree._check_clone_merge_specs"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree._check_clone_merge_specs">[docs]</a>    <span class="k">def</span> <span class="nf">_check_clone_merge_specs</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walkers_num_clones</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;This will perform the computations to get the weights of the clones</span>
 <span class="sd">        and merges but does not actually assign them to slots. This is</span>
 <span class="sd">        mainly for checking that we have not violated any rules.</span>
@@ -2029,7 +2027,7 @@
                 <span class="s2">&quot;Clone specs produce underweight walkers for clone walkers </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
                     <span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">underweight_producer_idxs</span><span class="p">]))</span></div>
 
-<div class="viewcode-block" id="RegionTree.balance_tree"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.balance_tree">[docs]</a>    <span class="k">def</span> <span class="nf">balance_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_walkers</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="RegionTree.balance_tree"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.RegionTree.balance_tree">[docs]</a>    <span class="k">def</span> <span class="nf">balance_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_walkers</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Do balancing between the branches of the tree. the `delta_walkers`</span>
 <span class="sd">        kwarg can be used to increase or decrease the total number of</span>
 <span class="sd">        walkers, but defaults to zero which will cause no net change</span>
@@ -2095,7 +2093,7 @@
 
         <span class="k">return</span> <span class="n">merge_groups</span><span class="p">,</span> <span class="n">walkers_num_clones</span></div></div>
 
-<div class="viewcode-block" id="WExploreResampler"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler">[docs]</a><span class="k">class</span> <span class="nc">WExploreResampler</span><span class="p">(</span><span class="n">CloneMergeResampler</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreResampler"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler">[docs]</a><span class="k">class</span> <span class="nc">WExploreResampler</span><span class="p">(</span><span class="n">CloneMergeResampler</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Resampler implementing the WExplore algorithm.</span>
 
 <span class="sd">    See the paper for a full description of the algorithm, but</span>
@@ -2373,7 +2371,7 @@
                                        <span class="n">pmin</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pmin</span><span class="p">,</span>
                                        <span class="n">pmax</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">pmax</span><span class="p">)</span>
 
-<div class="viewcode-block" id="WExploreResampler.resampler_field_shapes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.resampler_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreResampler.resampler_field_shapes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.resampler_field_shapes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># index of the image idx</span>
         <span class="n">image_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_names</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
@@ -2384,7 +2382,7 @@
 
         <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">shapes</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WExploreResampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreResampler.resampler_field_dtypes"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.resampler_field_dtypes">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># index of the image idx</span>
         <span class="n">image_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">resampler_field_names</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
@@ -2405,7 +2403,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_region_tree</span>
 
 
-<div class="viewcode-block" id="WExploreResampler.assign"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.assign">[docs]</a>    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreResampler.assign"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.assign">[docs]</a>    <span class="k">def</span> <span class="nf">assign</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Assign walkers to regions in the tree, with region creation.</span>
 
 <span class="sd">        Parameters</span>
@@ -2439,7 +2437,7 @@
         <span class="c1"># resampler state, which is addition of new regions</span>
         <span class="k">return</span> <span class="n">assignments</span><span class="p">,</span> <span class="n">resampler_data</span></div>
 
-<div class="viewcode-block" id="WExploreResampler.decide"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.decide">[docs]</a>    <span class="k">def</span> <span class="nf">decide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_walkers</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreResampler.decide"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.decide">[docs]</a>    <span class="k">def</span> <span class="nf">decide</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">delta_walkers</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Make decisions for resampling for a single step.</span>
 
 <span class="sd">        Parameters</span>
@@ -2491,7 +2489,7 @@
         <span class="k">return</span> <span class="n">resampling_actions</span></div>
 
 
-<div class="viewcode-block" id="WExploreResampler._check_resampling_data"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler._check_resampling_data">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="WExploreResampler._check_resampling_data"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler._check_resampling_data">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">_check_resampling_data</span><span class="p">(</span><span class="n">resampling_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
@@ -2541,7 +2539,7 @@
          <span class="k">for</span> <span class="n">squash_slot_idx</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">squash_slot_idxs</span><span class="p">)]):</span>
             <span class="k">raise</span> <span class="n">ResamplerError</span><span class="p">(</span><span class="s2">&quot;Not all squashes are assigned to keep_merge slots&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WExploreResampler._resample_init"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler._resample_init">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="WExploreResampler._resample_init"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler._resample_init">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -2570,7 +2568,7 @@
             <span class="c1"># and keep the walkers too</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_input_walkers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WExploreResampler._resample_cleanup"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler._resample_cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampling_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="WExploreResampler._resample_cleanup"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler._resample_cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">_resample_cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resampling_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">resampler_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                           <span class="n">resampled_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
@@ -2626,7 +2624,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">region_tree</span><span class="o">.</span><span class="n">max_num_walkers</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">region_tree</span><span class="o">.</span><span class="n">min_num_walkers</span> <span class="o">=</span> <span class="kc">False</span></div>
 
-<div class="viewcode-block" id="WExploreResampler.resample"><a class="viewcode-back" href="../../../../api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.resample">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
+<div class="viewcode-block" id="WExploreResampler.resample"><a class="viewcode-back" href="../../../../_api/wepy.resampling.resamplers.wexplore.html#wepy.resampling.resamplers.wexplore.WExploreResampler.resample">[docs]</a>    <span class="nd">@log_call</span><span class="p">(</span><span class="n">include_args</span><span class="o">=</span><span class="p">[],</span>
               <span class="n">include_result</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="k">def</span> <span class="nf">resample</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">):</span>
 
@@ -2775,7 +2773,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

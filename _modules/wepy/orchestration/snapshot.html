@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.orchestration.snapshot &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/orchestration/snapshot.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -46,7 +44,7 @@
   <h1>Source code for wepy.orchestration.snapshot</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">copy</span><span class="p">,</span> <span class="n">deepcopy</span>
 
-<div class="viewcode-block" id="SimApparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.SimApparatus">[docs]</a><span class="k">class</span> <span class="nc">SimApparatus</span><span class="p">():</span>
+<div class="viewcode-block" id="SimApparatus"><a class="viewcode-back" href="../../../_api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.SimApparatus">[docs]</a><span class="k">class</span> <span class="nc">SimApparatus</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;The simulation apparatus are the components needed for running a</span>
 <span class="sd">    simulation without the initial conditions for starting the simulation.</span>
 <span class="sd">    </span>
@@ -71,7 +69,7 @@
 
 
 
-<div class="viewcode-block" id="WepySimApparatus"><a class="viewcode-back" href="../../../api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.WepySimApparatus">[docs]</a><span class="k">class</span> <span class="nc">WepySimApparatus</span><span class="p">(</span><span class="n">SimApparatus</span><span class="p">):</span>
+<div class="viewcode-block" id="WepySimApparatus"><a class="viewcode-back" href="../../../_api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.WepySimApparatus">[docs]</a><span class="k">class</span> <span class="nc">WepySimApparatus</span><span class="p">(</span><span class="n">SimApparatus</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="n">RUNNER_IDX</span> <span class="o">=</span> <span class="mi">0</span>
@@ -101,7 +99,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">filters</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLER_IDX</span><span class="p">]</span></div>
 
 
-<div class="viewcode-block" id="SimSnapshot"><a class="viewcode-back" href="../../../api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.SimSnapshot">[docs]</a><span class="k">class</span> <span class="nc">SimSnapshot</span><span class="p">():</span>
+<div class="viewcode-block" id="SimSnapshot"><a class="viewcode-back" href="../../../_api/wepy.orchestration.snapshot.html#wepy.orchestration.snapshot.SimSnapshot">[docs]</a><span class="k">class</span> <span class="nc">SimSnapshot</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot; &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">apparatus</span><span class="p">):</span>
@@ -217,7 +215,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

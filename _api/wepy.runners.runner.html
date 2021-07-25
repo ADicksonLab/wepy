@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.runners.runner module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.runners.runner.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -68,12 +66,12 @@ the runner.</p>
 <p>See the openmm.py module for an example.</p>
 <dl class="py class">
 <dt id="wepy.runners.runner.Runner">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.runner.</code><code class="sig-name descname">Runner</code><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.runner.Runner" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.runners.runner.</span></code><code class="sig-name descname"><span class="pre">Runner</span></code><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Abstract base class for the Runner interface.</p>
 <dl class="py method">
 <dt id="wepy.runners.runner.Runner.pre_cycle">
-<code class="sig-name descname">pre_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.pre_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.runner.Runner.pre_cycle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pre_cycle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.pre_cycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner.pre_cycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform pre-cycle behavior. run_segment will be called for each
 walker so this allows you to perform changes of state on a
 per-cycle basis.</p>
@@ -86,7 +84,7 @@ per-cycle basis.</p>
 
 <dl class="py method">
 <dt id="wepy.runners.runner.Runner.post_cycle">
-<code class="sig-name descname">post_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.post_cycle"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.runner.Runner.post_cycle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">post_cycle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.post_cycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner.post_cycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform post-cycle behavior. run_segment will be called for each
 walker so this allows you to perform changes of state on a
 per-cycle basis.</p>
@@ -99,7 +97,7 @@ per-cycle basis.</p>
 
 <dl class="py method">
 <dt id="wepy.runners.runner.Runner.run_segment">
-<code class="sig-name descname">run_segment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walker</span></em>, <em class="sig-param"><span class="n">segment_length</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.run_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.runner.Runner.run_segment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">run_segment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_length</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.run_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner.run_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run dynamics for the walker.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -121,13 +119,13 @@ per-cycle basis.</p>
 
 <dl class="py class">
 <dt id="wepy.runners.runner.NoRunner">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.runners.runner.</code><code class="sig-name descname">NoRunner</code><a class="reference internal" href="../_modules/wepy/runners/runner.html#NoRunner"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.runner.NoRunner" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.runners.runner.html#wepy.runners.runner.Runner" title="wepy.runners.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.runner.Runner</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.runners.runner.</span></code><code class="sig-name descname"><span class="pre">NoRunner</span></code><a class="reference internal" href="../_modules/wepy/runners/runner.html#NoRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.NoRunner" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.runners.runner.Runner" title="wepy.runners.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.runner.Runner</span></code></a></p>
 <p>Stub Runner that just returns the walkers back with the same state.</p>
 <p>May be useful for testing.</p>
 <dl class="py method">
 <dt id="wepy.runners.runner.NoRunner.run_segment">
-<code class="sig-name descname">run_segment</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walker</span></em>, <em class="sig-param"><span class="n">segment_length</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#NoRunner.run_segment"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.runners.runner.NoRunner.run_segment" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">run_segment</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_length</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#NoRunner.run_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.NoRunner.run_segment" title="Permalink to this definition">¶</a></dt>
 <dd><p>Run dynamics for the walker.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -147,7 +145,7 @@ per-cycle basis.</p>
 
 <dl class="py method">
 <dt id="wepy.runners.runner.NoRunner.post_cycle">
-<code class="sig-name descname">post_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.runner.NoRunner.post_cycle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">post_cycle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.runner.NoRunner.post_cycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform post-cycle behavior. run_segment will be called for each
 walker so this allows you to perform changes of state on a
 per-cycle basis.</p>
@@ -160,7 +158,7 @@ per-cycle basis.</p>
 
 <dl class="py method">
 <dt id="wepy.runners.runner.NoRunner.pre_cycle">
-<code class="sig-name descname">pre_cycle</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.runner.NoRunner.pre_cycle" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">pre_cycle</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.runner.NoRunner.pre_cycle" title="Permalink to this definition">¶</a></dt>
 <dd><p>Perform pre-cycle behavior. run_segment will be called for each
 walker so this allows you to perform changes of state on a
 per-cycle basis.</p>
@@ -287,7 +285,7 @@ per-cycle basis.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

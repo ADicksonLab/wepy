@@ -6,7 +6,11 @@ Install ``wepy``:
 .. code:: bash
 
    pip install wepy[md]
-   conda install -c omnia openmm
+   conda install -c conda-forge openmm
+
+If you are getting errors related to OpenMM, please see the `official
+documentation <http://docs.openmm.org/latest/userguide/application.html#installing-openmm>`__
+for detailed installation instructions.
 
 Test Drive
 ~~~~~~~~~~

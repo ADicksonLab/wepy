@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.reporter.hdf5 &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/reporter/hdf5.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -54,7 +52,7 @@
 <span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span><span class="p">,</span> <span class="n">WalkerState</span>
 <span class="kn">from</span> <span class="nn">wepy.util.json_top</span> <span class="kn">import</span> <span class="n">json_top_atom_count</span>
 
-<div class="viewcode-block" id="WepyHDF5Reporter"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter">[docs]</a><span class="k">class</span> <span class="nc">WepyHDF5Reporter</span><span class="p">(</span><span class="n">FileReporter</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter">[docs]</a><span class="k">class</span> <span class="nc">WepyHDF5Reporter</span><span class="p">(</span><span class="n">FileReporter</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Reporter for generating an HDF5 format (WepyHDF5) data file from</span>
 <span class="sd">    simulations.</span>
 
@@ -388,7 +386,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">units</span> <span class="o">=</span> <span class="n">units</span>
 
 
-<div class="viewcode-block" id="WepyHDF5Reporter.init"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="WepyHDF5Reporter.init"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.init">[docs]</a>    <span class="k">def</span> <span class="nf">init</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">continue_run</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="n">init_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
              <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
@@ -494,7 +492,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">mode</span> <span class="o">==</span> <span class="s1">&#39;w&#39;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">set_mode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s1">&#39;r+&#39;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WepyHDF5Reporter.cleanup"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter.cleanup"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.cleanup">[docs]</a>    <span class="k">def</span> <span class="nf">cleanup</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
 
         <span class="c1"># it should be already closed at this point but just in case</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
@@ -506,7 +504,7 @@
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">cleanup</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="WepyHDF5Reporter.report"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="WepyHDF5Reporter.report"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter.report">[docs]</a>    <span class="k">def</span> <span class="nf">report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">cycle_idx</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">warp_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                <span class="n">bc_data</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -633,7 +631,7 @@
 
 
     <span class="c1"># sporadic</span>
-<div class="viewcode-block" id="WepyHDF5Reporter._report_warping"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_warping">[docs]</a>    <span class="k">def</span> <span class="nf">_report_warping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warping_data</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter._report_warping"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_warping">[docs]</a>    <span class="k">def</span> <span class="nf">_report_warping</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warping_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method to write warping specific information.</span>
 
 <span class="sd">        Parameters</span>
@@ -649,7 +647,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">warping_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_warping_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">warping_data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WepyHDF5Reporter._report_bc"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_bc">[docs]</a>    <span class="k">def</span> <span class="nf">_report_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter._report_bc"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_bc">[docs]</a>    <span class="k">def</span> <span class="nf">_report_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method to write boundary condition update specific information.</span>
 
 <span class="sd">        Parameters</span>
@@ -665,7 +663,7 @@
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">bc_data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_bc_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="WepyHDF5Reporter._report_resampler"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_resampler">[docs]</a>    <span class="k">def</span> <span class="nf">_report_resampler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampler_data</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter._report_resampler"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_resampler">[docs]</a>    <span class="k">def</span> <span class="nf">_report_resampler</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampler_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method to write resampler update specific information.</span>
 
 <span class="sd">        Parameters</span>
@@ -683,7 +681,7 @@
 
     <span class="c1"># the resampling records are provided every cycle but they need to</span>
     <span class="c1"># be saved as sporadic because of the variable number of walkers</span>
-<div class="viewcode-block" id="WepyHDF5Reporter._report_resampling"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_resampling">[docs]</a>    <span class="k">def</span> <span class="nf">_report_resampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter._report_resampling"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_resampling">[docs]</a>    <span class="k">def</span> <span class="nf">_report_resampling</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method to write resampling specific information.</span>
 
 <span class="sd">        Parameters</span>
@@ -699,7 +697,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">extend_cycle_resampling_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">wepy_run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">resampling_data</span><span class="p">)</span></div>
 
     <span class="c1"># continual</span>
-<div class="viewcode-block" id="WepyHDF5Reporter._report_progress"><a class="viewcode-back" href="../../../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_progress">[docs]</a>    <span class="k">def</span> <span class="nf">_report_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">):</span>
+<div class="viewcode-block" id="WepyHDF5Reporter._report_progress"><a class="viewcode-back" href="../../../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter._report_progress">[docs]</a>    <span class="k">def</span> <span class="nf">_report_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Method to write progress specific information.</span>
 
 <span class="sd">        Parameters</span>
@@ -814,7 +812,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

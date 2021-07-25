@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.transitions &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/analysis/transitions.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -98,7 +96,7 @@
 
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<div class="viewcode-block" id="transition_counts"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.transition_counts">[docs]</a><span class="k">def</span> <span class="nf">transition_counts</span><span class="p">(</span>
+<div class="viewcode-block" id="transition_counts"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.transition_counts">[docs]</a><span class="k">def</span> <span class="nf">transition_counts</span><span class="p">(</span>
         <span class="n">assignments</span><span class="p">,</span>
         <span class="n">transitions</span><span class="p">,</span>
         <span class="n">weights</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -155,7 +153,9 @@
 
     <span class="k">return</span> <span class="n">countsmat_d</span></div>
 
-<div class="viewcode-block" id="counts_d_to_matrix"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.counts_d_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">counts_d_to_matrix</span><span class="p">(</span><span class="n">counts_d</span><span class="p">):</span>
+<div class="viewcode-block" id="counts_d_to_matrix"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.counts_d_to_matrix">[docs]</a><span class="k">def</span> <span class="nf">counts_d_to_matrix</span><span class="p">(</span>
+        <span class="n">counts_d</span><span class="p">,</span>
+<span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Convert a dictionary of counts for macrostate transitions to an</span>
 <span class="sd">    assymetric transitions counts matrix.</span>
 
@@ -163,23 +163,37 @@
 <span class="sd">    ----------</span>
 <span class="sd">    counts_d : dict of (int, int): int</span>
 <span class="sd">        Dictionary mapping transitions between macrostate labels to</span>
-<span class="sd">        the count of microstate transitions between them.</span>
+<span class="sd">        the count of microstate transitions between them. The first</span>
+<span class="sd">        value is the &#39;source&#39; node and the second value is the</span>
+<span class="sd">        &#39;target&#39; node of a directed graph.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
 <span class="sd">    counts_matrix : numpy.ndarray of int</span>
-<span class="sd">        Assymetric counts matrix of dim (n_macrostates, n_macrostates).</span>
+<span class="sd">        Assymetric counts matrix of dim (n_macrostates,</span>
+<span class="sd">        n_macrostates). The 0-th axis corresponds to the &#39;source&#39; node</span>
+<span class="sd">        and the 1-st axis corresponds to the &#39;target&#39; nodes, i.e. the</span>
+<span class="sd">        dimensions mean: (source, target).</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="c1"># get the number of unique nodes in the counts_d</span>
     <span class="n">max_assignment</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="n">counts_d</span><span class="o">.</span><span class="n">keys</span><span class="p">()))</span>
-    <span class="n">countsmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">max_assignment</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_assignment</span><span class="o">+</span><span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># allocate the matrix and initialize to zero for each element</span>
+    <span class="n">countsmat</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span>
+        <span class="p">(</span><span class="n">max_assignment</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span>
+         <span class="n">max_assignment</span><span class="o">+</span><span class="mi">1</span><span class="p">),</span>
+    <span class="p">)</span>
+
     <span class="k">for</span> <span class="n">transition</span><span class="p">,</span> <span class="n">n_trans</span> <span class="ow">in</span> <span class="n">counts_d</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+
+        <span class="c1"># add it to the counts matrix in source, target order</span>
         <span class="n">countsmat</span><span class="p">[</span><span class="n">transition</span><span class="p">]</span> <span class="o">=</span> <span class="n">n_trans</span>
 
     <span class="k">return</span> <span class="n">countsmat</span></div>
 
-<div class="viewcode-block" id="normalize_counts"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.normalize_counts">[docs]</a><span class="k">def</span> <span class="nf">normalize_counts</span><span class="p">(</span><span class="n">transition_counts_matrix</span><span class="p">):</span>
+<div class="viewcode-block" id="normalize_counts"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.normalize_counts">[docs]</a><span class="k">def</span> <span class="nf">normalize_counts</span><span class="p">(</span><span class="n">transition_counts_matrix</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Normalize the macrostate outgoing transition counts to 1.0 for each macrostate.</span>
 
 <span class="sd">    Parameters</span>
@@ -208,7 +222,7 @@
 
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">divide</span><span class="p">(</span><span class="n">transition_counts_matrix</span><span class="p">,</span> <span class="n">transition_counts_matrix</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="transition_counts_matrix"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.transition_counts_matrix">[docs]</a><span class="k">def</span> <span class="nf">transition_counts_matrix</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
+<div class="viewcode-block" id="transition_counts_matrix"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.transition_counts_matrix">[docs]</a><span class="k">def</span> <span class="nf">transition_counts_matrix</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make an asymmetric array of the count of microstate transitions between macrostates.</span>
 
 <span class="sd">    Parameters</span>
@@ -235,7 +249,7 @@
 
     <span class="k">return</span> <span class="n">countsmat</span></div>
 
-<div class="viewcode-block" id="transition_probability_matrix"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.transition_probability_matrix">[docs]</a><span class="k">def</span> <span class="nf">transition_probability_matrix</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
+<div class="viewcode-block" id="transition_probability_matrix"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.transition_probability_matrix">[docs]</a><span class="k">def</span> <span class="nf">transition_probability_matrix</span><span class="p">(</span><span class="n">assignments</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Make an asymmetric array of macrostates transition probabilities from microstate assignments.</span>
 
 <span class="sd">    Parameters</span>
@@ -262,7 +276,7 @@
 
     <span class="k">return</span> <span class="n">trans_prob_mat</span></div>
 
-<div class="viewcode-block" id="run_transition_counts_matrix"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.run_transition_counts_matrix">[docs]</a><span class="k">def</span> <span class="nf">run_transition_counts_matrix</span><span class="p">(</span><span class="n">wepy_hdf5</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">assignment_key</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
+<div class="viewcode-block" id="run_transition_counts_matrix"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.run_transition_counts_matrix">[docs]</a><span class="k">def</span> <span class="nf">run_transition_counts_matrix</span><span class="p">(</span><span class="n">wepy_hdf5</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">assignment_key</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.</span>
 
 <span class="sd">    Parameters</span>
@@ -313,7 +327,7 @@
 
     <span class="k">return</span> <span class="n">counts_matrix</span></div>
 
-<div class="viewcode-block" id="run_transition_probability_matrix"><a class="viewcode-back" href="../../../api/wepy.analysis.transitions.html#wepy.analysis.transitions.run_transition_probability_matrix">[docs]</a><span class="k">def</span> <span class="nf">run_transition_probability_matrix</span><span class="p">(</span><span class="n">wepy_hdf5</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">assignment_key</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
+<div class="viewcode-block" id="run_transition_probability_matrix"><a class="viewcode-back" href="../../../_api/wepy.analysis.transitions.html#wepy.analysis.transitions.run_transition_probability_matrix">[docs]</a><span class="k">def</span> <span class="nf">run_transition_probability_matrix</span><span class="p">(</span><span class="n">wepy_hdf5</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">assignment_key</span><span class="p">,</span> <span class="n">transitions</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.</span>
 
 <span class="sd">    Parameters</span>
@@ -440,7 +454,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

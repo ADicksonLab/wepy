@@ -7,21 +7,16 @@ To install from pip:
 
    pip install wepy
 
-To install the optional, but likely desired feature, OpenMM you should
-probably just use the omnia channel on conda, otherwise you will need to
-compile it yourself.
+To install the optional, but likely desired feature – OpenMM – see the
+`documentation <http://docs.openmm.org/latest/userguide/application.html#installing-openmm>`__
+for installing the version and build you want. For simply trying things
+out on a local machine running this should get you started:
 
 .. code:: bash
 
-   conda install -c omnia openmm
+   conda install -c conda-forge openmm
 
-A helpful tip is to use the channel to specify which version of CUDA you
-want OpenMM compiled with. For example if you want OpenMM compiled on
-CUDA 10.0 you can use the channel 'omnia/label/cuda100', e.g.:
-
-::
-
-   conda install -c omnia/label/cuda100 openmm
+If this doesn't work for some platform consult the OpenMM documentation.
 
 There are some optional features you can install as well using the
 "extras" spec in pip. The base package aims to be very easy to install

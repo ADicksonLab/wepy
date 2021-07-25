@@ -96,15 +96,10 @@ Python OpenMM Pass
 3.6    7.3.1  ✓
 3.7    7.4.1  ✓
 3.7    7.3.1  ✓
+3.7    7.5.1  ✓
 3.8    7.4.1  ✗
 3.8    7.3.1  ✗
 ====== ====== ====
-
-Using the ``omnia`` channel ``openmm``, e.g.:
-
-.. code:: bash
-
-   conda install -c omnia openmm=7.4.1
 
 See the ``noxfile.py`` for full test matrix.
 

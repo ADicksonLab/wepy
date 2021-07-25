@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>User’s Guide &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/users_guide.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -453,13 +451,13 @@ manager:</p>
 </ul>
 <p>Some examples of off-the-shelf components are:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner" title="wepy.runners.openmm.OpenMMRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner" title="wepy.runners.openmm.OpenMMRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler" title="wepy.resampling.resamplers.revo.REVOResampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.revo.REVOResampler</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance" title="wepy.resampling.distances.receptor.UnbindingDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.UnbindingDistance</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC" title="wepy.boundary_conditions.receptor.UnbindingBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.UnbindingBC</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter" title="wepy.reporter.hdf5.WepyHDF5Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5.WepyHDF5Reporter</span></code></a></p></li>
-<li><p><a class="reference internal" href="../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter" title="wepy.reporter.dashboard.DashboardReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.DashboardReporter</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner" title="wepy.runners.openmm.OpenMMRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner" title="wepy.runners.openmm.OpenMMRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler" title="wepy.resampling.resamplers.revo.REVOResampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.revo.REVOResampler</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance" title="wepy.resampling.distances.receptor.UnbindingDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.UnbindingDistance</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC" title="wepy.boundary_conditions.receptor.UnbindingBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.UnbindingBC</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter" title="wepy.reporter.hdf5.WepyHDF5Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5.WepyHDF5Reporter</span></code></a></p></li>
+<li><p><a class="reference internal" href="../_api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter" title="wepy.reporter.dashboard.DashboardReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.DashboardReporter</span></code></a></p></li>
 </ul>
 <p>These only need to be imported and constructed, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="kn">import</span> <span class="n">OpenMMRunner</span>
@@ -674,7 +672,7 @@ difficult part of the process. Once you have working MD simulations
 you will only need create a distance metric that characterizes the
 type of behavior you want to enhance in your simulations, if there is
 not already one available in a wepy or
-<a class="reference internal" href="../source/introduction.html#resources"><span class="std std-ref">contributed library</span></a> .</p>
+<a class="reference internal" href="introduction.html#resources"><span class="std std-ref">contributed library</span></a> .</p>
 </li>
 <li><p>Running wepy on a large scale</p>
 <p>If you have been succesful at running <code class="docutils literal notranslate"><span class="pre">wepy</span></code> but find yourself:</p>
@@ -1740,7 +1738,7 @@ MD system and excluding things like waters.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

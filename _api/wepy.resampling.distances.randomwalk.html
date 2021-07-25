@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.distances.randomwalk module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.resampling.distances.randomwalk.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -60,15 +58,15 @@ the distance metric for the RandomWalk walk system. This distance
 metric is a scaled version of the Manhattan Norm.</p>
 <dl class="py class">
 <dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.resampling.distances.randomwalk.</code><code class="sig-name descname">RandomWalkDistance</code><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.resampling.distances.randomwalk.</span></code><code class="sig-name descname"><span class="pre">RandomWalkDistance</span></code><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.distance.Distance</span></code></a></p>
 <p>A class to implement the RandomWalkDistance metric for measuring
 differences between walker states. This is a normalized Manhattan
 distance measured between the difference in positions of the walkers.</p>
 <p>Construct a RandomWalkDistance metric.</p>
 <dl class="py method">
 <dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance.image">
-<code class="sig-name descname">image</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">image</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image" title="Permalink to this definition">¶</a></dt>
 <dd><p>Transform a state into a random walk image.</p>
 <p>A random walk image is just the position of a walker in the
 N-dimensional space.</p>
@@ -89,7 +87,7 @@ walk system.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance">
-<code class="sig-name descname">image_distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">image_a</span></em>, <em class="sig-param"><span class="n">image_b</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image_distance"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">image_distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the distance between the image of the two walkers.</p>
 <blockquote>
 <div><dl class="simple">
@@ -110,7 +108,7 @@ walk system.</p>
 
 <dl class="py method">
 <dt id="wepy.resampling.distances.randomwalk.RandomWalkDistance.distance">
-<code class="sig-name descname">distance</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state_a</span></em>, <em class="sig-param"><span class="n">state_b</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.distance" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">distance</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.distance" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute the distance between two states.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -245,7 +243,7 @@ walk system.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

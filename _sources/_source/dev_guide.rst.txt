@@ -197,8 +197,6 @@ Managing Dependencies
       git add envs/*
       git commit -m "Updates dev environment"
 
-#. 
-
 #. Explanation
 
    Reminder that there are two separate goals of managing dependencies
@@ -267,7 +265,11 @@ Managing Dependencies
 
    All the other files are still valid for conda environments still.
 
-   #. requirements.in
+   #. Abstract Requirements
+
+      ::
+
+         requirements.in
 
       The basic part of this spec is the ``requirements.in`` and
       ``self.requirements.txt`` files.
@@ -291,7 +293,11 @@ Managing Dependencies
       package or any local file paths. This should be portable between
       machines and developers.
 
-   #. self.requirements.txt
+   #. Development Project Installation Spec
+
+      ::
+
+         self.requirements.txt
 
       The ``self.requirements.txt`` file instead is where these kinds of
       specifications should be.
@@ -317,7 +323,11 @@ Managing Dependencies
          -e ../other_project
          -e $HOME/dev/util_project
 
-   #. dev.requirements.list
+   #. Simultaneous Project Development
+
+      ::
+
+         dev.requirements.list
 
       During simultaneous development however, the dependencies of these
       other repos won't be included in the compilation of the
@@ -347,7 +357,11 @@ Managing Dependencies
       any location and is not a specification other projects *must*
       support.
 
-   #. tools.requirements.txt
+   #. Meta-Tools Installation Spec
+
+      ::
+
+         tools.requirements.txt
 
       Use this to "pin" or constrain versions of tools which won't be or
       can't be managed by the pinning tool (i.e. ``pip-tools``, meaning
@@ -356,7 +370,11 @@ Managing Dependencies
       The main use of this to pin the version of ``pip`` in case it
       breaks some other tools.
 
-   #. pyversion.txt
+   #. Specifying Python Version
+
+      ::
+
+         pyversion.txt
 
       This file should only contain the text that specifies the version
       of python to use that is understood by the env method (e.g.

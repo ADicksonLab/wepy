@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.orchestration.cli &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/orchestration/cli.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -59,42 +57,16 @@
 <span class="kn">from</span> <span class="nn">wepy.reporter.hdf5</span> <span class="kn">import</span> <span class="n">WepyHDF5Reporter</span>
 <span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="kn">import</span> <span class="n">WepyHDF5</span>
 
+<span class="kn">from</span> <span class="nn">wepy.util.util</span> <span class="kn">import</span> <span class="n">set_loglevel</span>
+
 <span class="n">ORCHESTRATOR_DEFAULT_FILENAME</span> <span class="o">=</span> \
             <span class="n">Orchestrator</span><span class="o">.</span><span class="n">ORCH_FILENAME_TEMPLATE</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">Orchestrator</span><span class="o">.</span><span class="n">DEFAULT_CONFIG_NAME</span><span class="p">,</span>
                                                        <span class="n">narration</span><span class="o">=</span><span class="n">Orchestrator</span><span class="o">.</span><span class="n">DEFAULT_NARRATION</span><span class="p">)</span>
 
-<div class="viewcode-block" id="set_loglevel"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.set_loglevel">[docs]</a><span class="k">def</span> <span class="nf">set_loglevel</span><span class="p">(</span><span class="n">loglevel</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;</span>
-
-<span class="sd">    \b</span>
-<span class="sd">    Parameters</span>
-<span class="sd">    ----------</span>
-<span class="sd">    loglevel :</span>
-<span class="sd">        </span>
-
-<span class="sd">    \b</span>
-<span class="sd">    Returns</span>
-<span class="sd">    -------</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-
-    <span class="c1"># try to cast the loglevel as an integer. If that fails interpret</span>
-    <span class="c1"># it as a string.</span>
-    <span class="k">try</span><span class="p">:</span>
-        <span class="n">loglevel_num</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">loglevel</span><span class="p">)</span>
-    <span class="k">except</span> <span class="ne">ValueError</span><span class="p">:</span>
-        <span class="n">loglevel_num</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">logging</span><span class="p">,</span> <span class="n">loglevel</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-    <span class="c1"># if no such log level exists in logging the string was invalid</span>
-    <span class="k">if</span> <span class="n">loglevel_num</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;invalid log level given&quot;</span><span class="p">)</span>
-
-    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">loglevel_num</span><span class="p">)</span></div>
-
 <span class="n">START_HASH</span> <span class="o">=</span> <span class="s1">&#39;&lt;start_hash&gt;&#39;</span>
 <span class="n">CURDIR</span> <span class="o">=</span> <span class="s1">&#39;&lt;curdir&gt;&#39;</span>
 
-<div class="viewcode-block" id="settle_run_options"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.settle_run_options">[docs]</a><span class="k">def</span> <span class="nf">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<div class="viewcode-block" id="settle_run_options"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.settle_run_options">[docs]</a><span class="k">def</span> <span class="nf">settle_run_options</span><span class="p">(</span><span class="n">n_workers</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">job_dir</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">job_name</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">narration</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
@@ -384,7 +356,7 @@
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Closing the orchestrating orch&quot;</span><span class="p">)</span>
     <span class="n">orch</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 
-<div class="viewcode-block" id="combine_orch_wepy_hdf5s"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.combine_orch_wepy_hdf5s">[docs]</a><span class="k">def</span> <span class="nf">combine_orch_wepy_hdf5s</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">new_hdf5_path</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="combine_orch_wepy_hdf5s"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.combine_orch_wepy_hdf5s">[docs]</a><span class="k">def</span> <span class="nf">combine_orch_wepy_hdf5s</span><span class="p">(</span><span class="n">new_orch</span><span class="p">,</span> <span class="n">new_hdf5_path</span><span class="p">,</span> <span class="n">run_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    \b</span>
@@ -669,7 +641,7 @@
 
 
 
-<div class="viewcode-block" id="hash_listing_formatter"><a class="viewcode-back" href="../../../api/wepy.orchestration.cli.html#wepy.orchestration.cli.hash_listing_formatter">[docs]</a><span class="k">def</span> <span class="nf">hash_listing_formatter</span><span class="p">(</span><span class="n">hashes</span><span class="p">):</span>
+<div class="viewcode-block" id="hash_listing_formatter"><a class="viewcode-back" href="../../../_api/wepy.orchestration.cli.html#wepy.orchestration.cli.hash_listing_formatter">[docs]</a><span class="k">def</span> <span class="nf">hash_listing_formatter</span><span class="p">(</span><span class="n">hashes</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">    \b</span>
@@ -1133,7 +1105,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

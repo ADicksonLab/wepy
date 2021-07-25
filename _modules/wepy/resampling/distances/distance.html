@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.resampling.distances.distance &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../../" src="../../../../_static/documentation_options.js"></script>
     <script src="../../../../_static/jquery.js"></script>
     <script src="../../../../_static/underscore.js"></script>
     <script src="../../../../_static/doctools.js"></script>
-    <script src="../../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/resampling/distances/distance.html" />
     <link rel="shortcut icon" href="../../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../../genindex.html" />
@@ -70,14 +68,14 @@
 <span class="kn">import</span> <span class="nn">logging</span>
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 
-<div class="viewcode-block" id="Distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance">[docs]</a><span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<div class="viewcode-block" id="Distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance">[docs]</a><span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Abstract Base class for Distance classes.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Constructor for Distance class.&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
-<div class="viewcode-block" id="Distance.image"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="Distance.image"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the &#39;image&#39; of a walker state which should be some</span>
 <span class="sd">        transformation of the walker state that is more</span>
 <span class="sd">        convenient. E.g. for precomputation of expensive operations or</span>
@@ -100,7 +98,7 @@
 
         <span class="k">return</span> <span class="n">state</span></div>
 
-<div class="viewcode-block" id="Distance.image_distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+<div class="viewcode-block" id="Distance.image_distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the distance between two images of walker states.</span>
 
 <span class="sd">        Parameters</span>
@@ -123,7 +121,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
 
-<div class="viewcode-block" id="Distance.distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_a</span><span class="p">,</span> <span class="n">state_b</span><span class="p">):</span>
+<div class="viewcode-block" id="Distance.distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance.distance">[docs]</a>    <span class="k">def</span> <span class="nf">distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state_a</span><span class="p">,</span> <span class="n">state_b</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Compute the distance between two states.</span>
 
 <span class="sd">        Parameters</span>
@@ -146,19 +144,19 @@
 
 
 
-<div class="viewcode-block" id="XYEuclideanDistance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.XYEuclideanDistance">[docs]</a><span class="k">class</span> <span class="nc">XYEuclideanDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
+<div class="viewcode-block" id="XYEuclideanDistance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.XYEuclideanDistance">[docs]</a><span class="k">class</span> <span class="nc">XYEuclideanDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;2 dimensional euclidean distance between points. </span>
 
 <span class="sd">    States have the attributes &#39;x&#39; and &#39;y&#39;.</span>
 
 <span class="sd">    &quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="XYEuclideanDistance.image"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.XYEuclideanDistance.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+<div class="viewcode-block" id="XYEuclideanDistance.image"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.XYEuclideanDistance.image">[docs]</a>    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;x&#39;</span><span class="p">],</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;y&#39;</span><span class="p">]])</span></div>
 
 
-<div class="viewcode-block" id="XYEuclideanDistance.image_distance"><a class="viewcode-back" href="../../../../api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.XYEuclideanDistance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+<div class="viewcode-block" id="XYEuclideanDistance.image_distance"><a class="viewcode-back" href="../../../../_api/wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.XYEuclideanDistance.image_distance">[docs]</a>    <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
 
         <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">((</span><span class="n">image_a</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_b</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span> <span class="o">+</span>
                        <span class="p">(</span><span class="n">image_a</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">image_b</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span><span class="o">**</span><span class="mi">2</span><span class="p">)</span></div></div>
@@ -260,7 +258,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.contig_tree &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/analysis/contig_tree.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -96,7 +94,7 @@
 <span class="n">BC</span> <span class="o">=</span> <span class="s1">&#39;boundary_conditions&#39;</span>
 <span class="sd">&quot;&quot;&quot;Record key for boundary condition records.&quot;&quot;&quot;</span>
 
-<div class="viewcode-block" id="BaseContigTree"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree">[docs]</a><span class="k">class</span> <span class="nc">BaseContigTree</span><span class="p">():</span>
+<div class="viewcode-block" id="BaseContigTree"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree">[docs]</a><span class="k">class</span> <span class="nc">BaseContigTree</span><span class="p">():</span>
     <span class="sd">&quot;&quot;&quot;A base class for the contigtree which doesn&#39;t contain a WepyHDF5</span>
 <span class="sd">    object. Useful for serialization of the object and can then be</span>
 <span class="sd">    reattached later to a WepyHDF5.</span>
@@ -197,26 +195,35 @@
         <span class="c1"># should be unique</span>
         <span class="k">if</span> <span class="n">runs</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
+
         <span class="k">elif</span> <span class="n">runs</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">runs</span><span class="p">)</span>
 
         <span class="c1"># the continuations also give extra runs to incorporate into</span>
         <span class="c1"># this contig tree</span>
 
-        <span class="c1"># if it is Ellipsis (...) then we include all runs and all the continuations</span>
+        <span class="c1"># if it is Ellipsis (...) then we include all the</span>
+        <span class="c1"># continuations involving the runs that are in this contigtree</span>
         <span class="k">if</span> <span class="n">continuations</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_continuations</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">continuations</span><span class="p">])</span>
 
-        <span class="c1"># otherwise we make the tree based on the runs in the</span>
-        <span class="c1"># continuations</span>
+            <span class="c1"># add continuations involving both ends of the continuation</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">_continuations</span><span class="o">.</span><span class="n">update</span><span class="p">([</span>
+                <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span>
+                <span class="ow">in</span> <span class="n">wepy_h5</span><span class="o">.</span><span class="n">continuations</span>
+                <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span> <span class="ow">and</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span><span class="p">]</span>
+            <span class="p">)</span>
+
+        <span class="c1"># if a subset of continuations was given use only those</span>
         <span class="k">elif</span> <span class="n">continuations</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="c1"># the unique run_idxs</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">it</span><span class="o">.</span><span class="n">chain</span><span class="p">(</span><span class="o">*</span><span class="bp">self</span><span class="o">.</span><span class="n">_continuations</span><span class="p">))</span>
 
-            <span class="c1"># the continuations themselves</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_continuations</span><span class="o">.</span><span class="n">update</span><span class="p">([(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span> <span class="ow">in</span> <span class="n">continuations</span><span class="p">])</span>
-
+            <span class="bp">self</span><span class="o">.</span><span class="n">_continuations</span><span class="o">.</span><span class="n">update</span><span class="p">([</span>
+                <span class="p">(</span><span class="n">a</span><span class="p">,</span><span class="n">b</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">a</span><span class="p">,</span> <span class="n">b</span>
+                <span class="ow">in</span> <span class="n">continuations</span>
+                <span class="k">if</span> <span class="n">a</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span> <span class="ow">and</span> <span class="n">b</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span><span class="p">]</span>
+            <span class="p">)</span>
 
         <span class="c1"># using the wepy_h5 create a tree of the cycles</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_create_tree</span><span class="p">(</span><span class="n">wepy_h5</span><span class="p">)</span>
@@ -226,8 +233,17 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_decision_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_set_parents</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_decision_class</span><span class="p">)</span>
 
+            <span class="c1"># if there was a boundary condition class we add the</span>
+            <span class="c1"># discontinuities to the graph nodes</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_condition_class</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_set_discontinuities</span><span class="p">(</span><span class="n">wepy_h5</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_condition_class</span><span class="p">)</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_set_discontinuities</span><span class="p">(</span><span class="n">wepy_h5</span><span class="p">,</span>
+                                          <span class="bp">self</span><span class="o">.</span><span class="n">_boundary_condition_class</span><span class="p">)</span>
+
+            <span class="c1"># otherwise we simply initialize the discontinuities</span>
+            <span class="k">else</span><span class="p">:</span>
+
+                <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_discontinuities</span><span class="p">(</span><span class="n">wepy_h5</span><span class="p">)</span>
 
         <span class="c1"># set the spanning contigs as a mapping of the index to the</span>
         <span class="c1"># span trace</span>
@@ -258,14 +274,14 @@
         <span class="sd">&quot;&quot;&quot;Dictionary mapping the spand indices to their run traces.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spans</span>
 
-<div class="viewcode-block" id="BaseContigTree.span_contig"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.span_contig">[docs]</a>    <span class="k">def</span> <span class="nf">span_contig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.span_contig"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.span_contig">[docs]</a>    <span class="k">def</span> <span class="nf">span_contig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">span_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generates a contig object for the specified spanning contig.&quot;&quot;&quot;</span>
 
         <span class="n">contig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">make_contig</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">span_traces</span><span class="p">[</span><span class="n">span_idx</span><span class="p">])</span>
 
         <span class="k">return</span> <span class="n">contig</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._create_tree"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._create_tree">[docs]</a>    <span class="k">def</span> <span class="nf">_create_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wepy_h5</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._create_tree"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._create_tree">[docs]</a>    <span class="k">def</span> <span class="nf">_create_tree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wepy_h5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generate the tree of cycles from the WepyHDF5 object/file. &quot;&quot;&quot;</span>
 
         <span class="c1"># first go through each run without continuations</span>
@@ -303,7 +319,7 @@
             <span class="c1"># add this connector edge to the network</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="o">*</span><span class="n">edge</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._set_resampling_panels"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._set_resampling_panels">[docs]</a>    <span class="k">def</span> <span class="nf">_set_resampling_panels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wepy_h5</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._set_resampling_panels"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._set_resampling_panels">[docs]</a>    <span class="k">def</span> <span class="nf">_set_resampling_panels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wepy_h5</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Generates resampling panels for each cycle and sets them as node attributes. &quot;&quot;&quot;</span>
 
         <span class="c1"># then get the resampling tables for each cycle and put them</span>
@@ -318,7 +334,21 @@
                 <span class="n">node</span> <span class="o">=</span> <span class="p">(</span><span class="n">run_idx</span><span class="p">,</span> <span class="n">step_idx</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">RESAMPLING_PANEL_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="n">step</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._set_discontinuities"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._set_discontinuities">[docs]</a>    <span class="k">def</span> <span class="nf">_set_discontinuities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wepy_h5</span><span class="p">,</span> <span class="n">boundary_conditions_class</span><span class="p">):</span>
+
+<div class="viewcode-block" id="BaseContigTree._initialize_discontinuities"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._initialize_discontinuities">[docs]</a>    <span class="k">def</span> <span class="nf">_initialize_discontinuities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                                    <span class="n">wepy_h5</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Initialize the nodes with discontinuities attributes but set to 0s</span>
+<span class="sd">        indicating no discontinuities.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># initialize the attributes for discontinuities to 0s for no</span>
+        <span class="c1"># discontinuities</span>
+        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
+            <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">PARENTS_KEY</span><span class="p">])</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUITY_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span></div>
+
+
+<div class="viewcode-block" id="BaseContigTree._set_discontinuities"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._set_discontinuities">[docs]</a>    <span class="k">def</span> <span class="nf">_set_discontinuities</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">wepy_h5</span><span class="p">,</span> <span class="n">boundary_conditions_class</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given the boundary condition class sets node attributes for where</span>
 <span class="sd">        there are discontinuities in the parental lineages.</span>
 
@@ -328,13 +358,11 @@
 
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="c1"># initialize the attributes for discontinuities to 0s for no</span>
-        <span class="c1"># discontinuities</span>
-        <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">nodes</span><span class="p">:</span>
-            <span class="n">n_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">PARENTS_KEY</span><span class="p">])</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUITY_KEY</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="mi">0</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_walkers</span><span class="p">)]</span>
+        <span class="c1"># initialize the nodes with the fields and the false values</span>
+        <span class="c1"># (0s)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initialize_discontinuities</span><span class="p">(</span><span class="n">wepy_h5</span><span class="p">)</span>
 
-        <span class="c1">#</span>
+        <span class="c1"># Now actually fill in where there are discontinuities</span>
         <span class="k">for</span> <span class="n">run_idx</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">:</span>
 
             <span class="c1"># get the warping records for this run</span>
@@ -370,7 +398,7 @@
 
                             <span class="bp">self</span><span class="o">.</span><span class="n">graph</span><span class="o">.</span><span class="n">node</span><span class="p">[</span><span class="n">node</span><span class="p">][</span><span class="bp">self</span><span class="o">.</span><span class="n">DISCONTINUITY_KEY</span><span class="p">][</span><span class="n">rec_traj_idx</span><span class="p">]</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._set_parents"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._set_parents">[docs]</a>    <span class="k">def</span> <span class="nf">_set_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_class</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._set_parents"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._set_parents">[docs]</a>    <span class="k">def</span> <span class="nf">_set_parents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_class</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Determines the net parents for each cycle and sets them in-place to</span>
 <span class="sd">        the cycle tree given.</span>
 
@@ -406,7 +434,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_continuations</span>
 
 
-<div class="viewcode-block" id="BaseContigTree.contig_trace_to_run_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.contig_trace_to_run_trace">[docs]</a>    <span class="nd">@staticmethod</span>
+<div class="viewcode-block" id="BaseContigTree.contig_trace_to_run_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.contig_trace_to_run_trace">[docs]</a>    <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">contig_trace_to_run_trace</span><span class="p">(</span><span class="n">contig_trace</span><span class="p">,</span> <span class="n">contig_walker_trace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Combine a contig trace and a walker trace to get the equivalent run trace.</span>
 
@@ -443,7 +471,7 @@
         <span class="k">return</span> <span class="n">trace</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree.walker_trace_to_run_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.walker_trace_to_run_trace">[docs]</a>    <span class="k">def</span> <span class="nf">walker_trace_to_run_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_walker_trace</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.walker_trace_to_run_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.walker_trace_to_run_trace">[docs]</a>    <span class="k">def</span> <span class="nf">walker_trace_to_run_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_walker_trace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Combine a walker trace to get the equivalent run trace for this contig.</span>
 
 <span class="sd">        The contig_walker_trace cycle_idxs must be a subset of the</span>
@@ -469,7 +497,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">contig_trace_to_run_trace</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contig_trace</span><span class="p">,</span> <span class="n">contig_walker_trace</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree.run_trace_to_contig_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.run_trace_to_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">run_trace_to_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_trace</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.run_trace_to_contig_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.run_trace_to_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">run_trace_to_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_trace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Assumes that the run trace goes along a valid contig.</span>
@@ -498,7 +526,7 @@
         <span class="k">return</span> <span class="n">contig_walker_trace</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree.contig_cycle_idx"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.contig_cycle_idx">[docs]</a>    <span class="k">def</span> <span class="nf">contig_cycle_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.contig_cycle_idx"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.contig_cycle_idx">[docs]</a>    <span class="k">def</span> <span class="nf">contig_cycle_idx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Convert an in-run cycle index to an in-contig cyle_idx.</span>
 
 <span class="sd">        Parameters</span>
@@ -524,7 +552,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">contig_trace</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree.get_branch_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.get_branch_trace">[docs]</a>    <span class="k">def</span> <span class="nf">get_branch_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">start_contig_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.get_branch_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.get_branch_trace">[docs]</a>    <span class="k">def</span> <span class="nf">get_branch_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">run_idx</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">start_contig_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get a contig trace for a branch of the contig tree from an end</span>
 <span class="sd">        point back to a set point (defaults to root of contig tree).</span>
 
@@ -580,7 +608,7 @@
 
         <span class="k">return</span> <span class="n">contig_trace</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.trace_parent_table"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.trace_parent_table">[docs]</a>    <span class="k">def</span> <span class="nf">trace_parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.trace_parent_table"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.trace_parent_table">[docs]</a>    <span class="k">def</span> <span class="nf">trace_parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a contig trace returns a parent table for that contig.</span>
 
 <span class="sd">        Parameters</span>
@@ -612,7 +640,7 @@
         <span class="k">return</span> <span class="n">parent_table</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree._tree_leaves"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._tree_leaves">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BaseContigTree._tree_leaves"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._tree_leaves">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_tree_leaves</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">root</span><span class="p">,</span> <span class="n">tree</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given the root node ID and the tree as a networkX DiGraph returns</span>
 <span class="sd">        the leaves of the tree.</span>
@@ -674,7 +702,7 @@
 
         <span class="k">return</span> <span class="n">leaves</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._subtree_leaves"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._subtree_leaves">[docs]</a>    <span class="k">def</span> <span class="nf">_subtree_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._subtree_leaves"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._subtree_leaves">[docs]</a>    <span class="k">def</span> <span class="nf">_subtree_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a root defining a subtree on the full tree returns the leaves</span>
 <span class="sd">        of that subtree.</span>
 
@@ -702,7 +730,7 @@
 
         <span class="k">return</span> <span class="n">leaves</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.leaves"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.leaves">[docs]</a>    <span class="k">def</span> <span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.leaves"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.leaves">[docs]</a>    <span class="k">def</span> <span class="nf">leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;All of the leaves of this contig tree.</span>
 
 <span class="sd">        Returns</span>
@@ -718,7 +746,7 @@
 
         <span class="k">return</span> <span class="n">leaves</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.root_leaves"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.root_leaves">[docs]</a>    <span class="k">def</span> <span class="nf">root_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.root_leaves"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.root_leaves">[docs]</a>    <span class="k">def</span> <span class="nf">root_leaves</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a dictionary mapping the roots to their leaves.&quot;&quot;&quot;</span>
 
         <span class="n">root_leaves</span> <span class="o">=</span> <span class="p">{}</span>
@@ -727,7 +755,7 @@
 
         <span class="k">return</span> <span class="n">root_leaves</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._subtree_root"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._subtree_root">[docs]</a>    <span class="k">def</span> <span class="nf">_subtree_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._subtree_root"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._subtree_root">[docs]</a>    <span class="k">def</span> <span class="nf">_subtree_root</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a node find the root of the tree it is on</span>
 
 <span class="sd">        Parameters</span>
@@ -768,7 +796,7 @@
 
         <span class="k">return</span> <span class="n">curr_node</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.roots"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.roots">[docs]</a>    <span class="k">def</span> <span class="nf">roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.roots"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.roots">[docs]</a>    <span class="k">def</span> <span class="nf">roots</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns all of the roots in this contig tree (which is technically</span>
 <span class="sd">        a forest and can have multiple roots).</span>
 
@@ -787,7 +815,7 @@
 
         <span class="k">return</span> <span class="n">subtree_roots</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.subtrees"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.subtrees">[docs]</a>    <span class="k">def</span> <span class="nf">subtrees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.subtrees"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.subtrees">[docs]</a>    <span class="k">def</span> <span class="nf">subtrees</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns all of the subtrees (with unique roots) in this contig tree</span>
 <span class="sd">        (which is technically a forest and can have multiple</span>
 <span class="sd">        roots).</span>
@@ -808,7 +836,7 @@
 
         <span class="k">return</span> <span class="n">subtree_nxs</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.get_subtree"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.get_subtree">[docs]</a>    <span class="k">def</span> <span class="nf">get_subtree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.get_subtree"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.get_subtree">[docs]</a>    <span class="k">def</span> <span class="nf">get_subtree</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a node defining a subtree root return that subtree.</span>
 
 <span class="sd">        Parameters</span>
@@ -832,7 +860,7 @@
             <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">subtree</span><span class="p">:</span>
                 <span class="k">return</span> <span class="n">subtree</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.contig_sliding_windows"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.contig_sliding_windows">[docs]</a>    <span class="k">def</span> <span class="nf">contig_sliding_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.contig_sliding_windows"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.contig_sliding_windows">[docs]</a>    <span class="k">def</span> <span class="nf">contig_sliding_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a contig trace get the sliding windows of length</span>
 <span class="sd">        &#39;window_length&#39; as contig walker traces.</span>
 
@@ -859,7 +887,7 @@
 
         <span class="k">return</span> <span class="n">windows</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.sliding_contig_windows"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.sliding_contig_windows">[docs]</a>    <span class="k">def</span> <span class="nf">sliding_contig_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.sliding_contig_windows"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.sliding_contig_windows">[docs]</a>    <span class="k">def</span> <span class="nf">sliding_contig_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a &#39;window_length&#39; return all the windows over the contig tree</span>
 <span class="sd">        as contig traces.</span>
 
@@ -888,7 +916,7 @@
 
         <span class="k">return</span> <span class="n">contig_windows</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._subtree_sliding_contig_windows"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._subtree_sliding_contig_windows">[docs]</a>    <span class="k">def</span> <span class="nf">_subtree_sliding_contig_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtree_root</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._subtree_sliding_contig_windows"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._subtree_sliding_contig_windows">[docs]</a>    <span class="k">def</span> <span class="nf">_subtree_sliding_contig_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subtree_root</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get all the sliding windows of length &#39;window_length&#39; from the</span>
 <span class="sd">        subtree defined by the subtree root as run traces.</span>
 
@@ -986,7 +1014,7 @@
 
         <span class="k">return</span> <span class="n">contig_windows</span></div>
 
-<div class="viewcode-block" id="BaseContigTree.sliding_windows"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.sliding_windows">[docs]</a>    <span class="k">def</span> <span class="nf">sliding_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.sliding_windows"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.sliding_windows">[docs]</a>    <span class="k">def</span> <span class="nf">sliding_windows</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">window_length</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns all the sliding windows over walker trajectories as run</span>
 <span class="sd">        traces for a given window length.</span>
 
@@ -1020,7 +1048,7 @@
 
         <span class="k">return</span> <span class="n">windows</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._rec_spanning_paths"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._rec_spanning_paths">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BaseContigTree._rec_spanning_paths"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._rec_spanning_paths">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_rec_spanning_paths</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">edges</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Given a set of directed edges (source, target) and a root node id</span>
 <span class="sd">        of a tree imposed over the edges, returns all the paths over</span>
@@ -1101,7 +1129,7 @@
 
     <span class="c1">#     return root_sources</span>
 
-<div class="viewcode-block" id="BaseContigTree._spanning_paths"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._spanning_paths">[docs]</a>    <span class="k">def</span> <span class="nf">_spanning_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._spanning_paths"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._spanning_paths">[docs]</a>    <span class="k">def</span> <span class="nf">_spanning_paths</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">root</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;</span>
 
 <span class="sd">        Parameters</span>
@@ -1148,7 +1176,7 @@
         <span class="k">return</span> <span class="n">leaf_paths</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree.spanning_contig_traces"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.spanning_contig_traces">[docs]</a>    <span class="k">def</span> <span class="nf">spanning_contig_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree.spanning_contig_traces"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree.spanning_contig_traces">[docs]</a>    <span class="k">def</span> <span class="nf">spanning_contig_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of all possible spanning contigs given the</span>
 <span class="sd">        continuations present in this file. Spanning contigs are paths</span>
 <span class="sd">        through a tree that must start from a root node and end at a</span>
@@ -1173,7 +1201,7 @@
 
         <span class="k">return</span> <span class="n">spanning_contig_traces</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._root_spanning_contig_traces"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._root_spanning_contig_traces">[docs]</a>    <span class="k">def</span> <span class="nf">_root_spanning_contig_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="BaseContigTree._root_spanning_contig_traces"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._root_spanning_contig_traces">[docs]</a>    <span class="k">def</span> <span class="nf">_root_spanning_contig_traces</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns a list of all possible spanning contigs given the</span>
 <span class="sd">        continuations present in this file. Spanning contigs are paths</span>
 <span class="sd">        through a tree that must start from a root node and end at a</span>
@@ -1197,14 +1225,15 @@
 
             <span class="c1"># get the spanning paths by passing the continuation edges</span>
             <span class="c1"># and this root to this recursive static method</span>
-            <span class="n">root_spanning_contigs</span> <span class="o">=</span> <span class="p">[</span><span class="n">span</span> <span class="k">for</span> <span class="n">leaf</span><span class="p">,</span> <span class="n">span</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_spanning_paths</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
+            <span class="n">root_spanning_contigs</span> <span class="o">=</span> <span class="p">[</span><span class="n">span</span> <span class="k">for</span> <span class="n">leaf</span><span class="p">,</span> <span class="n">span</span> <span class="ow">in</span>
+                                     <span class="bp">self</span><span class="o">.</span><span class="n">_spanning_paths</span><span class="p">(</span><span class="n">root</span><span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()]</span>
 
             <span class="n">spanning_contig_traces</span><span class="p">[</span><span class="n">root</span><span class="p">]</span> <span class="o">=</span> <span class="n">root_spanning_contigs</span>
 
         <span class="k">return</span> <span class="n">spanning_contig_traces</span></div>
 
 
-<div class="viewcode-block" id="BaseContigTree._contig_trace_to_contig_runs"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._contig_trace_to_contig_runs">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BaseContigTree._contig_trace_to_contig_runs"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._contig_trace_to_contig_runs">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_contig_trace_to_contig_runs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot; Convert a contig trace to a list of runs.</span>
 
@@ -1228,7 +1257,7 @@
 
         <span class="k">return</span> <span class="n">contig_runs</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._contig_runs_to_continuations"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._contig_runs_to_continuations">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BaseContigTree._contig_runs_to_continuations"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._contig_runs_to_continuations">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_contig_runs_to_continuations</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">contig_runs</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Helper function to convert a list of run indices defining a contig</span>
 <span class="sd">        to continuations.</span>
@@ -1249,7 +1278,7 @@
 
         <span class="k">return</span> <span class="n">continuations</span></div>
 
-<div class="viewcode-block" id="BaseContigTree._continuations_to_contig_runs"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._continuations_to_contig_runs">[docs]</a>    <span class="nd">@classmethod</span>
+<div class="viewcode-block" id="BaseContigTree._continuations_to_contig_runs"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.BaseContigTree._continuations_to_contig_runs">[docs]</a>    <span class="nd">@classmethod</span>
     <span class="k">def</span> <span class="nf">_continuations_to_contig_runs</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">continuations</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Helper function that converts a list of continuations to a list of</span>
 <span class="sd">        the runs in the order of the contigs defined by the continuations.</span>
@@ -1334,7 +1363,7 @@
     <span class="c1">#     return span_traces</span>
 
 
-<div class="viewcode-block" id="ContigTree"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree">[docs]</a><span class="k">class</span> <span class="nc">ContigTree</span><span class="p">(</span><span class="n">BaseContigTree</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree">[docs]</a><span class="k">class</span> <span class="nc">ContigTree</span><span class="p">(</span><span class="n">BaseContigTree</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Wraps a WepyHDF5 object and gives access to logical trajectories.</span>
 
 <span class="sd">    The contig tree is technically a forest (a collection of trees)</span>
@@ -1369,7 +1398,7 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_wepy_h5</span> <span class="o">=</span> <span class="n">wepy_h5</span>
 
-<div class="viewcode-block" id="ContigTree._set_base_contigtree_to_self"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree._set_base_contigtree_to_self">[docs]</a>    <span class="k">def</span> <span class="nf">_set_base_contigtree_to_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_contigtree</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree._set_base_contigtree_to_self"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree._set_base_contigtree_to_self">[docs]</a>    <span class="k">def</span> <span class="nf">_set_base_contigtree_to_self</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">base_contigtree</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">_base_contigtree</span> <span class="o">=</span> <span class="n">base_contigtree</span>
 
@@ -1381,14 +1410,14 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_run_idxs</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_contigtree</span><span class="o">.</span><span class="n">_run_idxs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_spans</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_base_contigtree</span><span class="o">.</span><span class="n">_spans</span></div>
 
-<div class="viewcode-block" id="ContigTree.open"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.open"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.open">[docs]</a>    <span class="k">def</span> <span class="nf">open</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">mode</span><span class="o">=</span><span class="n">mode</span><span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;This file is already open&quot;</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="ContigTree.close"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.close"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">True</span></div>
 
@@ -1460,7 +1489,7 @@
 
     <span class="c1"># TODO: optimize this, we don&#39;t need to recalculate everything</span>
     <span class="c1"># each time to implement this</span>
-<div class="viewcode-block" id="ContigTree.make_contig"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.make_contig">[docs]</a>    <span class="k">def</span> <span class="nf">make_contig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.make_contig"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.make_contig">[docs]</a>    <span class="k">def</span> <span class="nf">make_contig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Create a Contig object given a contig trace.</span>
 
 <span class="sd">        Parameters</span>
@@ -1488,7 +1517,7 @@
                       <span class="n">decision_class</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">decision_class</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="ContigTree.warp_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.warp_trace">[docs]</a>    <span class="k">def</span> <span class="nf">warp_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.warp_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.warp_trace">[docs]</a>    <span class="k">def</span> <span class="nf">warp_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the trace for all unique warping events from all contigs.&quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="p">:</span>
@@ -1501,7 +1530,7 @@
         <span class="c1"># then cast to a set to get the unique ones</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">big_trace</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ContigTree.resampling_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.resampling_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.resampling_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.resampling_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return full run traces for every specified type of resampling</span>
 <span class="sd">        event.</span>
 
@@ -1524,7 +1553,7 @@
         <span class="c1"># then cast to a set to get the unique ones</span>
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">big_trace</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="ContigTree.final_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.final_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.final_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.final_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a trace of all the walkers at the end of the contig.&quot;&quot;&quot;</span>
 
         <span class="k">with</span> <span class="bp">self</span><span class="p">:</span>
@@ -1538,7 +1567,10 @@
         <span class="k">return</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">big_trace</span><span class="p">))</span></div>
 
 
-<div class="viewcode-block" id="ContigTree.lineages"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.lineages">[docs]</a>    <span class="k">def</span> <span class="nf">lineages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">trace</span><span class="p">):</span>
+<div class="viewcode-block" id="ContigTree.lineages"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree.lineages">[docs]</a>    <span class="k">def</span> <span class="nf">lineages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+                 <span class="n">trace</span><span class="p">,</span>
+                 <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span>
+    <span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the ancestry lineage for each element of the trace as a run</span>
 <span class="sd">        trace.&quot;&quot;&quot;</span>
 
@@ -1556,7 +1588,12 @@
                     <span class="n">contig</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">span_contig</span><span class="p">(</span><span class="n">span_idx</span><span class="p">)</span>
 
                     <span class="c1"># lineages for a single frame</span>
-                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">contig</span><span class="o">.</span><span class="n">lineages</span><span class="p">([(</span><span class="n">w_cycle_idx</span><span class="p">,</span> <span class="n">w_walker_idx</span><span class="p">)])[</span><span class="mi">0</span><span class="p">])</span>
+                    <span class="n">lines</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                        <span class="n">contig</span><span class="o">.</span><span class="n">lineages</span><span class="p">(</span>
+                            <span class="p">[(</span><span class="n">w_walker_idx</span><span class="p">,</span> <span class="n">w_cycle_idx</span><span class="p">)],</span>
+                            <span class="n">discontinuities</span><span class="o">=</span><span class="n">discontinuities</span><span class="p">,</span>
+                        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+                    <span class="p">)</span>
 
                     <span class="c1"># any span trace will do so we finish at this point</span>
                     <span class="k">break</span>
@@ -1564,7 +1601,7 @@
 
         <span class="k">return</span> <span class="n">lines</span></div></div>
 
-<div class="viewcode-block" id="Contig"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig">[docs]</a><span class="k">class</span> <span class="nc">Contig</span><span class="p">(</span><span class="n">ContigTree</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig">[docs]</a><span class="k">class</span> <span class="nc">Contig</span><span class="p">(</span><span class="n">ContigTree</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Wraps a WepyHDF5 object and gives access to logical trajectories</span>
 <span class="sd">    from a single contig.</span>
 
@@ -1612,7 +1649,7 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_contig_run_idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">run_idxs</span><span class="p">)</span>
 
-<div class="viewcode-block" id="Contig.contig_fields"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.contig_fields">[docs]</a>    <span class="k">def</span> <span class="nf">contig_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.contig_fields"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.contig_fields">[docs]</a>    <span class="k">def</span> <span class="nf">contig_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fields</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns trajectory field data for the specified fields.</span>
 
 <span class="sd">        Parameters</span>
@@ -1652,7 +1689,7 @@
         <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contig_trace</span><span class="p">)</span>
 
     <span class="c1"># TODO: may need to be implemented without using the wepy_h5 in the BaseContigTree</span>
-<div class="viewcode-block" id="Contig.num_walkers"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.num_walkers"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.num_walkers">[docs]</a>    <span class="k">def</span> <span class="nf">num_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cycle_idx</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the number of walkers at a given cycle in the contig.</span>
 
 <span class="sd">        Parameters</span>
@@ -1673,7 +1710,7 @@
 
         <span class="k">return</span> <span class="n">n_walkers</span></div>
 
-<div class="viewcode-block" id="Contig.records"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.records">[docs]</a>    <span class="k">def</span> <span class="nf">records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_key</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.records"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.records">[docs]</a>    <span class="k">def</span> <span class="nf">records</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the records for the given key.</span>
 
 <span class="sd">        Parameters</span>
@@ -1687,7 +1724,7 @@
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_contig_records</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contig_run_idxs</span><span class="p">,</span> <span class="n">record_key</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.records_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_key</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.records_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">record_key</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the records as a pandas.DataFrame for the given key.</span>
 
 <span class="sd">        Parameters</span>
@@ -1702,7 +1739,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">run_contig_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contig_run_idxs</span><span class="p">,</span> <span class="n">record_key</span><span class="p">)</span></div>
 
     <span class="c1"># resampling</span>
-<div class="viewcode-block" id="Contig.resampling_records"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_records">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampling_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_records">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the resampling records.</span>
 
 <span class="sd">        Returns</span>
@@ -1713,7 +1750,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">RESAMPLING</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.resampling_records_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampling_records_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the resampling records as a pandas.DataFrame.</span>
 
 <span class="sd">        Returns</span>
@@ -1725,7 +1762,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resampling_records</span><span class="p">())</span></div>
 
     <span class="c1"># resampler records</span>
-<div class="viewcode-block" id="Contig.resampler_records"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampler_records">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampler_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampler_records">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the resampler records.</span>
 
 <span class="sd">        Returns</span>
@@ -1737,7 +1774,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">RESAMPLER</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.resampler_records_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampler_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampler_records_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampler_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">resampler_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the resampler records as a pandas.DataFrame.</span>
 
 <span class="sd">        Returns</span>
@@ -1750,7 +1787,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">resampler_records</span><span class="p">())</span></div>
 
     <span class="c1"># warping</span>
-<div class="viewcode-block" id="Contig.warping_records"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warping_records">[docs]</a>    <span class="k">def</span> <span class="nf">warping_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.warping_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warping_records">[docs]</a>    <span class="k">def</span> <span class="nf">warping_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the warping records.</span>
 
 <span class="sd">        Returns</span>
@@ -1762,7 +1799,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">WARPING</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.warping_records_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warping_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">warping_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.warping_records_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warping_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">warping_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the warping records as a pandas.DataFrame.</span>
 
 <span class="sd">        Returns</span>
@@ -1775,7 +1812,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">warping_records</span><span class="p">())</span></div>
 
     <span class="c1"># boundary conditions</span>
-<div class="viewcode-block" id="Contig.bc_records"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.bc_records">[docs]</a>    <span class="k">def</span> <span class="nf">bc_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.bc_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.bc_records">[docs]</a>    <span class="k">def</span> <span class="nf">bc_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the boundary conditions records.</span>
 
 <span class="sd">        Returns</span>
@@ -1787,7 +1824,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">BC</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.bc_records_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.bc_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">bc_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.bc_records_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.bc_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">bc_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the boundary conditions records as a pandas.DataFrame.</span>
 
 <span class="sd">        Returns</span>
@@ -1800,7 +1837,7 @@
         <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bc_records</span><span class="p">())</span></div>
 
     <span class="c1"># progress</span>
-<div class="viewcode-block" id="Contig.progress_records"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.progress_records">[docs]</a>    <span class="k">def</span> <span class="nf">progress_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.progress_records"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.progress_records">[docs]</a>    <span class="k">def</span> <span class="nf">progress_records</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the progress records.</span>
 
 <span class="sd">        Returns</span>
@@ -1812,7 +1849,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">records</span><span class="p">(</span><span class="n">PROGRESS</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.progress_records_dataframe"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.progress_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">progress_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.progress_records_dataframe"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.progress_records_dataframe">[docs]</a>    <span class="k">def</span> <span class="nf">progress_records_dataframe</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the progress records as a pandas.DataFrame.</span>
 
 <span class="sd">        Returns</span>
@@ -1826,7 +1863,7 @@
 
 
     <span class="c1"># resampling panel</span>
-<div class="viewcode-block" id="Contig.resampling_panel"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_panel">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampling_panel"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_panel">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_panel</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the full resampling panel for this contig.</span>
 
 <span class="sd">        Returns</span>
@@ -1837,7 +1874,7 @@
 
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">wepy_h5</span><span class="o">.</span><span class="n">contig_resampling_panel</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_contig_run_idxs</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.parent_table"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.parent_table">[docs]</a>    <span class="k">def</span> <span class="nf">parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.parent_table"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.parent_table">[docs]</a>    <span class="k">def</span> <span class="nf">parent_table</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Returns the full parent table for this contig.</span>
 
 <span class="sd">        Notes</span>
@@ -1864,7 +1901,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">trace_parent_table</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">contig_trace</span><span class="p">,</span>
                                        <span class="n">discontinuities</span><span class="o">=</span><span class="n">discontinuities</span><span class="p">)</span></div>
 
-<div class="viewcode-block" id="Contig.lineages_contig"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.lineages_contig">[docs]</a>    <span class="k">def</span> <span class="nf">lineages_contig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.lineages_contig"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.lineages_contig">[docs]</a>    <span class="k">def</span> <span class="nf">lineages_contig</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 
         <span class="c1"># get the parent table for this contig</span>
         <span class="n">parent_table</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parent_table</span><span class="p">(</span><span class="n">discontinuities</span><span class="o">=</span><span class="n">discontinuities</span><span class="p">)</span>
@@ -1877,7 +1914,7 @@
 
         <span class="k">return</span> <span class="n">lineages</span></div>
 
-<div class="viewcode-block" id="Contig.lineages"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.lineages">[docs]</a>    <span class="k">def</span> <span class="nf">lineages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.lineages"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.lineages">[docs]</a>    <span class="k">def</span> <span class="nf">lineages</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">contig_trace</span><span class="p">,</span> <span class="n">discontinuities</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Get the ancestry lineage for each element of the trace as a run</span>
 <span class="sd">        trace.&quot;&quot;&quot;</span>
 
@@ -1886,7 +1923,7 @@
                                                   <span class="n">discontinuities</span><span class="o">=</span><span class="n">discontinuities</span><span class="p">)]</span></div>
 
 
-<div class="viewcode-block" id="Contig.warp_contig_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warp_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">warp_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.warp_contig_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warp_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">warp_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a trace that gives all of the walkers that were warped.&quot;&quot;&quot;</span>
 
         <span class="n">trace</span> <span class="o">=</span> <span class="p">[]</span>
@@ -1901,7 +1938,7 @@
 
         <span class="k">return</span> <span class="n">trace</span></div>
 
-<div class="viewcode-block" id="Contig.resampling_contig_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampling_contig_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return full run traces for every specified type of resampling</span>
 <span class="sd">        event.</span>
 
@@ -1927,7 +1964,7 @@
 
         <span class="k">return</span> <span class="n">trace</span></div>
 
-<div class="viewcode-block" id="Contig.final_contig_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.final_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.final_contig_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.final_contig_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_contig_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="c1"># this is just the last cycle index</span>
         <span class="n">last_cycle_idx</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">num_cycles</span> <span class="o">-</span> <span class="mi">1</span>
@@ -1939,7 +1976,7 @@
         <span class="k">return</span> <span class="n">trace</span></div>
 
 
-<div class="viewcode-block" id="Contig.warp_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warp_trace">[docs]</a>    <span class="k">def</span> <span class="nf">warp_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.warp_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.warp_trace">[docs]</a>    <span class="k">def</span> <span class="nf">warp_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a run trace that gives all of the walkers that were warped.&quot;&quot;&quot;</span>
 
         <span class="n">trace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">warp_contig_trace</span><span class="p">()</span>
@@ -1948,7 +1985,7 @@
 
         <span class="k">return</span> <span class="n">run_trace</span></div>
 
-<div class="viewcode-block" id="Contig.resampling_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.resampling_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_trace">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">decision_id</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return full run traces for every specified type of resampling</span>
 <span class="sd">        event.</span>
 
@@ -1969,7 +2006,7 @@
         <span class="k">return</span> <span class="n">run_trace</span></div>
 
 
-<div class="viewcode-block" id="Contig.final_trace"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.final_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="Contig.final_trace"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.final_trace">[docs]</a>    <span class="k">def</span> <span class="nf">final_trace</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return a trace of all the walkers at the end of the contig.&quot;&quot;&quot;</span>
 
         <span class="n">trace</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">final_contig_trace</span><span class="p">()</span>
@@ -1978,7 +2015,7 @@
 
         <span class="k">return</span> <span class="n">run_trace</span></div>
 
-<div class="viewcode-block" id="Contig.resampling_tree_layout_graph"><a class="viewcode-back" href="../../../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_tree_layout_graph">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_tree_layout_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
+<div class="viewcode-block" id="Contig.resampling_tree_layout_graph"><a class="viewcode-back" href="../../../_api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig.resampling_tree_layout_graph">[docs]</a>    <span class="k">def</span> <span class="nf">resampling_tree_layout_graph</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span>
                                      <span class="n">bc_class</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                      <span class="n">progress_key</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                                      <span class="n">node_shape</span><span class="o">=</span><span class="s1">&#39;disc&#39;</span><span class="p">,</span>
@@ -2321,7 +2358,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

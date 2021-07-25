@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.util.kv &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
     <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
     <script src="../../../_static/doctools.js"></script>
-    <script src="../../../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/util/kv.html" />
     <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
@@ -109,7 +107,7 @@
 <span class="c1"># the default types for the values that is checked, is bytes</span>
 <span class="n">DEFAULT_VALUE_TYPES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">bytes</span><span class="p">,</span> <span class="nb">bytearray</span><span class="p">)</span>
 
-<div class="viewcode-block" id="gen_uri"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.gen_uri">[docs]</a><span class="k">def</span> <span class="nf">gen_uri</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">mode_spec</span><span class="p">):</span>
+<div class="viewcode-block" id="gen_uri"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.gen_uri">[docs]</a><span class="k">def</span> <span class="nf">gen_uri</span><span class="p">(</span><span class="n">db_url</span><span class="p">,</span> <span class="n">mode_spec</span><span class="p">):</span>
 
     <span class="c1"># if the db url is the in memory special string or None or the</span>
     <span class="c1"># :memory: identifier, use the full in-memory URI</span>
@@ -230,7 +228,7 @@
 
     <span class="k">return</span> <span class="n">db_uri</span></div>
 
-<div class="viewcode-block" id="KV"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV">[docs]</a><span class="k">class</span> <span class="nc">KV</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">):</span>
+<div class="viewcode-block" id="KV"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV">[docs]</a><span class="k">class</span> <span class="nc">KV</span><span class="p">(</span><span class="n">MutableMapping</span><span class="p">):</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db_url</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">table</span><span class="o">=</span><span class="s1">&#39;data&#39;</span><span class="p">,</span>
@@ -291,7 +289,7 @@
     <span class="k">def</span> <span class="nf">append_only</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_append_only</span>
 
-<div class="viewcode-block" id="KV.close"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<div class="viewcode-block" id="KV.close"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV.close">[docs]</a>    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_closed</span> <span class="o">==</span> <span class="kc">True</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="s2">&quot;The database connection is already closed&quot;</span><span class="p">)</span>
@@ -326,7 +324,7 @@
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_kv_types</span>
 
 
-<div class="viewcode-block" id="KV._execute"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV._execute">[docs]</a>    <span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
+<div class="viewcode-block" id="KV._execute"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV._execute">[docs]</a>    <span class="k">def</span> <span class="nf">_execute</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_db</span><span class="o">.</span><span class="n">cursor</span><span class="p">()</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">)</span></div>
 
     <span class="k">def</span> <span class="fm">__len__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -420,7 +418,7 @@
 
         <span class="k">return</span> <span class="n">query</span>
 
-<div class="viewcode-block" id="KV.lockless_set"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.lockless_set">[docs]</a>    <span class="k">def</span> <span class="nf">lockless_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="KV.lockless_set"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV.lockless_set">[docs]</a>    <span class="k">def</span> <span class="nf">lockless_set</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;an implementation of the __setitem__ without the lock context</span>
 <span class="sd">        manager which turns on the DEFERRED isolation level. The</span>
 <span class="sd">        isolation level of the KV is set to autocommit so now lock is</span>
@@ -443,7 +441,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">update_query</span><span class="p">,</span>
                               <span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">key</span><span class="p">))</span></div>
 
-<div class="viewcode-block" id="KV.set_in_tx"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.set_in_tx">[docs]</a>    <span class="k">def</span> <span class="nf">set_in_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
+<div class="viewcode-block" id="KV.set_in_tx"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV.set_in_tx">[docs]</a>    <span class="k">def</span> <span class="nf">set_in_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Do a set with a cursor, this allows it to be done in a transaction.&quot;&quot;&quot;</span>
 
         <span class="k">try</span><span class="p">:</span>
@@ -460,7 +458,7 @@
 
         <span class="k">return</span> <span class="n">cursor</span></div>
 
-<div class="viewcode-block" id="KV.del_in_tx"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.del_in_tx">[docs]</a>    <span class="k">def</span> <span class="nf">del_in_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
+<div class="viewcode-block" id="KV.del_in_tx"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV.del_in_tx">[docs]</a>    <span class="k">def</span> <span class="nf">del_in_tx</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="n">key</span><span class="p">):</span>
 
         <span class="c1"># no deletions in append only mode</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">append_only</span><span class="p">:</span>
@@ -476,7 +474,7 @@
         <span class="k">return</span> <span class="n">cursor</span></div>
 
 
-<div class="viewcode-block" id="KV.lock"><a class="viewcode-back" href="../../../api/wepy.util.kv.html#wepy.util.kv.KV.lock">[docs]</a>    <span class="nd">@contextmanager</span>
+<div class="viewcode-block" id="KV.lock"><a class="viewcode-back" href="../../../_api/wepy.util.kv.html#wepy.util.kv.KV.lock">[docs]</a>    <span class="nd">@contextmanager</span>
     <span class="k">def</span> <span class="nf">lock</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_locks</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_execute</span><span class="p">(</span><span class="s1">&#39;BEGIN TRANSACTION&#39;</span><span class="p">)</span>
@@ -585,7 +583,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.reporter.receptor.dashboard module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.reporter.receptor.dashboard.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -57,103 +55,103 @@
 <span id="wepy-reporter-receptor-dashboard-module"></span><h1>wepy.reporter.receptor.dashboard module<a class="headerlink" href="#module-wepy.reporter.receptor.dashboard" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt id="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.receptor.dashboard.</code><code class="sig-name descname">ReceptorBCDashboardSection</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#ReceptorBCDashboardSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection" title="wepy.reporter.dashboard.BCDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.BCDashboardSection</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.receptor.dashboard.</span></code><code class="sig-name descname"><span class="pre">ReceptorBCDashboardSection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#ReceptorBCDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.reporter.dashboard.html#wepy.reporter.dashboard.BCDashboardSection" title="wepy.reporter.dashboard.BCDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.BCDashboardSection</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.BC_SECTION_TEMPLATE">
-<code class="sig-name descname">BC_SECTION_TEMPLATE</code><em class="property"> = '\n\nBoundary Condition: {{ name }}\n\nTotal Number of Dynamics segments: {{ total_n_walker_segments }}\n\nTotal Number of Warps: {{ total_crossings }}\n\nCumulative Boundary Crossed Weight: {{ total_unbound_weight }}\n\nRate (1/τ): {{ rate }}\n\nParameters:\n\n{{ parameters }}\n\n\n** Warping Log\n\n{{ warping_log }}\n\n'</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">BC_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\n\nBoundary</span> <span class="pre">Condition:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Dynamics</span> <span class="pre">segments:</span> <span class="pre">{{</span> <span class="pre">total_n_walker_segments</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Warps:</span> <span class="pre">{{</span> <span class="pre">total_crossings</span> <span class="pre">}}\n\nCumulative</span> <span class="pre">Boundary</span> <span class="pre">Crossed</span> <span class="pre">Weight:</span> <span class="pre">{{</span> <span class="pre">total_unbound_weight</span> <span class="pre">}}\n\nRate</span> <span class="pre">(1/τ):</span> <span class="pre">{{</span> <span class="pre">rate</span> <span class="pre">}}\n\nParameters:\n\n{{</span> <span class="pre">parameters</span> <span class="pre">}}\n\n\n**</span> <span class="pre">Warping</span> <span class="pre">Log\n\n{{</span> <span class="pre">warping_log</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_fields">
-<code class="sig-name descname">gen_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#ReceptorBCDashboardSection.gen_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#ReceptorBCDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.WARP_RECORD_COLNAMES">
-<code class="sig-name descname">WARP_RECORD_COLNAMES</code><em class="property"> = ('cycle_idx', 'walker_idx', 'weight', 'target_idx', 'discontinuous')</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">WARP_RECORD_COLNAMES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('cycle_idx',</span> <span class="pre">'walker_idx',</span> <span class="pre">'weight',</span> <span class="pre">'target_idx',</span> <span class="pre">'discontinuous')</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_bc_section">
-<code class="sig-name descname">gen_bc_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_bc_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.receptor.dashboard.</code><code class="sig-name descname">UnbindingBCDashboardSection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cutoff_distance</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#UnbindingBCDashboardSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection" title="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.receptor.dashboard.</span></code><code class="sig-name descname"><span class="pre">UnbindingBCDashboardSection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_distance</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#UnbindingBCDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection" title="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.RECEPTOR_PARAMETERS">
-<code class="sig-name descname">RECEPTOR_PARAMETERS</code><em class="property"> = '\nCutoff Distance: {{ cutoff_distance }}\n'</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.RECEPTOR_PARAMETERS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">RECEPTOR_PARAMETERS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\nCutoff</span> <span class="pre">Distance:</span> <span class="pre">{{</span> <span class="pre">cutoff_distance</span> <span class="pre">}}\n'</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.RECEPTOR_PARAMETERS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_fields">
-<code class="sig-name descname">gen_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#UnbindingBCDashboardSection.gen_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#UnbindingBCDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.BC_SECTION_TEMPLATE">
-<code class="sig-name descname">BC_SECTION_TEMPLATE</code><em class="property"> = '\n\nBoundary Condition: {{ name }}\n\nTotal Number of Dynamics segments: {{ total_n_walker_segments }}\n\nTotal Number of Warps: {{ total_crossings }}\n\nCumulative Boundary Crossed Weight: {{ total_unbound_weight }}\n\nRate (1/τ): {{ rate }}\n\nParameters:\n\n{{ parameters }}\n\n\n** Warping Log\n\n{{ warping_log }}\n\n'</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">BC_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\n\nBoundary</span> <span class="pre">Condition:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Dynamics</span> <span class="pre">segments:</span> <span class="pre">{{</span> <span class="pre">total_n_walker_segments</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Warps:</span> <span class="pre">{{</span> <span class="pre">total_crossings</span> <span class="pre">}}\n\nCumulative</span> <span class="pre">Boundary</span> <span class="pre">Crossed</span> <span class="pre">Weight:</span> <span class="pre">{{</span> <span class="pre">total_unbound_weight</span> <span class="pre">}}\n\nRate</span> <span class="pre">(1/τ):</span> <span class="pre">{{</span> <span class="pre">rate</span> <span class="pre">}}\n\nParameters:\n\n{{</span> <span class="pre">parameters</span> <span class="pre">}}\n\n\n**</span> <span class="pre">Warping</span> <span class="pre">Log\n\n{{</span> <span class="pre">warping_log</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.WARP_RECORD_COLNAMES">
-<code class="sig-name descname">WARP_RECORD_COLNAMES</code><em class="property"> = ('cycle_idx', 'walker_idx', 'weight', 'target_idx', 'discontinuous')</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">WARP_RECORD_COLNAMES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('cycle_idx',</span> <span class="pre">'walker_idx',</span> <span class="pre">'weight',</span> <span class="pre">'target_idx',</span> <span class="pre">'discontinuous')</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_bc_section">
-<code class="sig-name descname">gen_bc_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_bc_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.UnbindingBCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
 
 <dl class="py class">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.reporter.receptor.dashboard.</code><code class="sig-name descname">RebindingBCDashboardSection</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">bc</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="n">cutoff_rmsd</span><span class="o">=</span><span class="default_value">None</span></em>, <em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#RebindingBCDashboardSection"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="../api/wepy.reporter.receptor.dashboard.html#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection" title="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection</span></code></a></p>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.reporter.receptor.dashboard.</span></code><code class="sig-name descname"><span class="pre">RebindingBCDashboardSection</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bc</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cutoff_rmsd</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#RebindingBCDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection" title="wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.receptor.dashboard.ReceptorBCDashboardSection</span></code></a></p>
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.RECEPTOR_PARAMETERS">
-<code class="sig-name descname">RECEPTOR_PARAMETERS</code><em class="property"> = '\nCutoff RMSD: {{ cutoff_rmsd }}\n'</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.RECEPTOR_PARAMETERS" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">RECEPTOR_PARAMETERS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\nCutoff</span> <span class="pre">RMSD:</span> <span class="pre">{{</span> <span class="pre">cutoff_rmsd</span> <span class="pre">}}\n'</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.RECEPTOR_PARAMETERS" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.BC_SECTION_TEMPLATE">
-<code class="sig-name descname">BC_SECTION_TEMPLATE</code><em class="property"> = '\n\nBoundary Condition: {{ name }}\n\nTotal Number of Dynamics segments: {{ total_n_walker_segments }}\n\nTotal Number of Warps: {{ total_crossings }}\n\nCumulative Boundary Crossed Weight: {{ total_unbound_weight }}\n\nRate (1/τ): {{ rate }}\n\nParameters:\n\n{{ parameters }}\n\n\n** Warping Log\n\n{{ warping_log }}\n\n'</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">BC_SECTION_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'\n\nBoundary</span> <span class="pre">Condition:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Dynamics</span> <span class="pre">segments:</span> <span class="pre">{{</span> <span class="pre">total_n_walker_segments</span> <span class="pre">}}\n\nTotal</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Warps:</span> <span class="pre">{{</span> <span class="pre">total_crossings</span> <span class="pre">}}\n\nCumulative</span> <span class="pre">Boundary</span> <span class="pre">Crossed</span> <span class="pre">Weight:</span> <span class="pre">{{</span> <span class="pre">total_unbound_weight</span> <span class="pre">}}\n\nRate</span> <span class="pre">(1/τ):</span> <span class="pre">{{</span> <span class="pre">rate</span> <span class="pre">}}\n\nParameters:\n\n{{</span> <span class="pre">parameters</span> <span class="pre">}}\n\n\n**</span> <span class="pre">Warping</span> <span class="pre">Log\n\n{{</span> <span class="pre">warping_log</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.BC_SECTION_TEMPLATE" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.WARP_RECORD_COLNAMES">
-<code class="sig-name descname">WARP_RECORD_COLNAMES</code><em class="property"> = ('cycle_idx', 'walker_idx', 'weight', 'target_idx', 'discontinuous')</em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">WARP_RECORD_COLNAMES</span></code><em class="property"> <span class="pre">=</span> <span class="pre">('cycle_idx',</span> <span class="pre">'walker_idx',</span> <span class="pre">'weight',</span> <span class="pre">'target_idx',</span> <span class="pre">'discontinuous')</span></em><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.WARP_RECORD_COLNAMES" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_bc_section">
-<code class="sig-name descname">gen_bc_section</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_bc_section</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_bc_section" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.update_values">
-<code class="sig-name descname">update_values</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">update_values</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.update_values" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
 <dt id="wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_fields">
-<code class="sig-name descname">gen_fields</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#RebindingBCDashboardSection.gen_fields"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">gen_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/receptor/dashboard.html#RebindingBCDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.receptor.dashboard.RebindingBCDashboardSection.gen_fields" title="Permalink to this definition">¶</a></dt>
 <dd></dd></dl>
 
 </dd></dl>
@@ -273,7 +271,7 @@
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

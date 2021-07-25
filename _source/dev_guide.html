@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Development Guide &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/dev_guide.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -202,7 +200,6 @@ git commit -m <span class="s2">&quot;Updates dev environment&quot;</span>
 </pre></div>
 </div>
 </li>
-<li></li>
 <li><p>Explanation</p>
 <p>Reminder that there are two separate goals of managing dependencies
 and where they are managed:</p>
@@ -270,7 +267,10 @@ specification for dependencies. Compiled to <code class="docutils literal notran
 </ul>
 <p>All the other files are still valid for conda environments still.</p>
 <ol class="arabic">
-<li><p>requirements.in</p>
+<li><p>Abstract Requirements</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">requirements</span><span class="o">.</span><span class="ow">in</span>
+</pre></div>
+</div>
 <p>The basic part of this spec is the <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> and
 <code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code> files.</p>
 <p>The <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file is as described in the <code class="docutils literal notranslate"><span class="pre">pip-tools</span></code>
@@ -288,7 +288,10 @@ networkx &gt;= 2
 package or any local file paths. This should be portable between
 machines and developers.</p>
 </li>
-<li><p>self.requirements.txt</p>
+<li><p>Development Project Installation Spec</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="bp">self</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
 <p>The <code class="docutils literal notranslate"><span class="pre">self.requirements.txt</span></code> file instead is where these kinds of
 specifications should be.</p>
 <p>At its simplest it may look like this:</p>
@@ -308,7 +311,10 @@ then write a <code class="docutils literal notranslate"><span class="pre">self.r
 </pre></div>
 </div>
 </li>
-<li><p>dev.requirements.list</p>
+<li><p>Simultaneous Project Development</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">dev</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">list</span>
+</pre></div>
+</div>
 <p>During simultaneous development however, the dependencies of these
 other repos won’t be included in the compilation of the
 <code class="docutils literal notranslate"><span class="pre">requirements.txt</span></code> file.</p>
@@ -334,14 +340,20 @@ compilation step. Note that the <code class="docutils literal notranslate"><span
 any location and is not a specification other projects <em>must</em>
 support.</p>
 </li>
-<li><p>tools.requirements.txt</p>
+<li><p>Meta-Tools Installation Spec</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">tools</span><span class="o">.</span><span class="n">requirements</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
 <p>Use this to “pin” or constrain versions of tools which won’t be or
 can’t be managed by the pinning tool (i.e. <code class="docutils literal notranslate"><span class="pre">pip-tools</span></code>, meaning
 <code class="docutils literal notranslate"><span class="pre">pip</span></code>, <code class="docutils literal notranslate"><span class="pre">setuptools</span></code> etc.).</p>
 <p>The main use of this to pin the version of <code class="docutils literal notranslate"><span class="pre">pip</span></code> in case it
 breaks some other tools.</p>
 </li>
-<li><p>pyversion.txt</p>
+<li><p>Specifying Python Version</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">pyversion</span><span class="o">.</span><span class="n">txt</span>
+</pre></div>
+</div>
 <p>This file should only contain the text that specifies the version
 of python to use that is understood by the env method (e.g.
 <code class="docutils literal notranslate"><span class="pre">conda</span></code>).</p>
@@ -954,7 +966,7 @@ in the github settings for the page.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

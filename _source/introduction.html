@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Introduction &amp; Features &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/introduction.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -64,7 +62,7 @@ usage of <code class="docutils literal notranslate"><span class="pre">wepy</span
 <h2>Weighted Ensemble (WE)<a class="headerlink" href="#weighted-ensemble-we" title="Permalink to this headline">¶</a></h2>
 <p>The weighted ensemble algorithm (WE) is a general strategy for
 simulating rare or long-timescale events in stochastic systems
-<a class="bibtex reference internal" href="#huberkim1996weightedensemble" id="id1">[HK96]</a>. It works by simulating an ensemble
+<span id="id1">[]</span>. It works by simulating an ensemble
 of different simulations (individually called ‘walkers’), where at
 specific times during the simulations all walkers are stopped and
 examined in order to identify any behaviors of interest that may have
@@ -100,9 +98,9 @@ effect the structure in these particular states.</p>
 <div class="section" id="features">
 <h2>Features<a class="headerlink" href="#features" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
-<li><p>State of the art WE resamplers: WExplore <a class="bibtex reference internal" href="#dickson2014wexplore" id="id2">[DB14]</a>
-and REVO <a class="bibtex reference internal" href="#donyapour2019revo" id="id3">[DRD19]</a></p></li>
-<li><p>Super fast molecular dynamics via OpenMM <a class="bibtex reference internal" href="#eastman2013openmm4" id="id4">[EFC+13]</a></p></li>
+<li><p>State of the art WE resamplers: WExplore <span id="id2">[]</span>
+and REVO <span id="id3">[]</span></p></li>
+<li><p>Super fast molecular dynamics via OpenMM <span id="id4">[]</span></p></li>
 <li><p>Purpose built HDF5 storage format for WE data with extensive API:
 <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code></p></li>
 <li><p>Analysis routines for:</p>
@@ -166,20 +164,20 @@ the <a class="reference internal" href="api.html"><span class="doc">API document
 <td><p>7.3.1</p></td>
 <td><p>✓</p></td>
 </tr>
-<tr class="row-even"><td><p>3.8</p></td>
+<tr class="row-even"><td><p>3.7</p></td>
+<td><p>7.5.1</p></td>
+<td><p>✓</p></td>
+</tr>
+<tr class="row-odd"><td><p>3.8</p></td>
 <td><p>7.4.1</p></td>
 <td><p>✗</p></td>
 </tr>
-<tr class="row-odd"><td><p>3.8</p></td>
+<tr class="row-even"><td><p>3.8</p></td>
 <td><p>7.3.1</p></td>
 <td><p>✗</p></td>
 </tr>
 </tbody>
 </table>
-<p>Using the <code class="docutils literal notranslate"><span class="pre">omnia</span></code> channel <code class="docutils literal notranslate"><span class="pre">openmm</span></code>, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda install -c omnia <span class="nv">openmm</span><span class="o">=</span><span class="m">7</span>.4.1
-</pre></div>
-</div>
 <p>See the <code class="docutils literal notranslate"><span class="pre">noxfile.py</span></code> for full test matrix.</p>
 </div>
 <div class="section" id="contributed-wepy-libraries-and-other-useful-resources">
@@ -235,7 +233,7 @@ submit a pull request with your desired changes.</p>
 <p><a class="reference external" href="https://github.com/westpa/westpa">WESTPA</a></p>
 <p>Weighted ensemble package in Python 2.7. More reliant and integrated
 with unix-like operating systems providing modularity through shell
-scripting and python modules <a class="bibtex reference internal" href="#zwierchong2015westpa" id="id5">[ZAK+15]</a>.</p>
+scripting and python modules <span id="id5">[]</span>.</p>
 <p>As an older project it has support for more MD engines (and non-MD
 stochastic sampling engines, e.g. BioNetGen) and is currently better
 suited for running simulations on large numbers of CPUs in a clustered
@@ -249,33 +247,12 @@ like REVO, which have no concept of bins at all.</p>
 Ensemble</a></p>
 <p>Another Python 2 library with a focus on the Accelerated WE resampling
 algorithm and integration with a Work Queue library for distributed jobs
-<a class="bibtex reference internal" href="#abdulwahid2014awewq" id="id6">[AWFR+14]</a> .</p>
+<span id="id6">[]</span> .</p>
 </div>
 </div>
 <div class="section" id="bibliography">
 <h1>Bibliography<a class="headerlink" href="#bibliography" title="Permalink to this headline">¶</a></h1>
-<p id="bibtex-bibliography-_source/introduction-0"><dl class="citation">
-<dt class="bibtex label" id="abdulwahid2014awewq"><span class="brackets"><a class="fn-backref" href="#id6">AWFR+14</a></span></dt>
-<dd><p>Badi’ Abdul-Wahid, Haoyun Feng, Dinesh Rajan, Ronan Costaouec, Eric Darve, Douglas Thain, and Jesús A. Izaguirre. Awe-wq: fast-forwarding molecular dynamics using the accelerated weighted ensemble. <em>Journal of Chemical Information and Modeling</em>, 54(10):3033–3043, 2014. PMID: 25207854. URL: <a class="reference external" href="http://dx.doi.org/10.1021/ci500321g">http://dx.doi.org/10.1021/ci500321g</a>.</p>
-</dd>
-<dt class="bibtex label" id="dickson2014wexplore"><span class="brackets"><a class="fn-backref" href="#id2">DB14</a></span></dt>
-<dd><p>A Dickson and C L Brooks. Wexplore: hierarchical exploration of high-dimensional spaces using the weighted ensemble algorithm. <em>Journal of Physical Chemistry B</em>, 118(13):3532–3542, apr 2014. URL: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4404516/">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC4404516/</a>.</p>
-</dd>
-<dt class="bibtex label" id="donyapour2019revo"><span class="brackets"><a class="fn-backref" href="#id3">DRD19</a></span></dt>
-<dd><p>Nazanin Donyapour, Nicole M Roussey, and Alex Dickson. Revo: resampling of ensembles by variation optimization. <em>The Journal of Chemical Physics</em>, 150(24):244112, 2019.</p>
-</dd>
-<dt class="bibtex label" id="eastman2013openmm4"><span class="brackets"><a class="fn-backref" href="#id4">EFC+13</a></span></dt>
-<dd><p>P Eastman, M S Friedrichs, J D Chodera, R J Radmer, C M Bruns, J P Ku, K A Beauchamp, T J Lane, L P Wang, D Shukla, T Tye, M Houston, T Stich, C Klein, M R Shirts, and V S Pande. Openmm 4: a reusable, extensible, hardware independent library for high performance molecular simulation. <em>Journal of Chemical Theory and Computation</em>, 9(1):461–469, jan 2013. URL: <a class="reference external" href="https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3539733/">https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3539733/</a>.</p>
-</dd>
-<dt class="bibtex label" id="huberkim1996weightedensemble"><span class="brackets"><a class="fn-backref" href="#id1">HK96</a></span></dt>
-<dd><p>G A Huber and S Kim. Weighted-ensemble brownian dynamics simulations for protein association reactions. <em>Biophysical Journal</em>, 70(1):97–110, jan 1996. URL: <a class="reference external" href="http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1224912/">http://www.ncbi.nlm.nih.gov/pmc/articles/PMC1224912/</a>.</p>
-</dd>
-<dt class="bibtex label" id="zwierchong2015westpa"><span class="brackets"><a class="fn-backref" href="#id5">ZAK+15</a></span></dt>
-<dd><p>Matthew C. Zwier, Joshua L. Adelman, Joseph W. Kaus, Adam J. Pratt, Kim F. Wong, Nicholas B. Rego, Ernesto Suárez, Steven Lettieri, David W. Wang, Michael Grabe, Daniel M. Zuckerman, and Lillian T. Chong. Westpa: an interoperable, highly scalable software package for weighted ensemble simulation and analysis. <em>Journal of Chemical Theory and Computation</em>, 11(2):800–809, 2015. URL: <a class="reference external" href="/brokenurl# http://dx.doi.org/10.1021/ct5010615">/brokenurl# http://dx.doi.org/10.1021/ct5010615</a>.</p>
-</dd>
-</dl>
-</p>
-</div>
+<span class="target" id="id7"></span></div>
 
 
           </div>
@@ -382,7 +359,7 @@ algorithm and integration with a Work Queue library for distributed jobs
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.rates module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.analysis.rates.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -58,7 +56,7 @@
 <p>Compute rates for warping events.</p>
 <dl class="py function">
 <dt id="wepy.analysis.rates.calc_warp_rate">
-<code class="sig-prename descclassname">wepy.analysis.rates.</code><code class="sig-name descname">calc_warp_rate</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">warping_records</span></em>, <em class="sig-param"><span class="n">total_sampling_time</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/rates.html#calc_warp_rate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.rates.calc_warp_rate" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.rates.</span></code><code class="sig-name descname"><span class="pre">calc_warp_rate</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warping_records</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">total_sampling_time</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/rates.html#calc_warp_rate"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.rates.calc_warp_rate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the warping rates for each target in these records.</p>
 <p>Takes a set of warping records which are named tuples that have
 the fields set in the Abstract Base Class for boundary conditions
@@ -87,7 +85,7 @@ time it was calculated with,respectively.</p>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
 <dl class="simple">
-<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.Boundary()</span></code></dt><dd><p>for specs on fields necessary for warping_records</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.Boundary</span></code></dt><dd><p>for specs on fields necessary for warping_records</p>
 </dd>
 </dl>
 </div>
@@ -95,7 +93,7 @@ time it was calculated with,respectively.</p>
 
 <dl class="py function">
 <dt id="wepy.analysis.rates.contig_warp_rates">
-<code class="sig-prename descclassname">wepy.analysis.rates.</code><code class="sig-name descname">contig_warp_rates</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">contig</span></em>, <em class="sig-param"><span class="n">cycle_time</span></em>, <em class="sig-param"><span class="n">time_points</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/rates.html#contig_warp_rates"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.rates.contig_warp_rates" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.rates.</span></code><code class="sig-name descname"><span class="pre">contig_warp_rates</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contig</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle_time</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_points</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/rates.html#contig_warp_rates"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.rates.contig_warp_rates" title="Permalink to this definition">¶</a></dt>
 <dd><p>Calculate the warping rates for a contig.</p>
 <p>Automatically figures out the total sampling time for two options
 which is set by the ‘time_points’ kwarg.</p>
@@ -109,7 +107,7 @@ class (wepy.boundary_conditions.boundary.Boundary).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><ul class="simple">
-<li><p><strong>contig</strong> (<a class="reference internal" href="../api/wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig" title="wepy.analysis.contig_tree.Contig"><em>analysis.contig_tree.Contig</em></a>) – Underlying WepyHDF5 must be open for reading.</p></li>
+<li><p><strong>contig</strong> (<a class="reference internal" href="wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.Contig" title="wepy.analysis.contig_tree.Contig"><em>analysis.contig_tree.Contig</em></a>) – Underlying WepyHDF5 must be open for reading.</p></li>
 <li><p><strong>cycle_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.9)"><em>float</em></a>) – The sampling time for each cycle.</p></li>
 <li><p><strong>time_points</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><em>Ellipsis</em>) – Determines how many and which time points are computed for the
 rates of each run. None, only the end; Ellipsis, all cycles.</p></li>
@@ -126,9 +124,9 @@ the list depend on the value of the ‘time_points’ kwarg.</p>
 </dl>
 <div class="admonition seealso">
 <p class="admonition-title">See also</p>
-<p><a class="reference internal" href="../api/wepy.analysis.rates.html#wepy.analysis.rates.calc_warp_rate" title="wepy.analysis.rates.calc_warp_rate"><code class="xref py py-func docutils literal notranslate"><span class="pre">wepy.analysis.rates.calc_warp_rate()</span></code></a></p>
+<p><a class="reference internal" href="#wepy.analysis.rates.calc_warp_rate" title="wepy.analysis.rates.calc_warp_rate"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.analysis.rates.calc_warp_rate</span></code></a></p>
 <dl class="simple">
-<dt><code class="xref py py-func docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.Boundary()</span></code></dt><dd><p>for specs on fields necessary for warping_records</p>
+<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.boundary_conditions.boundary.Boundary</span></code></dt><dd><p>for specs on fields necessary for warping_records</p>
 </dd>
 </dl>
 </div>
@@ -247,7 +245,7 @@ the list depend on the value of the ‘time_points’ kwarg.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

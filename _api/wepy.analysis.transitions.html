@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.analysis.transitions module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.analysis.transitions.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -94,7 +92,7 @@ between each macrostate as an assymetric transition probability matrix.</p>
 </dl>
 <dl class="py function">
 <dt id="wepy.analysis.transitions.transition_counts">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_counts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assignments</span></em>, <em class="sig-param"><span class="n">transitions</span></em>, <em class="sig-param"><span class="n">weights</span><span class="o">=</span><span class="default_value">None</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">transition_counts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assignments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make a dictionary of the count of microstate transitions between macrostates.</p>
 <p>If weights are given counts are the weight instead of 1.</p>
 <dl class="field-list simple">
@@ -125,16 +123,21 @@ are given this is the weighted counts.</p>
 
 <dl class="py function">
 <dt id="wepy.analysis.transitions.counts_d_to_matrix">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">counts_d_to_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">counts_d</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#counts_d_to_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.counts_d_to_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">counts_d_to_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">counts_d</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#counts_d_to_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.counts_d_to_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Convert a dictionary of counts for macrostate transitions to an
 assymetric transitions counts matrix.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
 <dd class="field-odd"><p><strong>counts_d</strong> (<em>dict of</em><em> (</em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em>)</em><em>: int</em>) – Dictionary mapping transitions between macrostate labels to
-the count of microstate transitions between them.</p>
+the count of microstate transitions between them. The first
+value is the ‘source’ node and the second value is the
+‘target’ node of a directed graph.</p>
 </dd>
 <dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>counts_matrix</strong> – Assymetric counts matrix of dim (n_macrostates, n_macrostates).</p>
+<dd class="field-even"><p><strong>counts_matrix</strong> – Assymetric counts matrix of dim (n_macrostates,
+n_macrostates). The 0-th axis corresponds to the ‘source’ node
+and the 1-st axis corresponds to the ‘target’ nodes, i.e. the
+dimensions mean: (source, target).</p>
 </dd>
 <dt class="field-odd">Return type</dt>
 <dd class="field-odd"><p>numpy.ndarray of int</p>
@@ -144,7 +147,7 @@ the count of microstate transitions between them.</p>
 
 <dl class="py function">
 <dt id="wepy.analysis.transitions.normalize_counts">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">normalize_counts</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">transition_counts_matrix</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#normalize_counts"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.normalize_counts" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">normalize_counts</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transition_counts_matrix</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#normalize_counts"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.normalize_counts" title="Permalink to this definition">¶</a></dt>
 <dd><p>Normalize the macrostate outgoing transition counts to 1.0 for each macrostate.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -161,7 +164,7 @@ the count of microstate transitions between them.</p>
 
 <dl class="py function">
 <dt id="wepy.analysis.transitions.transition_counts_matrix">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_counts_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assignments</span></em>, <em class="sig-param"><span class="n">transitions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">transition_counts_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assignments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_counts_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an asymmetric array of the count of microstate transitions between macrostates.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -184,7 +187,7 @@ first and last trace elements are used.</p></li>
 
 <dl class="py function">
 <dt id="wepy.analysis.transitions.transition_probability_matrix">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">transition_probability_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">assignments</span></em>, <em class="sig-param"><span class="n">transitions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_probability_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">transition_probability_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">assignments</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#transition_probability_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Make an asymmetric array of macrostates transition probabilities from microstate assignments.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -207,7 +210,7 @@ first and last trace elements are used.</p></li>
 
 <dl class="py function">
 <dt id="wepy.analysis.transitions.run_transition_counts_matrix">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">run_transition_counts_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wepy_hdf5</span></em>, <em class="sig-param"><span class="n">run_idx</span></em>, <em class="sig-param"><span class="n">assignment_key</span></em>, <em class="sig-param"><span class="n">transitions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_counts_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">run_transition_counts_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wepy_hdf5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignment_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_counts_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_counts_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -230,7 +233,7 @@ first and last trace elements are used.</p></li>
 
 <dl class="py function">
 <dt id="wepy.analysis.transitions.run_transition_probability_matrix">
-<code class="sig-prename descclassname">wepy.analysis.transitions.</code><code class="sig-name descname">run_transition_probability_matrix</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">wepy_hdf5</span></em>, <em class="sig-param"><span class="n">run_idx</span></em>, <em class="sig-param"><span class="n">assignment_key</span></em>, <em class="sig-param"><span class="n">transitions</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_probability_matrix"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.analysis.transitions.</span></code><code class="sig-name descname"><span class="pre">run_transition_probability_matrix</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">wepy_hdf5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">run_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">assignment_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transitions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/transitions.html#run_transition_probability_matrix"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.transitions.run_transition_probability_matrix" title="Permalink to this definition">¶</a></dt>
 <dd><p>Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -365,7 +368,7 @@ first and last trace elements are used.</p></li>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

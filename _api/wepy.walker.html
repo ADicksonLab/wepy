@@ -4,18 +4,16 @@
 <html>
   <head>
     <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>wepy.walker module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
     <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
     <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
     <script src="../_static/doctools.js"></script>
-    <script src="../_static/language_data.js"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
-    <script async="async" src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/latest.js?config=TeX-AMS-MML_HTMLorMML"></script>
-    <script type="text/x-mathjax-config">MathJax.Hub.Config({"tex2jax": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "processEscapes": true, "ignoreClass": "document", "processClass": "math|output_area"}})</script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.walker.html" />
     <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
@@ -77,7 +75,7 @@ dictionary with string keys and arbitrary values.</p>
 magic method for the accessor syntax, i.e. walker.state[‘positions’].</p>
 <dl class="py function">
 <dt id="wepy.walker.split">
-<code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">split</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walker</span></em>, <em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">2</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#split"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.split" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.walker.</span></code><code class="sig-name descname"><span class="pre">split</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#split"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.split" title="Permalink to this definition">¶</a></dt>
 <dd><p>Split (AKA make multiple clones) of a single walker.</p>
 <p>Creates multiple new walkers that have the same state as the given
 walker with weight evenly divided between them.</p>
@@ -103,7 +101,7 @@ walker with weight evenly divided between them.</p>
 
 <dl class="py function">
 <dt id="wepy.walker.keep_merge">
-<code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">keep_merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em>, <em class="sig-param"><span class="n">keep_idx</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#keep_merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.keep_merge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.walker.</span></code><code class="sig-name descname"><span class="pre">keep_merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">keep_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#keep_merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.keep_merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge a set of walkers using the state of one of them.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -124,7 +122,7 @@ to set the state of the new merged walker.</p></li>
 
 <dl class="py function">
 <dt id="wepy.walker.merge">
-<code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">walkers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.merge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-prename descclassname"><span class="pre">wepy.walker.</span></code><code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge this walker with another keeping the state of one of them
 and adding the weights.</p>
 <p>The walker that has it’s state kept is a random choice weighted by
@@ -144,7 +142,7 @@ the walkers weights.</p>
 
 <dl class="py class">
 <dt id="wepy.walker.Walker">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">Walker</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">state</span></em>, <em class="sig-param"><span class="n">weight</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.walker.</span></code><code class="sig-name descname"><span class="pre">Walker</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">weight</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.Walker" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Reference implementation of the Walker interface.</p>
 <p>A container for:</p>
@@ -163,7 +161,7 @@ the walkers weights.</p>
 </dl>
 <dl class="py method">
 <dt id="wepy.walker.Walker.clone">
-<code class="sig-name descname">clone</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">number</span><span class="o">=</span><span class="default_value">1</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.clone"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker.clone" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">clone</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">number</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.clone"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.Walker.clone" title="Permalink to this definition">¶</a></dt>
 <dd><p>Clone this walker by making a copy with the same state and split
 the probability uniformly between clones.</p>
 <p>The number is the increase in the number of walkers.</p>
@@ -188,7 +186,7 @@ this object but with probability split 50/50 between them</p>
 
 <dl class="py method">
 <dt id="wepy.walker.Walker.squash">
-<code class="sig-name descname">squash</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">merge_target</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.squash"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker.squash" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">squash</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">merge_target</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.squash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.Walker.squash" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add the weight of this walker to another.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -205,7 +203,7 @@ this object but with probability split 50/50 between them</p>
 
 <dl class="py method">
 <dt id="wepy.walker.Walker.merge">
-<code class="sig-name descname">merge</code><span class="sig-paren">(</span><em class="sig-param"><span class="n">other_walkers</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.merge"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.Walker.merge" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">merge</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other_walkers</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#Walker.merge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.Walker.merge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Merge a set of other walkers into this one using the merge function.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -224,7 +222,7 @@ this object but with probability split 50/50 between them</p>
 
 <dl class="py class">
 <dt id="wepy.walker.WalkerState">
-<em class="property">class </em><code class="sig-prename descclassname">wepy.walker.</code><code class="sig-name descname">WalkerState</code><span class="sig-paren">(</span><em class="sig-param"><span class="o">**</span><span class="n">kwargs</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.WalkerState" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.walker.</span></code><code class="sig-name descname"><span class="pre">WalkerState</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.WalkerState" title="Permalink to this definition">¶</a></dt>
 <dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
 <p>Reference implementation of the WalkerState interface.</p>
 <p>Access all key-value pairs as a dictionary with the dict() method.</p>
@@ -239,7 +237,7 @@ dictionaries:</p>
 pairs for the state.</p>
 <dl class="py method">
 <dt id="wepy.walker.WalkerState.dict">
-<code class="sig-name descname">dict</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState.dict"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#wepy.walker.WalkerState.dict" title="Permalink to this definition">¶</a></dt>
+<code class="sig-name descname"><span class="pre">dict</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/walker.html#WalkerState.dict"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.walker.WalkerState.dict" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return all key-value pairs as a dictionary.</p>
 </dd></dl>
 
@@ -356,7 +354,7 @@ pairs for the state.</p>
       &copy;2018, Samuel D. Lotz.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.0.1</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
