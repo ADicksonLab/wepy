@@ -25,7 +25,7 @@ works, no questions asked.
 
 Comes equipped with support for [[https://github.com/pandegroup/openmm][OpenMM]] molecular dynamics,
 parallelization using multiprocessing, the [[http://pubs.acs.org/doi/abs/10.1021/jp411479c][WExplore]] 
-and REVO (Resampling Ensembles by Variance Optimization) resampling
+and [[https://pubmed.ncbi.nlm.nih.gov/31255090/][REVO]] (Resampling Ensembles by Variance Optimization) resampling
 algorithms, and an HDF5 file format and library for storing and
 querying your WE datasets that can be used from the command line.
 
@@ -73,9 +73,9 @@ Cite software as:
 Samuel D. Lotz, Nazanin Donyapour, Alex Dickson, Tom Dixon, Nicole Roussey, & Rob Hall. (2020, August 4). ADicksonLab/wepy: 1.0.0 Major version release (Version v1.0.0). Zenodo. http://doi.org/10.5281/zenodo.3973431
 #+end_example
 
-Accompanying journal article (peer-review in process):
+Accompanying journal article:
 
-- [[https://chemrxiv.org/s/369c2530c150add1450b][ChemRxiv]] preprint
+- [[https://pubs.acs.org/doi/abs/10.1021/acsomega.0c03892][ACS Omega]] article
 
 
 
