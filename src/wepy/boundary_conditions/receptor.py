@@ -14,12 +14,10 @@ from geomm.grouping import group_pair
 from geomm.superimpose import superimpose
 from geomm.rmsd import calc_rmsd
 from geomm.centering import center_around
-
-import mdtraj as mdj
+from geomm.distance import minimum_distance
 
 from wepy.walker import WalkerState
 from wepy.util.util import box_vectors_to_lengths_angles
-from wepy.util.mdtraj import json_to_mdtraj_topology
 
 from wepy.boundary_conditions.boundary import BoundaryConditions
 
@@ -626,7 +624,7 @@ class UnbindingBC(ReceptorBC):
             will be warped.
 
         topology : str
-            A JSON string of topology.
+            A JSON string of topology. DEPRECATED: No longer needed
 
         ligand_idxs : list of int
            Indices of the atoms in the topology that correspond to the ligands.
@@ -638,7 +636,7 @@ class UnbindingBC(ReceptorBC):
         Raises
         ------
         AssertionError
-            If any of the following are not provided: initial_state, topology,
+            If any of the following are not provided: initial_state, 
             ligand_idxs, receptor_idxs
 
         AssertionError
@@ -648,12 +646,6 @@ class UnbindingBC(ReceptorBC):
         --------
         The 'initial_state' should be the initial state of your
         simulation for proper non-equilibrium simulations.
-
-        Notes
-        -----
-
-        The topology argument is necessary due to an implementation
-        detail that uses mdtraj and may not be required in the future.
 
         """
 
@@ -665,14 +657,10 @@ class UnbindingBC(ReceptorBC):
                          **kwargs)
 
         # test input
-        assert topology is not None, "Must give a reference topology"
         assert type(cutoff_distance) is float
 
         self._cutoff_distance = cutoff_distance
         self._topology = topology
-
-        # convert the json topology to an mdtraj one
-        self._mdj_top = json_to_mdtraj_topology(self._topology)
 
         # whether or not to use the periodic box vectors in the
         # distance calculation
@@ -686,7 +674,8 @@ class UnbindingBC(ReceptorBC):
 
     @property
     def topology(self):
-        """JSON string topology of the system."""
+        """JSON string topology of the system. 
+        Note: Deprecated and will be removed in future versions."""
         return self._topology
 
     def _calc_min_distance(self, walker):
@@ -702,28 +691,14 @@ class UnbindingBC(ReceptorBC):
 
         """
 
-        cell_lengths, cell_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
+        # first recenter the ligand and the receptor in the walker
+        box_lengths, box_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
+        grouped_walker_pos = group_pair(walker.state['positions'], box_lengths,
+                                     self.receptor_idxs, self.ligand_idxs)
 
-        t2 = time.time()
-        # make a traj out of it so we can calculate distances through
-        # the periodic boundary conditions
-        walker_traj = mdj.Trajectory(walker.state['positions'],
-                                     topology=self._mdj_top,
-                                     unitcell_lengths=cell_lengths,
-                                     unitcell_angles=cell_angles)
+        min_dist = minimum_distance(grouped_walker_pos[self.ligand_idxs],grouped_walker_pos[self.receptor_idxs])
 
-        t3 = time.time()
-        # calculate the distances through periodic boundary conditions
-        # and get hte minimum distance
-        min_distance = np.min(mdj.compute_distances(walker_traj,
-                                                    it.product(self.ligand_idxs,
-                                                               self.receptor_idxs),
-                                                    periodic=self._periodic)
-        )
-        t4 = time.time()
-        logging.info("Make a traj: {0}; Calc dists: {1}".format(t3-t2,t4-t3))
-
-        return min_distance
+        return min_dist
 
     def _progress(self, walker):
         """Calculate whether a walker has unbound and also provide a
