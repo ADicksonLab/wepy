@@ -697,13 +697,16 @@ class WepyHDF5(object):
 
     #### dunder methods
 
-    def __init__(self, filename, mode='x',
+    def __init__(self, filename,
+                 mode='x',
                  topology=None,
                  units=None,
                  sparse_fields=None,
-                 feature_shapes=None, feature_dtypes=None,
+                 feature_shapes=None,
+                 feature_dtypes=None,
                  n_dims=None,
-                 alt_reps=None, main_rep_idxs=None,
+                 alt_reps=None,
+                 main_rep_idxs=None,
                  swmr_mode=False,
                  expert_mode=False
     ):
@@ -3227,14 +3230,13 @@ class WepyHDF5(object):
 
         """
 
+        # TARGET
+
         if cycle_idx >= self.num_run_cycles(run_idx):
             raise ValueError(
                 f"Run {run_idx} has {self.num_run_cycles(run_idx)} cycles, {cycle_idx} requested")
 
-        # TODO: currently we do not have a well-defined mechanism for
-        # actually storing variable number of walkers in the
-        # trajectory data so just return the number of trajectories
-        return self.num_run_trajs(run_idx)
+        return len(self.run_cycle_walkers_idxs(run_idx, cycle_idx))
 
     def num_run_trajs(self, run_idx):
         """The number of trajectories in a run.
@@ -3262,7 +3264,17 @@ class WepyHDF5(object):
         n_cycles : int
 
         """
-        return self.num_traj_frames(run_idx, 0)
+
+        return self.run(run_idx).attrs['num_cycles']
+
+    def run_cycle_idxs(self, run_idx):
+        """Cycle indices for a run"""
+
+        # NOTE: right now its just a range. I guess conceivably it
+        # could be not starting at 0 or something. This is truly
+        # YAGNI, but still want this to be the main API entry point.
+
+        return list(range(self.num_run_cycles(run_idx)))
 
     def num_traj_frames(self, run_idx, traj_idx):
         """The number of frames in a given trajectory.
@@ -3277,7 +3289,19 @@ class WepyHDF5(object):
         n_frames : int
 
         """
-        return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
+
+        # this method gets the actual length of the first dimension,
+        # if you want the number of cycles then
+
+        test_field = self.get_traj_field_names(run_idx, traj_idx)[0]
+
+        num_frames = self.get_traj_field_num_frames(
+            run_idx,
+            traj_idx,
+            test_field,
+        )
+
+        return num_frames
 
     @property
     def run_idxs(self):
@@ -3285,7 +3309,7 @@ class WepyHDF5(object):
         return list(range(len(self._h5[RUNS])))
 
     def run_traj_idxs(self, run_idx):
-        """The indices of trajectories in a run.
+        """The indices of trajectories in a run. In no particular order.
 
         Parameters
         ----------
@@ -3297,6 +3321,49 @@ class WepyHDF5(object):
 
         """
         return list(range(len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])))
+
+
+    def run_cycle_walker_idxs(self,
+                              run_idx,
+                              cycle_idx,
+                              ):
+        """Get the walker indices for a particular cycle"""
+
+        # TARGET
+
+        # see which trajectories have walkers at a given cycle
+        walker_idxs = []
+        for traj_idx in sorted(self.run_traj_idxs(run_idx)):
+
+            traj_cycle_idxs = self.get_traj_cycle_idxs(
+                run_idx,
+                traj_idx,
+            )
+
+            if cycle_idx in traj_cycle_idxs:
+                walker_idxs.append(traj_idx)
+
+        return walker_idxs
+
+    def run_cycle_walker_traces(self,
+                                run_idx,
+                                ):
+        """Get a list of traces for each cycle with a trace for each walker."""
+
+        cycle_traces = []
+        for cycle_idx in self.run_cycle_idxs(run_idx):
+
+            walker_idxs = self.run_cycle_walker_idxs(run_idx, cycle_idx)
+
+            cycle_walker_trace = [
+                (walker_idx, cycle_idx)
+                for walker_idx
+                in walker_idxs
+            ]
+
+            cycle_traces.append(cycle_walker_trace)
+
+        return cycle_traces
 
     def run_traj_idx_tuples(self, runs=None):
         """Get identifier tuples (run_idx, traj_idx) for all trajectories in
@@ -3325,8 +3392,101 @@ class WepyHDF5(object):
 
         return tups
 
+    def get_traj_field_names(self,
+                             run_idx,
+                             traj_idx,
+                             ):
+        """Get the actual fields as they exist in a trajectory"""
+
+        traj_grp = self.traj(run_idx, traj_idx)
+
+        field_names = []
+        for key in traj_grp.keys():
+
+            if key == ALT_REPS:
+
+                field_names.extend(
+                    self.get_traj_field_names_alt_reps(
+                        run_idx,
+                        traj_idx,
+                    ))
+
+            elif key == OBSERVABLES:
+
+                field_names.extend(
+                    self.get_traj_field_names_observables(
+                        run_idx,
+                        traj_idx,
+                    ))
+
+
+            # skip hidden fields
+            elif key.startswith('_'):
+                pass
+
+            else:
+                field_names.append(key)
+
+        return field_names
+
+    def get_traj_field_names_observables(
+            run_idx,
+            traj_idx,
+    ):
+
+        traj_grp = self.traj(run_idx, traj_idx)
+
+        if ALT_REPS in traj_grp.keys():
+
+            field_names = [field
+                           for field
+                           in list(traj_grp[ALT_REPS].keys())
+                           if not field.startswith('_')]
+
+        else:
+            field_names = []
+
+        return field_names
+
+    def get_traj_field_names_alt_reps(
+            run_idx,
+            traj_idx,
+    ):
+
+        traj_grp = self.traj(run_idx, traj_idx)
+
+        if OBSERVABLES in traj_grp.keys():
+
+            field_names = [field
+                           for field
+                           in list(traj_grp[OBSERVABLES].keys())
+                           if not field.startswith('_')]
+
+        else:
+            field_names = []
+
+        return field_names
+
+    def get_traj_cycle_idxs(self, run_idx, traj_idx):
+        """Get the cycle indices that are in a trajectory"""
+
+        # TODO: check consistency
+
+        test_field = self.get_traj_field_names(run_idx, traj_idx)[0]
+
+        cycle_idxs = self.get_traj_field_cycle_idxs(
+            run_idx,
+            traj_idx,
+            test_field,
+        )
+
+        return cycle_idxs
+
+
     def get_traj_field_cycle_idxs(self, run_idx, traj_idx, field_path):
-        """Returns the cycle indices for a sparse trajectory field.
+        """Returns the cycle indices for a trajectory field.
+
+        The robust way to get this also supporting sparse fields.
 
         Parameters
         ----------
@@ -3346,14 +3506,66 @@ class WepyHDF5(object):
         if not field_path in self._h5[traj_path]:
             raise KeyError("key for field {} not found".format(field_path))
 
+        traj_grp = self.traj(run_idx, traj_idx)
+
+        # first get the "frame idxs" which don't take into account the
+        # cycle offset
+        if field_path not in self.sparse_fields:
+
+            frame_idxs = list(range(traj_grp[field_path].shape[0]))
+
+        else:
+
+            frame_idxs = traj_grp[field_path][SPARSE_IDXS][:]
+
+        # offset by the start cycle index in the trajectory metadata
+        start_cycle_idx = traj_grp.attrs['start_cycle_idx']
+        cycle_idxs = [
+            frame_idx + start_cycle_idx
+            for frame_idx
+            in frame_idxs
+        ]
+
+        return cycle_idxs
+
+
+    def get_traj_field_num_frames(self,
+                                  run_idx,
+                                  traj_idx,
+                                  field_path,
+                                  ):
+        """Returns the number of frames in a trajectory field.
+
+        The robust way to get this also supporting sparse fields.
+
+        Parameters
+        ----------
+        run_idx : int
+        traj_idx : int
+        field_path : str
+            Name of the trajectory field
+
+        Returns
+        -------
+        num_frames : int
+
+        """
+
+        traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
+
+        if not field_path in self._h5[traj_path]:
+            raise KeyError("key for field {} not found".format(field_path))
+
         # if the field is not sparse just return the cycle indices for
         # that run
         if field_path not in self.sparse_fields:
-            cycle_idxs = np.array(range(self.num_run_cycles(run_idx)))
-        else:
-            cycle_idxs = self._h5[traj_path][field_path][SPARSE_IDXS][:]
 
-        return cycle_idxs
+            num_frames = self._h5[traj_path][field_path].shape[0]
+
+        else:
+            num_frames = self._h5[traj_path][field_path][SPARSE_IDXS].shape[0]
+
+        return num_frames
 
     def next_run_idx(self):
         """The index of the next run if it were to be added.
@@ -4210,23 +4422,6 @@ class WepyHDF5(object):
                                                       fields)
 
 
-    # TODO: should've been removed already just double checking things are good without it
-    # def traj_n_frames(self, run_idx, traj_idx):
-    #     """
-
-    #     Parameters
-    #     ----------
-    #     run_idx :
-            
-    #     traj_idx :
-            
-
-    #     Returns
-    #     -------
-
-    #     """
-    #     return self.traj(run_idx, traj_idx)[POSITIONS].shape[0]
-
     def add_traj(self, run_idx, data, weights=None, sparse_idxs=None, metadata=None):
         """Add a full trajectory to a run.
 
@@ -4358,6 +4553,11 @@ class WepyHDF5(object):
         weights : arraylike
             Weights for the frames of the trajectory. If None defaults all frames to 1.0.
 
+        Returns
+        -------
+
+        traj_grp
+
         """
 
         if self._wepy_mode == 'c-':
@@ -4460,6 +4660,8 @@ class WepyHDF5(object):
                 self._extend_sparse_traj_field(run_idx, traj_idx, field_path, field_data, sparse_idxs)
             else:
                 self._extend_contiguous_traj_field(run_idx, traj_idx, field_path, field_data)
+
+        return traj_grp
 
     ## application level append methods for run records groups
 
