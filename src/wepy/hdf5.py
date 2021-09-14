@@ -3322,37 +3322,55 @@ class WepyHDF5(object):
         return list(range(len(self._h5['{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES)])))
 
 
-    def run_cycle_walker_idxs(self,
+    def run_cycles_walker_idxs(self,
                               run_idx,
-                              cycle_idx,
+                              cycle_idxs,
                               ):
-        """Get the walker indices for a particular cycle"""
+        """Get the walker indices for some specified cycles.
 
-        # TARGET
+        WARNING: don't use this in a loop or repeatedly since this
+        will re-query all of the cycle indices and can be very
+        slow. Try to load as many cycles as possible with a single
+        call.
 
-        # see which trajectories have walkers at a given cycle
-        walker_idxs = []
-        for traj_idx in sorted(self.run_traj_idxs(run_idx)):
+        """
 
-            traj_cycle_idxs = self.get_traj_cycle_idxs(
-                run_idx,
-                traj_idx,
-            )
+        # prefetch all of the traj cycle idxs since this can be slow
+        # and we don't want to do it every single time
+        all_traj_cycle_idxs = self._get_all_run_traj_cycle_idxs(run_idx)
 
-            if cycle_idx in traj_cycle_idxs:
-                walker_idxs.append(traj_idx)
+        cycles_walker_idxs = []
+        for cycle_idx in cycle_idxs:
 
-        return walker_idxs
+            # see which trajectories have walkers at a given cycle
+            cycle_walker_idxs = []
+            for traj_idx in sorted(self.run_traj_idxs(run_idx)):
+
+                # lookup the cycle idxs for this traj
+                traj_cycle_idxs = all_traj_cycle_idxs[traj_idx]
+
+                # if there is a match save this walker
+                if cycle_idx in traj_cycle_idxs:
+                    cycle_walker_idxs.append(traj_idx)
+
+            # add them to the batch list
+            cycles_walker_idxs.append(cycle_walker_idxs)
+
+        return cycles_walker_idxs
 
     def run_cycle_walker_traces(self,
                                 run_idx,
                                 ):
         """Get a list of traces for each cycle with a trace for each walker."""
 
-        cycle_traces = []
-        for cycle_idx in self.run_cycle_idxs(run_idx):
+        cycle_idxs = self.run_cycle_idxs(run_idx)
+        cycles_walker_idxs = self.run_cycles_walker_idxs(
+            run_idx,
+            cycle_idxs,
+        )
 
-            walker_idxs = self.run_cycle_walker_idxs(run_idx, cycle_idx)
+        cycle_traces = []
+        for cycle_idx, walker_idxs in zip(cycle_idxs, cycles_walker_idxs):
 
             cycle_walker_trace = [
                 (walker_idx, cycle_idx)
@@ -3482,6 +3500,7 @@ class WepyHDF5(object):
         return cycle_idxs
 
 
+
     def get_traj_field_cycle_idxs(self, run_idx, traj_idx, field_path):
         """Returns the cycle indices for a trajectory field.
 
@@ -3527,6 +3546,28 @@ class WepyHDF5(object):
 
         return cycle_idxs
 
+    def _get_all_run_traj_cycle_idxs(self,
+                                    run_idx
+                                    ):
+        """Get the cycle indices for all of the trajectories at once.
+
+        This is useful for prefetching all of them at once since it
+        can be computationally expensive.
+
+        """
+
+        all_traj_cycle_idxs = {}
+
+        for traj_idx in self.run_traj_idxs(run_idx):
+
+            traj_cycle_idxs = self.get_traj_cycle_idxs(
+                run_idx,
+                traj_idx,
+            )
+
+            all_traj_cycle_idxs[traj_idx] = traj_cycle_idxs
+
+        return all_traj_cycle_idxs
 
     def get_traj_field_num_frames(self,
                                   run_idx,
