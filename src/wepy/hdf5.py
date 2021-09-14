@@ -400,7 +400,6 @@ import gc
 
 import numpy as np
 import h5py
-import networkx as nx
 
 from wepy.analysis.parents import resampling_panel
 from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \

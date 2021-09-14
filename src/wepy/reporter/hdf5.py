@@ -41,7 +41,6 @@ class WepyHDF5Reporter(FileReporter):
                  topology=None,
                  units=None,
                  sparse_fields=None,
-                 sparse_fields_freq=None,
                  feature_shapes=None, feature_dtypes=None,
                  n_dims=None,
                  main_rep_idxs=None,
