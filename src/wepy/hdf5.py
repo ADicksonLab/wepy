@@ -2233,8 +2233,6 @@ class WepyHDF5(object):
         traj_grp = self.h5[traj_path]
         field = traj_grp[field_path]
 
-        n_frames = traj_grp[POSITIONS].shape[0]
-
         if frames is None:
             data = field[DATA][:]
 
@@ -2242,10 +2240,10 @@ class WepyHDF5(object):
             if masked:
                 sparse_idxs = field[SPARSE_IDXS][:]
 
-                filled_data = np.full( (n_frames, *data.shape[1:]), np.nan)
+                filled_data = np.full( (data.shape[0], *data.shape[1:]), np.nan)
                 filled_data[sparse_idxs] = data
 
-                mask = np.full( (n_frames, *data.shape[1:]), True)
+                mask = np.full( (data.shape[0], *data.shape[1:]), True)
                 mask[sparse_idxs] = False
 
                 data = np.ma.masked_array(filled_data, mask=mask)
