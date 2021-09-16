@@ -5517,7 +5517,7 @@ class WepyHDF5(object):
             frame_idxs = [
                 cycle_idx - start_offset
                 for cycle_idx
-                in frames
+                in cycle_idxs
             ]
 
         # for the full possibility matrix
@@ -5527,6 +5527,10 @@ class WepyHDF5(object):
             frame_idxs = None
 
         # get the field depending on whether it is sparse or not
+
+        # NOTE: the 'frames' for the lower level functions is the
+        # same. Will change eventually but not a big deal since they
+        # are internal.
 
         # TODO,HACK,UGLY: supporting weights here as being "sparse"
         # for variable number of walkers. Remove this when proper
@@ -5734,7 +5738,7 @@ class WepyHDF5(object):
         for traj_idx, cycle_idx in frame_tups:
             for field in fields:
 
-                frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
+                frame_field = self.get_traj_field(run_idx, traj_idx, field, cycle_idxs=[cycle_idx])
                 # the first dimension doesn't matter here since we
                 # only get one frame at a time.
                 frame_fields[field].append(frame_field[0])
