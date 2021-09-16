@@ -5406,7 +5406,15 @@ class WepyHDF5(object):
                 return results
     ## Trajectory Getters
 
-    def get_traj_field(self, run_idx, traj_idx, field_path, frames=None, masked=True):
+    def get_traj_field(self,
+                       run_idx,
+                       traj_idx,
+                       field_path,
+                       cycle_idxs=None,
+                       frame_idxs=None,
+                       masked=True,
+                       frames=None,
+                       ):
         """Returns a numpy array for the given trajectory field.
 
         You can control how sparse fields are returned using the
@@ -5422,9 +5430,21 @@ class WepyHDF5(object):
         field_path : str
             Name of the trajectory field to get
 
-        frames : None or list of int
+        cycle_idxs : None or list of int
             If not None, a list of the cycle indices of the trajectory
-            to return values for.
+            to return values for. Incompatible with 'frame_idxs'
+
+        frames : None or list of int
+            DEPRECATE: Alias for 'cycle_idxs'. Will be deprecated as it is ambiguous.
+
+        frame_idxs : None or list of int
+            If not None, a list of the frame indices of the trajectory
+            field. The 'frame_idxs' are a direct index into the
+            underlying frame array for the data. For sparse fields or
+            trajectories, this may be different than the
+            'cycle_idxs'. Use this when you don't care about time
+            dependence and just want to get blocks of data.
+            Incompatible with 'cycle_idxs'
 
         masked : bool
             If true will return sparse field values as masked arrays,
@@ -5444,6 +5464,28 @@ class WepyHDF5(object):
             raise KeyError("key for field {} not found".format(field_path))
             # return None
 
+        # raise deprecation warning for frames
+        if frames is not None:
+            warn(
+                "The 'frames' argument is deprecated in favor of 'cycle_idxs'. Also see 'frame_idxs'.",
+                DeprecationWarning,
+            )
+
+        # deduplicate and resolve the cycle_idxs argument with frames
+        if frames is not None and cycle_idxs is not None:
+            raise ValueError("You must specify either 'cycle_idxs' or 'frames'. Favor 'cycle_idxs' as 'frames' will be deprecated.")
+
+        elif frames is not None and cycle_idxs is None:
+
+            # we only use the cycle_idxs in the code below for clarity
+            cycle_idxs = frames
+            del frames
+
+
+        # check the cycle and frame idx arguments
+        if cycle_idxs is not None and frame_idxs is not None:
+            raise ValueError("You must specify either 'cycle_idxs' or 'frame_idxs'.")
+
 
         # ALERT: the lower level functions _get_*_traj_field take
         # frames as actual "frame_idxs" and not "cycle_idxs". So we
@@ -5451,10 +5493,9 @@ class WepyHDF5(object):
         # function. This is to keep the lower level functions as close
         # to the data as possible. And to reduce potential errors in
         # computing the offset by duplicating it in each call.
-        if frames is None:
-            cycle_idxs = None
 
-        else:
+        # if we have cycle_idxs we need to translate to frame_idxs
+        if cycle_idxs is not None and frame_idxs is None:
 
             # get the offset
             traj_grp = self.traj(run_idx, traj_idx)
@@ -5478,6 +5519,12 @@ class WepyHDF5(object):
                 for cycle_idx
                 in frames
             ]
+
+        # for the full possibility matrix
+        elif cycle_idxs is None and frame_idxs is not None:
+            frame_idxs = frame_idxs
+        elif cycle_idxs is None and frame_idxs is None:
+            frame_idxs = None
 
         # get the field depending on whether it is sparse or not
 
