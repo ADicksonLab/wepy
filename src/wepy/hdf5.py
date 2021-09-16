@@ -2186,8 +2186,10 @@ class WepyHDF5(object):
         traj_idx : int
         field_path : str
             Trajectory field name to access
+
         frames : list of int, optional
-            The indices of the frames to return if you don't want all of them.
+            The indices of the frames to return if you don't want all
+            of them. These are not 'cycle_idxs'.
 
         Returns
         -------
@@ -2197,6 +2199,9 @@ class WepyHDF5(object):
         """
 
         full_path = '{}/{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx, field_path)
+
+        # NOTE: offsets to actual "cycle_idxs" are handled in calls to
+        # this method, don't account for it here!!
 
         if frames is None:
             field = self._h5[full_path][:]
@@ -2216,7 +2221,9 @@ class WepyHDF5(object):
             Trajectory field name to access
 
         frames : list of int, optional
-            The indices of the frames to return if you don't want all of them.
+
+            The indices of the frames to return if you don't want all
+            of them. These are not 'cycle_idxs'.
 
         masked : bool
             If True returns the array data as numpy masked array, and
@@ -2232,6 +2239,9 @@ class WepyHDF5(object):
         traj_path = '{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)
         traj_grp = self.h5[traj_path]
         field = traj_grp[field_path]
+
+        # NOTE: offsets to actual "cycle_idxs" are handled in calls to
+        # this method, don't account for it here!!
 
         if frames is None:
             data = field[DATA][:]
@@ -5413,7 +5423,7 @@ class WepyHDF5(object):
             Name of the trajectory field to get
 
         frames : None or list of int
-            If not None, a list of the frame indices of the trajectory
+            If not None, a list of the cycle indices of the trajectory
             to return values for.
 
         masked : bool
@@ -5434,13 +5444,113 @@ class WepyHDF5(object):
             raise KeyError("key for field {} not found".format(field_path))
             # return None
 
-        # get the field depending on whether it is sparse or not
-        if field_path in self.sparse_fields:
-            return self._get_sparse_traj_field(run_idx, traj_idx, field_path,
-                                               frames=frames, masked=masked)
+
+        # ALERT: the lower level functions _get_*_traj_field take
+        # frames as actual "frame_idxs" and not "cycle_idxs". So we
+        # have to do the offset math in this higher level
+        # function. This is to keep the lower level functions as close
+        # to the data as possible. And to reduce potential errors in
+        # computing the offset by duplicating it in each call.
+        if frames is None:
+            cycle_idxs = None
+
         else:
-            return self._get_contiguous_traj_field(run_idx, traj_idx, field_path,
-                                                   frames=frames)
+
+            # get the offset
+            traj_grp = self.traj(run_idx, traj_idx)
+
+            # ALERT: if there is no 'start_cycle_idx' in the metadata
+            # assume it is 0, and log a warning if doing this
+            if 'start_cycle_idx' in traj_grp.attrs:
+                start_offset = traj_grp.attrs['start_cycle_idx']
+            else:
+                warn(f"No 'start_cycle_idx' metadata attribute for run {run_idx}, traj {traj_idx}. Assuming it is 0.")
+                start_offset = 0
+
+            # convert cycle_idx to frame_idx
+
+            # UGLY: we keep the name "frames" from the argument which
+            # is legacy and now makes a little less sense now that
+            # there is a distinction. But to user's of the API it
+            # doesn't make much difference
+            frame_idxs = [
+                cycle_idx - start_offset
+                for cycle_idx
+                in frames
+            ]
+
+        # get the field depending on whether it is sparse or not
+
+        # TODO,HACK,UGLY: supporting weights here as being "sparse"
+        # for variable number of walkers. Remove this when proper
+        # support is made.
+        if field_path == WEIGHTS:
+
+            return self._get_traj_weights(
+                run_idx,
+                traj_idx,
+                frames=frame_idxs,
+                masked=masked,
+            )
+
+        # TODO: these are the normal ones that should be used
+        elif field_path in self.sparse_fields:
+
+            return self._get_sparse_traj_field(
+                run_idx,
+                traj_idx,
+                field_path,
+                frames=frame_idxs,
+                masked=masked)
+        else:
+
+            return self._get_contiguous_traj_field(
+                run_idx,
+                traj_idx,
+                field_path,
+                frames=frame_idxs,
+            )
+
+    def _get_traj_weights(self,
+                          run_idx,
+                          traj_idx,
+                          frames=None,
+                          masked=True,
+                          ):
+        """Hack method specific for getting the weights WILL BE DEPRECATED."""
+
+        # HACK: this is all a hack be careful
+
+        # check if 'positions' is sparse. If it is, then we assume the
+        # whole trajectory is sparse
+        if POSITIONS in self.sparse_fields:
+
+            # things are sparse, so lets get the sparse_idxs
+
+            traj_grp = self.traj(run_idx, traj_idx)
+
+            sparse_idxs = traj_grp[POSITIONS][SPARSE_IDXS][:]
+
+            weights_dset = traj_grp[WEIGHTS]
+
+            if frames is None:
+                traj_field = weights_dset[:]
+            else:
+                traj_field = weights_dset[list(frames)]
+
+        # if it is not sparse then our job is easy and just do things
+        # the normal way for a contiguous field
+        else:
+
+            traj_field =  self._get_contiguous_traj_field(
+                run_idx,
+                traj_idx,
+                WEIGHTS,
+                frames=frames,
+            )
+
+        return traj_field
+
 
     def get_trace_fields(self,
                          frame_tups,
@@ -5576,9 +5686,6 @@ class WepyHDF5(object):
         frame_fields = {field : [] for field in fields}
         for traj_idx, cycle_idx in frame_tups:
             for field in fields:
-
-
-
 
                 frame_field = self.get_traj_field(run_idx, traj_idx, field, frames=[cycle_idx])
                 # the first dimension doesn't matter here since we
