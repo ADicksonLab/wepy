@@ -167,19 +167,19 @@ devs or submit a pull request with your desired changes.
 
 **** [[https://github.com/westpa/westpa][WESTPA]]
 
-Weighted ensemble package in Python 2.7. More reliant and integrated
+Weighted ensemble package in Python 3. More reliant and integrated
 with unix-like operating systems providing modularity through shell
 scripting and python modules @@rst::cite:`ZwierChong2015WESTPA`@@.
 
 As an older project it has support for more MD engines (and non-MD
 stochastic sampling engines, e.g. BioNetGen) and is currently better
-suited for running simulations on large numbers of CPUs in a clustered
-environment.
+suited for running simulations on large numbers of CPUs or GPUs in a 
+clustered environment.
 
 Support for WE algorithms closer to the original paper by Huber and
 Kim with a focus on static tesselation of conformational space.
 
-Has some support for adaptive binning algorithms like WExplore, but it
+Has support for adaptive binning algorithms like WExplore, but it
 is a little more challenging to develop radically different resamplers
 like REVO, which have no concept of bins at all.
 
