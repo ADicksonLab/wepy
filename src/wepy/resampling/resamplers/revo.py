@@ -101,11 +101,11 @@ class REVOResampler(CloneMergeResampler):
 
     # fields for resampling data
     RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + \
-                       ('num_walkers', 'distance_matrix', 'variation', 'image_shape', 'images')
+                       ('num_walkers', 'distance_matrix', 'variation',)
     RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + \
-                       ((1,), Ellipsis, (1,), Ellipsis, Ellipsis)
+                       ((1,), Ellipsis, (1,),)
     RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + \
-                       (np.int, np.float, np.float, np.int, None)
+                       (np.int, np.float, np.float,)
 
     # fields that can be used for a table like representation
     RESAMPLER_RECORD_FIELDS = CloneMergeResampler.RESAMPLER_RECORD_FIELDS + \
