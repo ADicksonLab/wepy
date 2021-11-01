@@ -90,8 +90,19 @@ class WepyHDF5Reporter(FileReporter):
             Mapping of trajectory field names to string specs
             for units.
 
-        sparse_fields : list of str, optional
-            List of trajectory fields that should be initialized as sparse.
+        sparse_fields : None or Ellipsis or dict of str to (int or None or Ellipsis), optional
+            Trajectory fields that should be initialized as sparse. If
+            None no fields will be initialized as sparse (excepting
+            alt_reps). If value is Ellipsis, all fields will be
+            initialized as sparse but saved at all available
+            frequencies (i.e. for variable number of walker
+            simulations). If the value is dictionary then you can
+            specify the frequencies and behavior for each field
+            individually. Individual values have the following
+            meanings: an int this will be the frequency at which it
+            will be saved (i.e. when cycle_idx % freq == 0), if Ellipsis
+            the field will be initialized as sparse but all available
+            data will be saved, and if None will explicitly not be sparse.
 
         feature_shapes : dict of str: shape_spec, optional
             Mapping of trajectory fields to their shape spec for initialization.
@@ -103,7 +114,7 @@ class WepyHDF5Reporter(FileReporter):
             Set the number of spatial dimensions for the default
             positions trajectory field.
 
-        alt_reps : dict of str: tuple of (list of int, int), optional
+        alt_reps : dict of str: tuple of (list of int, (int or Ellipsis)), optional
             Specifies that there will be 'alt_reps' of positions each
             named by the keys of this mapping and containing the
             indices in each value list as the first value of the tuple
@@ -116,7 +127,7 @@ class WepyHDF5Reporter(FileReporter):
             The indices of atom positions to save as the main 'positions'
             trajectory field. Defaults to all atoms.
 
-        all_atoms_rep_freq : int, optional
+        all_atoms_rep_freq : int or Ellipsis, optional
             The frequency at which to set an 'alt_rep' for all of the
             atoms in a simulation. Will be set as the field
             'alt_rep/all_atoms'.
@@ -199,11 +210,37 @@ class WepyHDF5Reporter(FileReporter):
 
         self.wepy_run_idx = None
         self._tmp_topology = topology
+
         # which fields from the walker to save, if None then save all of them
         self.save_fields = save_fields
-        # dictionary of sparse_field_name -> int : frequency of cycles
-        # to save the field
-        self._sparse_fields = sparse_fields
+
+        # dictionary of sparse_field_name -> int or Ellipsis :
+        # frequency of cycles to save the field. If an integer will
+        # attempt to save the data at the given frequency if available
+        # for a walker. If Ellipsis it will save all of the data but
+        # only when available.
+
+        # ALERT: that the positions "alt_reps" will also be patched
+        # into here later in __init__
+
+        # no fields are sparse
+        if sparse_fields is None:
+
+            self._sparse_fields = {field : None
+                                   for field
+                                   in self.save_fields}
+
+        # all fields are sparse
+        elif sparse_fields is Ellipsis:
+
+            self._sparse_fields = {field : Ellipsis
+                                   for field
+                                   in self.save_fields}
+
+        # individual specs
+        else:
+            self._sparse_fields = sparse_fields
+
         self._feature_shapes = feature_shapes
         self._feature_dtypes = feature_dtypes
         self._n_dims = n_dims
@@ -299,15 +336,12 @@ class WepyHDF5Reporter(FileReporter):
             # add the frequencies for these alt_reps to the
             # sparse_fields frequency dictionary
             for key, (idxs, freq) in alt_reps.items():
+
+                # make the full field key
                 alt_rep_key = "alt_reps/{}".format(key)
 
-                # if the frequency is Ellipsis or 1 then we save it
-                # every frame and don't make it sparse because that is
-                # very innefficient in comparison
-                if freq is Ellipsis or freq == 1 or freq == 0:
-                    pass
-                else:
-                    self._sparse_fields[alt_rep_key] = freq
+                # set the frequency spec: int, None, Ellipsis
+                self._sparse_fields[alt_rep_key] = freq
 
                 self.alt_reps_idxs[key] = list(idxs)
 
@@ -323,17 +357,18 @@ class WepyHDF5Reporter(FileReporter):
         # alt_rep for the all_atoms system with the specified
         # frequency
         if all_atoms_rep_freq is not None:
+
             # count the number of atoms in the topology and set the
             # alt_reps to have the full slice for all atoms
             n_atoms = json_top_atom_count(self._tmp_topology)
-            self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = np.arange(n_atoms)
-            # add the frequency for this sparse fields to the
-            # sparse fields dictionary
-            self._sparse_fields["alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)] = all_atoms_rep_freq
 
-        # if there are no sparse fields set it as an empty dictionary
-        if self._sparse_fields is None:
-            self._sparse_fields = {}
+            self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = np.arange(n_atoms)
+
+            all_rep_field_key = "alt_reps/{}".format(self.ALL_ATOMS_REP_KEY)
+
+            # add the frequency spec (int or Ellipsis) for this sparse fields
+            self._sparse_fields[all_rep_field_key] = all_atoms_rep_freq
+
 
         # if units were given add them otherwise set as an empty dictionary
         if units is None:
@@ -415,6 +450,12 @@ class WepyHDF5Reporter(FileReporter):
             # initialize a new run
             run_grp = self.wepy_h5.new_run(filtered_init_walkers, continue_run=continue_run)
             self.wepy_run_idx = run_grp.attrs['run_idx']
+
+            # initialize the metadata on the number of cycles in the run
+            run_grp.attrs['num_cycles'] = 0
+
+            # the last cycle_idx
+            run_grp.attrs['last_cycle_idx'] = 0
 
             # initialize the run record groups using their fields
             self.wepy_h5.init_run_fields_resampling(self.wepy_run_idx, self.resampling_fields)
@@ -504,14 +545,28 @@ class WepyHDF5Reporter(FileReporter):
                         walker_data.pop(field_path)
                         continue
 
-                    # if this is a sparse field we decide
-                    # whether it is a valid cycle to save on
+                    # if this is a sparse field we decide whether to save it
                     if field_path in self._sparse_fields:
-                        if cycle_idx % self._sparse_fields[field_path] != 0:
-                            # this is not a valid cycle so we
-                            # remove from the walker_data
-                            walker_data.pop(field_path)
-                            continue
+
+                        sparse_value = self._sparse_fields[field_path]
+
+                        # If the value for the sparse field is an
+                        # integer it is saved at a certain
+                        # frequency.
+                        if isinstance(sparse_value, int):
+
+                            # Determine whether it is a valid cycle to
+                            # save on
+                            if cycle_idx % sparse_value != 0:
+
+                                # this is not a valid cycle so we
+                                # remove from the walker_data
+                                walker_data.pop(field_path)
+                                continue
+
+                        # if the value is Ellipsis we always save it
+                        elif sparse_value is Ellipsis:
+                            pass
 
 
                 # Add the alt_reps fields by slicing the positions
@@ -521,12 +576,22 @@ class WepyHDF5Reporter(FileReporter):
                     # if the alt rep is also a sparse field check this
                     if alt_rep_path in self._sparse_fields:
 
+                        sparse_value = self._sparse_fields[alt_rep_path]
+
                         # check to make sure this is a cycle this is
-                        # to be saved to, if it is not continue on to
-                        # the next field without saving this one
-                        if cycle_idx % self._sparse_fields[alt_rep_path] != 0:
+                        # to be saved to
+
+                        # if it is not a good cycle continue on to the
+                        # next field without saving this one
+                        if cycle_idx % sparse_value != 0:
 
                             continue
+
+                        # if it is Ellipsis we always save it so don't
+                        # continue
+                        elif sparse_value is Ellipsis:
+
+                            pass
 
                     # slice them and save them
 
@@ -556,9 +621,12 @@ class WepyHDF5Reporter(FileReporter):
                 if walker_idx in self.wepy_h5.run_traj_idxs(self.wepy_run_idx):
 
                     # if it does then append to the trajectory
-                    self.wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
+                    traj_grp = self.wepy_h5.extend_traj(self.wepy_run_idx, walker_idx,
                                              weights=np.array([[walker_weight]]),
                                              data=walker_data)
+
+                    traj_grp.attrs['num_cycles'] += 1
+
                 # start a new trajectory
                 else:
                     # add the traj for the walker with the data
@@ -568,7 +636,13 @@ class WepyHDF5Reporter(FileReporter):
                                                      data=walker_data)
 
                     # add as metadata the cycle idx where this walker started
-                    traj_grp.attrs['cycle_idx'] = cycle_idx
+                    traj_grp.attrs['start_cycle_idx'] = cycle_idx
+
+                    # initialize the number of cycle
+                    traj_grp.attrs['num_cycles'] = 1
+
+                # set the traj_grp last cycle index
+                traj_grp.attrs['last_cycle_idx'] = cycle_idx
 
 
             # report the boundary conditions records data, if boundary
@@ -582,6 +656,14 @@ class WepyHDF5Reporter(FileReporter):
             self._report_resampling(cycle_idx, resampling_data)
 
             self._report_resampler(cycle_idx, resampler_data)
+
+
+        # increment the number of cycles and the last cycle index
+        with self.wepy_h5:
+            run_grp = self.wepy_h5.run(self.wepy_run_idx)
+
+            run_grp.attrs['num_cycles'] += 1
+            run_grp.attrs['last_cycle_idx'] = cycle_idx
 
         super().report(**kwargs)
 
