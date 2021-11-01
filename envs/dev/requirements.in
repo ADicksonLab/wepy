@@ -2,6 +2,9 @@
 wheel
 twine
 
+# stuff needed for running test systems
+git+https://github.com/ADicksonLab/openmm_systems
+
 
 # meta repo tooling
 

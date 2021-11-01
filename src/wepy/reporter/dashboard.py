@@ -1,6 +1,5 @@
 """WIP: Reporter that produces a text file that gives high level
 information on the progress of a simulation.
-
 """
 from collections import defaultdict
 import itertools as it
@@ -37,60 +36,40 @@ class DashboardReporter(ProgressiveFileReporter):
 """
 Init Datetime: {{ init_date_time }}
 Last write Datetime: {{ curr_date_time }}
-
 Total Run time: {{ total_run_time }} s
-
 Last Cycle Index: {{ last_cycle_idx }}
 Number of Cycles: {{ n_cycles }}
-
 ** Walkers Summary
-
 {{ walker_cycle_summary_table }}
-
+** Walker Progress Summary
+{{ progress_summary_table }}
 """
 
     PERFORMANCE_SECTION_TEMPLATE =\
 """
 Average Cycle Time: {{ avg_cycle_time }}
-
 {% if avg_runner_time %}Average Runner Time: {{ avg_runner_time }}{% else %}{% endif %}
 {% if avg_bc_time %}Average Boundary Conditions Time: {{ avg_bc_time }}{% else %}{% endif %}
 {% if avg_resampling_time %}Average Resampling Time: {{ avg_resampling_time }}{% else %}{% endif %}
-
-
 Worker Avg. Segment Times:
-
 {{ worker_avg_segment_time }}
-
 ** Cycle Performance Log
-
 {{ cycle_log }}
-
 ** Worker Performance Log
-
 {{ performance_log }}
-
-
 """
 
     DASHBOARD_TEMPLATE = \
 """* Simulation
-
 {{ simulation }}
-
 {% if resampler %}* Resampler{% else %}{% endif %}
 {% if resampler %}{{ resampler }}{% else %}{% endif %}
-
 {% if boundary_condition %}* Boundary Condition{% else %}{% endif %}
 {% if boundary_condition %}{{ boundary_condition }}{% else %}{% endif %}
-
 {% if runner %}* Runner{% else %}{% endif %}
 {% if runner %}{{ runner }}{% else %}{% endif %}
-
 * Performance
-
 {{ performance }}
-
 """
 
 
@@ -100,14 +79,10 @@ Worker Avg. Segment Times:
                  bc_dash=None,
                  **kwargs):
         """
-
         Parameters
         ----------
-
         resampler_dash
-
         runner_dash
-
         bc_dash
         """
 
@@ -143,6 +118,10 @@ Worker Avg. Segment Times:
         self.worker_records = []
 
 
+        # progress statistics
+        self.progress_summaries = []
+
+
     def init(self, **kwargs):
 
         super().init(**kwargs)
@@ -164,12 +143,31 @@ Worker Avg. Segment Times:
 
         return summary
 
+    def calc_progress_summary(self, **kwargs):                                                                                                                 
+                                                                                                                                               
+        prog_data_dic = kwargs['progress_data']
+
+        prog_data_key = [*prog_data_dic][0]
+
+        prog_data = prog_data_dic[prog_data_key]
+        
+        summary = {                                                                      
+            'min' : np.min(prog_data),                                              
+            'max' : np.max(prog_data),
+            'mean' : np.mean(prog_data)
+        }                                                                                                                                                    
+                                                                                                                                                              
+        return summary                                                                                                                                        
+
+    
     def update_values(self, **kwargs):
 
         ### simulation
 
         self.n_cycles += 1
         self.walker_prob_summaries.append(self.calc_walker_summary(**kwargs))
+        self.progress_summaries.append(self.calc_progress_summary(**kwargs))
+
 
         self.update_performance_values(**kwargs)
 
@@ -254,6 +252,11 @@ Worker Avg. Segment Times:
                                           headers=walker_df.columns,
                                           tablefmt='orgtbl')
 
+        prog_df = pd.DataFrame(self.progress_summaries)
+        prog_summary_tbl_str = tabulate(prog_df,
+                                        headers=prog_df.columns,
+                                        tablefmt='orgtbl')
+
         # render the simulation section
         sim_section_d = {
             'init_date_time' : self.init_date_time,
@@ -262,6 +265,7 @@ Worker Avg. Segment Times:
             'last_cycle_idx' : kwargs['cycle_idx'],
             'n_cycles' : self.n_cycles,
             'walker_cycle_summary_table' : walker_summary_tbl_str,
+            'progress_summary_table': prog_summary_tbl_str,
         }
 
         sim_section_str = Template(self.SIMULATION_SECTION_TEMPLATE).render(
@@ -324,6 +328,8 @@ Worker Avg. Segment Times:
     def report(self, **kwargs):
 
         # update the values that update each call to report
+
+        
         self.update_values(**kwargs)
 
         # the two sections that are always there

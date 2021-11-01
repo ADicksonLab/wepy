@@ -2,6 +2,7 @@ import os
 import os.path as osp
 from pathlib import Path
 
+import pytest
 from pytest_shutil.cmdline import chdir
 from pytest_shutil.run import run, run_as_main
 
@@ -14,7 +15,6 @@ def test_dir(datadir_factory, printer):
     datadir = datadir_factory.mkdatadir(f'../_examples/{example}')
 
     assert (datadir / "README.org").is_file()
-    assert (datadir / "input").is_dir()
     assert (datadir / "source").is_dir()
 
 
