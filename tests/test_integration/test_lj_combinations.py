@@ -70,7 +70,7 @@ class TestCombinationsMinorNode():
                                              resampler=resampler)
 
         config = sim_maker.make_configuration(apparatus,
-                                              work_mapper=work_mapper,
+                                              work_mapper_spec=work_mapper,
                                               platform=platform,
                                               reporters=None)
 
@@ -97,7 +97,7 @@ class TestCombinationsDevNode():
                                              resampler=resampler)
 
         config = sim_maker.make_configuration(apparatus,
-                                              work_mapper='TaskMapper',
+                                              work_mapper_spec='TaskMapper',
                                               platform=platform,
                                               reporters=None)
 
@@ -121,7 +121,7 @@ class TestCombinationsBigNode():
         apparatus = sim_maker.make_apparatus(platform=platform,
                                              resampler=resampler)
 
-        config = sim_maker.make_configuration(work_mapper='TaskMapper',
+        config = sim_maker.make_configuration(work_mapper_spec='TaskMapper',
                                               platform=platform)
 
         sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)

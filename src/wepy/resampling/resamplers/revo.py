@@ -101,11 +101,11 @@ class REVOResampler(CloneMergeResampler):
 
     # fields for resampling data
     RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + \
-                       ('num_walkers', 'distance_matrix', 'variation', 'image_shape', 'images')
+                       ('num_walkers', 'distance_matrix', 'variation',)
     RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + \
-                       ((1,), Ellipsis, (1,), Ellipsis, Ellipsis)
+                       ((1,), Ellipsis, (1,),)
     RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + \
-                       (np.int, np.float, np.float, np.int, None)
+                       (np.int, np.float, np.float,)
 
     # fields that can be used for a table like representation
     RESAMPLER_RECORD_FIELDS = CloneMergeResampler.RESAMPLER_RECORD_FIELDS + \
@@ -196,31 +196,6 @@ class REVOResampler(CloneMergeResampler):
 
         # setting the weights parameter
         self.weights = weights
-
-        # we do not know the shape and dtype of the images until
-        # runtime so we determine them here
-
-        image = self.distance.image(init_state)
-        self.image_dtype = image.dtype
-
-    def resampler_field_dtypes(self):
-        """ Finds out the datatype of the image.
-
-        Returns
-        -------
-        datatypes : tuple of datatype
-        The type of reasampler image.
-
-        """
-
-        # index of the image idx
-        image_idx = self.resampler_field_names().index('images')
-
-        # dtypes adding the image dtype
-        dtypes = list(super().resampler_field_dtypes())
-        dtypes[image_idx] = self.image_dtype
-
-        return tuple(dtypes)
 
     def _novelty(self, walker_weight, num_walker_copy):
         """Calculates the novelty fuction value.
@@ -600,10 +575,10 @@ class REVOResampler(CloneMergeResampler):
 
        # flatten the distance matrix and give the number of walkers
         # as well for the resampler data, there is just one per cycle
-        resampler_data = [{'distance_matrix' : np.ravel(np.array(distance_matrix)),
-                           'num_walkers' : np.array([len(walkers)]),
-                           'variation' : np.array([variation]),
-                           'images' : np.ravel(np.array(images)),
-                           'image_shape' : np.array(images[0].shape)}]
+        resampler_data = [{
+            'distance_matrix' : np.ravel(np.array(distance_matrix)),
+            'num_walkers' : np.array([len(walkers)]),
+            'variation' : np.array([variation]),
+        }]
 
         return resampled_walkers, resampling_data, resampler_data
