@@ -3454,7 +3454,7 @@ class WepyHDF5(object):
 
         return field_names
 
-    def get_traj_field_names_observables(
+    def get_traj_field_names_observables(self,
             run_idx,
             traj_idx,
     ):
@@ -3473,7 +3473,7 @@ class WepyHDF5(object):
 
         return field_names
 
-    def get_traj_field_names_alt_reps(
+    def get_traj_field_names_alt_reps(self,
             run_idx,
             traj_idx,
     ):
