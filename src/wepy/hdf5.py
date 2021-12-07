@@ -6193,7 +6193,7 @@ class WepyHDF5(object):
 
         rep_path = self._choose_rep_path(alt_rep)
 
-        json_topology = self.get_topology(alt_rep=rep_path)
+        json_topology = self.get_topology(alt_rep=alt_rep)
 
         return traj_fields_to_mdtraj(traj_fields, json_topology, rep_key=rep_path)
 
