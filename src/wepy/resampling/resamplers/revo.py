@@ -1,9 +1,7 @@
 import multiprocessing as mulproc
 import random as rand
 import itertools as it
-
 import logging
-from eliot import start_action, log_call
 
 import numpy as np
 
@@ -11,8 +9,11 @@ from wepy.resampling.resamplers.resampler import Resampler
 from wepy.resampling.resamplers.clone_merge  import CloneMergeResampler
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
+import pickle
+import time
+
 class REVOResampler(CloneMergeResampler):
-    r"""Resampler implementing the REVO algorithm.
+    """Resampler implementing the REVO algorithm.
 
     You can find more detailed information in the paper "REVO:
     Resampling of ensembles by variation optimization" but
@@ -112,16 +113,8 @@ class REVOResampler(CloneMergeResampler):
                               ('variation',)
 
 
-    def __init__(self,
-                 merge_dist=None,
-                 char_dist=None,
-                 distance=None,
-                 init_state=None,
-                 weights=True,
-                 pmin=1e-12,
-                 pmax=0.1,
-                 dist_exponent=4,
-                 seed=None,
+    def __init__(self, seed=None, pmin=1e-12, pmax=0.1, dist_exponent=4, merge_dist=None,
+                 char_dist=None, distance=None, init_state=None, weights=True, 
                  **kwargs):
 
         """Constructor for the REVO Resampler.
@@ -129,34 +122,33 @@ class REVOResampler(CloneMergeResampler):
         Parameters
         ----------
 
+        seed : None or int
+            The random seed. If None, the system (random) one will be used.
+
         dist_exponent : int
           The distance exponent that modifies distance and weight novelty
           relative to each other in the variation equation.
 
         merge_dist : float
-            The merge distance threshold. Units should be the same as
-            the distance metric.
+            The merge distance threshold. Its value depends on the system
+            of interest. A value of 2.5 is recommended.
 
         char_dist : float
-            The characteristic distance value. It is calculated by
-            running a single dynamic cycle and then calculating the
-            average distance between all walkers. Units should be the
-            same as the distance metric.
+            The characteristic distance value. It is calculated by running
+            a single dynamic cycle and then calculating the average distance
+            between all walkers.
 
         distance : object implementing Distance
             The distance metric to compare walkers.
 
-        weights : bool
+        init_state : WalkerState object
+            The state that seeds the first region in the region hierarchy.
+
+        weights : True or False
             Turns off or on the weight novelty in
             calculating the variation equation. When weight is
             False, the value of the novelty function is set to 1 for all
-            walkers.
-
-        init_state : WalkerState object
-            Used for automatically determining the state image shape.
-
-        seed : None or int, optional
-            The random seed. If None, the system (random) one will be used.
+            walkers. Weight on is recomended.
 
         """
 
@@ -168,25 +160,21 @@ class REVOResampler(CloneMergeResampler):
                          max_num_walkers=Ellipsis,
                          **kwargs)
 
-        assert merge_dist is not None, "Merge distance must be given."
-        assert distance is not None,  "Distance object must be given."
-        assert char_dist is not None, "Characteristic distance value (d0) must be given"
-        assert init_state is not None,  "An initial state must be given."
-
         # ln(probability_min)
         self.lpmin = np.log(self.pmin/100)
         self.dist_exponent = dist_exponent
-
-        # the distance metric
-
         self.merge_dist = merge_dist
 
         # the distance metric
+        assert merge_dist is not None, "Merge distance must be given."
+        self.merge_dist = merge_dist
 
+        # the distance metric
+        assert distance is not None,  "Distance object must be given."
         self.distance = distance
 
         # the characteristic distance, char_dist
-
+        assert char_dist is not None, "Characteristic distance value (d0) msu be given"
         self.char_dist = char_dist
 
         # setting the random seed
@@ -199,7 +187,7 @@ class REVOResampler(CloneMergeResampler):
 
         # we do not know the shape and dtype of the images until
         # runtime so we determine them here
-
+        assert init_state is not None,  "An initial state must be given."
         image = self.distance.image(init_state)
         self.image_dtype = image.dtype
 
@@ -259,7 +247,7 @@ class REVOResampler(CloneMergeResampler):
 
         return novelty
 
-    def _calcvariation(self, walker_weights, num_walker_copies, distance_matrix):
+    def _calcvariation(self, walker_weights, num_walker_copies, distance_matrix, images):
         """Calculates the variation value.
 
         Parameters
@@ -276,6 +264,8 @@ class REVOResampler(CloneMergeResampler):
 
         distance_matrix : list of arraylike of shape (num_walkers)
 
+        images: list of arraylike of shape (num_walkers)
+
         Returns
         -------
         variation : float
@@ -288,11 +278,10 @@ class REVOResampler(CloneMergeResampler):
 
         num_walkers = len(walker_weights)
 
-
-
         # set the novelty values
-        walker_novelties = np.array([self._novelty(walker_weights[i], num_walker_copies[i])
-                               for i in range(num_walkers)])
+        walker_novelties = self._novelty(walker_weights, num_walker_copies, images)
+
+
 
 
         # the value to be optimized
@@ -317,9 +306,94 @@ class REVOResampler(CloneMergeResampler):
                         walker_variations[i] += partial_variation * num_walker_copies[j]
                         walker_variations[j] += partial_variation * num_walker_copies[i]
 
+
         return variation, walker_variations
 
-    def decide(self, walker_weights, num_walker_copies, distance_matrix):
+    def _calc_variation_loss(self, walker_variation, weights, eligible_pairs):
+        """Calculates the loss to variation through merging of eligible walkers.                                                                                                                  
+ 
+        Parameters                                                                                                                                                                                        
+        ----------                                                                                                                                                                                        
+        
+        walker_variations : arraylike of shape (num_walkers)                                                                                                                                       
+           The Vi value of each walker.                                                                                                                       
+
+        weights : list of float                                  
+            The weights of all walkers. The sum of all weights should be 1.0.
+
+        eligible_pairs : list of tuples
+            Pairs of walker indexes that meet the criteria for merging.
+                                                                                                                                                                                                         
+        Returns                                                                                                                                                                                            
+        -------                                                       
+
+        variation_loss_list : tuple
+            A tuple of the walker merge pair indicies that meet the criteria 
+            for merging and minimize variation loss.
+         """
+
+        v_loss_min = np.inf
+        
+        min_loss_pair = ()
+
+        for pair in eligible_pairs:
+            walker_i = pair[0]
+            walker_j = pair[1]
+
+            wt_i = weights[walker_i]
+            wt_j = weights[walker_j]
+
+            v_i = walker_variation[walker_i]
+            v_j = walker_variation[walker_j]
+
+            v_loss = (wt_j * v_i + wt_i * v_j) / (wt_i + wt_j)
+
+            if v_loss < v_loss_min:
+                min_loss_pair = pair
+                v_loss_min = v_loss
+
+        return(min_loss_pair)
+
+    def _find_eligible_merge_pairs(self, weights, distance_matrix, max_var_idx, num_walker_copies):
+        """ Find pairs of walkers that are eligible to be merged.
+
+        Parameters
+        ----------
+
+        weights : list of float                                                                                                 
+            The weights of all walkers. The sum of all weights should be 1.0.
+
+        distance_matrix : list of arraylike of shape (num_walkers)
+            The distance between every walker according to the distance metric.
+
+        max_var_idx : float 
+            The index of the walker that had the highest walker variance
+            and is a candidate for cloning.
+
+        num_walker_copies : list of int                                                                                                                                                                                 The number of copies of each walker.                                                                                                                                                          
+             0 means the walker is not exists anymore.                                                                                                                                                     
+             1 means there is one of the this walker.                                                                                                                                                                   >1 means it should be cloned to this number of walkers.                                                                                                                                         
+        Returns
+        -------
+        
+        eligible_pairs : list of tuples                                                                                                                             
+            Pairs of walker indexes that meet the criteria for merging.
+
+        """
+
+        eligible_pairs = []
+
+        for i in range(len(weights) - 1):
+            for j in range(i + 1, len(weights)):
+                if i != max_var_idx and j != max_var_idx:
+                    if num_walker_copies[i] == 1 and num_walker_copies[j] == 1:
+                        if weights[i] + weights[j] < self.pmax:
+                            if distance_matrix[i][j] < self.merge_dist:
+                                eligible_pairs.append((i,j))
+
+        return(eligible_pairs)
+
+    def decide(self, walker_weights, num_walker_copies, distance_matrix, images):
         """Optimize the trajectory variation by making decisions for resampling.
 
         Parameters
@@ -335,6 +409,8 @@ class REVOResampler(CloneMergeResampler):
             >1 means it should be cloned to this number of walkers.
 
         distance_matrix : list of arraylike of shape (num_walkers)
+
+        images: list of arraylike of shape (num_walkers)
 
         Returns
         -------
@@ -359,11 +435,14 @@ class REVOResampler(CloneMergeResampler):
         # calculate the initial variation which will be optimized
         variation, walker_variations = self._calcvariation(walker_weights,
                                                            new_num_walker_copies,
-                                                           distance_matrix)
+                                                           distance_matrix,
+                                                           images)
         variations.append(variation)
 
+        print('The starting variation is', variation)
+
         # maximize the variance through cloning and merging
-        logging.info("Starting variance optimization: {}".format(variation))
+        logging.info("Starting variance optimization:", variation)
 
         productive = True
         while productive:
@@ -388,52 +467,72 @@ class REVOResampler(CloneMergeResampler):
                    (len(merge_groups[i]) == 0):
                     max_tups.append((value, i))
 
-
             if len(max_tups) > 0:
                 max_value, max_idx = max(max_tups)
 
+            pot_merge_pairs = self._find_eligible_merge_pairs(new_walker_weights, distance_matrix, max_idx, new_num_walker_copies)
+
+            merge_pair= self._calc_variation_loss(walker_variations, new_walker_weights, pot_merge_pairs)
+
             # walker with the lowest walker_variations (distance to other walkers)
             # will be tagged for merging (stored in min_idx)
-            min_tups = [(value, i) for i,value in enumerate(walker_variations)
-                        if new_num_walker_copies[i] == 1 and (new_walker_weights[i]  < self.pmax)]
+            #min_tups = [(value, i) for i,value in enumerate(walker_variations)
+            #            if new_num_walker_copies[i] == 1 and (new_walker_weights[i]  < self.pmax)]
 
-            if len(min_tups) > 0:
-                min_value, min_idx = min(min_tups)
+            #if len(min_tups) > 0:
+            #    min_value, min_idx = min(min_tups)
+            #    print('The min_value is', min_value, 'and the min_idx is', min_idx)
 
             # does min_idx have an eligible merging partner?
             # closedist = self.merge_dist
-            closewalk = None
-            condition_list = np.array([i is not None for i in [min_idx, max_idx]])
-            if condition_list.all() and min_idx != max_idx:
+            #closewalk = None
+            #condition_list = np.array([i is not None for i in [min_idx, max_idx]])
+
+
+            #if condition_list.all() and min_idx != max_idx:
 
                 # get the walkers that aren't the minimum and the max
                 # walker_variations walkers, as candidates for merging
-                closewalks = set(range(num_walkers)).difference([min_idx, max_idx])
+                #closewalks = set(range(num_walkers)).difference([min_idx, max_idx])
+
+               # print('The close walks is', closewalks)
 
                 # remove those walkers that if they were merged with
                 # the min walker_variations walker would violate the pmax
-                closewalks = [idx for idx in closewalks
-                                      if (new_num_walker_copies[idx]==1) and
-                                       (new_walker_weights[idx] + new_walker_weights[min_idx] < self.pmax)
-                                      ]
+                #closewalks = [idx for idx in closewalks
+                                     # if (new_num_walker_copies[idx]==1) and
+                                      # (new_walker_weights[idx] + new_walker_weights[min_idx] < self.pmax)
+                                      #]
+
+                #print('Close walks is ', closewalks)
 
                 # if there are any walkers left, get the distances of
                 # the close walkers to the min walker_variations walker if that
                 # distance is less than the maximum merge distance
-                if len(closewalks) > 0:
-                    closewalks_dists = [(distance_matrix[min_idx][i], i) for i in closewalks
-                                            if distance_matrix[min_idx][i] < (self.merge_dist)]
+               # if len(closewalks) > 0:
+                   # closewalks_dists = [(distance_matrix[min_idx][i], i) for i in closewalks
+                                           # if distance_matrix[min_idx][i] < (self.merge_dist)]
 
                     # if any were found set this as the closewalk
-                    if len(closewalks_dists) > 0:
-                        closedist, closewalk = min(closewalks_dists)
+                   # if len(closewalks_dists) > 0:
+                        #closedist, closewalk = min(closewalks_dists)
 
+            #print('The closest walks are', closewalks)
 
             # did we find a closewalk?
-            condition_list = np.array([i is not None for i in [min_idx, max_idx, closewalk]])
+            #condition_list = np.array([i is not None for i in [min_idx, max_idx, closewalk]])
             #if we find a walker for cloning, a walker and its close neighbor for merging
-            if condition_list.all() :
+            if len(merge_pair) != 0:
+                min_idx = merge_pair [0]
+                closewalk = merge_pair [1]
+                #print('min idx is', min_idx)
+                #print('closewalk is', closewalk)
 
+                #print('The weight of min idx is', new_walker_weights[min_idx])
+                #print('The weight of closewalk is', new_walker_weights[closewalk])
+
+                #print(type(new_walker_weights[min_idx]))
+                
                 # change new_amp
                 tempsum = new_walker_weights[min_idx] + new_walker_weights[closewalk]
                 new_num_walker_copies[min_idx] = new_walker_weights[min_idx]/tempsum
@@ -441,12 +540,15 @@ class REVOResampler(CloneMergeResampler):
                 new_num_walker_copies[max_idx] += 1
 
                 # re-determine variation function, and walker_variations values
-                new_variation, walker_variations = self._calcvariation(new_walker_weights, new_num_walker_copies, distance_matrix)
+                new_variation, walker_variations = self._calcvariation(new_walker_weights, new_num_walker_copies, distance_matrix, images)
 
                 if new_variation > variation:
                     variations.append(new_variation)
 
-                    logging.info("Variance move to {} accepted".format(new_variation))
+                    print('The new variation is', new_variation)
+
+                    logging.info("Variance move to", new_variation, "accepted")
+
 
                     productive = True
                     variation = new_variation
@@ -492,10 +594,12 @@ class REVOResampler(CloneMergeResampler):
                     # new variation for starting new stage
                     new_variation, walker_variations = self._calcvariation(new_walker_weights,
                                                                           new_num_walker_copies,
-                                                                          distance_matrix)
+                                                                          distance_matrix,
+                                                                          images)
                     variations.append(new_variation)
 
-                    logging.info("variance after selection: {}".format(new_variation))
+                    logging.info("variance after selection:", new_variation)
+
 
                 # if not productive
                 else:
@@ -553,8 +657,6 @@ class REVOResampler(CloneMergeResampler):
 
         return [walker_dists for walker_dists in dist_mat], images
 
-    @log_call(include_args=[],
-              include_result=False)
     def resample(self, walkers):
         """Resamples walkers based on REVO algorithm
 
@@ -578,18 +680,18 @@ class REVOResampler(CloneMergeResampler):
         #initialize the parameters
         num_walkers = len(walkers)
         walker_weights = [walker.weight for walker in walkers]
-        num_walker_copies = [1 for i in range(num_walkers)]
+        num_walker_copies = np.ones(num_walkers)
 
         # calculate distance matrix
         distance_matrix, images = self._all_to_all_distance(walkers)
 
         logging.info("distance_matrix")
-        logging.info("\n{}".format(str(np.array(distance_matrix))))
+        logging.info(np.array(distance_matrix))
 
         # determine cloning and merging actions to be performed, by
         # maximizing the variation, i.e. the Decider
-        resampling_data, variation = self.decide(walker_weights, num_walker_copies, distance_matrix)
-
+        resampling_data, variation = self.decide(walker_weights, num_walker_copies, distance_matrix, images)
+        
         # convert the target idxs and decision_id to feature vector arrays
         for record in resampling_data:
             record['target_idxs'] = np.array(record['target_idxs'])
