@@ -294,7 +294,114 @@ class REVOResampler(CloneMergeResampler):
 
         return variation, walker_variations
 
-    def decide(self, walker_weights, num_walker_copies, distance_matrix):
+
+    def _calc_variation_loss(self, walker_variation, weights, eligible_pairs):
+        """Calculates the loss to variation through merging of eligible walkers.
+
+
+        Parameters
+
+        ----------
+
+
+        walker_variations : arraylike of shape (num_walkers)
+
+           The Vi value of each walker.
+
+        weights : list of float
+            The weights of all walkers. The sum of all weights should be 1.0.
+
+        eligible_pairs : list of tuples
+            Pairs of walker indexes that meet the criteria for merging.
+
+
+        Returns
+
+        -------
+
+        variation_loss_list : tuple
+            A tuple of the walker merge pair indicies that meet the criteria
+            for merging and minimize variation loss.
+         """
+
+        v_loss_min = np.inf
+
+        min_loss_pair = ()
+
+        for pair in eligible_pairs:
+            walker_i = pair[0]
+            walker_j = pair[1]
+
+            wt_i = weights[walker_i]
+            wt_j = weights[walker_j]
+
+            v_i = walker_variation[walker_i]
+            v_j = walker_variation[walker_j]
+
+            v_loss = (wt_j * v_i + wt_i * v_j) / (wt_i + wt_j)
+
+            if v_loss < v_loss_min:
+                min_loss_pair = pair
+                v_loss_min = v_loss
+
+        return min_loss_pair
+
+
+    def _find_eligible_merge_pairs(self,
+                                   weights,
+                                   distance_matrix,
+                                   max_var_idx,
+                                   num_walker_copies,
+                                   ):
+        """ Find pairs of walkers that are eligible to be merged.
+
+        Parameters
+        ----------
+
+        weights : list of float
+            The weights of all walkers. The sum of all weights should be 1.0.
+
+        distance_matrix : list of arraylike of shape (num_walkers)
+            The distance between every walker according to the distance metric.
+
+        max_var_idx : float
+            The index of the walker that had the highest walker variance
+            and is a candidate for cloning.
+
+        num_walker_copies : list of int
+                                   The number of copies of each walker.
+
+             0 means the walker is not exists anymore.
+
+             1 means there is one of the this walker.
+                                   >1 means it should be cloned to this number of walkers.
+
+        Returns
+        -------
+
+        eligible_pairs : list of tuples
+            Pairs of walker indexes that meet the criteria for merging.
+
+        """
+
+        eligible_pairs = []
+
+        for i in range(len(weights) - 1):
+            for j in range(i + 1, len(weights)):
+                if i != max_var_idx and j != max_var_idx:
+                    if num_walker_copies[i] == 1 and num_walker_copies[j] == 1:
+                        if weights[i] + weights[j] < self.pmax:
+                            if distance_matrix[i][j] < self.merge_dist:
+                                eligible_pairs.append((i,j))
+
+        return eligible_pairs
+
+
+    def decide(self,
+               walker_weights,
+               num_walker_copies,
+               distance_matrix,
+               ):
         """Optimize the trajectory variation by making decisions for resampling.
 
         Parameters
@@ -367,47 +474,23 @@ class REVOResampler(CloneMergeResampler):
             if len(max_tups) > 0:
                 max_value, max_idx = max(max_tups)
 
-            # walker with the lowest walker_variations (distance to other walkers)
-            # will be tagged for merging (stored in min_idx)
-            min_tups = [(value, i) for i,value in enumerate(walker_variations)
-                        if new_num_walker_copies[i] == 1 and (new_walker_weights[i]  < self.pmax)]
+            pot_merge_pairs = self._find_eligible_merge_pairs(
+                new_walker_weights,
+                distance_matrix,
+                max_idx,
+                new_num_walker_copies,
+            )
 
-            if len(min_tups) > 0:
-                min_value, min_idx = min(min_tups)
+            merge_pair= self._calc_variation_loss(
+                walker_variations,
+                new_walker_weights,
+                pot_merge_pairs,
+            )
 
-            # does min_idx have an eligible merging partner?
-            # closedist = self.merge_dist
-            closewalk = None
-            condition_list = np.array([i is not None for i in [min_idx, max_idx]])
-            if condition_list.all() and min_idx != max_idx:
+            if len(merge_pair) != 0:
 
-                # get the walkers that aren't the minimum and the max
-                # walker_variations walkers, as candidates for merging
-                closewalks = set(range(num_walkers)).difference([min_idx, max_idx])
-
-                # remove those walkers that if they were merged with
-                # the min walker_variations walker would violate the pmax
-                closewalks = [idx for idx in closewalks
-                                      if (new_num_walker_copies[idx]==1) and
-                                       (new_walker_weights[idx] + new_walker_weights[min_idx] < self.pmax)
-                                      ]
-
-                # if there are any walkers left, get the distances of
-                # the close walkers to the min walker_variations walker if that
-                # distance is less than the maximum merge distance
-                if len(closewalks) > 0:
-                    closewalks_dists = [(distance_matrix[min_idx][i], i) for i in closewalks
-                                            if distance_matrix[min_idx][i] < (self.merge_dist)]
-
-                    # if any were found set this as the closewalk
-                    if len(closewalks_dists) > 0:
-                        closedist, closewalk = min(closewalks_dists)
-
-
-            # did we find a closewalk?
-            condition_list = np.array([i is not None for i in [min_idx, max_idx, closewalk]])
-            #if we find a walker for cloning, a walker and its close neighbor for merging
-            if condition_list.all() :
+                min_idx = merge_pair[0]
+                closewalk = merge_pair[1]
 
                 # change new_amp
                 tempsum = new_walker_weights[min_idx] + new_walker_weights[closewalk]
