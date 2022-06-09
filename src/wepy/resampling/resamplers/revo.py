@@ -188,16 +188,13 @@ class REVOResampler(CloneMergeResampler):
         self.lpmin = np.log(self.pmin/100)
         self.dist_exponent = dist_exponent
 
-        # the distance metric
-
         self.merge_dist = merge_dist
+        self.merge_alg = merge_alg
 
         # the distance metric
-
         self.distance = distance
 
         # the characteristic distance, char_dist
-
         self.char_dist = char_dist
 
         # setting the random seed
