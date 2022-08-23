@@ -4,93 +4,58 @@
 #
 #    pip-compile --output-file=envs/dev/requirements.txt ./requirements.in .jubeo/requirements.in envs/dev/requirements.in envs/dev/tools.requirements.txt envs/test/requirements.in
 #
---index-url https://pypi.python.org/simple/
-
 alabaster==0.7.12
     # via sphinx
-apipkg==1.5
-    # via execnet
 appdirs==1.4.4
     # via virtualenv
 argcomplete==1.12.2
     # via
-    #   -r envs/dev/requirements.in
+    #   -r requirements.in
     #   nox
 argon2-cffi==20.1.0
     # via notebook
-astunparse==1.6.3
-    # via mdtraj
 asv==0.4.2
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 async-generator==1.10
     # via nbclient
 attrs==20.3.0
     # via
     #   interrogate
     #   jsonschema
-    #   pytest
 babel==2.9.0
     # via sphinx
 backcall==0.2.0
     # via ipython
-bcrypt==3.2.0
-    # via paramiko
+beautifulsoup4==4.11.1
+    # via nbconvert
 bleach==3.3.0
     # via
     #   nbconvert
     #   readme-renderer
-boltons==20.2.1
-    # via eliot
 certifi==2020.12.5
     # via requests
 cffi==1.14.5
     # via
     #   argon2-cffi
-    #   bcrypt
     #   cryptography
-    #   pynacl
 chardet==4.0.0
     # via requests
 click==7.1.2
-    # via
-    #   -r ./requirements.in
-    #   interrogate
-    #   jubeo
-    #   pip-tools
-cloudpickle==1.6.0
-    # via dask
+    # via interrogate
 colorama==0.4.4
     # via
     #   interrogate
     #   twine
 colorlog==2.10.0
-    # via
-    #   lxdock
-    #   nox
-contextlib2==0.6.0.post1
-    # via pytest-shutil
+    # via nox
 coverage==5.5
-    # via
-    #   -r .jubeo/requirements.in
-    #   -r envs/dev/requirements.in
-    #   pytest-cov
+    # via -r requirements.in
 cryptography==3.4.6
-    # via
-    #   paramiko
-    #   pylxd
-    #   secretstorage
-cycler==0.10.0
-    # via matplotlib
-dask[bag]==2021.3.0
-    # via -r ./requirements.in
+    # via secretstorage
 decorator==4.4.2
-    # via
-    #   ipython
-    #   networkx
+    # via ipython
 defusedxml==0.7.1
     # via nbconvert
-dill==0.3.3
-    # via -r ./requirements.in
 distlib==0.3.1
     # via virtualenv
 docutils==0.16
@@ -100,80 +65,49 @@ docutils==0.16
     #   readme-renderer
     #   sphinx
     #   sphinxcontrib-bibtex
-eliot==1.13.0
-    # via -r ./requirements.in
 entrypoints==0.3
     # via nbconvert
-execnet==1.8.0
-    # via pytest-shutil
-fabric==2.6.0
-    # via -r .jubeo/requirements.in
 fancycompleter==0.9.1
     # via pdbpp
 filelock==3.0.12
     # via virtualenv
 flake8==3.9.0
-    # via -r envs/dev/requirements.in
-fsspec==0.8.7
-    # via dask
-ghp-import==1.0.1
-    # via -r .jubeo/requirements.in
-gitdb==4.0.5
-    # via gitpython
-gitpython==3.1.14
-    # via jubeo
-gprof2dot==2021.2.21
-    # via pytest-profiling
-h5py==2.10.0
-    # via -r ./requirements.in
-hyperlink==21.0.0
-    # via jubeo
+    # via -r requirements.in
 idna==2.10
-    # via
-    #   hyperlink
-    #   requests
+    # via requests
 imagesize==1.2.0
     # via sphinx
 importlib-metadata==3.7.3
     # via
     #   keyring
     #   twine
-iniconfig==1.1.1
-    # via pytest
 interrogate==1.3.2
-    # via -r envs/dev/requirements.in
-invoke==1.5.0
-    # via
-    #   -r .jubeo/requirements.in
-    #   fabric
+    # via -r requirements.in
 ipykernel==5.5.0
     # via notebook
+ipython==7.21.0
+    # via
+    #   -r requirements.in
+    #   ipykernel
 ipython-genutils==0.2.0
     # via
     #   nbformat
     #   notebook
     #   traitlets
-ipython==7.21.0
-    # via
-    #   -r envs/dev/requirements.in
-    #   ipykernel
 jedi==0.18.0
     # via ipython
 jeepney==0.6.0
     # via
     #   keyring
     #   secretstorage
-jinja2==2.11.3
+jinja2==3.1.2
     # via
-    #   -r ./requirements.in
     #   nbconvert
     #   nbsphinx
     #   notebook
     #   sphinx
 jsonschema==3.2.0
     # via nbformat
-jubeo==0.0.3a0.dev0
-    # via -r .jubeo/requirements.in
 jupyter-client==6.1.12
     # via
     #   ipykernel
@@ -189,35 +123,25 @@ jupyterlab-pygments==0.1.2
     # via nbconvert
 keyring==23.0.0
     # via twine
-kiwisolver==1.3.1
-    # via matplotlib
 latexcodec==2.0.1
     # via pybtex
 lizard==1.17.7
-    # via -r envs/dev/requirements.in
-locket==0.2.1
-    # via partd
-lxdock==0.4.1
-    # via -r .jubeo/requirements.in
-markupsafe==1.1.1
-    # via jinja2
-matplotlib==3.3.4
-    # via -r ./requirements.in
+    # via -r requirements.in
+lxml==4.9.1
+    # via nbconvert
+markupsafe==2.1.1
+    # via
+    #   jinja2
+    #   nbconvert
 mccabe==0.6.1
     # via flake8
-mdtraj==1.9.5
-    # via -r ./requirements.in
 mistune==0.8.4
     # via nbconvert
-mock==4.0.3
-    # via pytest-shutil
 multiprocessing-logging==0.3.1
-    # via
-    #   -r ./requirements.in
-    #   -r envs/dev/requirements.in
+    # via -r requirements.in
 nbclient==0.5.3
     # via nbconvert
-nbconvert==6.0.7
+nbconvert==6.5.1
     # via
     #   nbsphinx
     #   notebook
@@ -228,88 +152,50 @@ nbformat==5.1.2
     #   nbsphinx
     #   notebook
 nbsphinx==0.8.2
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 nest-asyncio==1.5.1
     # via nbclient
-networkx==2.3
-    # via -r ./requirements.in
 notebook==6.2.0
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 nox==2020.12.31
-    # via -r envs/dev/requirements.in
-numpy==1.20.1
-    # via
-    #   -r ./requirements.in
-    #   h5py
-    #   matplotlib
-    #   mdtraj
-    #   pandas
-    #   scipy
+    # via -r requirements.in
 packaging==20.9
     # via
     #   bleach
-    #   pint
-    #   pytest
+    #   nbconvert
     #   sphinx
-pandas==1.2.3
-    # via -r ./requirements.in
 pandocfilters==1.4.3
     # via nbconvert
-paramiko==2.7.2
-    # via fabric
 parso==0.8.1
     # via jedi
-partd==1.1.0
-    # via dask
-path.py==12.5.0
-    # via pytest-shutil
-path==15.1.2
-    # via path.py
-pathlib2==2.3.5
-    # via fabric
 pdbpp==0.10.2
-    # via -r envs/dev/requirements.in
-pep517==0.10.0
-    # via pip-tools
+    # via -r requirements.in
 pexpect==4.8.0
     # via ipython
 pickleshare==0.7.5
     # via ipython
-pillow==8.1.2
-    # via matplotlib
-pint==0.16.1
-    # via -r ./requirements.in
-pip-tools==6.0.1
-    # via -r .jubeo/requirements.in
 pkginfo==1.7.0
     # via twine
-pluggy==0.13.1
-    # via pytest
 pockets==0.9.1
     # via sphinxcontrib-napoleon
 prometheus-client==0.9.0
-    # via
-    #   -r ./requirements.in
-    #   notebook
+    # via notebook
 prompt-toolkit==3.0.17
     # via ipython
 ptyprocess==0.7.0
     # via
     #   pexpect
     #   terminado
-py-cpuinfo==7.0.0
-    # via pytest-benchmark
 py==1.10.0
     # via
     #   interrogate
     #   nox
-    #   pytest
-pybtex-docutils==1.0.0
-    # via sphinxcontrib-bibtex
 pybtex==0.24.0
     # via
     #   pybtex-docutils
     #   sphinxcontrib-bibtex
+pybtex-docutils==1.0.0
+    # via sphinxcontrib-bibtex
 pycodestyle==2.7.0
     # via flake8
 pycparser==2.20
@@ -324,79 +210,18 @@ pygments==2.8.1
     #   pdbpp
     #   readme-renderer
     #   sphinx
-pylxd==2.3.0
-    # via lxdock
-pympler==0.9
-    # via -r ./requirements.in
-pynacl==1.4.0
-    # via paramiko
 pyparsing==2.4.7
-    # via
-    #   matplotlib
-    #   mdtraj
-    #   packaging
+    # via packaging
 pyrepl==0.9.0
     # via fancycompleter
 pyrsistent==0.17.3
-    # via
-    #   eliot
-    #   jsonschema
-pytest-benchmark==3.2.3
-    # via -r envs/test/requirements.in
-pytest-check==1.0.1
-    # via -r envs/test/requirements.in
-pytest-cov==2.11.1
-    # via -r envs/test/requirements.in
-git+https://github.com/salotz/pytest-datadir.git
-    # via -r envs/test/requirements.in
-pytest-html==3.1.1
-    # via -r envs/test/requirements.in
-pytest-metadata==1.11.0
-    # via pytest-html
-pytest-mock==3.5.1
-    # via -r envs/test/requirements.in
-pytest-print==0.2.1
-    # via -r envs/test/requirements.in
-pytest-profiling==1.7.0
-    # via -r envs/test/requirements.in
-pytest-runner==5.3.0
-    # via
-    #   -r .jubeo/requirements.in
-    #   -r envs/test/requirements.in
-pytest-shutil==1.7.0
-    # via -r envs/test/requirements.in
-pytest==6.2.2
-    # via
-    #   -r .jubeo/requirements.in
-    #   -r envs/test/requirements.in
-    #   pytest-benchmark
-    #   pytest-check
-    #   pytest-cov
-    #   pytest-datadir
-    #   pytest-html
-    #   pytest-metadata
-    #   pytest-mock
-    #   pytest-print
-    #   pytest-profiling
-    #   pytest-shutil
+    # via jsonschema
 python-dateutil==2.8.1
-    # via
-    #   ghp-import
-    #   jupyter-client
-    #   matplotlib
-    #   pandas
-    #   pylxd
-python-dotenv==0.15.0
-    # via lxdock
+    # via jupyter-client
 pytz==2021.1
-    # via
-    #   babel
-    #   pandas
+    # via babel
 pyyaml==3.13
-    # via
-    #   dask
-    #   lxdock
-    #   pybtex
+    # via pybtex
 pyzmq==22.0.3
     # via
     #   jupyter-client
@@ -404,26 +229,16 @@ pyzmq==22.0.3
 readme-renderer==29.0
     # via twine
 remote-pdb==2.1.0
-    # via -r envs/dev/requirements.in
-requests-toolbelt==0.9.1
-    # via
-    #   pylxd
-    #   twine
-requests-unixsocket==0.2.0
-    # via pylxd
+    # via -r requirements.in
 requests==2.25.1
     # via
-    #   pylxd
     #   requests-toolbelt
-    #   requests-unixsocket
     #   sphinx
     #   twine
+requests-toolbelt==0.9.1
+    # via twine
 rfc3986==1.4.0
     # via twine
-scipy==1.6.1
-    # via
-    #   -r ./requirements.in
-    #   mdtraj
 secretstorage==3.3.1
     # via keyring
 send2trash==1.5.0
@@ -431,39 +246,30 @@ send2trash==1.5.0
 six==1.15.0
     # via
     #   argon2-cffi
-    #   astunparse
     #   asv
-    #   bcrypt
     #   bleach
-    #   cycler
-    #   eliot
-    #   h5py
     #   jsonschema
     #   latexcodec
-    #   pathlib2
     #   pockets
     #   pybtex
-    #   pynacl
-    #   pytest-profiling
-    #   pytest-shutil
     #   python-dateutil
     #   readme-renderer
     #   sphinxcontrib-napoleon
     #   virtualenv
-smmap==3.0.5
-    # via gitdb
 snowballstemmer==2.1.0
     # via sphinx
+soupsieve==2.3.2.post1
+    # via beautifulsoup4
 sphinx==3.5.2
     # via
-    #   -r envs/dev/requirements.in
+    #   -r requirements.in
     #   nbsphinx
     #   sphinxcontrib-bibtex
     #   sphinxcontrib-newsfeed
 sphinxcontrib-applehelp==1.0.2
     # via sphinx
 sphinxcontrib-bibtex==2.2.0
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 sphinxcontrib-devhelp==1.0.2
     # via sphinx
 sphinxcontrib-htmlhelp==1.0.3
@@ -471,33 +277,21 @@ sphinxcontrib-htmlhelp==1.0.3
 sphinxcontrib-jsmath==1.0.1
     # via sphinx
 sphinxcontrib-napoleon==0.7
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 sphinxcontrib-newsfeed==0.1.4
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 sphinxcontrib-qthelp==1.0.3
     # via sphinx
 sphinxcontrib-serializinghtml==1.1.4
     # via sphinx
 tabulate==0.8.9
-    # via
-    #   -r ./requirements.in
-    #   interrogate
-termcolor==1.1.0
-    # via pytest-shutil
+    # via interrogate
 terminado==0.9.3
     # via notebook
-testpath==0.4.4
+tinycss2==1.1.1
     # via nbconvert
 toml==0.10.2
-    # via
-    #   interrogate
-    #   jubeo
-    #   pep517
-    #   pytest
-toolz==0.11.1
-    # via
-    #   dask
-    #   partd
+    # via interrogate
 tornado==6.1
     # via
     #   ipykernel
@@ -518,36 +312,25 @@ traitlets==5.0.5
     #   nbsphinx
     #   notebook
 twine==3.4.1
-    # via -r envs/dev/requirements.in
+    # via -r requirements.in
 urllib3==1.26.4
-    # via
-    #   requests
-    #   requests-unixsocket
-versioneer==0.19
-    # via -r .jubeo/requirements.in
+    # via requests
 virtualenv==20.4.3
     # via
-    #   -r envs/dev/requirements.in
+    #   -r requirements.in
     #   nox
-voluptuous==0.12.1
-    # via lxdock
 wcwidth==0.2.5
     # via prompt-toolkit
 webencodings==0.5.1
-    # via bleach
-wheel==0.36.2
     # via
-    #   -r envs/dev/requirements.in
-    #   astunparse
+    #   bleach
+    #   tinycss2
+wheel==0.36.2
+    # via -r requirements.in
 wmctrl==0.3
     # via pdbpp
-ws4py==0.5.1
-    # via pylxd
 zipp==3.4.1
     # via importlib-metadata
-zope.interface==5.2.0
-    # via eliot
 
 # The following packages are considered to be unsafe in a requirements file:
-# pip
 # setuptools
