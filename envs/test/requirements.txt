@@ -6,34 +6,77 @@
 #
 --index-url https://pypi.python.org/simple/
 
-apipkg==1.5               # via execnet
-attrs==19.3.0             # via pytest
-contextlib2==0.6.0.post1  # via pytest-shutil
-coverage==5.1             # via pytest-cov
-execnet==1.7.1            # via pytest-shutil
-gprof2dot==2019.11.30     # via pytest-profiling
-importlib-metadata==1.6.0  # via path, pluggy, pytest
-mock==4.0.2               # via pytest-shutil
-more-itertools==8.2.0     # via pytest
-packaging==20.3           # via pytest
-path.py==12.4.0           # via pytest-shutil
-path==13.1.0              # via path.py
-pluggy==0.13.1            # via pytest
-py-cpuinfo==5.0.0         # via pytest-benchmark
-py==1.8.1                 # via pytest
-pyparsing==2.4.7          # via packaging
-pytest-benchmark==3.2.3   # via -r envs/test/requirements.in
-pytest-cov==2.8.1         # via -r envs/test/requirements.in
-git+https://github.com/salotz/pytest-datadir.git  # via -r envs/test/requirements.in
-pytest-html==2.1.1        # via -r envs/test/requirements.in
-pytest-metadata==1.8.0    # via pytest-html
-pytest-mock==3.1.0        # via -r envs/test/requirements.in
-pytest-print==0.1.3       # via -r envs/test/requirements.in
-pytest-profiling==1.7.0   # via -r envs/test/requirements.in
-pytest-runner==5.2        # via -r envs/test/requirements.in
-pytest-shutil==1.7.0      # via -r envs/test/requirements.in
-pytest==5.4.1             # via -r envs/test/requirements.in, pytest-benchmark, pytest-cov, pytest-datadir, pytest-html, pytest-metadata, pytest-mock, pytest-print, pytest-profiling, pytest-shutil
-six==1.14.0               # via packaging, pytest-print, pytest-profiling, pytest-shutil
-termcolor==1.1.0          # via pytest-shutil
-wcwidth==0.1.9            # via pytest
-zipp==3.1.0               # via importlib-metadata
+apipkg==1.5
+    # via execnet
+attrs==19.3.0
+    # via pytest
+contextlib2==0.6.0.post1
+    # via pytest-shutil
+coverage==5.1
+    # via pytest-cov
+execnet==1.7.1
+    # via pytest-shutil
+gprof2dot==2019.11.30
+    # via pytest-profiling
+mock==4.0.2
+    # via pytest-shutil
+more-itertools==8.2.0
+    # via pytest
+packaging==20.3
+    # via pytest
+path==13.1.0
+    # via path-py
+path-py==12.4.0
+    # via pytest-shutil
+pluggy==0.13.1
+    # via pytest
+py==1.10.0
+    # via pytest
+py-cpuinfo==5.0.0
+    # via pytest-benchmark
+pyparsing==2.4.7
+    # via packaging
+pytest==5.4.1
+    # via
+    #   -r requirements.in
+    #   pytest-benchmark
+    #   pytest-cov
+    #   pytest-datadir
+    #   pytest-html
+    #   pytest-metadata
+    #   pytest-mock
+    #   pytest-print
+    #   pytest-profiling
+    #   pytest-shutil
+pytest-benchmark==3.2.3
+    # via -r requirements.in
+pytest-check==1.0.10
+    # via -r requirements.in
+pytest-cov==2.8.1
+    # via -r requirements.in
+pytest-datadir @ git+https://github.com/salotz/pytest-datadir.git
+    # via -r requirements.in
+pytest-html==2.1.1
+    # via -r requirements.in
+pytest-metadata==1.8.0
+    # via pytest-html
+pytest-mock==3.1.0
+    # via -r requirements.in
+pytest-print==0.1.3
+    # via -r requirements.in
+pytest-profiling==1.7.0
+    # via -r requirements.in
+pytest-runner==5.2
+    # via -r requirements.in
+pytest-shutil==1.7.0
+    # via -r requirements.in
+six==1.14.0
+    # via
+    #   packaging
+    #   pytest-print
+    #   pytest-profiling
+    #   pytest-shutil
+termcolor==1.1.0
+    # via pytest-shutil
+wcwidth==0.1.9
+    # via pytest
