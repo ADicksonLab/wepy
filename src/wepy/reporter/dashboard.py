@@ -540,6 +540,8 @@ Cumulative Boundary Crossed Weight: {{ total_crossed_weight }}
 
             record = (cycle_idx, walker_idx, weight, target_idx, discont)
             self.warp_records.append(record)
+            
+        self.total_crossings = len(self.warp_records)
 
 
     def gen_fields(self, **kwargs):
