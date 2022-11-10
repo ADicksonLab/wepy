@@ -41,20 +41,25 @@ Full [[https://github.com/ADicksonLab/wepy/blob/master/info/introduction.org][in
 
 Also see: [[info/installation.org][Installation Instructions]]
 
-To install from pip:
+We recommend running this version of `wepy` in a conda environment using `python=3.7`:
+
+#+BEGIN_SRC bash
+  conda create -n wepy python=3.7
+  conda activate wepy
+#+END_SRC
+
+Next, install `wepy` with pip:
 
 #+BEGIN_SRC bash
   pip install wepy[all]
 #+END_SRC
 
-Which will install most dependencies.
+which will also install most dependencies.
 
-To install the optional, but likely desired feature, OpenMM you should
-probably just use the omnia channel on conda, otherwise you will need
-to compile it yourself.
+The OpenMM package can then be installed using conda:
 
 #+BEGIN_SRC bash
-  conda install -c omnia openmm
+  conda install -c conda-forge openmm
 #+END_SRC
 
 Check its installed by running the command line interface:
