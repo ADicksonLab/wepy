@@ -11,7 +11,7 @@ import pandas as pd
 
 class REVODashboardSection(ResamplerDashboardSection):
 
-    RESAMPLER_TEMPLATE = \
+    RESAMPLER_SECTION_TEMPLATE  = \
 """
 
 Resampling Algorithm: {{ name }}
