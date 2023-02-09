@@ -1573,16 +1573,9 @@ class WepyHDF5(object):
         traj_grp = self.h5['{}/{}/{}/{}'.format(RUNS, run_idx, TRAJECTORIES, traj_idx)]
         field = traj_grp[field_path]
 
-        # make sure this is a feature vector, if not reshape it (if possible)
-        if len(field_data.shape) == 1:
-            # if only one element, reshape to (1,1)
-            # otherwise reshaping is ambiguous
-            if field_data.shape[0] == 1:
-                field_data = field_data.reshape((1,1))
-
-        if len(field_data.shape) <= 1:
-            raise AttributeError(
-                "field_data mush be at least a 2-dimensional feature vector of shape (nframes, ...).  field_data shape = {}".format(field_data.shape))
+        # make sure this is a feature vector
+        assert len(field_data.shape) > 1, \
+            "field_data must be a feature vector with the same number of dimensions as the number"
 
         # of datase new frames
         n_new_frames = field_data.shape[0]
@@ -1812,16 +1805,9 @@ class WepyHDF5(object):
         records_grp = self.h5['{}/{}/{}'.format(RUNS, run_idx, run_record_key)]
         field = records_grp[field_name]
 
-        # make sure this is a feature vector, if not reshape it (if possible)
-        if len(field_data.shape) == 1:
-            # if only one element, reshape to (1,1)
-            # otherwise reshaping is ambiguous
-            if field_data.shape[0] == 1:
-                field_data = field_data.reshape((1,1))
-
-        if len(field_data.shape) <= 1:
-            raise AttributeError(
-                "field_data mush be at least a 2-dimensional feature vector of shape (nframes, ...).  field_data shape = {}".format(field_data.shape))
+        # make sure this is a feature vector
+        assert len(field_data.shape) > 1, \
+            "field_data must be a feature vector with the same number of dimensions as the number"
 
         # of datase new frames
         n_new_frames = field_data.shape[0]
