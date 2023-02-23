@@ -77,7 +77,7 @@ class LayoutGraph():
         # add a "viz" attribute for all nodes for visualization
         # puproses in gexf format
         for node in self.viz_graph.nodes:
-            self.viz_graph.node[node][self.GEXF_VIZ] = {}
+            self.viz_graph.nodes[node][self.GEXF_VIZ] = {}
 
     @property
     def graph(self):
@@ -110,7 +110,7 @@ class LayoutGraph():
 
         node_attr_dict = {}
         for node_id in self.graph.nodes:
-            node_d = self.graph.node[node_id]
+            node_d = self.graph.nodes[node_id]
             try:
                 value = node_d[attribute_key]
 
@@ -351,7 +351,7 @@ class LayoutGraph():
 
         for node_id, value in node_dict.items():
 
-            self.viz_graph.node[node_id][self.GEXF_VIZ][viz_key] = value
+            self.viz_graph.nodes[node_id][self.GEXF_VIZ][viz_key] = value
 
     def set_node_gexf_positions(self, node_positions_dict):
         """Sets GEXF specific positions attribute for visualization to nodes.
