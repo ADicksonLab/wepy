@@ -637,6 +637,9 @@ DATA = 'data'
 SPARSE_IDXS = '_sparse_idxs'
 """Name of the dataset that indexes sparse trajectory fields."""
 
+ENCODING = 'UTF-8'
+"""Default encoding for byte strings in HDF5."""
+
 # utility for paths
 def _iter_field_paths(grp):
     """Return all subgroup field name paths from a group.
@@ -801,6 +804,9 @@ class WepyHDF5(object):
         # concatenation. I will leave these separate because this is
         # used elsewhere and could be a feature in the future.
         self._h5py_mode = mode
+
+        # the encoding used to decode byte strings
+        self._encoding = ENCODING
 
         # Temporary metadata: used to initialize the object but not
         # used after that
@@ -1130,6 +1136,10 @@ class WepyHDF5(object):
         # set the attributes
         self._field_feature_shapes = field_feature_shapes
         self._field_feature_dtypes = field_feature_dtypes
+
+    def _set_encoding(self, new_encoding):
+        """Override default encoding scheme used to decode byte strings."""
+        self._encoding = new_encoding
 
     def _get_field_path_grp(self, run_idx, traj_idx, field_path):
         """Given a field path for the trajectory returns the group the field's
@@ -2860,7 +2870,9 @@ class WepyHDF5(object):
 
         record_fields_dict = {}
         for group_name, dset in record_fields_grp.items():
-            record_fields_dict[group_name] = list(dset)
+            # convert byte strings if necessary
+            dset_str = [str(d, self._encoding) if type(d) is bytes else d for d in dset]
+            record_fields_dict[group_name] = dset_str
 
         return record_fields_dict
 
