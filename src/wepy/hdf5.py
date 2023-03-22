@@ -2860,7 +2860,7 @@ class WepyHDF5(object):
 
         record_fields_dict = {}
         for group_name, dset in record_fields_grp.items():
-            record_fields_dict[group_name] = list(dset)
+            record_fields_dict[group_name] = list(dset.asstr())
 
         return record_fields_dict
 

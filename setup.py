@@ -23,7 +23,7 @@ import versioneer
 base_requirements = [
     'numpy',
     'h5py<3',
-    'networkx==2.3',
+    'networkx',
     'pandas',
     'dill',
     'click',
