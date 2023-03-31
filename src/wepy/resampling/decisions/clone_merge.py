@@ -64,7 +64,7 @@ class MultiCloneMergeDecision(Decision):
 
     FIELDS = Decision.FIELDS + ('target_idxs',)
     SHAPES = Decision.SHAPES + (Ellipsis,)
-    DTYPES = Decision.DTYPES + (np.int,)
+    DTYPES = Decision.DTYPES + (int,)
 
     RECORD_FIELDS = Decision.RECORD_FIELDS + ('target_idxs',)
 
