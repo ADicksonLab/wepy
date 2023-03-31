@@ -146,7 +146,7 @@ class BoundaryConditions(object):
 
     """
 
-    WARPING_DTYPES = (np.int, np.int, np.float)
+    WARPING_DTYPES = (int, int, float)
     """Specifies the numpy dtypes to be used for records.
 
     There should be the same number of elements as there are in the
@@ -481,7 +481,7 @@ class RandomBC(BoundaryConditions):
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ('ping',)
     BC_SHAPES = ((1,),)
-    BC_DTYPES = (np.int,)
+    BC_DTYPES = (int,)
 
     BC_RECORD_FIELDS = ('ping',)
 
@@ -490,7 +490,7 @@ class RandomBC(BoundaryConditions):
     # progress towards the boundary conditions (continual)
     PROGRESS_FIELDS = ('weight',)
     PROGRESS_SHAPES = (Ellipsis,)
-    PROGRESS_DTYPES = (np.float,)
+    PROGRESS_DTYPES = (float,)
 
     PROGRESS_RECORD_FIELDS = ('weight',)
 
@@ -551,3 +551,352 @@ class RandomBC(BoundaryConditions):
 
         return new_walkers, warp_data, bc_data, progress_data
 
+class WarpBC(BoundaryConditions):
+    """Base class for boundary conditions with warping. """
+
+    # records of boundary condition changes (sporadic)
+    BC_FIELDS = ()
+    BC_SHAPES = ()
+    BC_DTYPES = ()
+
+    BC_RECORD_FIELDS = ()
+
+    # warping fields are directly inherited
+
+    # progress towards the boundary conditions (continual)
+    PROGRESS_FIELDS = ()
+    PROGRESS_SHAPES = ()
+    PROGRESS_DTYPES = ()
+
+    PROGRESS_RECORD_FIELDS = ()
+
+    DISCONTINUITY_TARGET_IDXS = Ellipsis
+    """Specifies which 'target_idxs' values are considered discontinuous targets.
+
+    Values are either integer indices, Ellipsis (indicating all
+    possible values are discontinuous), or None indicating no possible
+    value is discontinuous.
+
+    """
+
+    def __init__(self, initial_states=None,
+                 initial_weights=None,
+                 **kwargs):
+        """Base constructor for WarpBC.
+
+        This should be called immediately in the subclass `__init__`
+        method.
+
+        If the initial weights for each initial state are not given
+        uniform weights are assigned to them.
+
+        Arguments
+        ---------
+        initial_states : list of objects implementing the State interface
+            The list of possible states that warped walkers will assume.
+
+        initial_weights : list of float, optional
+            List of normalized probabilities of the initial_states
+            provided. If not given, uniform probabilities will be
+            used.
+
+        Raises
+        ------
+        AssertionError
+            If any of the following kwargs are not given:
+            initial_states.
+
+        """
+
+        # make sure necessary inputs are given
+        assert initial_states is not None, "Must give a set of initial states"
+
+        self._initial_states = initial_states
+
+        # we want to choose initial states conditional on their
+        # initial probability if specified. If not specified assume
+        # assume uniform probabilities.
+        if initial_weights is None:
+            self._initial_weights = [1/len(initial_states) for _ in initial_states]
+        else:
+            self._initial_weights = initial_weights
+
+    @property
+    def initial_states(self):
+        """The possible initial states warped walkers may assume."""
+        return self._initial_states
+
+    @property
+    def initial_weights(self):
+        """The probabilities of each initial state being chosen during a warping."""
+        return self._initial_weights
+
+    def _progress(self, walker):
+        """The method that must be implemented in non-abstract subclasses.
+
+        Should decide if a walker should be warped or not and what its
+        progress is regardless.
+
+        Parameters
+        ----------
+        walker : object implementing the Walker interface
+
+        Returns
+        -------
+        to_warp : bool
+           Whether the walker should be warped or not.
+
+        progress_data : dict of str : value
+           Dictionary of the progress record group fields
+           for this walker alone.
+
+        """
+
+        raise NotImplementedError
+
+    
+    def _warp(self, walker):
+        """Perform the warping of a walker.
+
+        Chooses an initial state to replace the walker's state with
+        according to it's given weight.
+
+        Returns a walker of the same type and weight.
+
+        Parameters
+        ----------
+        walker : object implementing the Walker interface
+
+        Returns
+        -------
+        warped_walker : object implementing the Walker interface
+            The walker with the state after the warping. Weight should
+            be the same.
+
+        warping_data : dict of str : value
+           The dictionary-style 'WARPING' record for this
+           event. Excluding the walker index which is done in the main
+           `warp_walkers` method.
+
+        """
+
+
+        # choose a state randomly from the set of initial states
+        target_idx = np.random.choice(range(len(self.initial_states)), 1,
+                                  p=self.initial_weights/np.sum(self.initial_weights))[0]
+
+        warped_state = self.initial_states[target_idx]
+
+        # set the initial state into a new walker object with the same weight
+        warped_walker = type(walker)(state=warped_state, weight=walker.weight)
+
+        # the data for the warp
+        warp_data = {'target_idx' : np.array([target_idx]),
+                     'weight' : np.array([walker.weight])}
+
+        return warped_walker, warp_data
+
+    
+    def warp_walkers(self, walkers, cycle):
+
+        ## warping walkers
+
+        # just return the same walkers
+        new_walkers = deepcopy(walkers)
+
+        ## warping data
+
+        warp_data = []
+        # generate warping data: 50% of the time generate a warping
+        # event, 25% is discontinuous (target 0), and 25% is
+        # continuous (target 1)
+        for walker_idx, walker in enumerate(walkers):
+
+            # warping event?
+            if random.random() >= 0.5:
+
+                # discontinuous?
+                if random.random() >= 0.5:
+                    warp_record = {
+                        'walker_idx' : np.array([walker_idx]),
+                        'target_idx' : np.array([0]),
+                        'weight' : np.array([walker.weight]),
+                    }
+
+                    warp_data.append(warp_record)
+
+                # continuous
+                else:
+                    warp_record = {
+                        'walker_idx' : np.array([walker_idx]),
+                        'target_idx' : np.array([1]),
+                        'weight' : np.array([walker.weight]),
+                    }
+
+                    warp_data.append(warp_record)
+
+        ## BC data
+        bc_data = []
+        # choose whether to generate a bc record
+        if random.random() >= 0.5:
+            bc_data.append({'ping' : np.array([1])})
+
+        ## Progress data
+
+        # just set the walker progress to be its weight so there is a
+        # number there
+        progress_data = {'weight' :
+                         [walker.weight for walker in walkers]
+        }
+
+
+        return new_walkers, warp_data, bc_data, progress_data
+
+    def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
+        """Perform an update to the boundary conditions.
+
+        No updates to the bc are ever done in this null
+        implementation.
+
+        Parameters
+        ----------
+        new_walkers : list of walkers
+            The walkers after warping.
+
+        warp_data : list of dict
+
+        progress_data : dict
+
+        cycle : int
+
+        Returns
+        -------
+        bc_data : list of dict
+            The dictionary-style records for BC update events
+
+        """
+
+        # do nothing by default
+        return []
+
+    def warp_walkers(self, walkers, cycle):
+        """Test the progress of all the walkers, warp if required, and update
+        the boundary conditions.
+
+        Arguments
+        ---------
+
+        walkers : list of objects implementing the Walker interface
+
+        cycle : int
+            The index of the cycle.
+
+        Returns
+        -------
+
+        new_walkers : list of objects implementing the Walker interface
+            The new set of walkers that may have been warped.
+
+        warp_data : list of dict of str : value
+            The dictionary-style records for WARPING update events
+
+
+        bc_data : list of dict of str : value
+            The dictionary-style records for BC update events
+
+        progress_data : dict of str : arraylike
+            The dictionary-style records for PROGRESS update events
+
+        """
+
+        new_walkers = []
+
+        # sporadic, zero or many records per call
+        warp_data = []
+        bc_data = []
+
+        # continual, one record per call
+        progress_data = defaultdict(list)
+
+        # calculate progress data
+        all_progress_data = [self._progress(w) for w in walkers]
+
+        for walker_idx, walker in enumerate(walkers):
+
+            # unpack progress data
+            to_warp, walker_progress_data = all_progress_data[walker_idx]
+
+            # add that to the progress data record
+            for key, value in walker_progress_data.items():
+                progress_data[key].append(value)
+
+            # if the walker is meets the requirements for warping warp
+            # it
+            if to_warp:
+                # warp the walker
+                warped_walker, walker_warp_data = self._warp(walker)
+
+                # add the walker idx to the walker warp record
+                walker_warp_data['walker_idx'] = np.array([walker_idx])
+
+                # save warped_walker in the list of new walkers to return
+                new_walkers.append(warped_walker)
+
+                # save the instruction record of the walker
+                warp_data.append(walker_warp_data)
+
+                logging.info('WARP EVENT observed at {}'.format(cycle))
+                logging.info('Warped Walker Weight = {}'.format(
+                    walker_warp_data['weight']))
+
+            # no warping so just return the original walker
+            else:
+                new_walkers.append(walker)
+
+        # consolidate the progress data to an array of a single
+        # feature vectors for the cycle
+        for key, value in progress_data.items():
+            progress_data[key] = value
+
+        # if the boundary conditions need to be updated given the
+        # cycle and state from warping perform that now and return any
+        # record data for that
+        bc_data = self._update_bc(new_walkers, warp_data, progress_data, cycle)
+
+        return new_walkers, warp_data, bc_data, progress_data
+
+    @classmethod
+    def warping_discontinuity(cls, warping_record):
+        """Tests whether a warping record generated by this class is
+        discontinuous or not.
+
+        Parameters
+        ----------
+
+        warping_record : tuple
+            The WARPING type record.
+
+        Returns
+        -------
+
+        is_discontinuous : bool
+            True if a discontinuous warp False if continuous.
+
+        """
+
+        # if it is Ellipsis then all possible values are discontinuous
+        if cls.DISCONTINUITY_TARGET_IDXS is Ellipsis:
+            return True
+
+        # if it is None then all possible values are continuous
+        elif cls.DISCONTINUITY_TARGET_IDXS is None:
+            return False
+
+        # otherwise it will have a tuple of indices for the
+        # target_idxs that are discontinuous targets
+        elif warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:
+            return True
+
+        # otherwise it wasn't a discontinuous target
+        else:
+            return False
