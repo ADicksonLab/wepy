@@ -76,7 +76,7 @@ class Decision(object):
     SHAPES = ((1,),)
     """Field data shapes."""
 
-    DTYPES = (np.int,)
+    DTYPES = (int,)
     """Field data types."""
 
     RECORD_FIELDS = ('decision_id',)
@@ -299,7 +299,7 @@ class NoDecision(Decision):
 
     FIELDS = Decision.FIELDS + ('target_idxs',)
     SHAPES = Decision.SHAPES + (Ellipsis,)
-    DTYPES = Decision.DTYPES + (np.int,)
+    DTYPES = Decision.DTYPES + (int,)
 
     RECORD_FIELDS = Decision.RECORD_FIELDS + ('target_idxs',)
 

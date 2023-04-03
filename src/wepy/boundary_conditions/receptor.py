@@ -19,9 +19,9 @@ from geomm.distance import minimum_distance
 from wepy.walker import WalkerState
 from wepy.util.util import box_vectors_to_lengths_angles
 
-from wepy.boundary_conditions.boundary import BoundaryConditions
+from wepy.boundary_conditions.boundary import WarpBC
 
-class ReceptorBC(BoundaryConditions):
+class ReceptorBC(WarpBC):
     """Abstract base class for ligand-receptor based boundary conditions.
 
     Provides shared utilities for warping walkers to any number of
@@ -84,14 +84,6 @@ class ReceptorBC(BoundaryConditions):
 
         Arguments
         ---------
-        initial_states : list of objects implementing the State interface
-            The list of possible states that warped walkers will assume.
-
-        initial_weights : list of float, optional
-            List of normalized probabilities of the initial_states
-            provided. If not given, uniform probabilities will be
-            used.
-
         ligand_idxs : arraylike of int
             The indices of the atom positions in the state considered
             the ligand.
@@ -104,36 +96,20 @@ class ReceptorBC(BoundaryConditions):
         ------
         AssertionError
             If any of the following kwargs are not given:
-            initial_states, ligand_idxs, receptor_idxs.
+            ligand_idxs, receptor_idxs.
 
         """
 
+        super().__init__(initial_states=initial_states,
+                         initial_weights=initial_weights,
+                         **kwargs)
+
         # make sure necessary inputs are given
-        assert initial_states is not None, "Must give a set of initial states"
         assert ligand_idxs is not None, "Must give ligand indices"
         assert receptor_idxs is not None, "Must give binding site indices"
 
-        self._initial_states = initial_states
         self._ligand_idxs = ligand_idxs
         self._receptor_idxs = receptor_idxs
-
-        # we want to choose initial states conditional on their
-        # initial probability if specified. If not specified assume
-        # assume uniform probabilities.
-        if initial_weights is None:
-            self._initial_weights = [1/len(initial_states) for _ in initial_states]
-        else:
-            self._initial_weights = initial_weights
-
-    @property
-    def initial_states(self):
-        """The possible initial states warped walkers may assume."""
-        return self._initial_states
-
-    @property
-    def initial_weights(self):
-        """The probabilities of each initial state being chosen during a warping."""
-        return self._initial_weights
 
     @property
     def ligand_idxs(self):
@@ -145,223 +121,6 @@ class ReceptorBC(BoundaryConditions):
         """The indices of the atom positions in the state considered the receptor."""
 
         return self._receptor_idxs
-
-
-    def _progress(self, walker):
-        """The method that must be implemented in non-abstract subclasses.
-
-        Should decide if a walker should be warped or not and what its
-        progress is regardless.
-
-        Parameters
-        ----------
-        walker : object implementing the Walker interface
-
-        Returns
-        -------
-        to_warp : bool
-           Whether the walker should be warped or not.
-
-        progress_data : dict of str : value
-           Dictionary of the progress record group fields
-           for this walker alone.
-
-        """
-
-        raise NotImplementedError
-
-    def _warp(self, walker):
-        """Perform the warping of a walker.
-
-        Chooses an initial state to replace the walker's state with
-        according to it's given weight.
-
-        Returns a walker of the same type and weight.
-
-        Parameters
-        ----------
-        walker : object implementing the Walker interface
-
-        Returns
-        -------
-        warped_walker : object implementing the Walker interface
-            The walker with the state after the warping. Weight should
-            be the same.
-
-        warping_data : dict of str : value
-           The dictionary-style 'WARPING' record for this
-           event. Excluding the walker index which is done in the main
-           `warp_walkers` method.
-
-        """
-
-
-        # choose a state randomly from the set of initial states
-        target_idx = np.random.choice(range(len(self.initial_states)), 1,
-                                  p=self.initial_weights/np.sum(self.initial_weights))[0]
-
-        warped_state = self.initial_states[target_idx]
-
-        # set the initial state into a new walker object with the same weight
-        warped_walker = type(walker)(state=warped_state, weight=walker.weight)
-
-        # the data for the warp
-        warp_data = {'target_idx' : np.array([target_idx]),
-                     'weight' : np.array([walker.weight])}
-
-        return warped_walker, warp_data
-
-
-    def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
-        """Perform an update to the boundary conditions.
-
-        No updates to the bc are ever done in this null
-        implementation.
-
-        Parameters
-        ----------
-        new_walkers : list of walkers
-            The walkers after warping.
-
-        warp_data : list of dict
-
-        progress_data : dict
-
-        cycle : int
-
-        Returns
-        -------
-        bc_data : list of dict
-            The dictionary-style records for BC update events
-
-        """
-
-        # do nothing by default
-        return []
-
-
-    def warp_walkers(self, walkers, cycle):
-        """Test the progress of all the walkers, warp if required, and update
-        the boundary conditions.
-
-        Arguments
-        ---------
-
-        walkers : list of objects implementing the Walker interface
-
-        cycle : int
-            The index of the cycle.
-
-        Returns
-        -------
-
-        new_walkers : list of objects implementing the Walker interface
-            The new set of walkers that may have been warped.
-
-        warp_data : list of dict of str : value
-            The dictionary-style records for WARPING update events
-
-
-        bc_data : list of dict of str : value
-            The dictionary-style records for BC update events
-
-        progress_data : dict of str : arraylike
-            The dictionary-style records for PROGRESS update events
-
-        """
-
-        new_walkers = []
-
-        # sporadic, zero or many records per call
-        warp_data = []
-        bc_data = []
-
-        # continual, one record per call
-        progress_data = defaultdict(list)
-
-        # calculate progress data
-        all_progress_data = [self._progress(w) for w in walkers]
-
-        for walker_idx, walker in enumerate(walkers):
-
-            # unpack progress data
-            to_warp, walker_progress_data = all_progress_data[walker_idx]
-
-            # add that to the progress data record
-            for key, value in walker_progress_data.items():
-                progress_data[key].append(value)
-
-            # if the walker is meets the requirements for warping warp
-            # it
-            if to_warp:
-                # warp the walker
-                warped_walker, walker_warp_data = self._warp(walker)
-
-                # add the walker idx to the walker warp record
-                walker_warp_data['walker_idx'] = np.array([walker_idx])
-
-                # save warped_walker in the list of new walkers to return
-                new_walkers.append(warped_walker)
-
-                # save the instruction record of the walker
-                warp_data.append(walker_warp_data)
-
-                logging.info('WARP EVENT observed at {}'.format(cycle))
-                logging.info('Warped Walker Weight = {}'.format(
-                    walker_warp_data['weight']))
-
-            # no warping so just return the original walker
-            else:
-                new_walkers.append(walker)
-
-        # consolidate the progress data to an array of a single
-        # feature vectors for the cycle
-        for key, value in progress_data.items():
-            progress_data[key] = value
-
-        # if the boundary conditions need to be updated given the
-        # cycle and state from warping perform that now and return any
-        # record data for that
-        bc_data = self._update_bc(new_walkers, warp_data, progress_data, cycle)
-
-        return new_walkers, warp_data, bc_data, progress_data
-
-    @classmethod
-    def warping_discontinuity(cls, warping_record):
-        """Tests whether a warping record generated by this class is
-        discontinuous or not.
-
-        Parameters
-        ----------
-
-        warping_record : tuple
-            The WARPING type record.
-
-        Returns
-        -------
-
-        is_discontinuous : bool
-            True if a discontinuous warp False if continuous.
-
-        """
-
-        # if it is Ellipsis then all possible values are discontinuous
-        if cls.DISCONTINUITY_TARGET_IDXS is Ellipsis:
-            return True
-
-        # if it is None then all possible values are continuous
-        elif cls.DISCONTINUITY_TARGET_IDXS is None:
-            return False
-
-        # otherwise it will have a tuple of indices for the
-        # target_idxs that are discontinuous targets
-        elif warping_record[2] in cls.DISCONTINUITY_TARGET_IDXS:
-            return True
-
-        # otherwise it wasn't a discontinuous target
-        else:
-            return False
-
 
 class RebindingBC(ReceptorBC):
     """Boundary condition for doing re-binding simulations of ligands to a

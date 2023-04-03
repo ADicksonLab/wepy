@@ -88,7 +88,7 @@ class Resampler():
     CYCLE_SHAPES = ((1,), (1,),)
     """Data shapes of the cycle fields."""
 
-    CYCLE_DTYPES = (np.int, np.int,)
+    CYCLE_DTYPES = (int, int,)
     """Data types of the cycle fields """
 
     CYCLE_RECORD_FIELDS = ('step_idx', 'walker_idx',)

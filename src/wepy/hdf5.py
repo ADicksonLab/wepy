@@ -390,7 +390,7 @@ it is a fairly straightforward task from a developers perspective.
 """
 
 import os.path as osp
-from collections import Sequence, namedtuple, defaultdict, Counter
+from collections import namedtuple, defaultdict, Counter
 import itertools as it
 import json
 from warnings import warn
@@ -598,7 +598,7 @@ OBSERVABLES = 'observables'
 WEIGHT_SHAPE = (1,)
 """Weights feature vector shape."""
 
-WEIGHT_DTYPE = np.float
+WEIGHT_DTYPE = float
 """Weights feature vector data type."""
 
 # Default Trajectory Field Constants
@@ -610,14 +610,14 @@ FIELD_FEATURE_SHAPES = ((TIME, (1,)),
                         )
 """Default shapes for the default fields."""
 
-FIELD_FEATURE_DTYPES = ((POSITIONS, np.float),
-                        (VELOCITIES, np.float),
-                        (FORCES, np.float),
-                        (TIME, np.float),
-                        (BOX_VECTORS, np.float),
-                        (BOX_VOLUME, np.float),
-                        (KINETIC_ENERGY, np.float),
-                        (POTENTIAL_ENERGY, np.float),
+FIELD_FEATURE_DTYPES = ((POSITIONS, float),
+                        (VELOCITIES, float),
+                        (FORCES, float),
+                        (TIME, float),
+                        (BOX_VECTORS, float),
+                        (BOX_VOLUME, float),
+                        (KINETIC_ENERGY, float),
+                        (POTENTIAL_ENERGY, float),
                         )
 """Default data types for the default fields."""
 
@@ -989,12 +989,12 @@ class WepyHDF5(object):
         settings_grp.create_dataset(N_ATOMS, data=np.array(self._n_coords))
 
         # the main rep atom idxs
-        settings_grp.create_dataset(MAIN_REP_IDXS, data=self._main_rep_idxs, dtype=np.int)
+        settings_grp.create_dataset(MAIN_REP_IDXS, data=self._main_rep_idxs, dtype=int)
 
         # alt_reps settings
         alt_reps_idxs_grp = settings_grp.create_group(ALT_REPS_IDXS)
         for alt_rep_name, idxs in self._alt_reps.items():
-            alt_reps_idxs_grp.create_dataset(alt_rep_name, data=idxs, dtype=np.int)
+            alt_reps_idxs_grp.create_dataset(alt_rep_name, data=idxs, dtype=int)
 
         # if both feature shapes and dtypes were specified overwrite
         # (or initialize if not set by defaults) the defaults
@@ -1187,7 +1187,7 @@ class WepyHDF5(object):
 
         # otherwise we just create the data
         else:
-            cont_dset = self.settings_grp.create_dataset(CONTINUATIONS, shape=(0,2), dtype=np.int,
+            cont_dset = self.settings_grp.create_dataset(CONTINUATIONS, shape=(0,2), dtype=int,
                                     maxshape=(None, 2))
 
         return cont_dset
@@ -1276,7 +1276,7 @@ class WepyHDF5(object):
 
         # initialize the cycles dataset that maps when the records
         # were recorded
-        record_grp.create_dataset(CYCLE_IDXS, (0,), dtype=np.int,
+        record_grp.create_dataset(CYCLE_IDXS, (0,), dtype=int,
                                   maxshape=(None,))
 
         # for each field simply create the dataset
@@ -1473,7 +1473,7 @@ class WepyHDF5(object):
                                maxshape=(None, *shape))
 
             # create the dataset for the sparse indices
-            sparse_grp.create_dataset(SPARSE_IDXS, (0,), dtype=np.int, maxshape=(None,))
+            sparse_grp.create_dataset(SPARSE_IDXS, (0,), dtype=int, maxshape=(None,))
 
 
     def _init_traj_fields(self, run_idx, traj_idx,
@@ -2860,7 +2860,7 @@ class WepyHDF5(object):
 
         record_fields_dict = {}
         for group_name, dset in record_fields_grp.items():
-            record_fields_dict[group_name] = list(dset)
+            record_fields_dict[group_name] = list(dset.asstr())
 
         return record_fields_dict
 

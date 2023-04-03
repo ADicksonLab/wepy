@@ -300,8 +300,8 @@ class BaseContigTree():
         # initialize the attributes for discontinuities to 0s for no
         # discontinuities
         for node in self.graph.nodes:
-            n_walkers = len(self.graph.node[node][self.PARENTS_KEY])
-            self.graph.node[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
+            n_walkers = len(self.graph.nodes[node][self.PARENTS_KEY])
+            self.graph.nodes[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
 
 
     def _set_discontinuities(self, wepy_h5, boundary_conditions_class):
@@ -352,7 +352,7 @@ class BaseContigTree():
                         # otherwise do nothing
                         if boundary_conditions_class.warping_discontinuity(rec):
 
-                            self.graph.node[node][self.DISCONTINUITY_KEY][rec_traj_idx] = -1
+                            self.graph.nodes[node][self.DISCONTINUITY_KEY][rec_traj_idx] = -1
 
     def _set_parents(self, decision_class):
         """Determines the net parents for each cycle and sets them in-place to
@@ -367,7 +367,7 @@ class BaseContigTree():
         # just go through each node individually in the tree
         for node in self.graph.nodes:
             # get the records for each step in this node
-            node_recs = self.graph.node[node][self.RESAMPLING_PANEL_KEY]
+            node_recs = self.graph.nodes[node][self.RESAMPLING_PANEL_KEY]
 
             # get the node parent table by using the parent panel method
             # on the node records
@@ -583,11 +583,11 @@ class BaseContigTree():
         parent_table = []
         for run_idx, cycle_idx in contig_trace:
 
-            parent_row = self.graph.node[(run_idx, cycle_idx)][self.PARENTS_KEY]
+            parent_row = self.graph.nodes[(run_idx, cycle_idx)][self.PARENTS_KEY]
 
             if discontinuities:
 
-                discs = self.graph.node[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
+                discs = self.graph.nodes[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
 
                 parent_row = parent_cycle_discontinuities(parent_row, discs)
 

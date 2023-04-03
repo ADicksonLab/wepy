@@ -22,8 +22,8 @@ import versioneer
 # requirements i.e. index or repo URL see requirements.txt
 base_requirements = [
     'numpy',
-    'h5py<3',
-    'networkx==2.3',
+    'h5py>=3',
+    'networkx',
     'pandas',
     'dill',
     'click',
@@ -60,8 +60,8 @@ all_requirements = list(it.chain.from_iterable([
 setup(
     name='wepy',
     version=versioneer.get_version(),
-    author="Samuel D. Lotz",
-    author_email="samuel.lotz@salotz.info",
+    author="DicksonLab",
+    author_email="alexrd@msu.edu",
     description="Weighted Ensemble Framework",
     #long_description=open('README.org').read(),
     license="MIT",

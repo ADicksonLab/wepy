@@ -5,9 +5,7 @@
 --index-url https://pypi.python.org/simple/
 
 numpy
-# NOTE: h5py changed the interface to strings in v3, currently wepy
-# doesn't support them
-h5py < 3
+h5py > 3
 networkx == 2.3
 pandas
 dill
