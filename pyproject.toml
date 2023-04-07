@@ -1,7 +1,81 @@
 [build-system]
-requires = ['setuptools', 'wheel', 'cython', 'numpy', 'pytest-runner']
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "wepy"
+description = "Weighted Ensemble Framework"
+readme = {"file" = "README.org", "content-type" = "text/plain"}
+license = "MIT"
+
+authors = [
+  { name = "Samuel Lotz", email = "salotz@salotz.info" },
+  { name = "Alex Dickson", email = "alexrd@msu.edu" },
+  { name = "Tom Dixon" },
+  { name = "Robert Hall" },
+  { name = "Nicole Roussey" },
+]
+dynamic = ["version"]
+
+classifiers = [
+  "Topic :: Utilities",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3"
+]
+
+dependencies = [
+    "numpy",
+    "h5py>=3",
+    "networkx",
+    "pandas",
+    "dill",
+    "click",
+    "scipy",
+    "geomm",
+    "matplotlib",
+    "tabulate",
+    "jinja2",
+    "pint",
+    "multiprocessing_logging",
+    "eliot",
+]
+
+[project.optional-dependencies]
+
+md = [
+   "mdtraj",
+   "openmm_systems==0.0.0",
+]
+
+distributed = [
+  "dask[bag]",
+]
+
+prometheus = [
+  "prometheus_client",
+  "pympler",
+]
+
+[project.urls]
+
+Documentation = "https://adicksonlab.github.io/wepy/index.html"
+Source = "https://github.com/ADicksonLab/wepy"
+Issues = "https://github.com/ADicksonLab/wepy/issues"
+
+[project.scripts]
+
+wepy = "wepy.__main__:cli"
+
+# NOTE: currently disabled since it requires OpenMM currently to work which is
+# not ideal for unit testing
+
+# [project.entry-points.pytest11]
+# pytest-wepy = "pytest_wepy"
 
 [tool.interrogate]
 
 fail-under = 100
 verbose = 2
+
+[tool.hatch.version]
+path = "src/wepy/__about__.py"

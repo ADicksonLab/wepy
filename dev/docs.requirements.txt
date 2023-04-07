@@ -1,0 +1,7 @@
+sphinx
+sphinxcontrib-napoleon
+sphinxcontrib-newsfeed
+sphinxcontrib-bibtex
+sphinxcontrib-newsfeed
+nbsphinx
+notebook

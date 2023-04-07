@@ -1,0 +1,19 @@
+[run]
+branch = True
+parallel = True
+omit =
+    tests/*
+
+source = src/
+
+[report]
+exclude_lines =
+    @overload
+    pragma: no cover
+    raise NotImplementedError
+    if TYPE_CHECKING:
+    pass
+    if __name__ == "__main__":
+
+# SNIPPET: use this to fail CI for missing test coverage
+# fail_under = 100
