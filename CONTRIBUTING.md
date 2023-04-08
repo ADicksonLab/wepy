@@ -5,6 +5,9 @@ Developing on wepy
 After you have cloned the repo you should have a copy of Python 3.10 installed
 and accessible to path as `python3.10`.
 
+You will also need to install [nox](https://nox.thea.codes/) on your system. I
+recommend `pipx`.
+
 Then you should be able to start coding and running tests:
 
 ```sh
