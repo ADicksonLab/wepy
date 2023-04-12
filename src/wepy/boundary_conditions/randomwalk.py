@@ -1,21 +1,7 @@
 """Boundary conditions for random walk.
 """
 
-from collections import defaultdict
-import logging
-import itertools as it
-import time
-
 import numpy as np
-
-from geomm.grouping import group_pair
-from geomm.superimpose import superimpose
-from geomm.rmsd import calc_rmsd
-from geomm.centering import center_around
-from geomm.distance import minimum_distance
-
-from wepy.walker import WalkerState
-from wepy.util.util import box_vectors_to_lengths_angles
 
 from wepy.boundary_conditions.boundary import WarpBC
 

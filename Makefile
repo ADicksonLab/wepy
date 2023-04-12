@@ -66,6 +66,10 @@ test-unit: ## Run unit tests with coverage report
 	nox -s tests_unit
 .PHONY: test
 
+test-integration: ## Run unit tests with coverage report
+	nox -s tests_integration
+.PHONY: test_integration
+
 coverage: ## Report on missing coverage. (Run 'test-unit' to generate new stats)
 	nox -s coverage
 .PHONY: coverage

@@ -196,8 +196,13 @@ def makeRandomWalkH5(h5name, resampling=True, warping=True):
 
 
 if __name__ == '__main__':
-    makeRandomWalkH5('test_data/rw.h5', resampling=True, warping=True)
-    makeRandomWalkH5('test_data/rw_noresampling.h5', resampling=False, warping=True)
-    makeRandomWalkH5('test_data/rw_nowarping.h5', resampling=True, warping=False)
+    root_test_dir = '../../../src/pytest_wepy/test_data'
+    hdf5_filename = osp.join(root_test_dir,'rw.h5')
+    hdf5_filename_nores = osp.join(root_test_dir,'rw_noresampling.h5')
+    hdf5_filename_nowarp = osp.join(root_test_dir,'rw_nowarping.h5')
+
+    makeRandomWalkH5(hdf5_filename, resampling=True, warping=True)
+    makeRandomWalkH5(hdf5_filename_nores, resampling=False, warping=True)
+    makeRandomWalkH5(hdf5_filename_nowarp, resampling=True, warping=False)
     
     print("HDF5s written")

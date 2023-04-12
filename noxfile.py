@@ -389,6 +389,50 @@ def coverage(session):
     )
 
 
+@nox.session(python=DEFAULT_PYTHON_VERSION)
+def tests_integration(
+    session: nox.Session,
+) -> None:
+    """Run the integration tests."""
+
+    install_spec = install_requirements(
+        [
+            "dev/testing.requirements.txt",
+            "requirements.txt",
+            # we add all the extras in as well, we don't use them
+            # inappropriately though!
+            "requirements-distributed.txt",
+            "requirements-md.txt",
+            "requirements-prometheus.txt",
+        ]
+    )
+
+    session.install(*install_spec, "-e", ".")
+
+    if session.interactive:
+        install_interactive(session)
+
+    session.run(
+        "pytest",
+        "-s",
+        # modern way of importing stuff, use with `pythonpath` option in pytest.ini
+        "--import-mode=importlib",
+        "--cov-report=term-missing:skip-covered",
+        "--cov=wepy",
+        # for this stage don't fail on missing coverage
+        "--cov-fail-under=0",
+        # the pointer plugin, collect covered modules
+        # "--pointers-collect=src",
+        # "--pointers-report",
+        # "--pointers-func-min-pass=1",
+        # "--pointers-fail-under=100",
+        # # block the loading of the integration test plugins
+        # "-p",
+        # "no:local_test_utils.plugins.database",
+        # f"tests/{UNIT_TEST_DIRNAME}",
+        "tests/integration/test_hdf5",
+    )
+    
 # TODO: integration, benchmark, acceptance, and docs tests
 # TODO: build documentation
 
