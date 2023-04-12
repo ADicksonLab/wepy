@@ -20,9 +20,6 @@ pint
 eliot
 multiprocessing_logging
 
-# mdtraj
-mdtraj
-
 # distributed
 dask[bag]
 

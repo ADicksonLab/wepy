@@ -37,13 +37,11 @@ dependencies = [
     "jinja2",
     "pint",
     "multiprocessing_logging",
-    "eliot",
-]
+    "eliot"]
 
 [project.optional-dependencies]
 
 md = [
-   "mdtraj",
    "openmm_systems==0.0.0",
 ]
 
