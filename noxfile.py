@@ -431,6 +431,7 @@ def tests_integration(
         # "no:local_test_utils.plugins.database",
         # f"tests/{UNIT_TEST_DIRNAME}",
         "tests/integration/test_hdf5",
+        "tests/integration/test_openmm",
     )
     
 # TODO: integration, benchmark, acceptance, and docs tests
