@@ -43,6 +43,7 @@ class WepyHDF5Reporter(FileReporter):
                  sparse_fields=None,
                  feature_shapes=None, feature_dtypes=None,
                  n_dims=None,
+                 n_atoms=None,
                  main_rep_idxs=None,
                  all_atoms_rep_freq=None,
                  # dictionary of alt_rep keys and a tuple of (idxs, freq)
@@ -102,6 +103,10 @@ class WepyHDF5Reporter(FileReporter):
         n_dims : int, default: 3
             Set the number of spatial dimensions for the default
             positions trajectory field.
+
+        n_atoms : int, default: None
+            Set the number of atoms for the default
+            positions trajectory field. (Required if topology is not present)
 
         alt_reps : dict of str: tuple of (list of int, int), optional
             Specifies that there will be 'alt_reps' of positions each
@@ -207,6 +212,7 @@ class WepyHDF5Reporter(FileReporter):
         self._feature_shapes = feature_shapes
         self._feature_dtypes = feature_dtypes
         self._n_dims = n_dims
+        self._n_atoms = n_atoms
 
         # get and set the record fields (naems, shapes, dtypes) for
         # the resampler and the boundary conditions
@@ -325,7 +331,11 @@ class WepyHDF5Reporter(FileReporter):
         if all_atoms_rep_freq is not None:
             # count the number of atoms in the topology and set the
             # alt_reps to have the full slice for all atoms
-            n_atoms = json_top_atom_count(self._tmp_topology)
+            if self._tmp_topology is not None:
+                n_atoms = json_top_atom_count(self._tmp_topology)
+            else:
+                assert self._n_atoms is not None, "n_atoms must be given if topology is not specified"
+                n_atoms = self._n_atoms
             self.alt_reps_idxs[self.ALL_ATOMS_REP_KEY] = np.arange(n_atoms)
             # add the frequency for this sparse fields to the
             # sparse fields dictionary
@@ -359,6 +369,7 @@ class WepyHDF5Reporter(FileReporter):
                                 feature_shapes=self._feature_shapes,
                                 feature_dtypes=self._feature_dtypes,
                                 n_dims=self._n_dims,
+                                n_atoms=self._n_atoms,
                                 main_rep_idxs=self.main_rep_idxs,
                                 alt_reps=self.alt_reps_idxs)
 

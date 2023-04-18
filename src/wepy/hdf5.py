@@ -56,15 +56,13 @@ this data, such as the molecular topology that imposes structure over
 a frame of atom positions. This information is placed in the
 'topology' item.
 
-The topology field has no specified internal structure at this
-time. However, with the current implementation of the WepyHDF5Reporter
+The topology field has no specified internal structure. Although 
+inclusion of a topology is strongly recommended, it is not required.
+ In the current implementation of the WepyHDF5Reporter
 (which is the principal implementation of generating a WepyHDF5
-object/file from simulations) this is simply a string dataset. This
-string dataset should be a JSON compliant string. The format of which
-is specified elsewhere and was borrowed from the mdtraj library.
-
-Warning! this format and specification for the topology is subject to
-change in the future and will likely be kept unspecified indefinitely.
+object/file from simulations) the topology is stored as a string 
+dataset that should be JSON compliant. The format of this serialized
+topology was borrowed from the mdtraj library.
 
 For most intents and purposes (which we assume to be for molecular or
 molecular-like simulations) the 'topology' item (and perhaps any other
@@ -135,34 +133,7 @@ be well suited to having a tree-like storage topology we have opted to
 use something more familiar to the field, and have used a collection
 of linear "trajectories".
 
-This way of breaking up the trajectory data coupled with proper
-records of resampling (see below) allows for the imposition of a tree
-structure without committing to that as the data storage topology.
-
-This allows the WepyHDF5 format to be easily used as a container
-format for collections of linear trajectories. While this is not
-supported in any real capacity it is one small step to convergence. We
-feel that a format that contains multiple trajectories is important
-for situations like weighted ensemble where trajectories are
-interdependent. The transition to a storage format like HDF5 however
-opens up many possibilities for new features for trajectories that
-have not occurred despite several attempts to forge new formats based
-on HDF5 (TODO: get references right; see work in mdtraj and MDHDF5).
-
-Perhaps these formats have not caught on because the existing formats
-(e.g. XTC, DCD) for simple linear trajectories are good enough and
-there is little motivation to migrate.
-
-However, by making the WepyHDF5 format (and related sub-formats to be
-described e.g. record groups and the trajectory format) both cover a
-new use case which can't be achieved with old formats and old ones
-with ease.
-
-Once users see the power of using a format like HDF5 from using wepy
-they may continue to use it for simpler simulations.
-
-
-In any case the 'trajectories' in the group for weighted ensemble
+The 'trajectories' in the group for weighted ensemble
 simulations should be thought of only as containers and not literally
 as trajectories. That is frame 4 does not necessarily follow from
 frame 3. So one may think of them more as "lanes" or "slots" for
@@ -403,16 +374,10 @@ import h5py
 import networkx as nx
 
 from wepy.analysis.parents import resampling_panel
-from wepy.util.mdtraj import mdtraj_to_json_topology, json_to_mdtraj_topology, \
-                             traj_fields_to_mdtraj
 from wepy.util.util import traj_box_vectors_to_lengths_angles
 from wepy.util.json_top import json_top_subset, json_top_atom_count
 
 # optional dependencies
-try:
-    import mdtraj as mdj
-except ModuleNotFoundError:
-    warn("mdtraj is not installed and that functionality will not work", RuntimeWarning)
 
 try:
     import pandas as pd
@@ -705,7 +670,8 @@ class WepyHDF5(object):
                  n_dims=None,
                  alt_reps=None, main_rep_idxs=None,
                  swmr_mode=False,
-                 expert_mode=False
+                 expert_mode=False,
+                 n_atoms=None
     ):
         """Constructor for the WepyHDF5 class.
 
@@ -768,13 +734,12 @@ class WepyHDF5(object):
         AssertionError
             If the mode is not one of the supported mode specs.
 
-        AssertionError
-            If a topology is not given for a creation mode.
-
         Warns
         -----
 
         If initialization data was given but the file was opened in a read mode.
+
+        If a topology is not given for a creation mode.
 
         """
 
@@ -809,7 +774,8 @@ class WepyHDF5(object):
         self._units = units
         self._n_dims = n_dims
         self._n_coords = None
-
+        self._n_atoms = n_atoms
+        
         # set hidden feature shapes and dtype, which are only
         # referenced if needed when trajectories are created. These
         # will be saved in the settings section in the actual HDF5
@@ -900,6 +866,7 @@ class WepyHDF5(object):
         del self._sparse_fields
         del self._main_rep_idxs
         del self._alt_reps
+        del self._n_atoms
 
         # variable to reflect if it is closed or not, should be closed
         # after initialization
@@ -945,8 +912,14 @@ class WepyHDF5(object):
         and set with the new ones if given.
         """
 
-        assert self._topology is not None, \
-            "Topology must be given for a creation constructor"
+        if self._topology is None:
+            warn("A JSON topology should be provided to interpret the stored coordinates", RuntimeWarning)
+            assert self._n_atoms is not None, \
+            "The number of atoms must be specified if topology is not given for a creation constructor"
+
+            top_data = ''
+        else:
+            top_data = self._topology
 
         # initialize the runs group
         runs_grp = self._h5.create_group(RUNS)
@@ -955,7 +928,7 @@ class WepyHDF5(object):
         settings_grp = self._h5.create_group(SETTINGS)
 
         # create the topology dataset
-        self._h5.create_dataset(TOPOLOGY, data=self._topology)
+        self._h5.create_dataset(TOPOLOGY, data=top_data)
 
         # sparse fields
         if self._sparse_fields is not None:
@@ -1107,7 +1080,10 @@ class WepyHDF5(object):
         # main_reps then we have to set the number of atoms to that,
         # if not we count the number of atoms in the topology
         if self._main_rep_idxs is None:
-            self._n_coords = json_top_atom_count(self.topology)
+            if len(self.topology) > 0:
+                self._n_coords = json_top_atom_count(self.topology)
+            else:
+                self._n_coords = self._n_atoms
             self._main_rep_idxs = list(range(self._n_coords))
         else:
             self._n_coords = len(self._main_rep_idxs)
@@ -3022,6 +2998,8 @@ class WepyHDF5(object):
         """
 
         top = self.topology
+        if len(top) == 0:
+            return top
 
         # if no alternative representation is given we just return the
         # full topology
@@ -3058,32 +3036,6 @@ class WepyHDF5(object):
 
         """
         return self._h5[TOPOLOGY][()]
-
-
-    def get_mdtraj_topology(self, alt_rep=POSITIONS):
-        """Get an mdtraj.Topology object for a system representation.
-
-        By default gives the topology for the main 'positions' field
-        (when alt_rep 'positions'). To get the full topology the file
-        was initialized with set `alt_rep` to `None`. Topologies for
-        alternative representations (subfields of 'alt_reps') can be
-        obtained by passing in the key for that alt_rep. For example,
-        'all_atoms' for the field in alt_reps called 'all_atoms'.
-
-        Parameters
-        ----------
-        alt_rep : str
-            The base name of the alternate representation, or 'positions', or None.
-
-        Returns
-        -------
-        topology : str
-            The JSON topology string for the full representation.
-
-        """
-
-        json_top = self.get_topology(alt_rep=alt_rep)
-        return json_to_mdtraj_topology(json_top)
 
     ## Initial walkers
 
@@ -3130,50 +3082,6 @@ class WepyHDF5(object):
         init_walker_fields = {field : np.array(val) for field, val in init_walker_fields.items()}
 
         return init_walker_fields
-
-    def initial_walkers_to_mdtraj(self, run_idx, walker_idxs=None, alt_rep=POSITIONS):
-        """Generate an mdtraj Trajectory from a trace of frames from the runs.
-
-        Uses the default fields for positions (unless an alternate
-        representation is specified) and box vectors which are assumed
-        to be present in the trajectory fields.
-
-        The time value for the mdtraj trajectory is set to the cycle
-        indices for each trace frame.
-
-        This is useful for converting WepyHDF5 data to common
-        molecular dynamics data formats accessible through the mdtraj
-        library.
-
-        Parameters
-        ----------
-        run_idx : int
-            Run to get initial walkers for.
-
-        fields : list of str
-            Names of the fields you want to retrieve.
-
-        walker_idxs : None or list of int
-            If None returns all of the walkers fields, otherwise a
-            list of ints that are a selection from those walkers.
-
-        alt_rep : None or str
-            If None uses default 'positions' representation otherwise
-            chooses the representation from the 'alt_reps' compound field.
-
-        Returns
-        -------
-        traj : mdtraj.Trajectory
-
-        """
-
-        rep_path = self._choose_rep_path(alt_rep)
-
-        init_walker_fields = self.initial_walker_fields(run_idx, [rep_path, BOX_VECTORS],
-                                                        walker_idxs=walker_idxs)
-
-        return self.traj_fields_to_mdtraj(init_walker_fields, alt_rep=alt_rep)
-
 
     ### Counts and Indexing
 
@@ -5560,167 +5468,6 @@ class WepyHDF5(object):
         else:
             return results
 
-    def to_mdtraj(self, run_idx, traj_idx, frames=None, alt_rep=None):
-        """Convert a trajectory to an mdtraj Trajectory object.
-
-        Works if the right trajectory fields are defined. Minimally
-        this is a representation, including the 'positions' field or
-        an 'alt_rep' subfield.
-
-        Will also set the unitcell lengths and angle if the
-        'box_vectors' field is present.
-
-        Will also set the time for the frames if the 'time' field is
-        present, although this is likely not useful since walker
-        segments have the time reset.
-
-        Parameters
-        ----------
-        run_idx : int
-        traj_idx : int
-
-        frames : None or list of int
-            If not None, a list of the frames to include.
-
-        alt_rep : str
-            If not None, an 'alt_reps' subfield name to use for
-            positions instead of the 'positions' field.
-
-        Returns
-        -------
-        traj : mdtraj.Trajectory
-
-        """
-
-        traj_grp = self.traj(run_idx, traj_idx)
-
-        # the default for alt_rep is the main rep
-        if alt_rep is None:
-            rep_key = POSITIONS
-            rep_path = rep_key
-        else:
-            rep_key = alt_rep
-            rep_path = '{}/{}'.format(ALT_REPS, alt_rep)
-
-        topology = self.get_mdtraj_topology(alt_rep=rep_key)
-
-
-        # get the frames if they are not given
-        if frames is None:
-            frames = self.get_traj_field_cycle_idxs(run_idx, traj_idx, rep_path)
-
-
-        # get the data for all or for the frames specified
-        positions = self.get_traj_field(run_idx, traj_idx, rep_path,
-                                        frames=frames, masked=False)
-        try:
-            time = self.get_traj_field(run_idx, traj_idx, TIME,
-                                       frames=frames, masked=False)[:, 0]
-        except KeyError:
-            warn("time not in this trajectory, ignoring")
-            time = None
-
-        try:
-            box_vectors = self.get_traj_field(run_idx, traj_idx, BOX_VECTORS,
-                                              frames=frames, masked=False)
-        except KeyError:
-            warn("box_vectors not in this trajectory, ignoring")
-            box_vectors = None
-
-
-        if box_vectors is not None:
-            unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(box_vectors)
-
-        if (box_vectors is not None) and (time is not None):
-            traj = mdj.Trajectory(positions, topology,
-                           time=time,
-                           unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
-        elif box_vectors is not None:
-            traj = mdj.Trajectory(positions, topology,
-                           unitcell_lengths=unitcell_lengths, unitcell_angles=unitcell_angles)
-        elif time is not None:
-            traj = mdj.Trajectory(positions, topology,
-                           time=time)
-        else:
-            traj = mdj.Trajectory(positions, topology)
-
-        return traj
-
-    def trace_to_mdtraj(self, trace, alt_rep=None):
-        """Generate an mdtraj Trajectory from a trace of frames from the runs.
-
-        Uses the default fields for positions (unless an alternate
-        representation is specified) and box vectors which are assumed
-        to be present in the trajectory fields.
-
-        The time value for the mdtraj trajectory is set to the cycle
-        indices for each trace frame.
-
-        This is useful for converting WepyHDF5 data to common
-        molecular dynamics data formats accessible through the mdtraj
-        library.
-
-        Parameters
-        ----------
-        trace : list of tuple of int
-            The trace values. Each tuple is of the form
-            (run_idx, traj_idx, frame_idx).
-
-        alt_rep : None or str
-            If None uses default 'positions' representation otherwise
-            chooses the representation from the 'alt_reps' compound field.
-
-        Returns
-        -------
-        traj : mdtraj.Trajectory
-
-        """
-
-        rep_path = self._choose_rep_path(alt_rep)
-
-        trace_fields = self.get_trace_fields(trace, [rep_path, BOX_VECTORS])
-
-        return self.traj_fields_to_mdtraj(trace_fields, alt_rep=alt_rep)
-
-    def run_trace_to_mdtraj(self, run_idx, trace, alt_rep=None):
-        """Generate an mdtraj Trajectory from a trace of frames from the runs.
-
-        Uses the default fields for positions (unless an alternate
-        representation is specified) and box vectors which are assumed
-        to be present in the trajectory fields.
-
-        The time value for the mdtraj trajectory is set to the cycle
-        indices for each trace frame.
-
-        This is useful for converting WepyHDF5 data to common
-        molecular dynamics data formats accessible through the mdtraj
-        library.
-
-        Parameters
-        ----------
-        run_idx : int
-            The run the trace is over.
-
-        run_trace : list of tuple of int
-            The trace values. Each tuple is of the form
-            (traj_idx, frame_idx).
-
-        alt_rep : None or str
-            If None uses default 'positions' representation otherwise
-            chooses the representation from the 'alt_reps' compound field.
-
-        Returns
-        -------
-        traj : mdtraj.Trajectory
-
-        """
-
-        rep_path = self._choose_rep_path(alt_rep)
-
-        trace_fields = self.get_run_trace_fields(run_idx, trace, [rep_path, BOX_VECTORS])
-
-        return self.traj_fields_to_mdtraj(trace_fields, alt_rep=alt_rep)
-
     def _choose_rep_path(self, alt_rep):
         """Given a positions specification string, gets the field name/path
         for it.
@@ -5766,40 +5513,6 @@ class WepyHDF5(object):
             rep_path = '{}/{}'.format(ALT_REPS, alt_rep)
 
         return rep_path
-
-
-    def traj_fields_to_mdtraj(self, traj_fields, alt_rep=POSITIONS):
-        """Create an mdtraj.Trajectory from a traj_fields dictionary.
-
-        Parameters
-        ----------
-
-        traj_fields : dict of str : arraylike
-            Dictionary of the traj fields to their values
-
-        alt_reps : str
-            The base alt rep name for the positions representation to
-            use for the topology, should have the corresponding
-            alt_rep field in the traj_fields
-
-        Returns
-        -------
-
-        traj : mdtraj.Trajectory object
-
-        This is mainly a convenience function to retrieve the correct
-        topology for the positions which will be passed to the generic
-        `traj_fields_to_mdtraj` function.
-
-        """
-
-        rep_path = self._choose_rep_path(alt_rep)
-
-        json_topology = self.get_topology(alt_rep=rep_path)
-
-        return traj_fields_to_mdtraj(traj_fields, json_topology, rep_key=rep_path)
-
-
 
     def copy_run_slice(self, run_idx, target_file_path, target_grp_path,
                        run_slice=None, mode='x'):
