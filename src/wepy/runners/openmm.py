@@ -34,9 +34,9 @@ from eliot import log_call, start_action
 import numpy as np
 
 try:
-    import simtk.openmm.app as omma
-    import simtk.openmm as omm
-    import simtk.unit as unit
+    import openmm.app as omma
+    import openmm as omm
+    import openmm.unit as unit
 except ModuleNotFoundError:
     raise ModuleNotFoundError("OpenMM has not been installed, which this runner requires.")
 
@@ -76,7 +76,7 @@ them is handled by the OpenMMState.
 # simulation data
 
 # TODO: this is never used and we only need the unit names. Its okay
-# to use simtk.units here but other runners should use a units sytem
+# to use units here but other runners should use a units sytem
 # like pint which is easier to install. So we should remove this since
 # its not used.
 
@@ -89,7 +89,7 @@ them is handled by the OpenMMState.
 #          ('kinetic_energy_unit', unit.kilojoule / unit.mole),
 #          ('potential_energy_unit', unit.kilojoule / unit.mole),
 #         )
-# """Mapping of units identifiers to the corresponding simtk.units Unit objects."""
+# """Mapping of units identifiers to the corresponding openmm.units Unit objects."""
 
 # the names of the units from the units objects above. This is used
 # for saving them to files
@@ -123,13 +123,13 @@ class OpenMMRunner(Runner):
 
         Parameters
         ----------
-        system : simtk.openmm.System object
+        system : openmm.System object
             The system (forcefields) for the simulation.
 
-        topology : simtk.openmm.app.Topology object
+        topology : openmm.app.Topology object
             The topology for you system.
 
-        integrator : subclass simtk.openmm.Integrator object
+        integrator : subclass openmm.Integrator object
             Integrator for propagating dynamics.
 
         platform : str
@@ -500,7 +500,7 @@ class OpenMMRunner(Runner):
         Parameters
         ----------
 
-        simulation : simtk.openmm.app.Simulation object
+        simulation : openmm.app.Simulation object
             A complete simulation object from which the state will be extracted.
 
         segment_length : int
@@ -543,7 +543,7 @@ class OpenMMRunner(Runner):
 
 
 class OpenMMState(WalkerState):
-    """Walker state that wraps an simtk.openmm.State object.
+    """Walker state that wraps an openmm.State object.
 
     The keys for which values in the state are available are given by
     the KEYS module constant (accessible through the class constant of
@@ -566,7 +566,7 @@ class OpenMMState(WalkerState):
 
         Parameters
         ----------
-        state : simtk.openmm.State object
+        state : openmm.State object
             The simulation state retrieved from the simulation constant.
 
         kwargs : optional
@@ -602,7 +602,7 @@ class OpenMMState(WalkerState):
 
     @property
     def sim_state(self):
-        """The underlying simtk.openmm.State object this is wrapping."""
+        """The underlying openmm.State object this is wrapping."""
         return self._sim_state
 
     def __getitem__(self, key):
@@ -663,7 +663,7 @@ class OpenMMState(WalkerState):
     # Positions
     @property
     def positions(self):
-        """The positions of the state as a numpy array simtk.units.Quantity object."""
+        """The positions of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getPositions(asNumpy=True)
         except:
@@ -673,12 +673,12 @@ class OpenMMState(WalkerState):
 
     @property
     def positions_unit(self):
-        """The units (as a simtk.units.Unit object) the positions are in."""
+        """The units (as a openmm.units.Unit object) the positions are in."""
         return self.positions.unit
 
     def positions_values(self):
         """The positions of the state as a numpy array in the positions_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -687,7 +687,7 @@ class OpenMMState(WalkerState):
     # Velocities
     @property
     def velocities(self):
-        """The velocities of the state as a numpy array simtk.units.Quantity object."""
+        """The velocities of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getVelocities(asNumpy=True)
         except:
@@ -697,12 +697,12 @@ class OpenMMState(WalkerState):
 
     @property
     def velocities_unit(self):
-        """The units (as a simtk.units.Unit object) the velocities are in."""
+        """The units (as a openmm.units.Unit object) the velocities are in."""
         return self.velocities.unit
 
     def velocities_values(self):
         """The velocities of the state as a numpy array in the velocities_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -716,7 +716,7 @@ class OpenMMState(WalkerState):
     # Forces
     @property
     def forces(self):
-        """The forces of the state as a numpy array simtk.units.Quantity object."""
+        """The forces of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getForces(asNumpy=True)
         except:
@@ -726,12 +726,12 @@ class OpenMMState(WalkerState):
 
     @property
     def forces_unit(self):
-        """The units (as a simtk.units.Unit object) the forces are in."""
+        """The units (as a openmm.units.Unit object) the forces are in."""
         return self.forces.unit
 
     def forces_values(self):
         """The forces of the state as a numpy array in the forces_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -745,7 +745,7 @@ class OpenMMState(WalkerState):
     # Box Vectors
     @property
     def box_vectors(self):
-        """The box vectors of the state as a numpy array simtk.units.Quantity object."""
+        """The box vectors of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getPeriodicBoxVectors(asNumpy=True)
         except:
@@ -755,12 +755,12 @@ class OpenMMState(WalkerState):
 
     @property
     def box_vectors_unit(self):
-        """The units (as a simtk.units.Unit object) the box vectors are in."""
+        """The units (as a openmm.units.Unit object) the box vectors are in."""
         return self.box_vectors.unit
 
     def box_vectors_values(self):
         """The box vectors of the state as a numpy array in the
-        box_vectors_unit simtk.units.Unit. This is what is returned by
+        box_vectors_unit openmm.units.Unit. This is what is returned by
         the __getitem__ accessor.
 
         """
@@ -777,7 +777,7 @@ class OpenMMState(WalkerState):
     # Kinetic Energy
     @property
     def kinetic_energy(self):
-        """The kinetic energy of the state as a numpy array simtk.units.Quantity object."""
+        """The kinetic energy of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getKineticEnergy()
         except:
@@ -787,12 +787,12 @@ class OpenMMState(WalkerState):
 
     @property
     def kinetic_energy_unit(self):
-        """The units (as a simtk.units.Unit object) the kinetic energy is in."""
+        """The units (as a openmm.units.Unit object) the kinetic energy is in."""
         return self.kinetic_energy.unit
 
     def kinetic_energy_value(self):
         """The kinetic energy of the state as a numpy array in the kinetic_energy_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -806,7 +806,7 @@ class OpenMMState(WalkerState):
     # Potential Energy
     @property
     def potential_energy(self):
-        """The potential energy of the state as a numpy array simtk.units.Quantity object."""
+        """The potential energy of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getPotentialEnergy()
         except:
@@ -816,12 +816,12 @@ class OpenMMState(WalkerState):
 
     @property
     def potential_energy_unit(self):
-        """The units (as a simtk.units.Unit object) the potential energy is in."""
+        """The units (as a openmm.units.Unit object) the potential energy is in."""
         return self.potential_energy.unit
 
     def potential_energy_value(self):
         """The potential energy of the state as a numpy array in the potential_energy_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -835,7 +835,7 @@ class OpenMMState(WalkerState):
     # Time
     @property
     def time(self):
-        """The time of the state as a numpy array simtk.units.Quantity object."""
+        """The time of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getTime()
         except:
@@ -845,12 +845,12 @@ class OpenMMState(WalkerState):
 
     @property
     def time_unit(self):
-        """The units (as a simtk.units.Unit object) the time is in."""
+        """The units (as a openmm.units.Unit object) the time is in."""
         return self.time.unit
 
     def time_value(self):
         """The time of the state as a numpy array in the time_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -864,7 +864,7 @@ class OpenMMState(WalkerState):
     # Box Volume
     @property
     def box_volume(self):
-        """The box volume of the state as a numpy array simtk.units.Quantity object."""
+        """The box volume of the state as a numpy array openmm.units.Quantity object."""
         try:
             return self.sim_state.getPeriodicBoxVolume()
         except:
@@ -874,12 +874,12 @@ class OpenMMState(WalkerState):
 
     @property
     def box_volume_unit(self):
-        """The units (as a simtk.units.Unit object) the box volume is in."""
+        """The units (as a openmm.units.Unit object) the box volume is in."""
         return self.box_volume.unit
 
     def box_volume_value(self):
         """The box volume of the state as a numpy array in the box_volume_unit
-        simtk.units.Unit. This is what is returned by the __getitem__
+        openmm.units.Unit. This is what is returned by the __getitem__
         accessor.
 
         """
@@ -898,7 +898,7 @@ class OpenMMState(WalkerState):
     def parameters(self):
         """The parameters of the state as a dictionary mapping the names of
         the parameters to their values which are numpy array
-        simtk.units.Quantity objects.
+        openmm.units.Quantity objects.
 
         """
 
@@ -912,7 +912,7 @@ class OpenMMState(WalkerState):
     @property
     def parameters_unit(self):
         """The units for each parameter as a dictionary mapping parameter
-        names to their corresponding unit as a simtk.units.Unit
+        names to their corresponding unit as a openmm.units.Unit
         object.
 
         """
@@ -923,7 +923,7 @@ class OpenMMState(WalkerState):
         """The parameters of the state as a dictionary mapping the name of the
         parameter to a numpy array in the unit for the parameter of the
         same name in the parameters_unit corresponding
-        simtk.units.Unit object. This is what is returned by the
+        openmm.units.Unit object. This is what is returned by the
         __getitem__ accessor using the compound key syntax with the
         prefix 'parameters', e.g. state['parameter/paramA'] for the
         parameter 'paramA'.
@@ -947,7 +947,7 @@ class OpenMMState(WalkerState):
     def parameter_derivatives(self):
         """The parameter derivatives of the state as a dictionary mapping the
         names of the parameters to their values which are numpy array
-        simtk.units.Quantity objects.
+        openmm.units.Quantity objects.
 
         """
 
@@ -962,7 +962,7 @@ class OpenMMState(WalkerState):
     def parameter_derivatives_unit(self):
         """The units for each parameter derivative as a dictionary mapping
         parameter names to their corresponding unit as a
-        simtk.units.Unit object.
+        openmm.units.Unit object.
 
         """
 
@@ -973,7 +973,7 @@ class OpenMMState(WalkerState):
         """The parameter derivatives of the state as a dictionary mapping the
         name of the parameter to a numpy array in the unit for the
         parameter of the same name in the parameters_unit
-        corresponding simtk.units.Unit object. This is what is
+        corresponding openmm.units.Unit object. This is what is
         returned by the __getitem__ accessor using the compound key
         syntax with the prefix 'parameter_derivatives',
         e.g. state['parameter_derivatives/paramA'] for the parameter
@@ -1099,7 +1099,7 @@ class OpenMMState(WalkerState):
 
     def omm_state_dict(self):
         """Return a dictionary with all of the default keys from the wrapped
-        simtk.openmm.State object"""
+        openmm.State object"""
 
         feature_d = {'positions' : self.positions_values(),
                 'velocities' : self.velocities_values(),
