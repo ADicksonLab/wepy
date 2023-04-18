@@ -42,6 +42,8 @@ def test_build_system(write=False):
 
     if write:
         pkl.dump(omm_state,open(osp.join(base_folder,'omm_state.pkl'),'wb'))
+        pkl.dump(system,open(osp.join(base_folder,'system.pkl'),'wb'))
+        pkl.dump(psf.topology,open(osp.join(base_folder,'topology.pkl'),'wb'))
 
 if __name__ == '__main__':
     test_build_system(write=True)
