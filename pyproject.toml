@@ -31,7 +31,7 @@ dependencies = [
     "dill",
     "click",
     "scipy",
-    "geomm",
+    "geomm>0.2",
     "matplotlib",
     "tabulate",
     "jinja2",
