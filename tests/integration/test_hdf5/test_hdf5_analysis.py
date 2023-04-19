@@ -9,7 +9,6 @@ import os
 import os.path as osp
 
 import numpy as np
-import mdtraj as mdj
 
 from wepy.hdf5 import WepyHDF5
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
