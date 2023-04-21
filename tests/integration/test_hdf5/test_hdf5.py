@@ -8,7 +8,6 @@
 import os
 
 import numpy as np
-import mdtraj as mdj
 
 from wepy.resampling.resamplers.revo import REVOResampler
 from wepy.resampling.resamplers.resampler import NoResampler
@@ -21,34 +20,11 @@ from wepy.sim_manager import Manager
 from wepy.walker import Walker, WalkerState
 from wepy.runners.randomwalk import RandomWalkRunner, UNIT_NAMES
 from wepy.hdf5 import WepyHDF5
-from wepy.util.mdtraj import mdtraj_to_json_topology
 
 num_walkers = 20
 hdf5_filename = 'test.h5'
 segment_length = 1
 threshold = 5
-
-def generate_topology(N):
-    """Creates an N-atom, dummy trajectory and topology for
-    the randomwalk system using the mdtraj package.  Then creates a
-    JSON format for the topology. This JSON string is used in making
-    the WepyHDF5 reporter.
-
-    Returns
-    -------
-    topology: str
-        JSON string representing the topology of system being simulated.
-    """
-    data = []
-    top = mdj.Topology()
-    c = top.add_chain()
-    r = top.add_residue('test',c)
-
-    for i in range(N):
-        at = top.add_atom(f'a{i}',mdj.element.argon,r,i)
-
-    json_top_str = mdtraj_to_json_topology(top)
-    return json_top_str
 
 def test_WriteReadH5():
 
@@ -81,8 +57,6 @@ def test_WriteReadH5():
                               pmax=0.5,
                               dist_exponent=4)
 
-    json_top = generate_topology(1)
-
     rw_bc = RandomWalkBC(threshold=threshold,
                          initial_states=[init_state])
 
@@ -90,9 +64,9 @@ def test_WriteReadH5():
                                      mode='w',
                                      save_fields=['positions'],
                                      boundary_conditions=rw_bc,
-                                     topology=json_top,
                                      resampler=resampler,
-                                     n_dims=1)
+                                     n_dims=1,
+                                     n_atoms=1)
 
     sim_manager = Manager(init_walkers,
                           runner=runner,
@@ -165,8 +139,6 @@ def makeRandomWalkH5(h5name, resampling=True, warping=True):
     else:
         resampler = NoResampler()
 
-    json_top = generate_topology(1)
-
     if warping:
         rw_bc = RandomWalkBC(threshold=threshold,
                              initial_states=[init_state])
@@ -179,7 +151,8 @@ def makeRandomWalkH5(h5name, resampling=True, warping=True):
                                      boundary_conditions=rw_bc,
                                      topology=json_top,
                                      resampler=resampler,
-                                     n_dims=1)
+                                     n_dims=1,
+                                     n_atoms=1)
 
     sim_manager = Manager(init_walkers,
                           runner=runner,

@@ -1,3 +1,0 @@
-Put individual modules here that can be imported into tests. Choose
-names that don't clash. Typically you can just add a 'my' to the
-beginning of them.

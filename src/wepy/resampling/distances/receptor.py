@@ -153,7 +153,10 @@ class ReceptorDistance(Distance):
         state_image = self._unaligned_image(state)
 
         # then superimpose it to the reference structure
-        sup_image, _, _ = superimpose(self.ref_image, state_image, idxs=self._image_bs_idxs)
+        if len(self._image_bs_idxs) > 1:
+            sup_image, _, _ = superimpose(self.ref_image, state_image, idxs=self._image_bs_idxs)
+        else:
+            sup_image = state_image
 
         return sup_image
 
