@@ -1,5 +1,0 @@
-run:
-  echo: true
-  pty: true
-  hide: false
-ssh_config_path: master.ssh_config

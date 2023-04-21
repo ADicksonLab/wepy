@@ -1,9 +1,0 @@
-{
-    "arch": "x86_64",
-    "cpu": "Intel(R) Core(TM) i5-4570 CPU @ 3.20GHz",
-    "machine": "ostrich",
-    "num_cpu": "4",
-    "os": "Linux 4.15.0-96-generic",
-    "ram": "16073388",
-    "version": 1
-}
