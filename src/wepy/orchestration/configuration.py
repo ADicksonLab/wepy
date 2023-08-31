@@ -1,12 +1,10 @@
 # Standard Library
 import itertools as it
-import logging
 import os.path as osp
 from copy import deepcopy
 
 # First Party Library
 from wepy.work_mapper.mapper import Mapper, WorkerMapper
-from wepy.work_mapper.worker import Worker
 
 
 class Configuration:

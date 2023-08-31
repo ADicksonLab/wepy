@@ -1,0 +1,9 @@
+line-length = 88
+select = ["E", "F", "B", "S"]
+ignore = ["E203", "E501", "E266"]
+
+[per-file-ignores]
+"noxfile.py" = ["E402"]
+
+# ignore "pythonic" comparisons to booleans, for clarity in writing tests
+"tests/*" = ["S101", "S603", "B011", "E712"]

@@ -14,10 +14,9 @@ import traceback
 from warnings import warn
 
 # Third Party Library
-from eliot import log_call, start_action
+from eliot import log_call
 
 # First Party Library
-from wepy.util.util import set_loglevel
 
 PY_MAP = map
 
@@ -90,7 +89,6 @@ class ABCMapper(object):
         """
 
         # nothing to do
-        pass
 
     @log_call(include_args=[], include_result=False)
     def map(self, *args, **kwargs):

@@ -1,32 +1,9 @@
 # Standard Library
-import logging
-import multiprocessing as mp
-import time
-from copy import deepcopy
 
 # Third Party Library
 import pytest
 
 # First Party Library
-from wepy.resampling.resamplers.resampler import NoResampler
-from wepy.runners.openmm import (
-    OpenMMCPUWalkerTaskProcess,
-    OpenMMCPUWorker,
-    OpenMMGPUWalkerTaskProcess,
-    OpenMMGPUWorker,
-    OpenMMRunner,
-    OpenMMState,
-    OpenMMWalker,
-)
-from wepy.sim_manager import Manager
-from wepy.walker import Walker, WalkerState
-from wepy.work_mapper.mapper import Mapper, TaskException
-from wepy.work_mapper.task_mapper import (
-    TaskMapper,
-    TaskProcessException,
-    WalkerTaskProcess,
-)
-from wepy.work_mapper.worker import Worker, WorkerException, WorkerMapper
 from wepy_tools.sim_makers.openmm.lennard_jones import LennardJonesPairOpenMMSimMaker
 from wepy_tools.sim_makers.openmm.lysozyme import LysozymeImplicitOpenMMSimMaker
 

@@ -12,7 +12,7 @@ import networkx as nx
 import numpy as np
 
 # First Party Library
-from wepy.analysis.transitions import counts_d_to_matrix, transition_counts
+from wepy.analysis.transitions import transition_counts
 
 try:
     # Third Party Library

@@ -63,7 +63,6 @@ from copy import copy
 
 # Third Party Library
 import networkx as nx
-import numpy as np
 
 DISCONTINUITY_VALUE = -1
 """Special value used to determine if a parent-child relationship has

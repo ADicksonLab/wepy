@@ -1,6 +1,5 @@
 # Standard Library
 import logging
-from copy import deepcopy
 
 # Third Party Library
 import numpy as np

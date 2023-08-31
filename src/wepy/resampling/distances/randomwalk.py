@@ -5,7 +5,6 @@ metric is a scaled version of the Manhattan Norm.
 """
 
 # Standard Library
-import logging
 
 # Third Party Library
 import numpy as np

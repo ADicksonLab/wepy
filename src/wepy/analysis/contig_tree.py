@@ -10,7 +10,6 @@ Contig
 
 
 # Standard Library
-import itertools as it
 from collections import deque
 from copy import copy
 from operator import attrgetter
@@ -25,7 +24,6 @@ from matplotlib import cm
 from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
 from wepy.analysis.parents import (
-    DISCONTINUITY_VALUE,
     ParentForest,
     ancestors,
     net_parent_table,

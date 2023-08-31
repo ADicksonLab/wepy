@@ -42,6 +42,14 @@ TYPECHECK_TARGETS = []
 
 UNIT_TEST_DIRNAME = "unit"
 
+AUTOFLAKE_ARGS = (
+    "--remove-all-unused-imports",
+    "--recursive",
+    # "--ignore-pass-statements",
+    "--ignore-pass-after-docstring",
+)
+
+
 ### Helpers
 
 
@@ -198,9 +206,14 @@ def _isort_format(session):
     session.run("isort", *FORMAT_TARGETS)
 
 
+def _autoflake_format(session):
+    session.run("autoflake")
+
+
 def _format(session):
     _black_format(session)
     _isort_format(session)
+    session.run("autoflake", *AUTOFLAKE_ARGS, "--in-place", *FORMAT_TARGETS)
 
 
 def _black_check(session):
@@ -216,8 +229,8 @@ def _format_check(session):
     _isort_check(session)
 
 
-def _flake8(session):
-    session.run("flake8", *LINT_TARGETS)
+def _ruff_check(session):
+    session.run("ruff", *LINT_TARGETS)
 
 
 def _interrogate(session):
@@ -229,7 +242,7 @@ def _docstring_lint(session):
 
 
 def _lint(session):
-    _flake8(session)
+    _ruff_check(session)
 
 
 def _typecheck(session):
@@ -263,12 +276,6 @@ def isort_check(session):
 def format_check(session):
     qa_install(session)
     _format_check(session)
-
-
-@nox.session
-def flake8(session):
-    qa_install(session)
-    _flake8(session)
 
 
 @nox.session

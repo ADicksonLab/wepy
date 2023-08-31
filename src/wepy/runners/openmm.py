@@ -25,7 +25,6 @@ use.
 """
 # Standard Library
 import logging
-import random as rand
 import time
 from copy import copy
 from warnings import warn
@@ -45,7 +44,6 @@ except ModuleNotFoundError:
     )
 
 # First Party Library
-from wepy.reporter.reporter import Reporter
 from wepy.runners.runner import Runner
 from wepy.util.util import box_vectors_to_lengths_angles
 from wepy.walker import Walker, WalkerState

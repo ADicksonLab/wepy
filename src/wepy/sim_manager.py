@@ -44,12 +44,10 @@ to be determined adaptively (e.g. according to some time limit).
 
 # Standard Library
 import logging
-import sys
 import time
 from copy import deepcopy
 
 # Third Party Library
-import numpy as np
 from eliot import log_call, start_action
 
 # First Party Library

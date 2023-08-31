@@ -16,7 +16,7 @@ import numpy as np
 # First Party Library
 from wepy.reporter.reporter import ProgressiveFileReporter
 from wepy.util.json_top import json_top_subset
-from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
+from wepy.util.mdtraj import json_to_mdtraj_topology
 from wepy.util.util import (
     box_vectors_to_lengths_angles,
     traj_box_vectors_to_lengths_angles,

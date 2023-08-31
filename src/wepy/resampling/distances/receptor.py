@@ -18,7 +18,6 @@ a ligand towards a reference state.
 """
 
 # Standard Library
-import logging
 
 # Third Party Library
 import numpy as np

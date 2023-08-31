@@ -1,7 +1,6 @@
 """Miscellaneous functions needed by wepy."""
 
 # Standard Library
-import json
 import logging
 import warnings
 

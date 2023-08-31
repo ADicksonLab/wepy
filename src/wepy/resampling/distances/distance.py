@@ -22,7 +22,6 @@ the 'image_distance' to compute distances using only those images.
 
 """
 # Standard Library
-import logging
 
 # Third Party Library
 import numpy as np

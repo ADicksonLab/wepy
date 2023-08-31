@@ -4,10 +4,6 @@ including unbinding and rebinding.
 """
 
 # Standard Library
-import itertools as it
-import logging
-import time
-from collections import defaultdict
 
 # Third Party Library
 import numpy as np

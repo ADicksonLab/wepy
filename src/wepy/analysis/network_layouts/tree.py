@@ -9,16 +9,13 @@ ResamplingTreeLayout.layout
 
 # Standard Library
 import itertools as it
-from collections import defaultdict
 from copy import copy
 from warnings import warn
 
 # Third Party Library
-import networkx as nx
 import numpy as np
 
 # First Party Library
-from wepy.analysis.network_layouts.layout import LayoutError
 
 
 class ResamplingTreeLayout:

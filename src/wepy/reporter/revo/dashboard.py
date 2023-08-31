@@ -1,16 +1,10 @@
 # Standard Library
-import itertools as it
-import logging
-import os.path as osp
-from collections import defaultdict
 
 # Third Party Library
 import numpy as np
-import pandas as pd
 
 # First Party Library
 from wepy.reporter.dashboard import ResamplerDashboardSection
-from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 
 
 class REVODashboardSection(ResamplerDashboardSection):

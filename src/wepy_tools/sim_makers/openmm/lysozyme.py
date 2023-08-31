@@ -1,8 +1,6 @@
 # Standard Library
-from copy import copy
 
 # Third Party Library
-import mdtraj as mdj
 import numpy as np
 import simtk.unit as unit
 from openmm_systems.test_systems import LysozymeImplicit
@@ -15,8 +13,6 @@ from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
 from wepy.util.json_top import (
     json_top_atom_df,
     json_top_residue_df,
-    json_top_residue_fields,
-    json_top_subset,
 )
 from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
 from wepy_tools.systems import receptor as receptor_tools

@@ -17,11 +17,9 @@ Using the Weighted Ensemble Algorithm" and
 """
 
 # Standard Library
-import logging
 import random as rand
 
 # Third Party Library
-import numpy as np
 from pint import UnitRegistry
 
 # First Party Library

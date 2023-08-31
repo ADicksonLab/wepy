@@ -114,7 +114,6 @@ frame).
 
 """
 # Standard Library
-import time
 from collections import defaultdict
 from copy import deepcopy
 

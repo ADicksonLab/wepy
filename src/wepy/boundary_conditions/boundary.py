@@ -7,7 +7,6 @@ wepy.
 # Standard Library
 import logging
 import random
-import sys
 from collections import defaultdict
 from copy import deepcopy
 
@@ -15,7 +14,6 @@ from copy import deepcopy
 import numpy as np
 
 # First Party Library
-from wepy.walker import Walker
 
 
 class BoundaryConditions(object):

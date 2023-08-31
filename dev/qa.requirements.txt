@@ -1,5 +1,5 @@
 black
 isort
-flake8
-flake8-bugbear
+ruff
+autoflake
 interrogate

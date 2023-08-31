@@ -1,5 +1,5 @@
 # Standard Library
-from copy import copy, deepcopy
+from copy import deepcopy
 
 
 class SimApparatus:

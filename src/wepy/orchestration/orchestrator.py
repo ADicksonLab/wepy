@@ -1,12 +1,11 @@
 # Standard Library
-import itertools as it
 import logging
 import os
 import os.path as osp
 import sqlite3
 import time
 from base64 import b64decode, b64encode
-from copy import copy, deepcopy
+from copy import deepcopy
 from hashlib import md5
 from zlib import compress, decompress
 

@@ -1,13 +1,11 @@
 """Test the main documentation pages."""
 
 # Standard Library
-import os
-import os.path as osp
 from pathlib import Path
 
 # Third Party Library
 from pytest_shutil.cmdline import chdir
-from pytest_shutil.run import run, run_as_main
+from pytest_shutil.run import run
 
 
 def test_dir_structure(datadir_factory):

@@ -10,7 +10,6 @@ import traceback
 from warnings import warn
 
 # First Party Library
-from wepy.walker import Walker
 from wepy.work_mapper.mapper import (
     ABCWorkerMapper,
     Task,

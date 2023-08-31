@@ -3,16 +3,15 @@ import itertools as it
 import logging
 import math
 import random as rand
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from copy import copy, deepcopy
 
 # Third Party Library
 import networkx as nx
 import numpy as np
-from eliot import log_call, start_action
+from eliot import log_call
 
 # First Party Library
-from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 from wepy.resampling.resamplers.clone_merge import CloneMergeResampler
 from wepy.resampling.resamplers.resampler import ResamplerError
 

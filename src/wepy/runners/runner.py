@@ -18,7 +18,7 @@ See the openmm.py module for an example.
 """
 
 # Third Party Library
-from eliot import log_call, start_action
+from eliot import log_call
 
 
 class Runner(object):
@@ -39,7 +39,6 @@ class Runner(object):
         """
 
         # by default just pass since subclasses need not implement this
-        pass
 
     @log_call(include_args=[], include_result=False)
     def post_cycle(self, **kwargs):
@@ -56,7 +55,6 @@ class Runner(object):
         """
 
         # by default just pass since subclasses need not implement this
-        pass
 
     @log_call(include_args=["segment_length"], include_result=False)
     def run_segment(self, walker, segment_length, **kwargs):

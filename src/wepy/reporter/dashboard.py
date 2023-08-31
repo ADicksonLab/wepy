@@ -3,10 +3,7 @@ information on the progress of a simulation.
 
 """
 # Standard Library
-import itertools as it
-import logging
 import time
-from collections import defaultdict
 from copy import copy
 from datetime import datetime
 
