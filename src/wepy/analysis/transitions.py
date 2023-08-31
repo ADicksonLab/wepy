@@ -47,9 +47,11 @@ run_transition_probability_matrix : Generates an asymmetric transition
     probability matrix directly from a single WepyHDF5 run.
 """
 
+# Standard Library
 import itertools as it
 from collections import defaultdict
 
+# Third Party Library
 import numpy as np
 
 

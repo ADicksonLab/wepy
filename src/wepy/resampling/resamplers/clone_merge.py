@@ -1,5 +1,7 @@
+# Third Party Library
 import numpy as np
 
+# First Party Library
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 from wepy.resampling.resamplers.resampler import Resampler, ResamplerError
 

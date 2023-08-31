@@ -4,10 +4,13 @@ metric is a scaled version of the Manhattan Norm.
 
 """
 
+# Standard Library
 import logging
 
+# Third Party Library
 import numpy as np
 
+# First Party Library
 from wepy.resampling.distances.distance import Distance
 
 

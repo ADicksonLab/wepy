@@ -1,11 +1,14 @@
+# Standard Library
 import itertools as it
 import logging
 from collections import defaultdict
 from warnings import warn
 
+# Third Party Library
 import numpy as np
 from eliot import log_call, start_action
 
+# First Party Library
 from wepy.resampling.decisions.decision import Decision, NoDecision
 
 
@@ -434,6 +437,7 @@ class Resampler:
         # if you want to use debug mode you have to have ipdb installed
         if self.is_debug_on:
             try:
+                # Third Party Library
                 import ipdb
             except ModuleNotFoundError:
                 raise ModuleNotFoundError(

@@ -4,14 +4,17 @@ wepy.
 
 """
 
+# Standard Library
 import logging
 import random
 import sys
 from collections import defaultdict
 from copy import deepcopy
 
+# Third Party Library
 import numpy as np
 
+# First Party Library
 from wepy.walker import Walker
 
 

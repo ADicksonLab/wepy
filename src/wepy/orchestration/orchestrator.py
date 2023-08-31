@@ -1,3 +1,4 @@
+# Standard Library
 import itertools as it
 import logging
 import os
@@ -9,10 +10,12 @@ from copy import copy, deepcopy
 from hashlib import md5
 from zlib import compress, decompress
 
+# Third Party Library
 # instead of pickle we use dill, so we can save dynamically defined
 # classes
 import dill
 
+# First Party Library
 from wepy.orchestration.configuration import Configuration
 from wepy.orchestration.snapshot import SimApparatus, SimSnapshot
 from wepy.sim_manager import Manager
@@ -1375,6 +1378,7 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
             cursor.execute(detach_query)
         except:
             cursor.execute("COMMIT")
+            # Standard Library
             import pdb
 
             pdb.set_trace()

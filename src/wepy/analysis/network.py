@@ -2,16 +2,20 @@
 structure of weighted ensemble simulation data.
 """
 
+# Standard Library
 import gc
 from collections import defaultdict
 from copy import deepcopy
 
+# Third Party Library
 import networkx as nx
 import numpy as np
 
+# First Party Library
 from wepy.analysis.transitions import counts_d_to_matrix, transition_counts
 
 try:
+    # Third Party Library
     import pandas as pd
 except ModuleNotFoundError:
     print("Pandas is not installe, that functionality won't work")

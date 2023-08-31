@@ -1,3 +1,4 @@
+# Standard Library
 import logging
 import multiprocessing as mp
 import pickle
@@ -8,9 +9,14 @@ import time
 import traceback
 from warnings import warn
 
+# First Party Library
 from wepy.walker import Walker
-from wepy.work_mapper.mapper import (ABCWorkerMapper, Task, TaskException,
-                                     WrapperException)
+from wepy.work_mapper.mapper import (
+    ABCWorkerMapper,
+    Task,
+    TaskException,
+    WrapperException,
+)
 
 
 class TaskProcessException(WrapperException):

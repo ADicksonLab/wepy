@@ -3,6 +3,7 @@ ready worker style mapper for mapping runner dynamics to walkers for
 wepy simulation cycles.
 
 """
+# Standard Library
 import logging
 import multiprocessing as mp
 import queue as pyq
@@ -12,8 +13,10 @@ import time
 import traceback
 from warnings import warn
 
+# Third Party Library
 from eliot import log_call, start_action
 
+# First Party Library
 from wepy.util.util import set_loglevel
 
 PY_MAP = map

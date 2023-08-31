@@ -1,11 +1,15 @@
+# Standard Library
 import logging
 import multiprocessing as mp
 import pdb
 
+# Third Party Library
 import pytest
+
 # testing helpers
 from multiprocessing_logging import install_mp_handler
 
+# First Party Library
 from wepy.sim_manager import Manager
 
 # we define a fixture for a fixture for all the components of a
@@ -158,16 +162,24 @@ class TestLJSimIntegration:
 
         # the configuration class gives us a convenient way to
         # parametrize our reporters for the locale
+        # First Party Library
         from wepy.orchestration.configuration import Configuration
+
         # the runner
-        from wepy.runners.openmm import (OpenMMCPUWalkerTaskProcess,
-                                         OpenMMCPUWorker,
-                                         OpenMMGPUWalkerTaskProcess,
-                                         OpenMMGPUWorker, OpenMMRunner)
+        from wepy.runners.openmm import (
+            OpenMMCPUWalkerTaskProcess,
+            OpenMMCPUWorker,
+            OpenMMGPUWalkerTaskProcess,
+            OpenMMGPUWorker,
+            OpenMMRunner,
+        )
+
         # mappers
         from wepy.work_mapper.mapper import Mapper
+
         # the walker task types for the TaskMapper
         from wepy.work_mapper.task_mapper import TaskMapper, WalkerTaskProcess
+
         # the worker types for the WorkerMapper
         from wepy.work_mapper.worker import Worker, WorkerMapper
 

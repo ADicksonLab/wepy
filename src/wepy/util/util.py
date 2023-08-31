@@ -1,9 +1,11 @@
 """Miscellaneous functions needed by wepy."""
 
+# Standard Library
 import json
 import logging
 import warnings
 
+# Third Party Library
 import numpy as np
 
 

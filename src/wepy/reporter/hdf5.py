@@ -1,8 +1,11 @@
+# Standard Library
 import logging
 from copy import deepcopy
 
+# Third Party Library
 import numpy as np
 
+# First Party Library
 from wepy.hdf5 import WepyHDF5
 from wepy.reporter.reporter import FileReporter
 from wepy.util.json_top import json_top_atom_count

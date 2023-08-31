@@ -7,13 +7,16 @@
 # http://www.sphinx-doc.org/en/master/config
 
 try:
+    # Standard Library
     import importlib.metadata as metadata
 except ImportError:
+    # Third Party Library
     import importlib_metadata as metadata
 
 
 # -- Path setup --------------------------------------------------------------
 
+# Standard Library
 # If extensions (or modules to document with autodoc) are in another directory,
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.

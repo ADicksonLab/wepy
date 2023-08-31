@@ -1,6 +1,8 @@
+# Third Party Library
 import numpy as np
 from scipy.spatial.distance import euclidean
 
+# First Party Library
 from wepy.resampling.distances.distance import Distance
 
 

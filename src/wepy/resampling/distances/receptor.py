@@ -17,14 +17,17 @@ a ligand towards a reference state.
 
 """
 
+# Standard Library
 import logging
 
+# Third Party Library
 import numpy as np
 from geomm.centering import center_around
 from geomm.grouping import group_pair
 from geomm.rmsd import calc_rmsd
 from geomm.superimpose import superimpose
 
+# First Party Library
 from wepy.resampling.distances.distance import Distance
 from wepy.util.util import box_vectors_to_lengths_angles
 

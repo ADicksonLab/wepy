@@ -113,13 +113,16 @@ inundated with too many tasks (chunk sizes too small, say of only 1
 frame).
 
 """
+# Standard Library
 import time
 from collections import defaultdict
 from copy import deepcopy
 
+# Third Party Library
 import dask.bag as dbag
 import numpy as np
 
+# First Party Library
 from wepy.hdf5 import WepyHDF5
 from wepy.util.util import concat_traj_fields
 

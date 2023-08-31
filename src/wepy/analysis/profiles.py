@@ -2,9 +2,11 @@
 simulation data.
 
 """
+# Standard Library
 import gc
 import itertools as it
 
+# Third Party Library
 import numpy as np
 from geomm.free_energy import free_energy
 

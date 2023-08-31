@@ -1,7 +1,9 @@
+# Third Party Library
 import numpy as np
 from openmm_systems.test_systems import LennardJonesPair
 from scipy.spatial.distance import euclidean
 
+# First Party Library
 from wepy.boundary_conditions.receptor import UnbindingBC
 from wepy.resampling.distances.distance import Distance
 from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS

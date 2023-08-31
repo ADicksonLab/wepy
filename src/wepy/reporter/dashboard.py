@@ -2,6 +2,7 @@
 information on the progress of a simulation.
 
 """
+# Standard Library
 import itertools as it
 import logging
 import time
@@ -9,11 +10,13 @@ from collections import defaultdict
 from copy import copy
 from datetime import datetime
 
+# Third Party Library
 import numpy as np
 import pandas as pd
 from jinja2 import Template
 from tabulate import tabulate
 
+# First Party Library
 from wepy.reporter.reporter import ProgressiveFileReporter
 
 

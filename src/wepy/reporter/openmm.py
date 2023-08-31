@@ -1,5 +1,7 @@
+# Third Party Library
 from pint import UnitRegistry
 
+# First Party Library
 from wepy.reporter.dashboard import RunnerDashboardSection
 
 # initialize the unit registry

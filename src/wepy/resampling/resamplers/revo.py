@@ -1,11 +1,14 @@
+# Standard Library
 import itertools as it
 import logging
 import multiprocessing as mulproc
 import random as rand
 
+# Third Party Library
 import numpy as np
 from eliot import log_call, start_action
 
+# First Party Library
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 from wepy.resampling.resamplers.clone_merge import CloneMergeResampler
 from wepy.resampling.resamplers.resampler import Resampler

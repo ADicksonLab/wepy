@@ -1,9 +1,12 @@
+# Standard Library
 import logging
 
+# Third Party Library
 import click
 import simtk.unit as unit
 from multiprocessing_logging import install_mp_handler
 
+# First Party Library
 # import all of the sim makers we have available
 from wepy_tools.sim_makers.openmm import *
 

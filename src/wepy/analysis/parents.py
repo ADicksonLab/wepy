@@ -57,9 +57,11 @@ ParentForest : Class that imposes the forest (tree) structure over the
 """
 
 
+# Standard Library
 import itertools as it
 from copy import copy
 
+# Third Party Library
 import networkx as nx
 import numpy as np
 

@@ -1,23 +1,31 @@
 """Module for generating wepy systems"""
 
+# Standard Library
 from copy import copy, deepcopy
 
+# Third Party Library
 import mdtraj as mdj
 import numpy as np
 import simtk.openmm as omm
 import simtk.openmm.app as omma
 import simtk.unit as unit
+
 # integrators
 from simtk.openmm import LangevinIntegrator
 
+# First Party Library
 # boundary conditions
 from wepy.boundary_conditions.boundary import NoBC, RandomBC
 from wepy.orchestration.configuration import Configuration
 from wepy.orchestration.orchestrator import Orchestrator
 from wepy.orchestration.snapshot import SimSnapshot, WepySimApparatus
-from wepy.reporter.dashboard import (BCDashboardSection, DashboardReporter,
-                                     ResamplerDashboardSection,
-                                     RunnerDashboardSection)
+from wepy.reporter.dashboard import (
+    BCDashboardSection,
+    DashboardReporter,
+    ResamplerDashboardSection,
+    RunnerDashboardSection,
+)
+
 # reporters
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.reporter.openmm import OpenMMRunnerDashboardSection
@@ -25,20 +33,34 @@ from wepy.reporter.restree import ResTreeReporter
 from wepy.reporter.revo.dashboard import REVODashboardSection
 from wepy.reporter.walker import WalkerReporter
 from wepy.reporter.wexplore.dashboard import WExploreDashboardSection
+
 # resamplers
 from wepy.resampling.resamplers.resampler import NoResampler
 from wepy.resampling.resamplers.revo import REVOResampler
 from wepy.resampling.resamplers.wexplore import WExploreResampler
+
 # extras for reporters
 # OpenMM helpers
-from wepy.runners.openmm import (GET_STATE_KWARG_DEFAULTS, UNIT_NAMES,
-                                 OpenMMCPUWalkerTaskProcess, OpenMMCPUWorker,
-                                 OpenMMGPUWalkerTaskProcess, OpenMMGPUWorker,
-                                 OpenMMRunner, OpenMMState, gen_walker_state)
-from wepy.util.json_top import (json_top_atom_df, json_top_residue_df,
-                                json_top_residue_fields, json_top_subset)
+from wepy.runners.openmm import (
+    GET_STATE_KWARG_DEFAULTS,
+    UNIT_NAMES,
+    OpenMMCPUWalkerTaskProcess,
+    OpenMMCPUWorker,
+    OpenMMGPUWalkerTaskProcess,
+    OpenMMGPUWorker,
+    OpenMMRunner,
+    OpenMMState,
+    gen_walker_state,
+)
+from wepy.util.json_top import (
+    json_top_atom_df,
+    json_top_residue_df,
+    json_top_residue_fields,
+    json_top_subset,
+)
 from wepy.util.mdtraj import mdtraj_to_json_topology
 from wepy.walker import Walker
+
 # mappers
 from wepy.work_mapper.mapper import Mapper
 from wepy.work_mapper.task_mapper import TaskMapper, WalkerTaskProcess

@@ -2,17 +2,24 @@
 resampling parent trees.
 """
 
+# Standard Library
 from collections import namedtuple
 
+# Third Party Library
 import networkx as nx
 import numpy as np
 from geomm.free_energy import free_energy
 from matplotlib import cm
 
+# First Party Library
 from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
-from wepy.analysis.parents import (ParentForest, net_parent_table,
-                                   parent_panel, resampling_panel)
+from wepy.analysis.parents import (
+    ParentForest,
+    net_parent_table,
+    parent_panel,
+    resampling_panel,
+)
 from wepy.reporter.reporter import ProgressiveFileReporter
 
 

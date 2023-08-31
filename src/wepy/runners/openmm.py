@@ -23,16 +23,19 @@ allow passing of the device index to OpenMM for which GPU device to
 use.
 
 """
+# Standard Library
 import logging
 import random as rand
 import time
 from copy import copy
 from warnings import warn
 
+# Third Party Library
 import numpy as np
 from eliot import log_call, start_action
 
 try:
+    # Third Party Library
     import simtk.openmm as omm
     import simtk.openmm.app as omma
     import simtk.unit as unit
@@ -41,6 +44,7 @@ except ModuleNotFoundError:
         "OpenMM has not been installed, which this runner requires."
     )
 
+# First Party Library
 from wepy.reporter.reporter import Reporter
 from wepy.runners.runner import Runner
 from wepy.util.util import box_vectors_to_lengths_angles
@@ -1172,6 +1176,7 @@ class OpenMMState(WalkerState):
 
         """
 
+        # Third Party Library
         import mdtraj as mdj
 
         # resize the time to a 1D vector

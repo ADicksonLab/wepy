@@ -1,3 +1,4 @@
+# Standard Library
 import itertools as it
 import logging
 import math
@@ -5,10 +6,12 @@ import random as rand
 from collections import defaultdict, namedtuple
 from copy import copy, deepcopy
 
+# Third Party Library
 import networkx as nx
 import numpy as np
 from eliot import log_call, start_action
 
+# First Party Library
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 from wepy.resampling.resamplers.clone_merge import CloneMergeResampler
 from wepy.resampling.resamplers.resampler import ResamplerError
@@ -2095,6 +2098,7 @@ class RegionTree(nx.DiGraph):
             self._check_clone_merge_specs(merge_groups, walkers_num_clones)
         except ResamplerError as resampler_err:
             print(resampler_err)
+            # Third Party Library
             import ipdb
 
             ipdb.set_trace()
@@ -2512,6 +2516,7 @@ class WExploreResampler(CloneMergeResampler):
                 self._check_resampling_data(resampling_actions)
             except ResamplerError as resampler_err:
                 print(resampler_err)
+                # Third Party Library
                 import ipdb
 
                 ipdb.set_trace()
@@ -2629,6 +2634,7 @@ class WExploreResampler(CloneMergeResampler):
                 self._check_resampled_walkers(resampled_walkers)
             except ResamplerError as resampler_err:
                 print(resampler_err)
+                # Third Party Library
                 import ipdb
 
                 ipdb.set_trace()

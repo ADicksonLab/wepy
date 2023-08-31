@@ -5,12 +5,15 @@
 # 3) compute observable
 # 4) get traces
 
+# Standard Library
 import os
 import unittest
 
+# Third Party Library
 import mdtraj as mdj
 import numpy as np
 
+# First Party Library
 from wepy.analysis.contig_tree import ContigTree
 from wepy.boundary_conditions.randomwalk import RandomWalkBC
 from wepy.hdf5 import WepyHDF5

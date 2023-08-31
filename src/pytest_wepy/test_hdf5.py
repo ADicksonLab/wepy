@@ -5,11 +5,14 @@
 # 3) compute observable
 # 4) get traces
 
+# Standard Library
 import os
 
+# Third Party Library
 import mdtraj as mdj
 import numpy as np
 
+# First Party Library
 from wepy.boundary_conditions.boundary import NoBC
 from wepy.boundary_conditions.randomwalk import RandomWalkBC
 from wepy.hdf5 import WepyHDF5

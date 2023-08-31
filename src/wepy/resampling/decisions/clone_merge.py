@@ -1,9 +1,12 @@
+# Standard Library
 import logging
 from collections import defaultdict, namedtuple
 from enum import Enum
 
+# Third Party Library
 import numpy as np
 
+# First Party Library
 from wepy.resampling.decisions.decision import Decision
 from wepy.walker import keep_merge, split
 

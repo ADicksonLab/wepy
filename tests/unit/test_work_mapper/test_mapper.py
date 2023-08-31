@@ -1,14 +1,20 @@
+# Standard Library
 import logging
 import multiprocessing as mp
 import time
 from copy import deepcopy
 
+# Third Party Library
 import pytest
 
+# First Party Library
 from wepy.walker import Walker, WalkerState
 from wepy.work_mapper.mapper import Mapper, TaskException
-from wepy.work_mapper.task_mapper import (TaskMapper, TaskProcessException,
-                                          WalkerTaskProcess)
+from wepy.work_mapper.task_mapper import (
+    TaskMapper,
+    TaskProcessException,
+    WalkerTaskProcess,
+)
 from wepy.work_mapper.worker import Worker, WorkerException, WorkerMapper
 
 ARGS = (0, 1, 2)

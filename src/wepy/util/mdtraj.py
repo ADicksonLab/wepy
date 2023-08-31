@@ -4,14 +4,17 @@ Requires mdtraj be installed.
 
 """
 
+# Standard Library
 import json
 import operator
 from warnings import warn
 
+# Third Party Library
 import mdtraj as mdj
 import mdtraj.core.element as elem
 import numpy as np
 
+# First Party Library
 from wepy.util.util import traj_box_vectors_to_lengths_angles
 
 # the following method contains portions of the software mdtraj which

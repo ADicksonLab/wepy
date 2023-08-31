@@ -1,10 +1,13 @@
+# Standard Library
 import os
 import os.path as osp
 import pdb
 
+# Third Party Library
 import pytest
 from click.testing import CliRunner
 
+# First Party Library
 from wepy.orchestration.cli import cli as wepy_cli
 from wepy.orchestration.orchestrator import Orchestrator
 

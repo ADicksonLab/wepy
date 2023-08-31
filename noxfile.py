@@ -7,10 +7,12 @@
 # Makefile targets rather than the nox targets directly; keeping them decoupled.
 # Of course feel free to use the nox targets if its easier.
 
+# Standard Library
 import itertools as it
 import os
 from pathlib import Path
 
+# Third Party Library
 import nox
 
 # exclude the 'dev' session here so its not run automatically

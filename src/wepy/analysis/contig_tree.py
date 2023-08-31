@@ -9,25 +9,34 @@ Contig
 """
 
 
+# Standard Library
 import itertools as it
 from collections import deque
 from copy import copy
 from operator import attrgetter
 
+# Third Party Library
 import networkx as nx
 import numpy as np
 from geomm.free_energy import free_energy as calc_free_energy
 from matplotlib import cm
 
+# First Party Library
 from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
-from wepy.analysis.parents import (DISCONTINUITY_VALUE, ParentForest,
-                                   ancestors, net_parent_table,
-                                   parent_cycle_discontinuities, parent_panel,
-                                   sliding_window)
+from wepy.analysis.parents import (
+    DISCONTINUITY_VALUE,
+    ParentForest,
+    ancestors,
+    net_parent_table,
+    parent_cycle_discontinuities,
+    parent_panel,
+    sliding_window,
+)
 
 # optional dependencies
 try:
+    # Third Party Library
     import pandas as pd
 except ModuleNotFoundError:
     warn("pandas is not installed and that functionality will not work", RuntimeWarning)

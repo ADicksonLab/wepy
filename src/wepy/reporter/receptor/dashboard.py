@@ -1,6 +1,8 @@
+# Third Party Library
 from jinja2 import Template
 from pint import UnitRegistry
 
+# First Party Library
 from wepy.reporter.dashboard import BCDashboardSection
 
 # initialize the unit registry

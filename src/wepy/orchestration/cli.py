@@ -1,13 +1,15 @@
+# Standard Library
 import logging
 import os.path as osp
 import subprocess
 from copy import deepcopy
 
+# Third Party Library
 import click
 
+# First Party Library
 from wepy.hdf5 import WepyHDF5
-from wepy.orchestration.orchestrator import (Orchestrator,
-                                             reconcile_orchestrators)
+from wepy.orchestration.orchestrator import Orchestrator, reconcile_orchestrators
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.util.util import set_loglevel
 

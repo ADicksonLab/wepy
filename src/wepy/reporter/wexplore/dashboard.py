@@ -1,13 +1,16 @@
+# Standard Library
 import itertools as it
 import logging
 import os.path as osp
 from collections import defaultdict
 from warnings import warn
 
+# Third Party Library
 import numpy as np
 import pandas as pd
 from tabulate import tabulate
 
+# First Party Library
 from wepy.reporter.dashboard import ResamplerDashboardSection
 
 

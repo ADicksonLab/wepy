@@ -45,11 +45,13 @@ perform them on the collection of walkers.
 
 """
 
+# Standard Library
 import logging
 from collections import namedtuple
 from enum import Enum
 from string import ascii_lowercase
 
+# Third Party Library
 import numpy as np
 
 
