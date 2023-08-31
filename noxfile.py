@@ -36,7 +36,18 @@ FORMAT_TARGETS = [
     SPHINX_SOURCE_DIR / "conf.py",
 ]
 
-LINT_TARGETS = FORMAT_TARGETS
+LINT_TARGETS = [
+    # TODO: going with a checklist style to not be overwhelmed
+    # "src/wepy/hdf5.py",
+    # "src/wepy/walker.py",
+    # "src/wepy/sim_manager.py",
+    # "src/wepy/util",
+
+    # TODO: skipping a lot of stuff so we can focus on the main codebase
+    # "src/wepy_tools",
+    # "src/wepy_test_drive.py",
+    "noxfile.py"
+]
 
 TYPECHECK_TARGETS = []
 
@@ -414,13 +425,15 @@ def bumpversion(session):
     session.install("hatch")
 
     if session.posargs:
-        assert len(session.posargs) == 1, "Too many arguments only need 1."
+        if len(session.posargs) > 1:
+            raise ValueError("Too many arguments only need 1.")
         part = session.posargs[0]
-        assert part in (
+        if part not in (
             "major",
             "minor",
             "patch",
-        ), "Must choose a valid bump part ('major', 'minor', 'patch')"
+        ):
+            ValueError("Must choose a valid bump part ('major', 'minor', 'patch')")
     else:
         part = "patch"
 

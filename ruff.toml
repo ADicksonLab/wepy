@@ -1,6 +1,6 @@
 line-length = 88
-select = ["E", "F", "B", "S"]
-ignore = ["E203", "E501", "E266"]
+select = ["E", "F", "B",] # To add: "S" for security, but this adds a lot of things that aren't too relevant
+ignore = ["E203", "E501", "E266",]
 
 [per-file-ignores]
 "noxfile.py" = ["E402"]
