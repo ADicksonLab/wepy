@@ -10,7 +10,8 @@ LayoutGraph
 
 """
 
-class LayoutGraph():
+
+class LayoutGraph:
     """Base class for networks that will be given layouts for visualization.
 
     For the graph it wraps it will create a mirror graph which only
@@ -20,29 +21,28 @@ class LayoutGraph():
     """
 
     # graphviz colors are given by the RGB or RGBA hex string for them
-    GRAPHVIZ_COLOR = 'color'
-    GRAPHVIZ_POSITION = 'pos'
-    GRAPHVIZ_SHAPE = 'shape'
-    GRAPHVIZ_SIZE = 'size'
+    GRAPHVIZ_COLOR = "color"
+    GRAPHVIZ_POSITION = "pos"
+    GRAPHVIZ_SHAPE = "shape"
+    GRAPHVIZ_SIZE = "size"
 
-    GEXF_VIZ = 'viz'
-    GEXF_VIZ_COLOR = 'color'
-    GEXF_VIZ_COLOR_RED = 'r'
-    GEXF_VIZ_COLOR_GREEN = 'g'
-    GEXF_VIZ_COLOR_BLUE = 'b'
-    GEXF_VIZ_COLOR_ALPHA = 'a'
+    GEXF_VIZ = "viz"
+    GEXF_VIZ_COLOR = "color"
+    GEXF_VIZ_COLOR_RED = "r"
+    GEXF_VIZ_COLOR_GREEN = "g"
+    GEXF_VIZ_COLOR_BLUE = "b"
+    GEXF_VIZ_COLOR_ALPHA = "a"
 
-    GEXF_VIZ_POSITION = 'position'
-    GEXF_VIZ_POSITION_X = 'x'
-    GEXF_VIZ_POSITION_Y = 'y'
-    GEXF_VIZ_POSITION_Z = 'z'
+    GEXF_VIZ_POSITION = "position"
+    GEXF_VIZ_POSITION_X = "x"
+    GEXF_VIZ_POSITION_Y = "y"
+    GEXF_VIZ_POSITION_Z = "z"
 
-    GEXF_VIZ_SIZE = 'size'
-    GEXF_VIZ_SHAPE = 'shape'
+    GEXF_VIZ_SIZE = "size"
+    GEXF_VIZ_SHAPE = "shape"
 
-    GEXF_EDGE_THICKNESS = 'thickness'
-    GEXF_EDGE_SHAPE = 'shape'
-
+    GEXF_EDGE_THICKNESS = "thickness"
+    GEXF_EDGE_SHAPE = "shape"
 
     COLOR = GRAPHVIZ_COLOR
     POSITION = GRAPHVIZ_POSITION
@@ -73,7 +73,6 @@ class LayoutGraph():
         self._viz_graph.add_nodes_from(self.graph.nodes)
         self._viz_graph.add_edges_from(self.graph.edges)
 
-
         # add a "viz" attribute for all nodes for visualization
         # puproses in gexf format
         for node in self.viz_graph.nodes:
@@ -88,7 +87,6 @@ class LayoutGraph():
     def viz_graph(self):
         """The mirror graph in which visualization attributes are set."""
         return self._viz_graph
-
 
     def get_node_attributes(self, attribute_key):
         """Gets attributes from the data graph and returns as a dictionary
@@ -121,7 +119,6 @@ class LayoutGraph():
             node_attr_dict[node_id] = value
 
         return node_attr_dict
-
 
     # for setting visualization values of the network in a format agnostic way
     def set_node_viz_attributes(self, attribute_key, node_attribute_dict):
@@ -181,7 +178,6 @@ class LayoutGraph():
 
         self.set_node_viz_attributes(self.SHAPE, node_shapes_dict)
 
-
     # getters
     def get_node_viz_attributes(self, attribute_key):
         """Get the format agnostic attributes of nodes in the viz graph.
@@ -209,7 +205,6 @@ class LayoutGraph():
         node_positions : dict of node_id: numpy.ndarray of float
         """
 
-
         self.get_node_viz_attributes(self.POSITION)
 
     def get_node_colors(self):
@@ -219,7 +214,6 @@ class LayoutGraph():
         -------
         node_colors : dict of node_id: color_spec
         """
-
 
         self.get_node_viz_attributes(self.COLOR)
 
@@ -231,7 +225,6 @@ class LayoutGraph():
         node_sizes : dict of node_id: float
         """
 
-
         self.get_node_viz_attributes(self.SIZE)
 
     def get_node_shapes(self):
@@ -242,8 +235,6 @@ class LayoutGraph():
         node_shapes : dict of node_id: shape_spec
         """
         self.get_node_viz_attributes(self.SHAPE)
-
-
 
     @classmethod
     def RGBA_to_hex(cls, color_vec):
@@ -261,12 +252,13 @@ class LayoutGraph():
 
         """
 
-        assert not any([True if (color <= 255 and color >=0) else False for color in color_vec]),\
-            "invalid color values, must be between 0 and 255"
+        assert not any(
+            [True if (color <= 255 and color >= 0) else False for color in color_vec]
+        ), "invalid color values, must be between 0 and 255"
 
-        return '#' + ''.join(['{:02x}' for _ in color_vec]).format(*[color for color in color_vec])
-
-
+        return "#" + "".join(["{:02x}" for _ in color_vec]).format(
+            *[color for color in color_vec]
+        )
 
     # methods for setting gexf visualization attributes
     @classmethod
@@ -285,9 +277,11 @@ class LayoutGraph():
 
         """
 
-        return {cls.GEXF_VIZ_POSITION_X : float(coord_vec[0]),
-                cls.GEXF_VIZ_POSITION_Y : float(coord_vec[1]),
-                cls.GEXF_VIZ_POSITION_Z : float(coord_vec[2])}
+        return {
+            cls.GEXF_VIZ_POSITION_X: float(coord_vec[0]),
+            cls.GEXF_VIZ_POSITION_Y: float(coord_vec[1]),
+            cls.GEXF_VIZ_POSITION_Z: float(coord_vec[2]),
+        }
 
     @classmethod
     def feature_vector_to_gexf_viz_color_RGB(cls, color_vec):
@@ -306,9 +300,11 @@ class LayoutGraph():
 
         """
 
-        return {cls.GEXF_VIZ_COLOR_RED : int(color_vec[0]),
-                cls.GEXF_VIZ_COLOR_GREEN : int(color_vec[1]),
-                cls.GEXF_VIZ_COLOR_BLUE : int(color_vec[2])}
+        return {
+            cls.GEXF_VIZ_COLOR_RED: int(color_vec[0]),
+            cls.GEXF_VIZ_COLOR_GREEN: int(color_vec[1]),
+            cls.GEXF_VIZ_COLOR_BLUE: int(color_vec[2]),
+        }
 
     @classmethod
     def feature_vector_to_gexf_viz_color_RGBA(cls, color_vec):
@@ -327,10 +323,12 @@ class LayoutGraph():
 
         """
 
-        return {cls.GEXF_VIZ_COLOR_RED : int(color_vec[0]),
-                cls.GEXF_VIZ_COLOR_GREEN : int(color_vec[1]),
-                cls.GEXF_VIZ_COLOR_BLUE : int(color_vec[2]),
-                cls.GEXF_VIZ_COLOR_ALPHA : int(color_vec[3])}
+        return {
+            cls.GEXF_VIZ_COLOR_RED: int(color_vec[0]),
+            cls.GEXF_VIZ_COLOR_GREEN: int(color_vec[1]),
+            cls.GEXF_VIZ_COLOR_BLUE: int(color_vec[2]),
+            cls.GEXF_VIZ_COLOR_ALPHA: int(color_vec[3]),
+        }
 
     def set_node_gexf_viz(self, viz_key, node_dict):
         """Sets GEXF formatted visualization attributes for all nodes.
@@ -350,7 +348,6 @@ class LayoutGraph():
         """
 
         for node_id, value in node_dict.items():
-
             self.viz_graph.node[node_id][self.GEXF_VIZ][viz_key] = value
 
     def set_node_gexf_positions(self, node_positions_dict):
@@ -364,9 +361,13 @@ class LayoutGraph():
 
         # convert the node positions values to a valid dictionary and
         # set the positions viz for all the nodes
-        self.set_node_gexf_viz(self.GEXF_VIZ_POSITION,
-                          {node_id : self.feature_vector_to_gexf_viz_position(coord)
-                           for node_id, coord in node_positions_dict.items()})
+        self.set_node_gexf_viz(
+            self.GEXF_VIZ_POSITION,
+            {
+                node_id: self.feature_vector_to_gexf_viz_position(coord)
+                for node_id, coord in node_positions_dict.items()
+            },
+        )
 
     def set_node_gexf_colors_rgb(self, node_colors_dict):
         """Sets GEXF specific RGB color attribute for visualization to nodes.
@@ -379,9 +380,13 @@ class LayoutGraph():
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
-        self.set_node_gexf_viz(self.GEXF_VIZ_COLOR,
-                               {node_id : self.feature_vector_to_gexf_viz_color_RGB(coord)
-                                for node_id, coord in node_colors_dict.items()})
+        self.set_node_gexf_viz(
+            self.GEXF_VIZ_COLOR,
+            {
+                node_id: self.feature_vector_to_gexf_viz_color_RGB(coord)
+                for node_id, coord in node_colors_dict.items()
+            },
+        )
 
     def set_node_gexf_colors_rgba(self, node_colors_dict):
         """Sets GEXF specific RGBA color attribute for visualization to nodes.
@@ -394,9 +399,13 @@ class LayoutGraph():
 
         # convert the node colors values to a valid dictionary and
         # set the colors viz for all the nodes
-        self.set_node_gexf_viz(self.GEXF_VIZ_COLOR,
-                               {node_id : self.feature_vector_to_gexf_viz_color_RGBA(coord)
-                                for node_id, coord in node_colors_dict.items()})
+        self.set_node_gexf_viz(
+            self.GEXF_VIZ_COLOR,
+            {
+                node_id: self.feature_vector_to_gexf_viz_color_RGBA(coord)
+                for node_id, coord in node_colors_dict.items()
+            },
+        )
 
     def set_node_gexf_sizes(self, node_sizes_dict):
         """Sets GEXF specific node size attribute for visualization to nodes.
@@ -419,7 +428,6 @@ class LayoutGraph():
         """
         self.set_node_gexf_viz(self.GEXF_VIZ_SHAPE, node_shape_dict)
 
-
     # TODO: either support or deprecate graphviz. Not sure if this is
     # ready for main since we really only use the gexf one. I was
     # experimenting with this and found it hard.
@@ -432,7 +440,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     coord_vec :
-            
 
     #     Returns
     #     -------
@@ -441,7 +448,6 @@ class LayoutGraph():
 
     #     return ','.join(['{}' for _ in coord_vec]).format(*[i for i in coord_vec])
 
-
     # @classmethod
     # def feature_vector_to_graphviz_color_RGB(cls, color_vec):
     #     """
@@ -449,7 +455,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     color_vec :
-            
 
     #     Returns
     #     -------
@@ -467,7 +472,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     color_vec :
-            
 
     #     Returns
     #     -------
@@ -478,7 +482,6 @@ class LayoutGraph():
 
     #     return cls.RGBA_to_hex(color_vec)
 
-
     # # methods for setting graphviz attributes for visualization
 
     # def set_node_graphviz(self, viz_key, node_dict):
@@ -487,9 +490,8 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     viz_key :
-            
+
     #     node_dict :
-            
 
     #     Returns
     #     -------
@@ -506,7 +508,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     node_positions_dict :
-            
 
     #     Returns
     #     -------
@@ -529,7 +530,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     node_colors_dict :
-            
 
     #     Returns
     #     -------
@@ -548,7 +548,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     node_colors_dict :
-            
 
     #     Returns
     #     -------
@@ -567,7 +566,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     node_sizes_dict :
-            
 
     #     Returns
     #     -------
@@ -584,7 +582,6 @@ class LayoutGraph():
     #     Parameters
     #     ----------
     #     node_sizes_dict :
-            
 
     #     Returns
     #     -------

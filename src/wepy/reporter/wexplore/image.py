@@ -1,12 +1,12 @@
 import logging
 
+import mdtraj as mdj
 import numpy as np
 
-import mdtraj as mdj
-
 from wepy.reporter.reporter import ProgressiveFileReporter
-from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
 from wepy.util.json_top import json_top_subset
+from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
+
 
 class WExploreAtomImageReporter(ProgressiveFileReporter):
     """Reporter for generating 3D molecular structures from WExplore
@@ -20,12 +20,9 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
     FILE_ORDER = ("init_state_path", "image_path")
     SUGGESTED_EXTENSIONS = ("image_top.pdb", "wexplore_images.dcd")
 
-
-    def __init__(self,
-                 init_image=None,
-                 image_atom_idxs=None,
-                 json_topology=None,
-                 **kwargs):
+    def __init__(
+        self, init_image=None, image_atom_idxs=None, json_topology=None, **kwargs
+    ):
         """Constructor for the WExploreAtomImageReporter.
 
         Parameters
@@ -49,8 +46,9 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
         super().__init__(**kwargs)
 
         assert json_topology is not None, "must give a JSON format topology"
-        assert image_atom_idxs is not None, \
-            "must give the indices of the atoms for the subset of the topology that is the image"
+        assert (
+            image_atom_idxs is not None
+        ), "must give the indices of the atoms for the subset of the topology that is the image"
 
         self.image_atom_idxs = image_atom_idxs
 
@@ -71,21 +69,16 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
         # and times
         self.times = [0]
 
-
     def init(self, **kwargs):
-
         super().init(**kwargs)
 
         if self.init_image is not None:
-
             image_mdj_topology = json_to_mdtraj_topology(self.json_main_rep_top)
 
             # initialize the initial image into the image traj
-            init_image_traj = mdj.Trajectory([self.init_image],
-                                             time=self.times,
-                                             topology=image_mdj_topology)
-
-
+            init_image_traj = mdj.Trajectory(
+                [self.init_image], time=self.times, topology=image_mdj_topology
+            )
 
             # save this as a PDB for a topology to view in VMD etc. to go
             # along with the trajectory we will make
@@ -94,20 +87,17 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
             self._top_pdb_written = True
 
-    def report(self, cycle_idx=None, resampler_data=None,
-               **kwargs):
-
+    def report(self, cycle_idx=None, resampler_data=None, **kwargs):
         # load the json topology as an mdtraj one
         image_mdj_topology = json_to_mdtraj_topology(self.json_main_rep_top)
 
         # collect the new images defined
         new_images = []
         for resampler_rec in resampler_data:
-            image = resampler_rec['image']
+            image = resampler_rec["image"]
             new_images.append(image)
 
         times = np.array([cycle_idx + 1 for _ in range(len(new_images))])
-
 
         # combine the new image positions and times with the old
         self.image_traj_positions.extend(new_images)
@@ -115,11 +105,10 @@ class WExploreAtomImageReporter(ProgressiveFileReporter):
 
         # only save if we have an image yet
         if len(self.image_traj_positions) > 0:
-
             # make a trajectory of the new images, using the cycle_idx as the time
-            new_image_traj = mdj.Trajectory(self.image_traj_positions,
-                                            time=self.times,
-                                            topology=image_mdj_topology)
+            new_image_traj = mdj.Trajectory(
+                self.image_traj_positions, time=self.times, topology=image_mdj_topology
+            )
 
             # if we haven't already written a topology PDB write it now
             if not self._top_pdb_written:

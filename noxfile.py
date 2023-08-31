@@ -1,4 +1,3 @@
-
 # NOTE: A quick note on what Nox is used for specifically. Nox is used for
 # anything that requires some sort of special virtual environment in order to
 # operate. That includes creating standalone virtualenvs, and for single tasks
@@ -37,8 +36,7 @@ FORMAT_TARGETS = [
 
 LINT_TARGETS = FORMAT_TARGETS
 
-TYPECHECK_TARGETS = [
-]
+TYPECHECK_TARGETS = []
 
 UNIT_TEST_DIRNAME = "unit"
 
@@ -394,12 +392,13 @@ def coverage(session):
 
 ## Builds & Releases
 
+
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def build(session):
-
     session.install("hatch")
 
     session.run("hatch", "build")
+
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def bumpversion(session):
@@ -408,24 +407,31 @@ def bumpversion(session):
     if session.posargs:
         assert len(session.posargs) == 1, "Too many arguments only need 1."
         part = session.posargs[0]
-        assert part in ("major", "minor", "patch"), "Must choose a valid bump part ('major', 'minor', 'patch')"
+        assert part in (
+            "major",
+            "minor",
+            "patch",
+        ), "Must choose a valid bump part ('major', 'minor', 'patch')"
     else:
         part = "patch"
 
     session.run("hatch", "version", part)
 
+
 # NOTE: this is the current owner of the PyPI package contact my email above for
 # more info
 PYPI_USER = "salotz"
 
+
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def publish(session):
-
     session.install("hatch")
 
     session.run(
-        "hatch", "-v", "publish",
+        "hatch",
+        "-v",
+        "publish",
         env={
-            "HATCH_INDEX_USER" : PYPI_USER,
-        }
+            "HATCH_INDEX_USER": PYPI_USER,
+        },
     )

@@ -4,15 +4,16 @@ wepy.
 
 """
 
-import sys
 import logging
-from copy import deepcopy
-from collections import defaultdict
 import random
+import sys
+from collections import defaultdict
+from copy import deepcopy
 
 import numpy as np
 
 from wepy.walker import Walker
+
 
 class BoundaryConditions(object):
     """Abstract base class for conveniently making compliant boundary condition classes.
@@ -20,7 +21,6 @@ class BoundaryConditions(object):
     Includes empty record group definitions and useful getters for those.
 
     """
-
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ()
@@ -98,7 +98,7 @@ class BoundaryConditions(object):
     """
 
     # warping (sporadic)
-    WARPING_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    WARPING_FIELDS = ("walker_idx", "target_idx", "weight")
     """String names of fields produced in this record group.
 
     Warping records are typically used to report whenever a walker
@@ -163,7 +163,7 @@ class BoundaryConditions(object):
 
     """
 
-    WARPING_RECORD_FIELDS = ('walker_idx', 'target_idx', 'weight')
+    WARPING_RECORD_FIELDS = ("walker_idx", "target_idx", "weight")
     """Optional, names of fields to be selected for truncated
     representation of the record group.
 
@@ -252,7 +252,7 @@ class BoundaryConditions(object):
     """
 
     def __init__(self, **kwargs):
-        """Null constructor accepts and ignores any key word arguments. """
+        """Null constructor accepts and ignores any key word arguments."""
 
         pass
 
@@ -278,9 +278,9 @@ class BoundaryConditions(object):
             A list of the specs for each field, a spec is a tuple of
             type (field_name, shape_spec, dtype_spec)
         """
-        return list(zip(self.bc_field_names(),
-                   self.bc_field_shapes(),
-                   self.bc_field_dtypes()))
+        return list(
+            zip(self.bc_field_names(), self.bc_field_shapes(), self.bc_field_dtypes())
+        )
 
     def bc_record_field_names(self):
         """Access the class level RECORD_FIELDS constant for this record group."""
@@ -308,9 +308,13 @@ class BoundaryConditions(object):
             A list of the specs for each field, a spec is a tuple of
             type (field_name, shape_spec, dtype_spec)
         """
-        return list(zip(self.warping_field_names(),
-                   self.warping_field_shapes(),
-                   self.warping_field_dtypes()))
+        return list(
+            zip(
+                self.warping_field_names(),
+                self.warping_field_shapes(),
+                self.warping_field_dtypes(),
+            )
+        )
 
     def warping_record_field_names(self):
         """Access the class level RECORD_FIELDS constant for this record group."""
@@ -338,9 +342,13 @@ class BoundaryConditions(object):
             A list of the specs for each field, a spec is a tuple of
             type (field_name, shape_spec, dtype_spec)
         """
-        return list(zip(self.progress_field_names(),
-                   self.progress_field_shapes(),
-                   self.progress_field_dtypes()))
+        return list(
+            zip(
+                self.progress_field_names(),
+                self.progress_field_shapes(),
+                self.progress_field_dtypes(),
+            )
+        )
 
     def progress_record_field_names(self):
         """Access the class level RECORD_FIELDS constant for this record group."""
@@ -413,7 +421,6 @@ class BoundaryConditions(object):
         raise NotImplementedError
 
 
-
 class NoBC(BoundaryConditions):
     """Boundary conditions class that does nothing.
 
@@ -477,27 +484,25 @@ class RandomBC(BoundaryConditions):
 
     """
 
-
     # records of boundary condition changes (sporadic)
-    BC_FIELDS = ('ping',)
+    BC_FIELDS = ("ping",)
     BC_SHAPES = ((1,),)
     BC_DTYPES = (int,)
 
-    BC_RECORD_FIELDS = ('ping',)
+    BC_RECORD_FIELDS = ("ping",)
 
     # warping fields are directly inherited
 
     # progress towards the boundary conditions (continual)
-    PROGRESS_FIELDS = ('weight',)
+    PROGRESS_FIELDS = ("weight",)
     PROGRESS_SHAPES = (Ellipsis,)
     PROGRESS_DTYPES = (float,)
 
-    PROGRESS_RECORD_FIELDS = ('weight',)
+    PROGRESS_RECORD_FIELDS = ("weight",)
 
     DISCONTINUITY_TARGET_IDXS = (0,)
 
     def warp_walkers(self, walkers, cycle):
-
         ## warping walkers
 
         # just return the same walkers
@@ -510,16 +515,14 @@ class RandomBC(BoundaryConditions):
         # event, 25% is discontinuous (target 0), and 25% is
         # continuous (target 1)
         for walker_idx, walker in enumerate(walkers):
-
             # warping event?
             if random.random() >= 0.5:
-
                 # discontinuous?
                 if random.random() >= 0.5:
                     warp_record = {
-                        'walker_idx' : np.array([walker_idx]),
-                        'target_idx' : np.array([0]),
-                        'weight' : np.array([walker.weight]),
+                        "walker_idx": np.array([walker_idx]),
+                        "target_idx": np.array([0]),
+                        "weight": np.array([walker.weight]),
                     }
 
                     warp_data.append(warp_record)
@@ -527,9 +530,9 @@ class RandomBC(BoundaryConditions):
                 # continuous
                 else:
                     warp_record = {
-                        'walker_idx' : np.array([walker_idx]),
-                        'target_idx' : np.array([1]),
-                        'weight' : np.array([walker.weight]),
+                        "walker_idx": np.array([walker_idx]),
+                        "target_idx": np.array([1]),
+                        "weight": np.array([walker.weight]),
                     }
 
                     warp_data.append(warp_record)
@@ -538,21 +541,19 @@ class RandomBC(BoundaryConditions):
         bc_data = []
         # choose whether to generate a bc record
         if random.random() >= 0.5:
-            bc_data.append({'ping' : np.array([1])})
+            bc_data.append({"ping": np.array([1])})
 
         ## Progress data
 
         # just set the walker progress to be its weight so there is a
         # number there
-        progress_data = {'weight' :
-                         [walker.weight for walker in walkers]
-        }
-
+        progress_data = {"weight": [walker.weight for walker in walkers]}
 
         return new_walkers, warp_data, bc_data, progress_data
 
+
 class WarpBC(BoundaryConditions):
-    """Base class for boundary conditions with warping. """
+    """Base class for boundary conditions with warping."""
 
     # records of boundary condition changes (sporadic)
     BC_FIELDS = ()
@@ -579,9 +580,7 @@ class WarpBC(BoundaryConditions):
 
     """
 
-    def __init__(self, initial_states=None,
-                 initial_weights=None,
-                 **kwargs):
+    def __init__(self, initial_states=None, initial_weights=None, **kwargs):
         """Base constructor for WarpBC.
 
         This should be called immediately in the subclass `__init__`
@@ -617,7 +616,7 @@ class WarpBC(BoundaryConditions):
         # initial probability if specified. If not specified assume
         # assume uniform probabilities.
         if initial_weights is None:
-            self._initial_weights = [1/len(initial_states) for _ in initial_states]
+            self._initial_weights = [1 / len(initial_states) for _ in initial_states]
         else:
             self._initial_weights = initial_weights
 
@@ -654,7 +653,6 @@ class WarpBC(BoundaryConditions):
 
         raise NotImplementedError
 
-    
     def _warp(self, walker):
         """Perform the warping of a walker.
 
@@ -680,10 +678,12 @@ class WarpBC(BoundaryConditions):
 
         """
 
-
         # choose a state randomly from the set of initial states
-        target_idx = np.random.choice(range(len(self.initial_states)), 1,
-                                  p=self.initial_weights/np.sum(self.initial_weights))[0]
+        target_idx = np.random.choice(
+            range(len(self.initial_states)),
+            1,
+            p=self.initial_weights / np.sum(self.initial_weights),
+        )[0]
 
         warped_state = self.initial_states[target_idx]
 
@@ -691,14 +691,14 @@ class WarpBC(BoundaryConditions):
         warped_walker = type(walker)(state=warped_state, weight=walker.weight)
 
         # the data for the warp
-        warp_data = {'target_idx' : np.array([target_idx]),
-                     'weight' : np.array([walker.weight])}
+        warp_data = {
+            "target_idx": np.array([target_idx]),
+            "weight": np.array([walker.weight]),
+        }
 
         return warped_walker, warp_data
 
-    
     def warp_walkers(self, walkers, cycle):
-
         ## warping walkers
 
         # just return the same walkers
@@ -711,16 +711,14 @@ class WarpBC(BoundaryConditions):
         # event, 25% is discontinuous (target 0), and 25% is
         # continuous (target 1)
         for walker_idx, walker in enumerate(walkers):
-
             # warping event?
             if random.random() >= 0.5:
-
                 # discontinuous?
                 if random.random() >= 0.5:
                     warp_record = {
-                        'walker_idx' : np.array([walker_idx]),
-                        'target_idx' : np.array([0]),
-                        'weight' : np.array([walker.weight]),
+                        "walker_idx": np.array([walker_idx]),
+                        "target_idx": np.array([0]),
+                        "weight": np.array([walker.weight]),
                     }
 
                     warp_data.append(warp_record)
@@ -728,9 +726,9 @@ class WarpBC(BoundaryConditions):
                 # continuous
                 else:
                     warp_record = {
-                        'walker_idx' : np.array([walker_idx]),
-                        'target_idx' : np.array([1]),
-                        'weight' : np.array([walker.weight]),
+                        "walker_idx": np.array([walker_idx]),
+                        "target_idx": np.array([1]),
+                        "weight": np.array([walker.weight]),
                     }
 
                     warp_data.append(warp_record)
@@ -739,16 +737,13 @@ class WarpBC(BoundaryConditions):
         bc_data = []
         # choose whether to generate a bc record
         if random.random() >= 0.5:
-            bc_data.append({'ping' : np.array([1])})
+            bc_data.append({"ping": np.array([1])})
 
         ## Progress data
 
         # just set the walker progress to be its weight so there is a
         # number there
-        progress_data = {'weight' :
-                         [walker.weight for walker in walkers]
-        }
-
+        progress_data = {"weight": [walker.weight for walker in walkers]}
 
         return new_walkers, warp_data, bc_data, progress_data
 
@@ -822,7 +817,6 @@ class WarpBC(BoundaryConditions):
         all_progress_data = [self._progress(w) for w in walkers]
 
         for walker_idx, walker in enumerate(walkers):
-
             # unpack progress data
             to_warp, walker_progress_data = all_progress_data[walker_idx]
 
@@ -837,7 +831,7 @@ class WarpBC(BoundaryConditions):
                 warped_walker, walker_warp_data = self._warp(walker)
 
                 # add the walker idx to the walker warp record
-                walker_warp_data['walker_idx'] = np.array([walker_idx])
+                walker_warp_data["walker_idx"] = np.array([walker_idx])
 
                 # save warped_walker in the list of new walkers to return
                 new_walkers.append(warped_walker)
@@ -845,9 +839,10 @@ class WarpBC(BoundaryConditions):
                 # save the instruction record of the walker
                 warp_data.append(walker_warp_data)
 
-                logging.info('WARP EVENT observed at {}'.format(cycle))
-                logging.info('Warped Walker Weight = {}'.format(
-                    walker_warp_data['weight']))
+                logging.info("WARP EVENT observed at {}".format(cycle))
+                logging.info(
+                    "Warped Walker Weight = {}".format(walker_warp_data["weight"])
+                )
 
             # no warping so just return the original walker
             else:

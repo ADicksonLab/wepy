@@ -22,7 +22,6 @@ class RandomWalkDistance(Distance):
         """Construct a RandomWalkDistance metric."""
         pass
 
-
     def image(self, state):
         """Transform a state into a random walk image.
 
@@ -44,25 +43,25 @@ class RandomWalkDistance(Distance):
             The positions of a walker in the N-dimensional space.
 
         """
-        return state['positions']
+        return state["positions"]
 
     def image_distance(self, image_a, image_b):
         """Compute the distance between the image of the two walkers.
 
-        Parameters
-        ----------
+         Parameters
+         ----------
 
-        image_a : array of float of shape (1, N)
-            Position of the first walker's state.
+         image_a : array of float of shape (1, N)
+             Position of the first walker's state.
 
-        image_b:  array of float of shape (1, N)
-            Position of the second walker's state.
+         image_b:  array of float of shape (1, N)
+             Position of the second walker's state.
 
-       Returns
-        -------
+        Returns
+         -------
 
-        distance: float
-            The normalized Manhattan distance.
+         distance: float
+             The normalized Manhattan distance.
 
         """
         return np.average(np.abs(image_a - image_b))

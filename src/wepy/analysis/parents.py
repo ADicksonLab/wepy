@@ -57,11 +57,11 @@ ParentForest : Class that imposes the forest (tree) structure over the
 """
 
 
-from copy import copy
 import itertools as it
+from copy import copy
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
 DISCONTINUITY_VALUE = -1
 """Special value used to determine if a parent-child relationship has
@@ -69,6 +69,7 @@ discontinuous dynamical continuity. Functions in this module uses this
 to set this value.
 
 """
+
 
 def resampling_panel(resampling_records, is_sorted=False):
     """Converts an unordered collection of resampling records into a
@@ -108,7 +109,6 @@ def resampling_panel(resampling_records, is_sorted=False):
     cycle_recs = []
     stop = False
     while not stop:
-
         # iterate through records until either there is none left or
         # until you get to the next cycle
         cycle_stop = False
@@ -123,7 +123,6 @@ def resampling_panel(resampling_records, is_sorted=False):
                 # alias for the current cycle
                 curr_cycle_recs = cycle_recs
             else:
-
                 # the cycles in the records may not start at 0, but
                 # they are in order so we initialize the last
                 # cycle_idx so we know when in the records we have
@@ -150,7 +149,6 @@ def resampling_panel(resampling_records, is_sorted=False):
                 cycle_recs.append(rec)
 
             else:
-
                 # we need to break up the records in the cycle into steps
                 cycle_table = []
 
@@ -170,7 +168,6 @@ def resampling_panel(resampling_records, is_sorted=False):
 
                     # or if the next stop index has been obtained
                     else:
-
                         if cycle_rec.step_idx > step_idx:
                             step_stop = True
                             # save the current step as a special
@@ -184,14 +181,12 @@ def resampling_panel(resampling_records, is_sorted=False):
                             step_recs = [cycle_rec]
                             step_idx += 1
 
-
                     if not step_stop:
                         step_recs.append(cycle_rec)
                     else:
                         # go through the walkers for this step since it is completed
                         step_row = [None for _ in range(len(curr_step_recs))]
                         for walker_rec in curr_step_recs:
-
                             # collect data from the record
                             walker_idx = walker_rec.walker_idx
                             decision_id = walker_rec.decision_id
@@ -199,7 +194,6 @@ def resampling_panel(resampling_records, is_sorted=False):
 
                             # set the resampling record for the walker in the step records
                             step_row[walker_idx] = (decision_id, instruction)
-
 
                         # add the records for this step to the cycle table
                         cycle_table.append(step_row)
@@ -232,14 +226,12 @@ def parent_panel(decision_class, resampling_panel):
 
     parent_panel_in = []
     for cycle in resampling_panel:
-
         # each stage in the resampling for that cycle
         # make a stage parent table
         parent_table = []
 
         # now iterate through the rest of the stages
         for step in cycle:
-
             # get the parents idxs for the children of this step
             step_parents = decision_class.parents(step)
 
@@ -250,6 +242,7 @@ def parent_panel(decision_class, resampling_panel):
         parent_panel_in.append(parent_table)
 
     return parent_panel_in
+
 
 def net_parent_table(parent_panel):
     """Reduces a full parent panel to get parent indices on a cycle basis.
@@ -288,7 +281,7 @@ def net_parent_table(parent_panel):
             if n_steps > 0:
                 # go back through the steps getting the parent at each step
                 for prev_step_idx in range(n_steps):
-                    prev_step_parents = step_parent_table[-(prev_step_idx+1)]
+                    prev_step_parents = step_parent_table[-(prev_step_idx + 1)]
                     root_parent_idx = prev_step_parents[root_parent_idx]
 
             # when this is done we should have the index of the root parent,
@@ -300,7 +293,10 @@ def net_parent_table(parent_panel):
 
     return net_parent_table_in
 
-def parent_table_discontinuities(boundary_condition_class, parent_table, warping_records):
+
+def parent_table_discontinuities(
+    boundary_condition_class, parent_table, warping_records
+):
     """Given a parent table and warping records returns a new parent table
     with the discontinuous warping events for parents set to a special
     value (-1).
@@ -327,48 +323,41 @@ def parent_table_discontinuities(boundary_condition_class, parent_table, warping
     new_parent_table = copy(parent_table)
 
     for warp_record in warping_records:
-
         cycle_idx = warp_record[0]
         parent_idx = warp_record[1]
 
         n_walkers = len(parent_table[cycle_idx])
 
-
         discs = [False for _ in range(n_walkers)]
         # Check to see if any walkers in the current step
         # originated from this warped walker
         for walker_idx in range(n_walkers):
-
             # this walker was warped discontinuously make a record true for itq
             if boundary_condition_class.warping_discontinuity(warp_record):
                 discs[walker_idx] = True
 
-        disc_parent_row = parent_cycle_discontinuities(parent_table[cycle_idx],
-                                                       discs)
+        disc_parent_row = parent_cycle_discontinuities(parent_table[cycle_idx], discs)
 
         new_parent_table[cycle_idx] = disc_parent_row
-
 
     return new_parent_table
 
 
 def parent_cycle_discontinuities(parent_idxs, discontinuities):
-
     parent_row = copy(parent_idxs)
     for walker_idx, disc in enumerate(discontinuities):
-
         # if there was a discontinuity in this walker, we need to
         # check for which children it had and apply the discontinuity
         # to them
         if disc:
             for child_idx in range(len(parent_idxs)):
-
                 parent_idx = parent_idxs[child_idx]
 
                 if parent_idx == walker_idx:
                     parent_row[child_idx] = DISCONTINUITY_VALUE
 
     return parent_row
+
 
 def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
     """Returns the lineage of ancestors as walker indices leading up to
@@ -396,21 +385,22 @@ def ancestors(parent_table, cycle_idx, walker_idx, ancestor_cycle=0):
 
     previous_walker = walker_idx
 
-    for curr_cycle_idx in range(cycle_idx-1, ancestor_cycle-1, -1):
-            previous_walker = parent_table[curr_cycle_idx][previous_walker]
+    for curr_cycle_idx in range(cycle_idx - 1, ancestor_cycle - 1, -1):
+        previous_walker = parent_table[curr_cycle_idx][previous_walker]
 
-            # check for discontinuities, e.g. warping events
-            if previous_walker == -1:
-                # there are no more continuous ancestors for this
-                # walker so we cannot return ancestors back to the
-                # requested cycle just return the ancestors to this
-                # point
-                break
+        # check for discontinuities, e.g. warping events
+        if previous_walker == -1:
+            # there are no more continuous ancestors for this
+            # walker so we cannot return ancestors back to the
+            # requested cycle just return the ancestors to this
+            # point
+            break
 
-            previous_point = (previous_walker, curr_cycle_idx)
-            lineage.insert(0, previous_point)
+        previous_point = (previous_walker, curr_cycle_idx)
+        lineage.insert(0, previous_point)
 
     return lineage
+
 
 def sliding_window(parent_table, window_length):
     """Return contig walker traces of sliding windows of given length over
@@ -440,14 +430,16 @@ def sliding_window(parent_table, window_length):
     windows = []
     # we make a range iterator which goes from the last cycle to the
     # cycle which would be the end of the first possible sliding window
-    for cycle_idx in range(len(parent_table)-1, window_length-2, -1):
-
+    for cycle_idx in range(len(parent_table) - 1, window_length - 2, -1):
         # then iterate for each walker at this cycle
         for walker_idx in range(len(parent_table[0])):
-
             # then get the ancestors according to the sliding window
-            window = ancestors(parent_table, cycle_idx, walker_idx,
-                               ancestor_cycle=cycle_idx-(window_length-1))
+            window = ancestors(
+                parent_table,
+                cycle_idx,
+                walker_idx,
+                ancestor_cycle=cycle_idx - (window_length - 1),
+            )
 
             # if the window is too short because the lineage has a
             # discontinuity in it skip to the next window
@@ -459,7 +451,7 @@ def sliding_window(parent_table, window_length):
     return windows
 
 
-class ParentForest():
+class ParentForest:
     """A tree abstraction to a contig representing the family trees of walkers.
 
     Uses a directed graph (networkx.DiGraph) to represent parent-child
@@ -467,10 +459,9 @@ class ParentForest():
 
     """
 
-
-    WEIGHT = 'weight'
+    WEIGHT = "weight"
     """Key for weight node attribute."""
-    FREE_ENERGY = 'free_energy'
+    FREE_ENERGY = "free_energy"
     """Key for free energy node attribute."""
 
     ROOT_CYCLE_IDX = -1
@@ -486,8 +477,10 @@ class ParentForest():
 
     CONTINUITY_VALUE = 0
 
-    def __init__(self, contig=None,
-                 parent_table=None,
+    def __init__(
+        self,
+        contig=None,
+        parent_table=None,
     ):
         """Constructs a parent forest from either a Contig object or parent table.
 
@@ -512,7 +505,6 @@ class ParentForest():
 
         """
 
-
         if (contig is not None) and (parent_table is not None):
             raise ValueError("Pass in either a contig or a parent table but not both")
 
@@ -523,14 +515,14 @@ class ParentForest():
 
         # if the contig was given, generate a parent table
         if self._contig is not None:
-
             # from that contig make a parent table
             self._parent_table = self.contig.parent_table(discontinuities=False)
 
         # otherwise use the one given
         else:
-            assert not self.DISCONTINUITY_VALUE in it.chain(*parent_table), \
-                "Discontinuity values in parent table are not allowed."
+            assert not self.DISCONTINUITY_VALUE in it.chain(
+                *parent_table
+            ), "Discontinuity values in parent table are not allowed."
 
             self._parent_table = parent_table
 
@@ -539,8 +531,9 @@ class ParentForest():
         # make the roots of each tree in the parent graph, because
         # this is outside the indexing of the steps we use a special
         # index
-        self._roots = [(self.ROOT_CYCLE_IDX, i)
-                       for i in range(len(self.parent_table[0]))]
+        self._roots = [
+            (self.ROOT_CYCLE_IDX, i) for i in range(len(self.parent_table[0]))
+        ]
 
         # set these as nodes
         self.graph.add_nodes_from(self.roots)
@@ -548,13 +541,11 @@ class ParentForest():
         # go through the parent matrix and make edges from the parents
         # to children nodes
         for step_idx, parent_idxs in enumerate(self.parent_table):
-
             # make edge between each walker of this step to the previous step
             edges, edges_attrs = self._make_child_parent_edges(step_idx, parent_idxs)
 
             # then put them into this graph
             for i, edge in enumerate(edges):
-
                 if edge is not None:
                     self.graph.add_edge(*edge, **edges_attrs[i])
 
@@ -580,7 +571,6 @@ class ParentForest():
         edges = []
         edges_attrs = []
         for curr_walker_idx, parent_idx in enumerate(parent_idxs):
-
             # if the parent is the discontinuity value we set the
             # parent node in the edge as the discontinuity value
             disc = self.CONTINUITY_VALUE
@@ -599,7 +589,7 @@ class ParentForest():
 
             # nothing to do but I already wrote it this way and may be
             # useful later
-            edge_attrs = {'discontinuity' : disc}
+            edge_attrs = {"discontinuity": disc}
 
             edges_attrs.append(edge_attrs)
 
@@ -631,7 +621,9 @@ class ParentForest():
     @property
     def trees(self):
         """Returns a list of the subtrees from each root in this forest. In no particular order"""
-        trees_by_size = [self.graph.subgraph(c) for c in nx.weakly_connected_components(self.graph)]
+        trees_by_size = [
+            self.graph.subgraph(c) for c in nx.weakly_connected_components(self.graph)
+        ]
         trees = []
         for root in self.roots:
             root_tree = [tree for tree in trees_by_size if root in tree][0]

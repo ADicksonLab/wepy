@@ -22,7 +22,9 @@ the 'image_distance' to compute distances using only those images.
 
 """
 import logging
+
 import numpy as np
+
 
 class Distance(object):
     """Abstract Base class for Distance classes."""
@@ -95,24 +97,18 @@ class Distance(object):
 
         """
 
-        return self.image_distance(self.image(state_a),
-                                      self.image(state_b))
-
+        return self.image_distance(self.image(state_a), self.image(state_b))
 
 
 class XYEuclideanDistance(Distance):
-    """2 dimensional euclidean distance between points. 
+    """2 dimensional euclidean distance between points.
 
     States have the attributes 'x' and 'y'.
 
     """
 
     def image(self, state):
-
-        return np.array([state['x'], state['y']])
-
+        return np.array([state["x"], state["y"]])
 
     def image_distance(self, image_a, image_b):
-
-        return np.sqrt((image_a[0] - image_b[0])**2 +
-                       (image_a[1] - image_b[1])**2)
+        return np.sqrt((image_a[0] - image_b[0]) ** 2 + (image_a[1] - image_b[1]) ** 2)

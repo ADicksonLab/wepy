@@ -2,28 +2,28 @@
 structure of weighted ensemble simulation data.
 """
 
+import gc
 from collections import defaultdict
 from copy import deepcopy
-import gc
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
-from wepy.analysis.transitions import (
-    transition_counts,
-    counts_d_to_matrix,
-)
+from wepy.analysis.transitions import counts_d_to_matrix, transition_counts
 
 try:
     import pandas as pd
 except ModuleNotFoundError:
     print("Pandas is not installe, that functionality won't work")
 
+
 class MacroStateNetworkError(Exception):
     """Errors specific to MacroStateNetwork requirements."""
+
     pass
 
-class BaseMacroStateNetwork():
+
+class BaseMacroStateNetwork:
     """A base class for the MacroStateNetwork which doesn't contain a
     WepyHDF5 object. Useful for serialization of the object and can
     then be reattached later to a WepyHDF5. For this functionality see
@@ -105,14 +105,12 @@ class BaseMacroStateNetwork():
 
     """
 
-    ASSIGNMENTS = 'assignments'
+    ASSIGNMENTS = "assignments"
     """Key for the microstates that are assigned to a macrostate."""
 
-    def __init__(self,
-                 contig_tree,
-                 assg_field_key=None,
-                 assignments=None,
-                 transition_lag_time=2):
+    def __init__(
+        self, contig_tree, assg_field_key=None, assignments=None, transition_lag_time=2
+    ):
         """Create a network of macrostates from the simulation microstates
         using a field in the trajectory data or precomputed assignments.
 
@@ -149,11 +147,13 @@ class BaseMacroStateNetwork():
 
         self._graph = nx.DiGraph()
 
-        assert not (assg_field_key is None and assignments is None), \
-            "either assg_field_key or assignments must be given"
+        assert not (
+            assg_field_key is None and assignments is None
+        ), "either assg_field_key or assignments must be given"
 
-        assert assg_field_key is not None or assignments is not None, \
-            "one of assg_field_key or assignments must be given"
+        assert (
+            assg_field_key is not None or assignments is not None
+        ), "one of assg_field_key or assignments must be given"
 
         self._base_contig_tree = contig_tree.base_contigtree
 
@@ -175,12 +175,8 @@ class BaseMacroStateNetwork():
         # needed
         self._node_idx_to_id_dict = None
 
-
         # validate lag time input
-        if (
-                (transition_lag_time is not None) and
-                (transition_lag_time < 2)
-        ):
+        if (transition_lag_time is not None) and (transition_lag_time < 2):
             raise MacroStateNetworkError(
                 "transition_lag_time must be an integer value >= 2"
             )
@@ -196,11 +192,9 @@ class BaseMacroStateNetwork():
 
         ## Code for creating nodes and edges
 
-
         ## Nodes
 
         with contig_tree:
-
             # map the keys to their lists of assignments, depending on
             # whether or not we are using a field from the HDF5 traj or
             # assignments provided separately
@@ -223,27 +217,29 @@ class BaseMacroStateNetwork():
                 # typing the attributes, and we want to avoid data
                 # loss, through these formats (which should be avoided
                 # as durable stores of them though)
-                self._graph.add_node(assg_key,
-                                     node_id=assg_key,
-                                     node_idx=node_idx,
-                                     assignments=assigs,
-                                     num_samples=num_samples)
+                self._graph.add_node(
+                    assg_key,
+                    node_id=assg_key,
+                    node_idx=node_idx,
+                    assignments=assigs,
+                    num_samples=num_samples,
+                )
                 self._node_idxs[assg_key] = node_idx
-
 
         ## Edges
 
-        all_transitions_d, \
-            weighted_counts_d, \
-            unweighted_counts_d = self._init_transition_counts(
-                                                 contig_tree,
-                                                 transition_lag_time,
-            )
+        (
+            all_transitions_d,
+            weighted_counts_d,
+            unweighted_counts_d,
+        ) = self._init_transition_counts(
+            contig_tree,
+            transition_lag_time,
+        )
 
         # after calculating the transition counts set these as edge
         # values make the edges with these attributes
         for edge, all_trans in all_transitions_d.items():
-
             weighted_counts = weighted_counts_d[edge]
             unweighted_counts = unweighted_counts_d[edge]
 
@@ -254,7 +250,6 @@ class BaseMacroStateNetwork():
                 unweighted_counts=unweighted_counts,
                 all_transitions=all_trans,
             )
-
 
         ## Cleanup
 
@@ -274,8 +269,10 @@ class BaseMacroStateNetwork():
         wepy_h5 = contig_tree.wepy_h5
 
         # blank assignments
-        assignments = [[[] for traj_idx in range(wepy_h5.num_run_trajs(run_idx))]
-                             for run_idx in wepy_h5.run_idxs]
+        assignments = [
+            [[] for traj_idx in range(wepy_h5.num_run_trajs(run_idx))]
+            for run_idx in wepy_h5.run_idxs
+        ]
 
         test_field = wepy_h5.get_traj_field(
             wepy_h5.run_idxs[0],
@@ -298,18 +295,17 @@ class BaseMacroStateNetwork():
             unwrap = False
 
         else:
-
-            raise ValueError(f"Wrong shape for an assignment type observable: {test_field.shape}")
-
+            raise ValueError(
+                f"Wrong shape for an assignment type observable: {test_field.shape}"
+            )
 
         # the raw assignments
         curr_run_idx = -1
         for idx_tup, fields_d in wepy_h5.iter_trajs_fields(
-                                         [self.assg_field_key], idxs=True):
-
+            [self.assg_field_key], idxs=True
+        ):
             run_idx = idx_tup[0]
             traj_idx = idx_tup[1]
-
 
             assg_field = fields_d[self.assg_field_key]
 
@@ -352,13 +348,15 @@ class BaseMacroStateNetwork():
         for run_idx, run in enumerate(assignments):
             for traj_idx, traj in enumerate(run):
                 for frame_idx, assignment in enumerate(traj):
-                    self._node_assignments[assignment].append( (run_idx, traj_idx, frame_idx) )
+                    self._node_assignments[assignment].append(
+                        (run_idx, traj_idx, frame_idx)
+                    )
 
-
-    def _init_transition_counts(self,
-                                contig_tree,
-                                transition_lag_time,
-                                ):
+    def _init_transition_counts(
+        self,
+        contig_tree,
+        transition_lag_time,
+    ):
         """Given the lag time get the transitions between microstates for the
         network using the sliding windows algorithm.
 
@@ -384,23 +382,20 @@ class BaseMacroStateNetwork():
         with contig_tree:
             weights = [[] for run_idx in contig_tree.wepy_h5.run_idxs]
             for idx_tup, traj_fields_d in contig_tree.wepy_h5.iter_trajs_fields(
-                    ['weights'],
-                    idxs=True):
-
+                ["weights"], idxs=True
+            ):
                 run_idx, traj_idx = idx_tup
 
-                weights[run_idx].append(np.ravel(traj_fields_d['weights']))
+                weights[run_idx].append(np.ravel(traj_fields_d["weights"]))
 
             # get the transitions as trace idxs
             trace_transitions = []
             for window in contig_tree.sliding_windows(transition_lag_time):
-
                 trace_transition = [window[0], window[-1]]
 
                 # convert the window trace on the contig to a trace
                 # over the runs
                 trace_transitions.append(trace_transition)
-
 
         # ALERT: I'm not sure this is going to work out since this is
         # potentially a lot of data and might make the object too
@@ -413,7 +408,6 @@ class BaseMacroStateNetwork():
         # stats on them later.
         all_transitions_d = defaultdict(list)
         for trace_transition in trace_transitions:
-
             # get the node ids of the edge using the assignments
             start = trace_transition[0]
             end = trace_transition[-1]
@@ -434,7 +428,7 @@ class BaseMacroStateNetwork():
 
         # convert the lists in the transition dictionary to numpy arrays
         all_transitions_d = {
-            edge : np.array(transitions_l)
+            edge: np.array(transitions_l)
             for edge, transitions_l in all_transitions_d.items()
         }
         gc.collect()
@@ -455,11 +449,7 @@ class BaseMacroStateNetwork():
             weights=None,
         )
 
-        return all_transitions_d, \
-            weighted_counts_d, \
-            unweighted_counts_d
-
-
+        return all_transitions_d, weighted_counts_d, unweighted_counts_d
 
         # DEBUG: remove this, but account for the 'Weight' field when
         # doing gexf stuff elsewhere
@@ -492,8 +482,6 @@ class BaseMacroStateNetwork():
         #     # the edge to be this.
         #     self._graph.edges[i_id, j_id]['Weight'] = \
         #                                     float(self._probmat[i_idx, j_idx])
-
-
 
     def node_id_to_idx(self, assg_key):
         """Convert a node_id (which is the assignment value) to a canonical index.
@@ -531,16 +519,14 @@ class BaseMacroStateNetwork():
     def node_idx_to_id_dict(self):
         """Generate a full mapping of node_idxs to node_ids."""
 
-
         if self._node_idx_to_id_dict is None:
-            rev = {node_idx : node_id for node_id, node_idx in self._node_idxs.items()}
+            rev = {node_idx: node_id for node_id, node_idx in self._node_idxs.items()}
             self._node_idx_to_id_dict = rev
         else:
             rev = self._node_idx_to_id_dict
 
         # just reverse the dictionary and return
         return rev
-
 
     @property
     def graph(self):
@@ -610,7 +596,7 @@ class BaseMacroStateNetwork():
         return self.get_node_attributes(node_id)[attribute_key]
 
     def get_nodes_attribute(self, attribute_key):
-        """Get a dictionary mapping nodes to a specific attribute. """
+        """Get a dictionary mapping nodes to a specific attribute."""
 
         nodes_attr = {}
         for node_id in self.graph.nodes:
@@ -633,7 +619,6 @@ class BaseMacroStateNetwork():
         """
         return self.get_node_attribute(node_id, self.ASSIGNMENTS)
 
-
     def set_nodes_attribute(self, key, values_dict):
         """Set node attributes for the key and values for each node.
 
@@ -652,7 +637,6 @@ class BaseMacroStateNetwork():
         return self._node_groups
 
     def set_node_group(self, group_name, node_ids):
-
         # push these values to the nodes themselves, overwriting if
         # necessary
         self._set_group_nodes_attribute(group_name, node_ids)
@@ -660,20 +644,19 @@ class BaseMacroStateNetwork():
         # then update the group mapping with this
         self._node_groups[group_name] = node_ids
 
-
     def _set_group_nodes_attribute(self, group_name, group_node_ids):
-
         # the key for the attribute of the group goes in a little
         # namespace prefixed with _group
-        group_key = '_groups/{}'.format(group_name)
+        group_key = "_groups/{}".format(group_name)
 
         # make the mapping
-        values_map = {node_id : True if node_id in group_node_ids else False
-                      for node_id in self.graph.nodes}
+        values_map = {
+            node_id: True if node_id in group_node_ids else False
+            for node_id in self.graph.nodes
+        }
 
         # then set them
         self.set_nodes_attribute(group_key, values_map)
-
 
     @property
     def observables(self):
@@ -685,22 +668,20 @@ class BaseMacroStateNetwork():
 
         node_obs = {}
         for obs_name in self.observables:
-            obs_key = '_observables/{}'.format(obs_name)
+            obs_key = "_observables/{}".format(obs_name)
             node_obs[obs_name] = self.get_nodes_attributes(node_id, obs_key)
 
         return node_obs
 
     def set_nodes_observable(self, observable_name, node_values):
-
         # the key for the attribute of the observable goes in a little
         # namespace prefixed with _observable
-        observable_key = '_observables/{}'.format(observable_name)
+        observable_key = "_observables/{}".format(observable_name)
 
         self.set_nodes_attribute(observable_key, node_values)
 
         # then add to the list of available observables
         self._observables.append(observable_name)
-
 
     ### Edge methods
 
@@ -735,15 +716,13 @@ class BaseMacroStateNetwork():
         return self.get_edge_attributes(edge_id)[attribute_key]
 
     def get_edges_attribute(self, attribute_key):
-        """Get a dictionary mapping edges to a specific attribute. """
+        """Get a dictionary mapping edges to a specific attribute."""
 
         edges_attr = {}
         for edge_id in self.graph.edges:
             edges_attr[edge_id] = self.graph.edges[edge_id][attribute_key]
 
         return edges_attr
-
-
 
     ### Layout stuff
 
@@ -756,16 +735,15 @@ class BaseMacroStateNetwork():
 
         node_layouts = {}
         for layout_name in self.layouts:
-            layout_key = '_layouts/{}'.format(layout_name)
+            layout_key = "_layouts/{}".format(layout_name)
             node_layouts[obs_name] = self.get_nodes_attributes(node_id, layout_key)
 
         return node_layouts
 
     def set_nodes_layout(self, layout_name, node_values):
-
         # the key for the attribute of the observable goes in a little
         # namespace prefixed with _observable
-        layout_key = '_layouts/{}'.format(layout_name)
+        layout_key = "_layouts/{}".format(layout_name)
 
         self.set_nodes_attribute(layout_key, node_values)
 
@@ -773,13 +751,13 @@ class BaseMacroStateNetwork():
         if layout_name not in self._layouts:
             self._layouts.append(layout_name)
 
-
-    def write_gexf(self,
-                   filepath,
-                   exclude_node_fields=None,
-                   exclude_edge_fields=None,
-                   layout=None,
-                   ):
+    def write_gexf(
+        self,
+        filepath,
+        exclude_node_fields=None,
+        exclude_edge_fields=None,
+        layout=None,
+    ):
         """Writes a graph file in the gexf format of the network.
 
         Parameters
@@ -790,7 +768,7 @@ class BaseMacroStateNetwork():
 
         layout_key = None
         if layout is not None:
-            layout_key = '_layouts/{}'.format(layout)
+            layout_key = "_layouts/{}".format(layout)
             if layout not in self.layouts:
                 raise ValueError("Layout not found, use None for no layout")
 
@@ -811,11 +789,11 @@ class BaseMacroStateNetwork():
             exclude_node_fields = list(set(exclude_node_fields))
 
         # exclude the layouts, we will set the viz manually for the layout
-        exclude_node_fields.extend(['_layouts/{}'.format(layout_name)
-                               for layout_name in self.layouts])
+        exclude_node_fields.extend(
+            ["_layouts/{}".format(layout_name) for layout_name in self.layouts]
+        )
 
         for node in gexf_graph:
-
             # remove requested fields
             for field in exclude_node_fields:
                 del gexf_graph.nodes[node][field]
@@ -823,23 +801,22 @@ class BaseMacroStateNetwork():
             # also remove the fields which are not valid gexf types
             fields = list(gexf_graph.nodes[node].keys())
             for field in fields:
-
-                if (type(gexf_graph.nodes[node][field]) not in
-                    nx.readwrite.gexf.GEXF.xml_type):
-
+                if (
+                    type(gexf_graph.nodes[node][field])
+                    not in nx.readwrite.gexf.GEXF.xml_type
+                ):
                     del gexf_graph.nodes[node][field]
 
             if layout_key is not None:
-
                 # set the layout as viz attributes to this
-                gexf_graph.nodes[node]['viz'] = self._graph.nodes[node][layout_key]
+                gexf_graph.nodes[node]["viz"] = self._graph.nodes[node][layout_key]
 
         ## Edges
 
         if exclude_edge_fields is None:
-            exclude_edge_fields = ['all_transitions']
+            exclude_edge_fields = ["all_transitions"]
         else:
-            exclude_edge_fields.append('all_transitions')
+            exclude_edge_fields.append("all_transitions")
             exclude_edge_fields = list(set(exclude_edge_fields))
 
         # TODO: viz and layouts not supported for edges currently
@@ -849,20 +826,18 @@ class BaseMacroStateNetwork():
         #                             for layout_name in self.layouts])
 
         for edge in gexf_graph.edges:
-
             # remove requested fields
             for field in exclude_edge_fields:
-
                 del gexf_graph.edges[edge][field]
 
             # also remove the fields which are not valid gexf types
             fields = list(gexf_graph.edges[edge].keys())
 
             for field in fields:
-
-                if (type(gexf_graph.edges[edge][field]) not in
-                    nx.readwrite.gexf.GEXF.xml_type):
-
+                if (
+                    type(gexf_graph.edges[edge][field])
+                    not in nx.readwrite.gexf.GEXF.xml_type
+                ):
                     del gexf_graph.edges[edge][field]
 
             # TODO,SNIPPET: we don't support layouts for the edges,
@@ -875,30 +850,28 @@ class BaseMacroStateNetwork():
         # then write this filtered gexf to file
         nx.write_gexf(gexf_graph, filepath)
 
-
-    def nodes_to_records(self,
-                         extra_attributes=('_observables/total_weight',),
-                         ):
-
+    def nodes_to_records(
+        self,
+        extra_attributes=("_observables/total_weight",),
+    ):
         if extra_attributes is None:
             extra_attributes = []
 
         # keys which always go into the records
         keys = [
-            'num_samples',
-            'node_idx',
+            "num_samples",
+            "node_idx",
         ]
 
         # add all the groups to the keys
-        keys.extend(['_groups/{}'.format(key) for key in self.node_groups.keys()])
+        keys.extend(["_groups/{}".format(key) for key in self.node_groups.keys()])
 
         # add the observables
-        keys.extend(['_observables/{}'.format(obs) for obs in self.observables])
+        keys.extend(["_observables/{}".format(obs) for obs in self.observables])
 
         recs = []
         for node_id in self.graph.nodes:
-
-            rec = {'node_id' : node_id}
+            rec = {"node_id": node_id}
 
             # the keys which are always there
             for key in keys:
@@ -912,9 +885,10 @@ class BaseMacroStateNetwork():
 
         return recs
 
-    def nodes_to_dataframe(self,
-                           extra_attributes=('_observables/total_weight',),
-                           ):
+    def nodes_to_dataframe(
+        self,
+        extra_attributes=("_observables/total_weight",),
+    ):
         """Make a dataframe of the nodes and their attributes.
 
         Not all attributes will be added as they are not relevant to a
@@ -936,14 +910,12 @@ class BaseMacroStateNetwork():
         # TODO: set the column order
         # col_order = []
 
-        return pd.DataFrame(self.nodes_to_records(
-            extra_attributes=extra_attributes
-        ))
+        return pd.DataFrame(self.nodes_to_records(extra_attributes=extra_attributes))
 
-
-    def edges_to_records(self,
-                         extra_attributes=None,
-                         ):
+    def edges_to_records(
+        self,
+        extra_attributes=None,
+    ):
         """Make a dataframe of the nodes and their attributes.
 
         Not all attributes will be added as they are not relevant to a
@@ -963,17 +935,16 @@ class BaseMacroStateNetwork():
             extra_attributes = []
 
         keys = [
-            'weighted_counts',
-            'unweighted_counts',
+            "weighted_counts",
+            "unweighted_counts",
         ]
 
         recs = []
         for edge_id in self.graph.edges:
-
             rec = {
-                'edge_id' : edge_id,
-                'source' : edge_id[0],
-                'target' : edge_id[1],
+                "edge_id": edge_id,
+                "source": edge_id[0],
+                "target": edge_id[1],
             }
 
             for key in keys:
@@ -987,10 +958,10 @@ class BaseMacroStateNetwork():
 
         return recs
 
-
-    def edges_to_dataframe(self,
-                           extra_attributes=None,
-                           ):
+    def edges_to_dataframe(
+        self,
+        extra_attributes=None,
+    ):
         """Make a dataframe of the nodes and their attributes.
 
         Not all attributes will be added as they are not relevant to a
@@ -1006,9 +977,7 @@ class BaseMacroStateNetwork():
 
         """
 
-        return pd.DataFrame(self.edges_to_records(
-            extra_attributes=extra_attributes
-        ))
+        return pd.DataFrame(self.edges_to_records(extra_attributes=extra_attributes))
 
     def node_map(self, func, map_func=map):
         """Map a function over the nodes.
@@ -1044,20 +1013,20 @@ class BaseMacroStateNetwork():
             return node_id, func(node_attrs)
 
         # zip the node_ids with the node attributes as an iterator
-        node_attr_it = ((node_id,
-                         {**self.get_node_attributes(node_id), 'node_id' : node_id})
-                        for node_id in self.graph.nodes
-                       )
+        node_attr_it = (
+            (node_id, {**self.get_node_attributes(node_id), "node_id": node_id})
+            for node_id in self.graph.nodes
+        )
 
-        return {node_id : value for node_id, value
-                in map_func(func_wrapper, node_attr_it)}
+        return {
+            node_id: value for node_id, value in map_func(func_wrapper, node_attr_it)
+        }
 
-
-
-    def edge_attribute_to_matrix(self,
-                                 attribute_key,
-                                 fill_value=np.nan,
-                                 ):
+    def edge_attribute_to_matrix(
+        self,
+        attribute_key,
+        fill_value=np.nan,
+    ):
         """Convert scalar edge attributes to an assymetric matrix.
 
         This will always return matrices of size (num_nodes,
@@ -1122,7 +1091,7 @@ class BaseMacroStateNetwork():
         test_attr_value = self.get_edge_attribute(
             test_edge_id,
             attribute_key,
-            )
+        )
 
         # duck type check
 
@@ -1137,8 +1106,7 @@ class BaseMacroStateNetwork():
 
         # allocate the matrix and initialize to zero for each element
         mat = np.full(
-            (self.num_states,
-             self.num_states),
+            (self.num_states, self.num_states),
             fill_value,
             dtype=dt,
         )
@@ -1155,15 +1123,12 @@ class BaseMacroStateNetwork():
         # convert node_ids to node_idxs
         edges_idx_attr_d = {}
         for edge, value in edges_attr_d.items():
-
-            idx_edge = (node_id_to_idx_dict[edge[0]],
-                        node_id_to_idx_dict[edge[1]])
+            idx_edge = (node_id_to_idx_dict[edge[0]], node_id_to_idx_dict[edge[1]])
 
             edges_idx_attr_d[idx_edge] = value
 
         # assign to the array
         for trans, value in edges_idx_attr_d.items():
-
             source = trans[0]
             target = trans[1]
 
@@ -1172,8 +1137,7 @@ class BaseMacroStateNetwork():
         return mat
 
 
-
-class MacroStateNetwork():
+class MacroStateNetwork:
     """Provides an abstraction over weighted ensemble data in the form of
     a kinetically connected network.
 
@@ -1208,14 +1172,14 @@ class MacroStateNetwork():
 
     """
 
-
-    def __init__(self,
-                 contig_tree,
-                 base_network=None,
-                 assg_field_key=None,
-                 assignments=None,
-                 transition_lag_time=2,
-                 ):
+    def __init__(
+        self,
+        contig_tree,
+        base_network=None,
+        assg_field_key=None,
+        assignments=None,
+        transition_lag_time=2,
+    ):
         """For documentation of the following arguments see the constructor
         docstring of the 'BaseMacroStateNetwork' class:
 
@@ -1252,17 +1216,16 @@ class MacroStateNetwork():
             self._set_base_network_to_self(base_network)
 
         else:
-            new_network = BaseMacroStateNetwork(contig_tree,
-                                                assg_field_key=assg_field_key,
-                                                assignments=assignments,
-                                                transition_lag_time=transition_lag_time)
+            new_network = BaseMacroStateNetwork(
+                contig_tree,
+                assg_field_key=assg_field_key,
+                assignments=assignments,
+                transition_lag_time=transition_lag_time,
+            )
 
             self._set_base_network_to_self(new_network)
 
-
-
     def _set_base_network_to_self(self, base_network):
-
         self._base_network = base_network
 
         # then make references to this for the attributes we need
@@ -1301,7 +1264,7 @@ class MacroStateNetwork():
         self.node_observables = self._base_network.node_observables
         self.set_nodes_observable = self._base_network.set_nodes_observable
 
-        self.nodes_to_records =  self._base_network.nodes_to_records
+        self.nodes_to_records = self._base_network.nodes_to_records
         self.nodes_to_dataframe = self._base_network.nodes_to_dataframe
         self.edges_to_records = self._base_network.edges_to_records
         self.edges_to_dataframe = self._base_network.edges_to_dataframe
@@ -1330,7 +1293,6 @@ class MacroStateNetwork():
     def __exit__(self, exc_type, exc_value, exc_tb):
         self.wepy_h5.__exit__(exc_type, exc_value, exc_tb)
         self.close()
-
 
     # from the Base class
 
@@ -1403,7 +1365,7 @@ class MacroStateNetwork():
 
     @property
     def wepy_h5(self):
-        """The WepyHDF5 source object for which the contig tree is being constructed. """
+        """The WepyHDF5 source object for which the contig tree is being constructed."""
         return self._wepy_h5
 
     def state_to_mdtraj(self, node_id, alt_rep=None):
@@ -1425,27 +1387,23 @@ class MacroStateNetwork():
         traj : mdtraj.Trajectory
 
         """
-        return self.wepy_h5.trace_to_mdtraj(self.base_network.node_assignments(node_id),
-                                            alt_rep=alt_rep)
+        return self.wepy_h5.trace_to_mdtraj(
+            self.base_network.node_assignments(node_id), alt_rep=alt_rep
+        )
 
     def state_to_traj_fields(self, node_id, alt_rep=None):
-
         return self.states_to_traj_fields([node_id], alt_rep=alt_rep)
 
     def states_to_traj_fields(self, node_ids, alt_rep=None):
-
-
         node_assignments = []
         for node_id in node_ids:
             node_assignments.extend(self.base_network.node_assignments(node_id))
 
         # get the right fields
         rep_path = self.wepy_h5._choose_rep_path(alt_rep)
-        fields = [rep_path, 'box_vectors']
+        fields = [rep_path, "box_vectors"]
 
-        return self.wepy_h5.get_trace_fields(node_assignments,
-                                             fields)
-
+        return self.wepy_h5.get_trace_fields(node_assignments, fields)
 
     def get_node_fields(self, node_id, fields):
         """Return the trajectory fields for all the microstates in the
@@ -1511,7 +1469,9 @@ class MacroStateNetwork():
             node_trace = self.base_network.node_assignments(node_id)
 
             # use the node_trace to get the weights from the HDF5
-            trace_weights = self.wepy_h5.get_trace_fields(node_trace, ['weights'])['weights']
+            trace_weights = self.wepy_h5.get_trace_fields(node_trace, ["weights"])[
+                "weights"
+            ]
 
             node_weights[node_id] = trace_weights
 
@@ -1538,7 +1498,7 @@ class MacroStateNetwork():
         'total_weight'."""
 
         self.base_network.set_nodes_observable(
-            'total_weight',
+            "total_weight",
             self.macrostate_weights(),
         )
 
@@ -1605,16 +1565,17 @@ class MacroStateNetwork():
 
         # zip the node_ids with the node attributes as an iterator
         node_attr_fields_it = (
-            (node_id,
-             {**self.get_node_attributes(node_id), 'node_id' : node_id},
-             self.get_node_fields(node_id, fields),
+            (
+                node_id,
+                {**self.get_node_attributes(node_id), "node_id": node_id},
+                self.get_node_fields(node_id, fields),
             )
-                     for node_id in self.graph.nodes)
+            for node_id in self.graph.nodes
+        )
 
         # map the inputs to the wrapped function and return as a
         # dictionary for the nodes
         return {
-            node_id : value
-            for node_id, value
-            in map_func(func_wrapper, node_attr_fields_it)
+            node_id: value
+            for node_id, value in map_func(func_wrapper, node_attr_fields_it)
         }

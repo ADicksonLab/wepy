@@ -16,8 +16,8 @@ Using the Weighted Ensemble Algorithm" and
 
 """
 
-import random as rand
 import logging
+import random as rand
 
 import numpy as np
 from pint import UnitRegistry
@@ -29,9 +29,10 @@ units = UnitRegistry()
 
 # the names of the units. We pass them through pint just to validate
 # them
-UNIT_NAMES = (('positions_unit', str(units('microsecond').units)),
-         ('time_unit', str(units('picosecond').units)),
-        )
+UNIT_NAMES = (
+    ("positions_unit", str(units("microsecond").units)),
+    ("time_unit", str(units("picosecond").units)),
+)
 
 """Mapping of units identifiers to the corresponding pint units."""
 
@@ -54,12 +55,10 @@ class RandomWalkRunner(Runner):
 
         self._probability = probability
 
-
     @property
     def probability(self):
-        """ The probability of forward-move in an N-dimensional space"""
+        """The probability of forward-move in an N-dimensional space"""
         return self._probability
-
 
     def _walk(self, positions):
         """Run dynamics for the RandomWalk system for one step.
@@ -102,8 +101,7 @@ class RandomWalkRunner(Runner):
 
         return new_positions
 
-    def run_segment(self, walker, segment_length,
-                    **kwargs):
+    def run_segment(self, walker, segment_length, **kwargs):
         """Runs a random walk simulation for the given number of steps.
 
         Parameters
@@ -124,7 +122,7 @@ class RandomWalkRunner(Runner):
         """
 
         # Gets the current posiotion of RandomWalk Walker
-        positions = walker.state['positions']
+        positions = walker.state["positions"]
 
         # Make movements for the segment_length steps
         for _ in range(segment_length):

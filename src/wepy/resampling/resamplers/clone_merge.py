@@ -1,7 +1,7 @@
 import numpy as np
 
-from wepy.resampling.resamplers.resampler import Resampler, ResamplerError
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
+from wepy.resampling.resamplers.resampler import Resampler, ResamplerError
 
 
 class CloneMergeResampler(Resampler):
@@ -27,10 +27,14 @@ class CloneMergeResampler(Resampler):
 
     RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + Resampler.CYCLE_RECORD_FIELDS
 
-    def __init__(self, pmin=1e-12, pmax=0.1,
-                 min_num_walkers=Ellipsis,
-                 max_num_walkers=Ellipsis,
-                 **kwargs):
+    def __init__(
+        self,
+        pmin=1e-12,
+        pmax=0.1,
+        min_num_walkers=Ellipsis,
+        max_num_walkers=Ellipsis,
+        **kwargs
+    ):
         """Constructor for CloneMegerResampler class.
 
         Parameters
@@ -44,12 +48,12 @@ class CloneMergeResampler(Resampler):
 
         """
 
-        super().__init__(min_num_walkers=min_num_walkers,
-                         max_num_walkers=max_num_walkers,
-                         **kwargs)
+        super().__init__(
+            min_num_walkers=min_num_walkers, max_num_walkers=max_num_walkers, **kwargs
+        )
 
-        self._pmin=pmin
-        self._pmax=pmax
+        self._pmin = pmin
+        self._pmax = pmax
 
     @property
     def pmin(self):
@@ -58,7 +62,6 @@ class CloneMergeResampler(Resampler):
     @property
     def pmax(self):
         return self._pmax
-
 
     def _init_walker_actions(self, n_walkers):
         """Returns a list of default resampling records for a single
@@ -80,10 +83,12 @@ class CloneMergeResampler(Resampler):
         """
 
         # determine resampling actions
-        walker_actions = [self.decision.record(
-                                enum_value=self.decision.default_decision().value,
-                                target_idxs=(i,))
-                    for i in range(n_walkers)]
+        walker_actions = [
+            self.decision.record(
+                enum_value=self.decision.default_decision().value, target_idxs=(i,)
+            )
+            for i in range(n_walkers)
+        ]
 
         return walker_actions
 
@@ -103,20 +108,22 @@ class CloneMergeResampler(Resampler):
         # check that all of the weights are less than or equal to the pmax
         overweight_walker_idxs = np.where(walker_weights > self.pmax)[0]
         if len(overweight_walker_idxs) > 0:
-
-            raise ResamplerError("All walker weights must be less than the pmax, "
-                                 "walkers {} are all overweight".format(
-                                     ','.join([str(i) for i in overweight_walker_idxs])))
+            raise ResamplerError(
+                "All walker weights must be less than the pmax, "
+                "walkers {} are all overweight".format(
+                    ",".join([str(i) for i in overweight_walker_idxs])
+                )
+            )
 
         # check that all walkers are greater than or equal to the pmin
         underweight_walker_idxs = np.where(walker_weights < self.pmin)[0]
         if len(underweight_walker_idxs) > 0:
-
-            raise ResamplerError("All walker weights must be greater than the pmin, "
-                                 "walkers {} are all underweight".format(
-                                     ','.join([str(i) for i in underweight_walker_idxs])))
-
-
+            raise ResamplerError(
+                "All walker weights must be greater than the pmin, "
+                "walkers {} are all underweight".format(
+                    ",".join([str(i) for i in underweight_walker_idxs])
+                )
+            )
 
     def assign_clones(self, merge_groups, walker_clone_nums):
         """Convert two convenient data structures to a list of almost
@@ -170,7 +177,6 @@ class CloneMergeResampler(Resampler):
         # and the indices in the merge group are the walkers that will
         # be squashed
         for walker_idx, merge_group in enumerate(merge_groups):
-
             if len(merge_group) > 0:
                 # add the squashed walker idxs to the list of open
                 # slots
@@ -179,28 +185,29 @@ class CloneMergeResampler(Resampler):
                 # for each squashed walker write a record and save it
                 # in the walker actions
                 for squash_idx in merge_group:
-                    walker_actions[squash_idx] = self.decision.record(self.decision.ENUM.SQUASH.value,
-                                                                      target_idxs=(walker_idx,))
+                    walker_actions[squash_idx] = self.decision.record(
+                        self.decision.ENUM.SQUASH.value, target_idxs=(walker_idx,)
+                    )
 
                 # make the record for the keep merge walker
-                walker_actions[walker_idx] = self.decision.record(self.decision.ENUM.KEEP_MERGE.value,
-                                                         target_idxs=(walker_idx,))
+                walker_actions[walker_idx] = self.decision.record(
+                    self.decision.ENUM.KEEP_MERGE.value, target_idxs=(walker_idx,)
+                )
 
         # for each walker, if it is to be cloned assign open slots for it
         for walker_idx, num_clones in enumerate(walker_clone_nums):
-
             if num_clones > 0 and len(merge_groups[walker_idx]) > 0:
-                raise ResamplerError("Error! cloning and merging occuring with the same walker")
+                raise ResamplerError(
+                    "Error! cloning and merging occuring with the same walker"
+                )
 
             # if this walker is to be cloned do so and consume the free
             # slot
             if num_clones > 0:
-
                 # we first check to see if there are any free "slots"
                 # for cloned walkers to go. If there are not we can
                 # make room. The number of extra slots needed should
                 # be default 0
-
 
                 # we choose the targets for this cloning, we start
                 # with the walker initiating the cloning
@@ -208,13 +215,14 @@ class CloneMergeResampler(Resampler):
 
                 # if there are any free slots, then we use those first
                 if len(free_slots) > 0:
-                    clone_targets.extend([free_slots.pop() for clone in range(num_clones)])
+                    clone_targets.extend(
+                        [free_slots.pop() for clone in range(num_clones)]
+                    )
 
                 # if there are more slots needed then we will have to
                 # create them
                 num_slots_needed = num_clones - len(clone_targets)
                 if num_slots_needed > 0:
-
                     # initialize the lists of open slots
                     new_slots = []
 
@@ -228,7 +236,8 @@ class CloneMergeResampler(Resampler):
                     clone_targets.extend(new_slots)
 
                 # make a record for this clone
-                walker_actions[walker_idx] = self.decision.record(self.decision.ENUM.CLONE.value,
-                                                         target_idxs=tuple(clone_targets))
+                walker_actions[walker_idx] = self.decision.record(
+                    self.decision.ENUM.CLONE.value, target_idxs=tuple(clone_targets)
+                )
 
         return walker_actions

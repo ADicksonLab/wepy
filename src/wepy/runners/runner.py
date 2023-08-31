@@ -19,11 +19,11 @@ See the openmm.py module for an example.
 
 from eliot import log_call, start_action
 
+
 class Runner(object):
     """Abstract base class for the Runner interface."""
 
-    @log_call(include_args=[],
-              include_result=False)
+    @log_call(include_args=[], include_result=False)
     def pre_cycle(self, **kwargs):
         """Perform pre-cycle behavior. run_segment will be called for each
         walker so this allows you to perform changes of state on a
@@ -40,8 +40,7 @@ class Runner(object):
         # by default just pass since subclasses need not implement this
         pass
 
-    @log_call(include_args=[],
-              include_result=False)
+    @log_call(include_args=[], include_result=False)
     def post_cycle(self, **kwargs):
         """Perform post-cycle behavior. run_segment will be called for each
         walker so this allows you to perform changes of state on a
@@ -58,8 +57,7 @@ class Runner(object):
         # by default just pass since subclasses need not implement this
         pass
 
-    @log_call(include_args=['segment_length'],
-              include_result=False)
+    @log_call(include_args=["segment_length"], include_result=False)
     def run_segment(self, walker, segment_length, **kwargs):
         """Run dynamics for the walker.
 
@@ -78,6 +76,7 @@ class Runner(object):
         """
 
         raise NotImplementedError
+
 
 class NoRunner(Runner):
     """Stub Runner that just returns the walkers back with the same state.

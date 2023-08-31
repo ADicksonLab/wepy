@@ -10,26 +10,21 @@ Contig
 
 
 import itertools as it
+from collections import deque
 from copy import copy
 from operator import attrgetter
-from collections import deque
 
 import networkx as nx
 import numpy as np
+from geomm.free_energy import free_energy as calc_free_energy
 from matplotlib import cm
 
-from geomm.free_energy import free_energy as calc_free_energy
-
-from wepy.analysis.parents import (
-    DISCONTINUITY_VALUE,
-    parent_panel, net_parent_table,
-    ancestors, sliding_window,
-    parent_cycle_discontinuities,
-    ParentForest
-)
-
-from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
 from wepy.analysis.network_layouts.layout_graph import LayoutGraph
+from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
+from wepy.analysis.parents import (DISCONTINUITY_VALUE, ParentForest,
+                                   ancestors, net_parent_table,
+                                   parent_cycle_discontinuities, parent_panel,
+                                   sliding_window)
 
 # optional dependencies
 try:
@@ -39,36 +34,40 @@ except ModuleNotFoundError:
 
 
 # the groups of run records
-RESAMPLING = 'resampling'
+RESAMPLING = "resampling"
 """Record key for resampling records."""
-RESAMPLER = 'resampler'
+RESAMPLER = "resampler"
 """Record key for resampler records."""
-WARPING = 'warping'
+WARPING = "warping"
 """Record key for warping records."""
-PROGRESS = 'progress'
+PROGRESS = "progress"
 """Record key for progress records."""
-BC = 'boundary_conditions'
+BC = "boundary_conditions"
 """Record key for boundary condition records."""
 
-class BaseContigTree():
+
+class BaseContigTree:
     """A base class for the contigtree which doesn't contain a WepyHDF5
     object. Useful for serialization of the object and can then be
     reattached later to a WepyHDF5.
 
     """
 
-    RESAMPLING_PANEL_KEY = 'resampling_steps'
+    RESAMPLING_PANEL_KEY = "resampling_steps"
     """Key for resampling panel node attributes in the tree graph."""
-    PARENTS_KEY = 'parent_idxs'
+    PARENTS_KEY = "parent_idxs"
     """Key for parent indices node attributes in the tree graph."""
-    DISCONTINUITY_KEY = 'discontinuities'
+    DISCONTINUITY_KEY = "discontinuities"
     """Key for discontinuity node attributes in the tree graph."""
 
-    def __init__(self, wepy_h5,
-                 continuations=Ellipsis,
-                 runs=Ellipsis,
-                 boundary_condition_class=None,
-                 decision_class=None):
+    def __init__(
+        self,
+        wepy_h5,
+        continuations=Ellipsis,
+        runs=Ellipsis,
+        boundary_condition_class=None,
+        decision_class=None,
+    ):
         """The only required argument is an WepyHDF5 object from which to draw
         data.
 
@@ -136,10 +135,9 @@ class BaseContigTree():
             was_closed = True
             wepy_h5.open()
 
-
         self._graph = nx.DiGraph()
 
-        self._boundary_condition_class=boundary_condition_class
+        self._boundary_condition_class = boundary_condition_class
         self._decision_class = decision_class
 
         # we can optionally specify which continuations to use when
@@ -161,24 +159,24 @@ class BaseContigTree():
         # if it is Ellipsis (...) then we include all the
         # continuations involving the runs that are in this contigtree
         if continuations is Ellipsis:
-
             # add continuations involving both ends of the continuation
 
-            self._continuations.update([
-                (a,b)
-                for a, b
-                in wepy_h5.continuations
-                if a in self._run_idxs and b in self._run_idxs]
+            self._continuations.update(
+                [
+                    (a, b)
+                    for a, b in wepy_h5.continuations
+                    if a in self._run_idxs and b in self._run_idxs
+                ]
             )
 
         # if a subset of continuations was given use only those
         elif continuations is not None:
-
-            self._continuations.update([
-                (a,b)
-                for a, b
-                in continuations
-                if a in self._run_idxs and b in self._run_idxs]
+            self._continuations.update(
+                [
+                    (a, b)
+                    for a, b in continuations
+                    if a in self._run_idxs and b in self._run_idxs
+                ]
             )
 
         # using the wepy_h5 create a tree of the cycles
@@ -192,37 +190,35 @@ class BaseContigTree():
             # if there was a boundary condition class we add the
             # discontinuities to the graph nodes
             if self._boundary_condition_class is not None:
-
-                self._set_discontinuities(wepy_h5,
-                                          self._boundary_condition_class)
+                self._set_discontinuities(wepy_h5, self._boundary_condition_class)
 
             # otherwise we simply initialize the discontinuities
             else:
-
                 self._initialize_discontinuities(wepy_h5)
 
         # set the spanning contigs as a mapping of the index to the
         # span trace
-        self._spans = {span_idx : span_trace
-                       for span_idx, span_trace
-                       in enumerate(self.spanning_contig_traces())}
+        self._spans = {
+            span_idx: span_trace
+            for span_idx, span_trace in enumerate(self.spanning_contig_traces())
+        }
 
         if was_closed:
             wepy_h5.close()
 
     @property
     def graph(self):
-        """The underlying networkx.DiGraph object. """
+        """The underlying networkx.DiGraph object."""
         return self._graph
 
     @property
     def decision_class(self):
-        """The decision class used to determine parental lineages. """
+        """The decision class used to determine parental lineages."""
         return self._decision_class
 
     @property
     def boundary_condition_class(self):
-        """The boundary condition class is used to determine discontinuities in lineages. """
+        """The boundary condition class is used to determine discontinuities in lineages."""
         return self._boundary_condition_class
 
     @property
@@ -238,7 +234,7 @@ class BaseContigTree():
         return contig
 
     def _create_tree(self, wepy_h5):
-        """Generate the tree of cycles from the WepyHDF5 object/file. """
+        """Generate the tree of cycles from the WepyHDF5 object/file."""
 
         # first go through each run without continuations
         for run_idx in self._run_idxs:
@@ -258,7 +254,6 @@ class BaseContigTree():
         # subgraphs we need to connect them together with the
         # information in the contig tree.
         for edge_source, edge_target in self._continuations:
-
             # for the source node (the restart run) we use the run_idx
             # from the edge source node and the index of the first
             # cycle
@@ -267,7 +262,7 @@ class BaseContigTree():
             # for the target node (the run being continued) we use the
             # run_idx from the edge_target and the last cycle index in
             # the run
-            target_node = (edge_target, wepy_h5.num_run_cycles(edge_target)-1)
+            target_node = (edge_target, wepy_h5.num_run_cycles(edge_target) - 1)
 
             # make the edge
             edge = (source_node, target_node)
@@ -276,12 +271,11 @@ class BaseContigTree():
             self.graph.add_edge(*edge)
 
     def _set_resampling_panels(self, wepy_h5):
-        """Generates resampling panels for each cycle and sets them as node attributes. """
+        """Generates resampling panels for each cycle and sets them as node attributes."""
 
         # then get the resampling tables for each cycle and put them
         # as attributes to the appropriate nodes
         for run_idx in self.run_idxs:
-
             run_resampling_panel = wepy_h5.run_resampling_panel(run_idx)
 
             # add each cycle of this panel to the network by adding
@@ -290,9 +284,7 @@ class BaseContigTree():
                 node = (run_idx, step_idx)
                 self.graph.nodes[node][self.RESAMPLING_PANEL_KEY] = step
 
-
-    def _initialize_discontinuities(self,
-                                    wepy_h5):
+    def _initialize_discontinuities(self, wepy_h5):
         """Initialize the nodes with discontinuities attributes but set to 0s
         indicating no discontinuities.
         """
@@ -301,8 +293,9 @@ class BaseContigTree():
         # discontinuities
         for node in self.graph.nodes:
             n_walkers = len(self.graph.nodes[node][self.PARENTS_KEY])
-            self.graph.nodes[node][self.DISCONTINUITY_KEY] = [0 for i in range(n_walkers)]
-
+            self.graph.nodes[node][self.DISCONTINUITY_KEY] = [
+                0 for i in range(n_walkers)
+            ]
 
     def _set_discontinuities(self, wepy_h5, boundary_conditions_class):
         """Given the boundary condition class sets node attributes for where
@@ -320,7 +313,6 @@ class BaseContigTree():
 
         # Now actually fill in where there are discontinuities
         for run_idx in self.run_idxs:
-
             # get the warping records for this run
             warping_records = wepy_h5.warping_records([run_idx])
 
@@ -334,25 +326,25 @@ class BaseContigTree():
 
                 # for a node which is in this run and has warp records
                 if (node_run_idx == run_idx) and (node_cycle_idx in warp_cycle_idxs):
-
                     # if there is then we want to apply the
                     # warping records for this cycle to the
                     # discontinuities for this cycle
-                    cycle_warp_records = [rec for rec in warping_records
-                                          if (rec[0] == node_cycle_idx)]
+                    cycle_warp_records = [
+                        rec for rec in warping_records if (rec[0] == node_cycle_idx)
+                    ]
 
                     # go through each record and test if it is a
                     # discontinuous warp
                     for rec in cycle_warp_records:
-
                         # index of the trajectory this warp effected
                         rec_traj_idx = rec[1]
 
                         # if it is discontinuous we need to mark that,
                         # otherwise do nothing
                         if boundary_conditions_class.warping_discontinuity(rec):
-
-                            self.graph.nodes[node][self.DISCONTINUITY_KEY][rec_traj_idx] = -1
+                            self.graph.nodes[node][self.DISCONTINUITY_KEY][
+                                rec_traj_idx
+                            ] = -1
 
     def _set_parents(self, decision_class):
         """Determines the net parents for each cycle and sets them in-place to
@@ -381,14 +373,13 @@ class BaseContigTree():
 
     @property
     def run_idxs(self):
-        """Indices of runs in WepyHDF5 used in this contig tree. """
+        """Indices of runs in WepyHDF5 used in this contig tree."""
         return self._run_idxs
 
     @property
     def continuations(self):
-        """The continuations that are used in this contig tree over the runs. """
+        """The continuations that are used in this contig tree over the runs."""
         return self._continuations
-
 
     @staticmethod
     def contig_trace_to_run_trace(contig_trace, contig_walker_trace):
@@ -411,21 +402,20 @@ class BaseContigTree():
 
         """
 
-
         trace = []
         for traj_idx, contig_cycle_idx in contig_walker_trace:
-
             try:
                 run_idx, run_cycle_idx = contig_trace[contig_cycle_idx]
             except IndexError:
-                raise ValueError("Invalid cycle_idx in the contig_walker_trace. "
-                                 "Must be an index over the frames given by contig_trace.")
+                raise ValueError(
+                    "Invalid cycle_idx in the contig_walker_trace. "
+                    "Must be an index over the frames given by contig_trace."
+                )
 
             frame = (run_idx, traj_idx, run_cycle_idx)
             trace.append(frame)
 
         return trace
-
 
     def walker_trace_to_run_trace(self, contig_walker_trace):
         """Combine a walker trace to get the equivalent run trace for this contig.
@@ -452,7 +442,6 @@ class BaseContigTree():
 
         return self.contig_trace_to_run_trace(self.contig_trace, contig_walker_trace)
 
-
     def run_trace_to_contig_trace(self, run_trace):
         """
 
@@ -473,7 +462,6 @@ class BaseContigTree():
 
         contig_walker_trace = []
         for run_idx, traj_idx, cycle_idx in run_trace:
-
             # get the contig cycle index given the branch we are on
             contig_cycle_idx = self.contig_cycle_idx(run_idx, cycle_idx)
 
@@ -481,9 +469,8 @@ class BaseContigTree():
 
         return contig_walker_trace
 
-
     def contig_cycle_idx(self, run_idx, cycle_idx):
-        """ Convert an in-run cycle index to an in-contig cyle_idx.
+        """Convert an in-run cycle index to an in-contig cyle_idx.
 
         Parameters
         ----------
@@ -506,7 +493,6 @@ class BaseContigTree():
 
         # get the length and subtract one for the index
         return len(contig_trace) - 1
-
 
     def get_branch_trace(self, run_idx, cycle_idx, start_contig_idx=0):
         """Get a contig trace for a branch of the contig tree from an end
@@ -541,7 +527,6 @@ class BaseContigTree():
         # stop the loop when we reach the root of the cycle tree
         at_root = False
         while not at_root:
-
             # first we get the cycle node previous to this one because it
             # has the parents for the current node
             parent_nodes = list(self.graph.adj[curr_node].keys())
@@ -582,11 +567,9 @@ class BaseContigTree():
 
         parent_table = []
         for run_idx, cycle_idx in contig_trace:
-
             parent_row = self.graph.nodes[(run_idx, cycle_idx)][self.PARENTS_KEY]
 
             if discontinuities:
-
                 discs = self.graph.nodes[(run_idx, cycle_idx)][self.DISCONTINUITY_KEY]
 
                 parent_row = parent_cycle_discontinuities(parent_row, discs)
@@ -594,7 +577,6 @@ class BaseContigTree():
             parent_table.append(parent_row)
 
         return parent_table
-
 
     @classmethod
     def _tree_leaves(cls, root, tree):
@@ -625,14 +607,12 @@ class BaseContigTree():
         leaves = []
         leaf_found = False
         while (len(branch_child_nodes) == 0) and (not leaf_found):
-
             # get the child nodes
             child_nodes = list(tree.adj[curr_node].keys())
 
             # if there is more than one child node, the current node is a
             # branch node
             if len(child_nodes) > 1:
-
                 # we will use the branch child nodes as the roots of the
                 # next recursion level
                 branch_child_nodes = child_nodes
@@ -735,7 +715,6 @@ class BaseContigTree():
         # then we use this node as the starting point to move back to the
         # root, we end when there is no adjacent node
         while len(adj_nodes) > 0:
-
             # we take another step backwards, and choose the node in the
             # adjacency
             adj_nodes = list(self.graph.adj[curr_node])
@@ -784,7 +763,6 @@ class BaseContigTree():
 
         subtree_nxs = []
         for component_nodes in nx.weakly_connected_components(self.graph):
-
             # actually get the subtree from the main tree
             subtree = self.graph.subgraph(component_nodes)
 
@@ -810,7 +788,6 @@ class BaseContigTree():
 
         # see which tree the node is in
         for subtree in subtrees:
-
             # if the node is in it this is the subtree it is in so
             # just return it
             if node in subtree:
@@ -864,9 +841,10 @@ class BaseContigTree():
         # that is runs that are not connected
         contig_windows = []
         for root in self.roots():
-
             # get the contig windows for the individual tree
-            subtree_contig_windows = self._subtree_sliding_contig_windows(root, window_length)
+            subtree_contig_windows = self._subtree_sliding_contig_windows(
+                root, window_length
+            )
 
             contig_windows.extend(subtree_contig_windows)
 
@@ -936,7 +914,6 @@ class BaseContigTree():
 
         done = False
         while not done:
-
             # make a window for the largest endpoint, no need to break
             # ties since the next iteration will get it
             contig_lengths = [len(contig) for contig in branch_contigs]
@@ -961,7 +938,6 @@ class BaseContigTree():
                 # this as their last node then we have reached a branch point
                 # and that other branch must be eliminated
                 for branch_idx, branch_contig in enumerate(branch_contigs):
-
                     # compare the last node in contig and if it is the same as
                     # the node that was just used as a window end
                     if branch_contig[-1] == last_node:
@@ -991,7 +967,6 @@ class BaseContigTree():
         # for each of these we generate all of the actual frame sliding windows
         windows = []
         for contig_trace in contig_traces:
-
             # these are windows of trace element (traj_idx, cycle_idx)
             # all over this contig
             contig_windows = self.contig_sliding_windows(contig_trace, window_length)
@@ -999,7 +974,9 @@ class BaseContigTree():
             # convert those traces to the corresponding (run_idx, traj_idx, cycle_idx)
             # trace
             for contig_window in contig_windows:
-                run_trace_window = self.contig_trace_to_run_trace(contig_trace, contig_window)
+                run_trace_window = self.contig_trace_to_run_trace(
+                    contig_trace, contig_window
+                )
                 windows.append(run_trace_window)
 
         return windows
@@ -1032,11 +1009,9 @@ class BaseContigTree():
         # go through all the edges and find those with this
         # node as their target
         for edge_source, edge_target in edges:
-
             # check if the target_node we are looking for matches
             # the edge target node
             if root == edge_target:
-
                 # if this root is a target of the source add it to the
                 # list of edges targetting this root
                 root_sources.append(edge_source)
@@ -1047,7 +1022,6 @@ class BaseContigTree():
         root_paths = []
         root_sources.sort()
         for new_root in root_sources:
-
             # add these paths for this new root to the paths for the
             # current root
             root_paths.extend(cls._rec_spanning_paths(edges, new_root))
@@ -1109,12 +1083,10 @@ class BaseContigTree():
         # to the root
         leaf_paths = {}
         for leaf in leaves:
-
             leaf_path = deque([leaf])
             curr_node = leaf
             root_found = False
             while not root_found:
-
                 # get the next node, if there is one
                 parent_nodes = list(subtree.adj[curr_node].keys())
 
@@ -1130,7 +1102,6 @@ class BaseContigTree():
             leaf_paths[leaf] = list(leaf_path)
 
         return leaf_paths
-
 
     def spanning_contig_traces(self):
         """Returns a list of all possible spanning contigs given the
@@ -1152,7 +1123,6 @@ class BaseContigTree():
         spanning_contig_traces = []
         # roots should be sorted already, so we just iterate over them
         for root, root_spanning_contigs in self._root_spanning_contig_traces().items():
-
             spanning_contig_traces.extend(root_spanning_contigs)
 
         return spanning_contig_traces
@@ -1178,20 +1148,19 @@ class BaseContigTree():
         spanning_contig_traces = {}
         # roots should be sorted already, so we just iterate over them
         for root in self.roots():
-
             # get the spanning paths by passing the continuation edges
             # and this root to this recursive static method
-            root_spanning_contigs = [span for leaf, span in
-                                     self._spanning_paths(root).items()]
+            root_spanning_contigs = [
+                span for leaf, span in self._spanning_paths(root).items()
+            ]
 
             spanning_contig_traces[root] = root_spanning_contigs
 
         return spanning_contig_traces
 
-
     @classmethod
     def _contig_trace_to_contig_runs(cls, contig_trace):
-        """ Convert a contig trace to a list of runs.
+        """Convert a contig trace to a list of runs.
 
         Parameters
         ----------
@@ -1205,7 +1174,6 @@ class BaseContigTree():
 
         contig_runs = []
         for run_idx, cycle_idx in contig_trace:
-
             if not run_idx in contig_runs:
                 contig_runs.append(run_idx)
             else:
@@ -1230,7 +1198,7 @@ class BaseContigTree():
 
         continuations = []
         for i in range(len(contig_runs) - 1, 0, -1):
-            continuations.append([contig_runs[i], contig_runs[i-1]])
+            continuations.append([contig_runs[i], contig_runs[i - 1]])
 
         return continuations
 
@@ -1277,8 +1245,11 @@ class BaseContigTree():
         # the end and build up the runs
         continued_run = base_run
         # get the next run from this base run
-        next_run = [next_run for next_run, cont_run in continuations
-                    if cont_run == continued_run][0]
+        next_run = [
+            next_run
+            for next_run, cont_run in continuations
+            if cont_run == continued_run
+        ][0]
 
         # start the listing of the runs in order
         contig_runs = [base_run, next_run]
@@ -1287,8 +1258,11 @@ class BaseContigTree():
         while next_run != end_run:
             # get the next continuation pair
             continued_run = next_run
-            next_run = [next_run for next_run, cont_run in continuations
-                        if cont_run == continued_run][0]
+            next_run = [
+                next_run
+                for next_run, cont_run in continuations
+                if cont_run == continued_run
+            ][0]
             contig_runs.append(next_run)
 
         # should have a completed contig_runs listing now
@@ -1296,11 +1270,9 @@ class BaseContigTree():
         # since this is only valid if the continuations don't form a
         # tree check that we didn't put the same number in twice,
         # which this would indicate, fail if true
-        assert len(set(contig_runs)) == len(contig_runs), \
-            "this is not a single contig"
+        assert len(set(contig_runs)) == len(contig_runs), "this is not a single contig"
 
         return contig_runs
-
 
     # TODO remove
     # def exit_point_trajectories(self):
@@ -1327,13 +1299,15 @@ class ContigTree(BaseContigTree):
 
     """
 
-    def __init__(self, wepy_h5,
-                 base_contigtree=None,
-                 continuations=Ellipsis,
-                 runs=Ellipsis,
-                 boundary_condition_class=None,
-                 decision_class=None):
-
+    def __init__(
+        self,
+        wepy_h5,
+        base_contigtree=None,
+        continuations=Ellipsis,
+        runs=Ellipsis,
+        boundary_condition_class=None,
+        decision_class=None,
+    ):
         self.closed = True
 
         # if we pass a base contigtree use that one instead of building one manually
@@ -1343,19 +1317,19 @@ class ContigTree(BaseContigTree):
             self._set_base_contigtree_to_self(base_contigtree)
 
         else:
-
-            new_contigtree = BaseContigTree(wepy_h5,
-                                            continuations=continuations,
-                                            runs=runs,
-                                            boundary_condition_class=boundary_condition_class,
-                                            decision_class=decision_class)
+            new_contigtree = BaseContigTree(
+                wepy_h5,
+                continuations=continuations,
+                runs=runs,
+                boundary_condition_class=boundary_condition_class,
+                decision_class=decision_class,
+            )
 
             self._set_base_contigtree_to_self(new_contigtree)
 
         self._wepy_h5 = wepy_h5
 
     def _set_base_contigtree_to_self(self, base_contigtree):
-
         self._base_contigtree = base_contigtree
 
         # then make references to this for the attributes we need
@@ -1386,14 +1360,13 @@ class ContigTree(BaseContigTree):
         self.wepy_h5.__exit__(exc_type, exc_value, exc_tb)
         self.close()
 
-
     @property
     def base_contigtree(self):
         return self._base_contigtree
 
     @property
     def wepy_h5(self):
-        """The WepyHDF5 source object for which the contig tree is being constructed. """
+        """The WepyHDF5 source object for which the contig tree is being constructed."""
         return self._wepy_h5
 
     # TODO deprecate, commenting to catch errors if this breaks
@@ -1442,7 +1415,6 @@ class ContigTree(BaseContigTree):
 
     #     return run_trace_elements
 
-
     # TODO: optimize this, we don't need to recalculate everything
     # each time to implement this
     def make_contig(self, contig_trace):
@@ -1466,12 +1438,13 @@ class ContigTree(BaseContigTree):
         # then convert to continuations
         continuations = self._contig_runs_to_continuations(contig_runs)
 
-        return Contig(self.wepy_h5,
-                      runs=contig_runs,
-                      continuations=continuations,
-                      boundary_condition_class=self.boundary_condition_class,
-                      decision_class=self.decision_class)
-
+        return Contig(
+            self.wepy_h5,
+            runs=contig_runs,
+            continuations=continuations,
+            boundary_condition_class=self.boundary_condition_class,
+            decision_class=self.decision_class,
+        )
 
     def warp_trace(self):
         """Get the trace for all unique warping events from all contigs."""
@@ -1522,24 +1495,20 @@ class ContigTree(BaseContigTree):
         # then cast to a set to get the unique ones
         return list(set(big_trace))
 
-
-    def lineages(self,
-                 trace,
-                 discontinuities=True
-    ):
+    def lineages(self, trace, discontinuities=True):
         """Get the ancestry lineage for each element of the trace as a run
         trace."""
 
         lines = []
         # for each element of the trace we need to get it's lineage
         for w_run_idx, w_walker_idx, w_cycle_idx in trace:
-
             # get a span contig that it is a part of
             for span_idx, span_trace in self.span_traces.items():
-
                 # if this frame is from this span trace
-                if (w_run_idx, w_cycle_idx,) in span_trace:
-
+                if (
+                    w_run_idx,
+                    w_cycle_idx,
+                ) in span_trace:
                     # then we process to get the lineages with this span
                     contig = self.span_contig(span_idx)
 
@@ -1554,8 +1523,8 @@ class ContigTree(BaseContigTree):
                     # any span trace will do so we finish at this point
                     break
 
-
         return lines
+
 
 class Contig(ContigTree):
     """Wraps a WepyHDF5 object and gives access to logical trajectories
@@ -1567,9 +1536,7 @@ class Contig(ContigTree):
 
     """
 
-    def __init__(self, wepy_h5,
-                 **kwargs):
-
+    def __init__(self, wepy_h5, **kwargs):
         # uses superclass docstring exactly, this constructor just
         # generates some extra attributes
 
@@ -1578,8 +1545,9 @@ class Contig(ContigTree):
 
         # check that the result is a single contig
         spanning_contig_traces = self.spanning_contig_traces()
-        assert len(spanning_contig_traces) == 1, \
-            "continuations given do not form a single contig"
+        assert (
+            len(spanning_contig_traces) == 1
+        ), "continuations given do not form a single contig"
 
         # if so we add some useful attributes valid for only a
         # standalone contig
@@ -1599,7 +1567,9 @@ class Contig(ContigTree):
 
         # the run idxs of the contig for more than one
         if len(trace_run_idxs) > 1:
-            self._contig_run_idxs = self._continuations_to_contig_runs(self.continuations)
+            self._contig_run_idxs = self._continuations_to_contig_runs(
+                self.continuations
+            )
 
         # if there is only 1 run we set it like this
         else:
@@ -1692,7 +1662,9 @@ class Contig(ContigTree):
         records_df : pandas.DataFrame
 
         """
-        return self.wepy_h5.run_contig_records_dataframe(self._contig_run_idxs, record_key)
+        return self.wepy_h5.run_contig_records_dataframe(
+            self._contig_run_idxs, record_key
+        )
 
     # resampling
     def resampling_records(self):
@@ -1727,7 +1699,6 @@ class Contig(ContigTree):
 
         """
 
-
         return self.records(RESAMPLER)
 
     def resampler_records_dataframe(self):
@@ -1738,7 +1709,6 @@ class Contig(ContigTree):
         resampler_df : pandas.DataFrame
 
         """
-
 
         return pd.DataFrame(self.resampler_records())
 
@@ -1752,7 +1722,6 @@ class Contig(ContigTree):
 
         """
 
-
         return self.records(WARPING)
 
     def warping_records_dataframe(self):
@@ -1763,7 +1732,6 @@ class Contig(ContigTree):
         warping_df : pandas.DataFrame
 
         """
-
 
         return pd.DataFrame(self.warping_records())
 
@@ -1777,7 +1745,6 @@ class Contig(ContigTree):
 
         """
 
-
         return self.records(BC)
 
     def bc_records_dataframe(self):
@@ -1788,7 +1755,6 @@ class Contig(ContigTree):
         bc_df : pandas.DataFrame
 
         """
-
 
         return pd.DataFrame(self.bc_records())
 
@@ -1802,7 +1768,6 @@ class Contig(ContigTree):
 
         """
 
-
         return self.records(PROGRESS)
 
     def progress_records_dataframe(self):
@@ -1814,9 +1779,7 @@ class Contig(ContigTree):
 
         """
 
-
         return pd.DataFrame(self.progress_records())
-
 
     # resampling panel
     def resampling_panel(self):
@@ -1854,11 +1817,11 @@ class Contig(ContigTree):
 
         """
 
-        return self.trace_parent_table(self.contig_trace,
-                                       discontinuities=discontinuities)
+        return self.trace_parent_table(
+            self.contig_trace, discontinuities=discontinuities
+        )
 
     def lineages_contig(self, contig_trace, discontinuities=True):
-
         # get the parent table for this contig
         parent_table = self.parent_table(discontinuities=discontinuities)
 
@@ -1874,17 +1837,18 @@ class Contig(ContigTree):
         """Get the ancestry lineage for each element of the trace as a run
         trace."""
 
-        return [self.walker_trace_to_run_trace(trace)
-                for trace in self.lineages_contig(contig_trace,
-                                                  discontinuities=discontinuities)]
-
+        return [
+            self.walker_trace_to_run_trace(trace)
+            for trace in self.lineages_contig(
+                contig_trace, discontinuities=discontinuities
+            )
+        ]
 
     def warp_contig_trace(self):
         """Return a trace that gives all of the walkers that were warped."""
 
         trace = []
         for warping_record in self.warping_records():
-
             cycle_idx = warping_record[0]
             walker_idx = warping_record[1]
 
@@ -1913,24 +1877,22 @@ class Contig(ContigTree):
         # go through the resampling records and filter only the
         # records that match the decision_id
         for rec in self.resampling_records():
-
             if rec.decision_id == decision_id:
-
                 trace.append((rec.walker_idx, rec.cycle_idx))
 
         return trace
 
     def final_contig_trace(self):
-
         # this is just the last cycle index
         last_cycle_idx = self.num_cycles - 1
 
         # make a contig trace for each of the last walkers
-        trace = [(walker_idx, last_cycle_idx)
-                 for walker_idx in range(self.num_walkers(last_cycle_idx))]
+        trace = [
+            (walker_idx, last_cycle_idx)
+            for walker_idx in range(self.num_walkers(last_cycle_idx))
+        ]
 
         return trace
-
 
     def warp_trace(self):
         """Return a run trace that gives all of the walkers that were warped."""
@@ -1954,13 +1916,11 @@ class Contig(ContigTree):
 
         """
 
-
         trace = self.resampling_contig_trace(decision_id)
 
         run_trace = self.contig_trace_to_run_trace(self.contig_trace, trace)
 
         return run_trace
-
 
     def final_trace(self):
         """Return a trace of all the walkers at the end of the contig."""
@@ -1971,18 +1931,18 @@ class Contig(ContigTree):
 
         return run_trace
 
-    def resampling_tree_layout_graph(self,
-                                     bc_class=None,
-                                     progress_key=None,
-                                     node_shape='disc',
-                                     discontinuous_node_shape='square',
-                                     colormap_name='plasma',
-                                     node_radius=None,
-                                     row_spacing=None,
-                                     step_spacing=None,
-                                     central_axis=None,
+    def resampling_tree_layout_graph(
+        self,
+        bc_class=None,
+        progress_key=None,
+        node_shape="disc",
+        discontinuous_node_shape="square",
+        colormap_name="plasma",
+        node_radius=None,
+        row_spacing=None,
+        step_spacing=None,
+        central_axis=None,
     ):
-
         ### The data we need for making the resampling tree
 
         ## parent table, don't include discontinuities, we will handle
@@ -1992,9 +1952,8 @@ class Contig(ContigTree):
         ## walker weights
         with self:
             walker_weights = self.wepy_h5.get_contig_trace_fields(
-                self.contig_trace,
-                ['weights']
-            )['weights']
+                self.contig_trace, ["weights"]
+            )["weights"]
 
         ### Optional data
 
@@ -2002,7 +1961,6 @@ class Contig(ContigTree):
         if bc_class is not None:
             with self:
                 warping_records = self.warping_records()
-
 
         ## walker progress
 
@@ -2025,14 +1983,11 @@ class Contig(ContigTree):
             # tabulate the discontinuities
             discontinuous_nodes = []
             for warping_record in warping_records:
-
                 # if this record classifies as discontinuous
                 if bc_class.warping_discontinuity(warping_record):
-
                     # then we save it as one of the nodes that is discontinuous
                     disc_node_id = (warping_record.cycle_idx, warping_record.walker_idx)
                     discontinuous_nodes.append(disc_node_id)
-
 
         ## Free Energies
 
@@ -2052,7 +2007,7 @@ class Contig(ContigTree):
 
         for cycle_weights in walker_weights:
             cycles_n_walkers.append(len(cycle_weights))
-            flattened_weights.extend(list(cycle_weights.reshape( (len(cycle_weights),) )))
+            flattened_weights.extend(list(cycle_weights.reshape((len(cycle_weights),))))
 
         # now compute the free energy
         flattened_free_energies = calc_free_energy(np.array(flattened_weights))
@@ -2061,22 +2016,22 @@ class Contig(ContigTree):
         free_energies = []
         last_index = 0
         for cycle_n_walkers in cycles_n_walkers:
-            free_energies.append(list(
-                flattened_free_energies[last_index:last_index + cycle_n_walkers]))
+            free_energies.append(
+                list(flattened_free_energies[last_index : last_index + cycle_n_walkers])
+            )
             last_index += cycle_n_walkers
 
         # put these into the parent forest graph as node attributes,
         # so we can get them out as a lookup table by node id for
         # assigning to nodes in the layout. We skip the first row of
         # free energies for the roots in this step
-        parent_forest.set_attrs_by_array('free_energy', free_energies[1:])
+        parent_forest.set_attrs_by_array("free_energy", free_energies[1:])
 
         ## Progress colors
         colormap = cm.get_cmap(name=colormap_name)
 
         # if a progress key was given use that
         if progress_key is not None:
-
             # get the maximum progress value in the data
             max_progress_value = max([max(row) for row in walkers_progress])
 
@@ -2088,13 +2043,14 @@ class Contig(ContigTree):
             # RGB color values
             colors = []
             for progress_row in walkers_progress:
-                color_row = [colormap(progress * norm_ratio, bytes=True)
-                             for progress in progress_row]
+                color_row = [
+                    colormap(progress * norm_ratio, bytes=True)
+                    for progress in progress_row
+                ]
                 colors.append(color_row)
 
         # otherwise set them to the free energy
         else:
-
             # get the maximum progress value in the data
             max_fe_value = max([max(row) for row in free_energies[1:]])
 
@@ -2106,12 +2062,13 @@ class Contig(ContigTree):
             # RGB color values
             colors = []
             for progress_row in free_energies[1:]:
-                color_row = [colormap(progress * norm_ratio, bytes=True)
-                             for progress in progress_row]
+                color_row = [
+                    colormap(progress * norm_ratio, bytes=True)
+                    for progress in progress_row
+                ]
                 colors.append(color_row)
 
-        parent_forest.set_attrs_by_array('color', colors)
-
+        parent_forest.set_attrs_by_array("color", colors)
 
         ### Per node properties
 
@@ -2129,9 +2086,10 @@ class Contig(ContigTree):
         # the nodes with no fe defined
 
         # start it with the root weights
-        node_fes = {(-1, i) : free_energy for i, free_energy in enumerate(free_energies[0])}
-        for node_id, fe_arr in layout_forest.get_node_attributes('free_energy').items():
-
+        node_fes = {
+            (-1, i): free_energy for i, free_energy in enumerate(free_energies[0])
+        }
+        for node_id, fe_arr in layout_forest.get_node_attributes("free_energy").items():
             if fe_arr is None:
                 node_fes[node_id] = 0.0
             else:
@@ -2142,8 +2100,7 @@ class Contig(ContigTree):
         # the default progress for the root ones is 0 and so the color
         # is also 0
         node_colors = {}
-        for node_id, color_arr in layout_forest.get_node_attributes('color').items():
-
+        for node_id, color_arr in layout_forest.get_node_attributes("color").items():
             if color_arr is None:
                 # make a black color for these
                 node_colors[node_id] = tuple(int(255) for a in range(4))
@@ -2152,10 +2109,8 @@ class Contig(ContigTree):
 
         # set discontinuous nodes to black
         if bc_class is not None:
-
             for discontinuous_node in discontinuous_nodes:
                 node_colors[discontinuous_node] = tuple(int(0) for a in range(4))
-
 
         ## Node Shapes
 
@@ -2171,29 +2126,29 @@ class Contig(ContigTree):
             for discontinuous_node in discontinuous_nodes:
                 node_shapes[discontinuous_node] = discontinuous_node_shape
 
-
         ## Node positions
 
         # get the options correctly
         restree_layout_opts = {
-            'node_radius' : node_radius,
-            'row_spacing' : row_spacing,
-            'step_spacing' : step_spacing,
-            'central_axis' : central_axis,
+            "node_radius": node_radius,
+            "row_spacing": row_spacing,
+            "step_spacing": step_spacing,
+            "central_axis": central_axis,
         }
 
         # filter out the None values, this will ensure the defaults
         # are used
-        restree_layout_opts = {field : value
-                               for field, value in restree_layout_opts.items()
-                               if value is not None}
+        restree_layout_opts = {
+            field: value
+            for field, value in restree_layout_opts.items()
+            if value is not None
+        }
 
         # now we get to the part where we make the layout (positioning
         # of nodes), so we parametrize a layout engine
         tree_layout = ResamplingTreeLayout(**restree_layout_opts)
 
-        node_coords = tree_layout.layout(parent_forest,
-                                         node_radii=node_fes)
+        node_coords = tree_layout.layout(parent_forest, node_radii=node_fes)
 
         ### Set Layout values
 
@@ -2215,4 +2170,3 @@ class Contig(ContigTree):
         layout_forest.set_node_gexf_positions(node_coords)
 
         return layout_forest
-

@@ -42,16 +42,16 @@ to be determined adaptively (e.g. according to some time limit).
 
 """
 
-import numpy as np
-
+import logging
 import sys
 import time
 from copy import deepcopy
-import logging
 
-from eliot import start_action, log_call
+import numpy as np
+from eliot import log_call, start_action
 
 from wepy.work_mapper.mapper import Mapper
+
 
 class Manager(object):
     """The class that coordinates wepy simulations.
@@ -85,33 +85,35 @@ class Manager(object):
 
     """
 
-
-    REPORT_ITEM_KEYS = ('cycle_idx',
-                        'n_segment_steps',
-                        'new_walkers',
-                        'resampled_walkers',
-                        'warp_data',
-                        'bc_data',
-                        'progress_data',
-                        'resampling_data',
-                        'resampler_data',
-                        'worker_segment_times',
-                        'cycle_runner_time',
-                        'cycle_bc_time',
-                        'cycle_resampling_time',
+    REPORT_ITEM_KEYS = (
+        "cycle_idx",
+        "n_segment_steps",
+        "new_walkers",
+        "resampled_walkers",
+        "warp_data",
+        "bc_data",
+        "progress_data",
+        "resampling_data",
+        "resampler_data",
+        "worker_segment_times",
+        "cycle_runner_time",
+        "cycle_bc_time",
+        "cycle_resampling_time",
     )
     """Keys of values that will be passed to reporters.
 
     This indicates the values that the reporters will have access to.
     """
 
-    def __init__(self, init_walkers,
-                 runner = None,
-                 work_mapper = None,
-                 resampler = None,
-                 boundary_conditions = None,
-                 reporters = None,
-                 sim_monitor = None,
+    def __init__(
+        self,
+        init_walkers,
+        runner=None,
+        work_mapper=None,
+        resampler=None,
+        boundary_conditions=None,
+        reporters=None,
+        sim_monitor=None,
     ):
         """Constructor for Manager.
 
@@ -190,8 +192,8 @@ class Manager(object):
 
     @log_call(
         include_args=[
-            'segment_length',
-            'cycle_idx',
+            "segment_length",
+            "cycle_idx",
         ],
         include_result=False,
     )
@@ -222,19 +224,18 @@ class Manager(object):
         logging.info("Starting segment")
 
         try:
-            new_walkers = list(self.work_mapper.map(
-                # args, which must be supported by the map function
-                walkers,
-                (segment_length for i in range(num_walkers)),
-
-                # kwargs which are optionally recognized by the map function
-                cycle_idx=(cycle_idx for i in range(num_walkers)),
-                walker_idx=(walker_idx for walker_idx in range(num_walkers)),
-            )
+            new_walkers = list(
+                self.work_mapper.map(
+                    # args, which must be supported by the map function
+                    walkers,
+                    (segment_length for i in range(num_walkers)),
+                    # kwargs which are optionally recognized by the map function
+                    cycle_idx=(cycle_idx for i in range(num_walkers)),
+                    walker_idx=(walker_idx for walker_idx in range(num_walkers)),
+                )
             )
 
         except Exception as exception:
-
             # get the errors from the work mapper error queue
             self.cleanup()
 
@@ -245,16 +246,16 @@ class Manager(object):
 
         return new_walkers
 
-    @log_call(include_args=[
-        'n_segment_steps',
-        'cycle_idx',
-        'runner_opts'],
-              include_result=False)
-    def run_cycle(self,
-                  walkers,
-                  n_segment_steps,
-                  cycle_idx,
-                  runner_opts=None,
+    @log_call(
+        include_args=["n_segment_steps", "cycle_idx", "runner_opts"],
+        include_result=False,
+    )
+    def run_cycle(
+        self,
+        walkers,
+        n_segment_steps,
+        cycle_idx,
+        runner_opts=None,
     ):
         """Run a full cycle of weighted ensemble simulation using each
         component.
@@ -323,10 +324,8 @@ class Manager(object):
 
         """
 
-
         # this one is called to just easily be able to catch all the
         # errors from it so we can cleanup if an error is caught
-
 
         return self._run_cycle(
             walkers,
@@ -335,11 +334,12 @@ class Manager(object):
             runner_opts=runner_opts,
         )
 
-    def _run_cycle(self,
-                   walkers,
-                   n_segment_steps,
-                   cycle_idx,
-                   runner_opts=None,
+    def _run_cycle(
+        self,
+        walkers,
+        n_segment_steps,
+        cycle_idx,
+        runner_opts=None,
     ):
         """See run_cycle."""
 
@@ -368,8 +368,7 @@ class Manager(object):
         end = time.time()
         sim_manager_segment_time = end - start
 
-        if hasattr(self.runner, '_last_cycle_segments_split_times'):
-
+        if hasattr(self.runner, "_last_cycle_segments_split_times"):
             runner_splits = deepcopy(self.runner._last_cycle_segments_split_times)
 
         else:
@@ -396,12 +395,10 @@ class Manager(object):
         progress_data = {}
         bc_time = 0.0
         if self.boundary_conditions is not None:
-
             # apply rules of boundary conditions and warp walkers through space
             start = time.time()
             logging.info("Starting boundary conditions")
-            bc_results  = self.boundary_conditions.warp_walkers(new_walkers,
-                                                                cycle_idx)
+            bc_results = self.boundary_conditions.warp_walkers(new_walkers, cycle_idx)
             end = time.time()
             bc_time = end - start
 
@@ -413,7 +410,6 @@ class Manager(object):
 
             if len(warp_data) > 0:
                 logging.info("Returned warp record in cycle {}".format(cycle_idx))
-
 
         # resample walkers
         start = time.time()
@@ -442,13 +438,15 @@ class Manager(object):
         sampling_time = None
         overhead_time = None
 
-        if hasattr(self.work_mapper, 'worker_segment_times'):
-
+        if hasattr(self.work_mapper, "worker_segment_times"):
             seg_times = deepcopy(self.work_mapper.worker_segment_times)
 
             # count up the total sampling time from the segments
             sampling_time = 0
-            for worker_id, segments_times in self.work_mapper.worker_segment_times.items():
+            for (
+                worker_id,
+                segments_times,
+            ) in self.work_mapper.worker_segment_times.items():
                 for seg_time in segments_times:
                     sampling_time += seg_time
 
@@ -460,40 +458,39 @@ class Manager(object):
             #         runner_time, sampling_time, overhead_time))
 
         else:
-            sim_manager_segment_overhead_time = 0.
+            sim_manager_segment_overhead_time = 0.0
             # logging.info("No worker segment times given")
             # logging.info("Runner time = {}".format(runner_time))
 
-
-        report = {'cycle_idx' : cycle_idx,
-                  'new_walkers' : new_walkers,
-                  'warp_data' : warp_data,
-                  'bc_data' : bc_data,
-                  'progress_data' : progress_data,
-                  'resampling_data' : resampling_data,
-                  'resampler_data' : resampler_data,
-                  'n_segment_steps' : n_segment_steps,
-                  'resampled_walkers' : resampled_walkers,
-
-                  # timings
-                  'runner_precycle_time' : runner_precycle_time,
-                  'runner_postcycle_time' : runner_postcycle_time,
-                  'sim_manager_segment_overhead_time' : sim_manager_segment_overhead_time,
-                  'runner_splits_time' : runner_splits,
-                  'worker_segment_times' : seg_times,
-                  'cycle_sim_manager_segment_time' : sim_manager_segment_time,
-                  'cycle_runner_time' : sim_manager_segment_time,
-                  'cycle_bc_time' : bc_time,
-                  'cycle_resampling_time' : resampling_time,
-
+        report = {
+            "cycle_idx": cycle_idx,
+            "new_walkers": new_walkers,
+            "warp_data": warp_data,
+            "bc_data": bc_data,
+            "progress_data": progress_data,
+            "resampling_data": resampling_data,
+            "resampler_data": resampler_data,
+            "n_segment_steps": n_segment_steps,
+            "resampled_walkers": resampled_walkers,
+            # timings
+            "runner_precycle_time": runner_precycle_time,
+            "runner_postcycle_time": runner_postcycle_time,
+            "sim_manager_segment_overhead_time": sim_manager_segment_overhead_time,
+            "runner_splits_time": runner_splits,
+            "worker_segment_times": seg_times,
+            "cycle_sim_manager_segment_time": sim_manager_segment_time,
+            "cycle_runner_time": sim_manager_segment_time,
+            "cycle_bc_time": bc_time,
+            "cycle_resampling_time": resampling_time,
         }
 
         self._last_report = report
 
         # check that all of the keys that are specified for this sim
         # manager are present
-        assert all([True if rep_key in report else False
-                    for rep_key in self.REPORT_ITEM_KEYS])
+        assert all(
+            [True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS]
+        )
 
         logging.info("Starting reporting")
         # report results to the reporters
@@ -507,7 +504,6 @@ class Manager(object):
         if self.monitor is not None:
             logging.info("Running monitoring")
             self.monitor.cycle_monitor(self, walkers)
-
 
         # we also return a list of the "filters" which are the
         # classes that are run on the initial walkers to produce
@@ -525,9 +521,10 @@ class Manager(object):
         return walkers, filters
 
     @log_call
-    def init(self,
-             num_workers=None,
-             continue_run=None,
+    def init(
+        self,
+        num_workers=None,
+        continue_run=None,
     ):
         """Initialize wepy configuration components for use at runtime.
 
@@ -569,7 +566,6 @@ class Manager(object):
 
         """
 
-
         logging.info("Starting simulation")
 
         # initialize the monitoring object
@@ -587,16 +583,17 @@ class Manager(object):
             num_workers=num_workers,
         )
 
-
         # init the reporter
         for reporter in self.reporters:
-            reporter.init(init_walkers=self.init_walkers,
-                          runner=self.runner,
-                          resampler=self.resampler,
-                          boundary_conditions=self.boundary_conditions,
-                          work_mapper=self.work_mapper,
-                          reporters=self.reporters,
-                          continue_run=continue_run)
+            reporter.init(
+                init_walkers=self.init_walkers,
+                runner=self.runner,
+                resampler=self.resampler,
+                boundary_conditions=self.boundary_conditions,
+                work_mapper=self.work_mapper,
+                reporters=self.reporters,
+                continue_run=continue_run,
+            )
 
     def cleanup(self):
         """Perform cleanup actions for wepy configuration components.
@@ -629,12 +626,13 @@ class Manager(object):
 
         # cleanup things associated with the reporter
         for reporter in self.reporters:
-            reporter.cleanup(runner=self.runner,
-                             work_mapper=self.work_mapper,
-                             resampler=self.resampler,
-                             boundary_conditions=self.boundary_conditions,
-                             reporters=self.reporters)
-
+            reporter.cleanup(
+                runner=self.runner,
+                work_mapper=self.work_mapper,
+                resampler=self.resampler,
+                boundary_conditions=self.boundary_conditions,
+                reporters=self.reporters,
+            )
 
     def run_simulation_by_time(self, run_time, segments_length, num_workers=None):
         """Run a simulation for a certain amount of time.
@@ -682,13 +680,17 @@ class Manager(object):
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
-
-            logging.info("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info(
+                "starting cycle {} at time {}".format(
+                    cycle_idx, time.time() - start_time
+                )
+            )
 
             walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
-            logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
-
+            logging.info(
+                "ending cycle {} at time {}".format(cycle_idx, time.time() - start_time)
+            )
 
             cycle_idx += 1
 
@@ -699,14 +701,17 @@ class Manager(object):
 
     @log_call(
         include_args=[
-            'n_cycles',
-            'segment_lengths',
-            'num_workers',
+            "n_cycles",
+            "segment_lengths",
+            "num_workers",
         ],
-        include_result=False)
-    def run_simulation(self, n_cycles,
-                       segment_lengths,
-                       num_workers=None,
+        include_result=False,
+    )
+    def run_simulation(
+        self,
+        n_cycles,
+        segment_lengths,
+        num_workers=None,
     ):
         """Run a simulation for an explicit number of cycles.
 
@@ -750,8 +755,9 @@ class Manager(object):
         # the main cycle loop
         with start_action(action_type="Simulation Loop") as simloop_cx:
             for cycle_idx in range(n_cycles):
-
-                walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
+                walkers, filters = self.run_cycle(
+                    walkers, segment_lengths[cycle_idx], cycle_idx
+                )
 
                 # run the simulation monitor to get metrics on everything
                 if self.monitor is not None:
@@ -761,11 +767,12 @@ class Manager(object):
 
         return walkers, deepcopy(filters)
 
-    def continue_run_simulation(self,
-                                run_idx,
-                                n_cycles,
-                                segment_lengths,
-                                num_workers=None,
+    def continue_run_simulation(
+        self,
+        run_idx,
+        n_cycles,
+        segment_lengths,
+        num_workers=None,
     ):
         """Continue a simulation. All this does is provide a run idx to the
         reporters, which is the run that is intended to be
@@ -804,25 +811,26 @@ class Manager(object):
 
         """
 
-        self.init(num_workers=num_workers,
-                  continue_run=run_idx)
+        self.init(num_workers=num_workers, continue_run=run_idx)
 
         walkers = self.init_walkers
         # the main cycle loop
         for cycle_idx in range(n_cycles):
-            walkers, filters = self.run_cycle(walkers, segment_lengths[cycle_idx], cycle_idx)
+            walkers, filters = self.run_cycle(
+                walkers, segment_lengths[cycle_idx], cycle_idx
+            )
 
             # run the simulation monitor to get metrics on everything
             if self.monitor is not None:
                 self.monitor.cycle_monitor(self, walkers)
 
-
         self.cleanup()
 
         return walkers, filters
 
-
-    def continue_run_simulation_by_time(self, run_idx, run_time, segments_length, num_workers=None):
+    def continue_run_simulation_by_time(
+        self, run_idx, run_time, segments_length, num_workers=None
+    ):
         """Continue a simulation with a separate run by time.
 
         This starts timing as soon as this is called. If the time
@@ -852,18 +860,22 @@ class Manager(object):
 
         start_time = time.time()
 
-        self.init(num_workers=num_workers,
-                  continue_run=run_idx)
+        self.init(num_workers=num_workers, continue_run=run_idx)
 
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
-
-            logging.info("starting cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info(
+                "starting cycle {} at time {}".format(
+                    cycle_idx, time.time() - start_time
+                )
+            )
 
             walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
-            logging.info("ending cycle {} at time {}".format(cycle_idx, time.time() - start_time))
+            logging.info(
+                "ending cycle {} at time {}".format(cycle_idx, time.time() - start_time)
+            )
 
             # run the simulation monitor to get metrics on everything
             if self.monitor is not None:

@@ -1,47 +1,46 @@
-import click
 import logging
-from multiprocessing_logging import install_mp_handler
 
+import click
 import simtk.unit as unit
+from multiprocessing_logging import install_mp_handler
 
 # import all of the sim makers we have available
 from wepy_tools.sim_makers.openmm import *
 
 SYSTEM_SIM_MAKERS = {
-    'LennardJonesPair' : LennardJonesPairOpenMMSimMaker,
-    'LysozymeImplicit' : LysozymeImplicitOpenMMSimMaker,
+    "LennardJonesPair": LennardJonesPairOpenMMSimMaker,
+    "LysozymeImplicit": LysozymeImplicitOpenMMSimMaker,
 }
 
-def parse_system_spec(spec):
 
+def parse_system_spec(spec):
     sys_spec, runner_platform = spec.split("/")
 
-    runner, platform = runner_platform.split('-')
+    runner, platform = runner_platform.split("-")
 
     return sys_spec, runner, platform
 
-@click.option('-v', '--verbose', is_flag=True)
-@click.option('-W', '--work-mapper',
-              default='WorkerMapper',
-              help="Work mapper for doing work.")
-@click.option('-R', '--resampler',
-              default='WExplore',
-              help="Resampling algorithm.")
-@click.argument('n_workers', type=int)
-@click.argument('tau', type=float)
-@click.argument('n_cycles', type=int)
-@click.argument('n_walkers', type=int)
-@click.argument('system')
+
+@click.option("-v", "--verbose", is_flag=True)
+@click.option(
+    "-W", "--work-mapper", default="WorkerMapper", help="Work mapper for doing work."
+)
+@click.option("-R", "--resampler", default="WExplore", help="Resampling algorithm.")
+@click.argument("n_workers", type=int)
+@click.argument("tau", type=float)
+@click.argument("n_cycles", type=int)
+@click.argument("n_walkers", type=int)
+@click.argument("system")
 @click.command()
 def cli(
-        verbose,
-        work_mapper,
-        resampler,
-        n_workers,
-        tau,
-        n_cycles,
-        n_walkers,
-        system,
+    verbose,
+    work_mapper,
+    resampler,
+    n_workers,
+    tau,
+    n_cycles,
+    n_walkers,
+    system,
 ):
     """Run a pre-parametrized wepy simulation.
 
@@ -134,8 +133,7 @@ def cli(
         install_mp_handler()
         logging.debug("Starting the test")
 
-
-    resampler_fullname = resampler + 'Resampler'
+    resampler_fullname = resampler + "Resampler"
 
     sys_spec, runner, platform = parse_system_spec(system)
 
@@ -143,17 +141,17 @@ def cli(
     sim_maker = SYSTEM_SIM_MAKERS[sys_spec]()
 
     apparatus = sim_maker.make_apparatus(
-        platform = platform,
-        resampler = resampler_fullname,
+        platform=platform,
+        resampler=resampler_fullname,
     )
 
     # compute the number of steps to take from tau
     tau = tau * unit.picosecond
     n_steps = round(tau / apparatus.filters[0].integrator.getStepSize())
 
-    config = sim_maker.make_configuration(apparatus,
-                                          work_mapper_spec=work_mapper,
-                                          platform=platform)
+    config = sim_maker.make_configuration(
+        apparatus, work_mapper_spec=work_mapper, platform=platform
+    )
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
 
@@ -162,5 +160,4 @@ def cli(
 
 
 if __name__ == "__main__":
-
     cli()

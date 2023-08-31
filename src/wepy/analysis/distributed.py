@@ -114,22 +114,21 @@ frame).
 
 """
 import time
-
 from collections import defaultdict
 from copy import deepcopy
 
-import numpy as np
-
 import dask.bag as dbag
+import numpy as np
 
 from wepy.hdf5 import WepyHDF5
 from wepy.util.util import concat_traj_fields
 
-RESULT_FIELD_NAME = 'observable'
+RESULT_FIELD_NAME = "observable"
 
-def traj_fields_chunk_items(wepy_h5_path, fields,
-                            run_idxs=Ellipsis,
-                            chunk_size=Ellipsis):
+
+def traj_fields_chunk_items(
+    wepy_h5_path, fields, run_idxs=Ellipsis, chunk_size=Ellipsis
+):
     """Generate items that can be used to create a dask.bag object.
 
     Arguments
@@ -155,23 +154,23 @@ def traj_fields_chunk_items(wepy_h5_path, fields,
 
     # open the HDF5
     try:
-        wepy_h5 = WepyHDF5(wepy_h5_path, mode='r')
+        wepy_h5 = WepyHDF5(wepy_h5_path, mode="r")
     except OSError:
         print("Failed to open HDF5")
         return None
 
     with wepy_h5:
-
         # choose the run idxs
         if run_idxs is not Ellipsis:
-            assert all([run_idx in wepy_h5.run_idxs for run_idx in run_idxs]), "run_idx not in runs"
+            assert all(
+                [run_idx in wepy_h5.run_idxs for run_idx in run_idxs]
+            ), "run_idx not in runs"
         else:
             run_idxs = wepy_h5.run_idxs
 
         chunk_specs = []
         for run_idx in run_idxs:
             for traj_idx in wepy_h5.run_traj_idxs(run_idx):
-
                 num_frames = wepy_h5.num_traj_frames(run_idx, traj_idx)
 
                 # determine the specific frame indices in the chunks
@@ -185,43 +184,43 @@ def traj_fields_chunk_items(wepy_h5_path, fields,
                     chunks = [range(num_frames)]
                 else:
                     # split it allowing for an unequal chunk sizes
-                    chunks = np.array_split(range(num_frames),
-                                            num_frames // chunk_size)
+                    chunks = np.array_split(range(num_frames), num_frames // chunk_size)
 
                 for frame_idxs in chunks:
                     chunk_spec = {
-                        'wepy_h5_path' : wepy_h5_path,
-                        'run_idx' : run_idx,
-                        'traj_idx' : traj_idx,
-                        'frame_idxs' : frame_idxs,
-                        'fields' : fields,
+                        "wepy_h5_path": wepy_h5_path,
+                        "run_idx": run_idx,
+                        "traj_idx": traj_idx,
+                        "frame_idxs": frame_idxs,
+                        "fields": fields,
                     }
                     chunk_specs.append(chunk_spec)
 
     return chunk_specs
 
-def load_chunk(chunk_spec):
 
-    wepy_h5 = WepyHDF5(chunk_spec['wepy_h5_path'], mode='r')
+def load_chunk(chunk_spec):
+    wepy_h5 = WepyHDF5(chunk_spec["wepy_h5_path"], mode="r")
 
     with wepy_h5:
         frame_fields = {}
-        for field in chunk_spec['fields']:
-            frame_fields[field] = wepy_h5.get_traj_field(chunk_spec['run_idx'],
-                                                         chunk_spec['traj_idx'],
-                                                         field,
-                                                         frames=chunk_spec['frame_idxs'])
+        for field in chunk_spec["fields"]:
+            frame_fields[field] = wepy_h5.get_traj_field(
+                chunk_spec["run_idx"],
+                chunk_spec["traj_idx"],
+                field,
+                frames=chunk_spec["frame_idxs"],
+            )
 
     # combine the chunk spec with the traj_fields data
-    chunk_spec['traj_fields'] = frame_fields
+    chunk_spec["traj_fields"] = frame_fields
 
     return chunk_spec
 
-def chunk_func_funcgen(func,
-                       input_keys=['traj_fields'],
-                       result_name=None,
-                       keep_inputs=False):
 
+def chunk_func_funcgen(
+    func, input_keys=["traj_fields"], result_name=None, keep_inputs=False
+):
     # if the result name wasn't given use the function name
     if result_name is None:
         result_name = func.__name__
@@ -230,15 +229,11 @@ def chunk_func_funcgen(func,
 
         result_name = result_name
 
-
     def chunk_func(chunk_spec):
-
-
         assert not result_name in chunk_spec.keys()
 
         fields = []
         for key in input_keys:
-
             # pop the trajectory fields off if we are to keep them or not
             if keep_inputs:
                 field = chunk_spec[key]
@@ -253,6 +248,7 @@ def chunk_func_funcgen(func,
 
     return chunk_func
 
+
 # NOTE: probably shouldn't need this. THere is a dask function called
 # 'pluck' which does the same thing, except only for 1 key
 def unwrap_chunk_funcgen(keys=None):
@@ -262,54 +258,52 @@ def unwrap_chunk_funcgen(keys=None):
     assert len(keys) > 0, "must give at least one key or this is useless"
 
     def unwrap_chunk_func(chunk_struct):
-
-        return {key: value for key, value in chunk_struct.items()
-                if key in keys}
+        return {key: value for key, value in chunk_struct.items() if key in keys}
 
     return unwrap_chunk_func
 
+
 # for reduction
 def chunk_key_func(chunk_spec):
-    return (chunk_spec['run_idx'], chunk_spec['traj_idx'])
+    return (chunk_spec["run_idx"], chunk_spec["traj_idx"])
+
 
 def init_chunk():
+    return {
+        "wepy_h5_path": None,
+        "run_idx": None,
+        "traj_idx": None,
+        "fields": None,
+        "frame_idxs": np.array([]),
+    }
 
-    return {'wepy_h5_path' : None,
-            'run_idx' : None,
-            'traj_idx' : None,
-            'fields' : None,
-            'frame_idxs' : np.array([])}
 
 def chunk_concat_funcgen(*concat_funcs):
-
     def chunk_concat(cum_chunk_spec, new_chunk_spec):
-
         new_chunk = deepcopy(cum_chunk_spec)
 
         # check to see that the accumulator chunk struct has been
         # initialized, if not initialize it with the values from the new_chunk
         if (
-                (cum_chunk_spec['wepy_h5_path'] is None) or
-                (cum_chunk_spec['run_idx'] is None) or
-                (cum_chunk_spec['traj_idx'] is None) or
-                (cum_chunk_spec['fields'] is None)
+            (cum_chunk_spec["wepy_h5_path"] is None)
+            or (cum_chunk_spec["run_idx"] is None)
+            or (cum_chunk_spec["traj_idx"] is None)
+            or (cum_chunk_spec["fields"] is None)
         ):
-            cum_chunk_spec['wepy_h5_path'] = new_chunk_spec['wepy_h5_path']
-            cum_chunk_spec['run_idx'] = new_chunk_spec['run_idx']
-            cum_chunk_spec['traj_idx'] = new_chunk_spec['traj_idx']
-            cum_chunk_spec['fields'] = new_chunk_spec['fields']
+            cum_chunk_spec["wepy_h5_path"] = new_chunk_spec["wepy_h5_path"]
+            cum_chunk_spec["run_idx"] = new_chunk_spec["run_idx"]
+            cum_chunk_spec["traj_idx"] = new_chunk_spec["traj_idx"]
+            cum_chunk_spec["fields"] = new_chunk_spec["fields"]
 
         # concatenate the frame indices in this chunk
-        new_chunk['frame_idxs'] = np.concatenate(
-            [cum_chunk_spec['frame_idxs'], new_chunk_spec['frame_idxs']])
+        new_chunk["frame_idxs"] = np.concatenate(
+            [cum_chunk_spec["frame_idxs"], new_chunk_spec["frame_idxs"]]
+        )
 
         # for each extra concat function feed it the two chunk specs
         for concat_func in concat_funcs:
-
             # update the cumulative chunk spec in-place
-            new_chunk = concat_func(new_chunk,
-                                    new_chunk_spec)
-
+            new_chunk = concat_func(new_chunk, new_chunk_spec)
 
         return new_chunk
 
@@ -317,12 +311,12 @@ def chunk_concat_funcgen(*concat_funcs):
 
 
 def chunk_array_concat_funcgen(field):
-
     def func(cum_chunk_spec, new_chunk_spec):
-
         # only add it if it has been initialized in the cum_chunk
         if field in cum_chunk_spec:
-            cum_chunk_spec[field] = np.concatenate([cum_chunk_spec[field], new_chunk_spec[field]])
+            cum_chunk_spec[field] = np.concatenate(
+                [cum_chunk_spec[field], new_chunk_spec[field]]
+            )
 
         # otherwise set just the new chunk
         else:
@@ -332,13 +326,15 @@ def chunk_array_concat_funcgen(field):
 
     return func
 
+
 def chunk_traj_fields_concat(cum_chunk_spec, new_chunk_spec):
     """Binary operation for dask foldby reductions for concatenating chunk
     specs with a traj_fields payload"""
 
     # concatenate the traj fields
-    cum_chunk_spec['traj_fields'] = concat_traj_fields(
-        [cum_chunk_spec['traj_fields'], new_chunk_spec['traj_fields']])
+    cum_chunk_spec["traj_fields"] = concat_traj_fields(
+        [cum_chunk_spec["traj_fields"], new_chunk_spec["traj_fields"]]
+    )
 
     return cum_chunk_spec
 
@@ -373,6 +369,7 @@ def chunk_traj_fields_concat(cum_chunk_spec, new_chunk_spec):
 #             traj_id, struct = last_step.take(1)
 #             yield (traj_id, struct['observable'])
 
+
 def _by_traj_to_multidimensional(traj_d):
     """Convert a dictionary of keys (run_idx, traj_idx) and values (of
     dimension val_dim) as arrays to a list of lists of the value
@@ -406,21 +403,20 @@ def _by_traj_to_multidimensional(traj_d):
     return runs_arr
 
 
-def compute_observable(func,
-                       wepy_h5_path,
-                       dask_client,
-                       fields,
-                       chunk_size=Ellipsis,
-                       num_partitions=100,
-                       # TODO replace with traj_sels
-                       run_idxs=Ellipsis):
-
+def compute_observable(
+    func,
+    wepy_h5_path,
+    dask_client,
+    fields,
+    chunk_size=Ellipsis,
+    num_partitions=100,
+    # TODO replace with traj_sels
+    run_idxs=Ellipsis,
+):
     with dask_client:
-
-        chunks = traj_fields_chunk_items(wepy_h5_path,
-                                         fields,
-                                         chunk_size=chunk_size,
-                                         run_idxs=run_idxs)
+        chunks = traj_fields_chunk_items(
+            wepy_h5_path, fields, chunk_size=chunk_size, run_idxs=run_idxs
+        )
 
         # DEBUG
         # TODO add to logging
@@ -433,8 +429,10 @@ def compute_observable(func,
         chunk_results = last_step.compute()
 
         # get just the result value with the traj id
-        results_d = {traj_id : chunk_struct[RESULT_FIELD_NAME]
-                   for traj_id, chunk_struct in chunk_results}
+        results_d = {
+            traj_id: chunk_struct[RESULT_FIELD_NAME]
+            for traj_id, chunk_struct in chunk_results
+        }
 
         results_arr = _by_traj_to_multidimensional(results_d)
 
@@ -442,7 +440,6 @@ def compute_observable(func,
 
 
 def compute_observable_graph(func, chunk_bag, chunk_size):
-
     # since the inputs to any mapped function will be chunk
     # structs (i.e. having metadata about the identity of the
     # chunk, plus any data it drags along, namely traj_fields and
@@ -453,10 +450,12 @@ def compute_observable_graph(func, chunk_bag, chunk_size):
     # save data in, optionally we can get rid of the input data if
     # it is no longer needed
 
-    chunk_func = chunk_func_funcgen(func,
-                                    input_keys=['traj_fields'],
-                                    result_name=RESULT_FIELD_NAME,
-                                    keep_inputs=False)
+    chunk_func = chunk_func_funcgen(
+        func,
+        input_keys=["traj_fields"],
+        result_name=RESULT_FIELD_NAME,
+        keep_inputs=False,
+    )
 
     # start constructing computational graph
 
@@ -475,8 +474,7 @@ def compute_observable_graph(func, chunk_bag, chunk_size):
     # trajectories. We didn't want to code up the function to
     # structure it that way (in dask) and so leave this for now and if
     # it becomes a performance issue we can make that
-    if True: #chunk_size is not Ellipsis:
-
+    if True:  # chunk_size is not Ellipsis:
         # generate the concatenation function for the result so we can
         # reduce and defrag it, this only deals with the part of the chunk of the field name
         result_concat = chunk_array_concat_funcgen(RESULT_FIELD_NAME)
@@ -491,8 +489,7 @@ def compute_observable_graph(func, chunk_bag, chunk_size):
 
         # reduce the results by de-fragging the chunks into trajectory
         # chunks
-        defrag_step = map_step.foldby(chunk_key_func, chunk_concat,
-                                      init_cum_chunk)
+        defrag_step = map_step.foldby(chunk_key_func, chunk_concat, init_cum_chunk)
     else:
         defrag_step = map_step
 

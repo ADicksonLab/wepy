@@ -8,14 +8,15 @@ simulation as it progresses.
 
 import logging
 
+import mdtraj as mdj
 import numpy as np
 
 from wepy.reporter.reporter import ProgressiveFileReporter
-from wepy.util.util import box_vectors_to_lengths_angles, traj_box_vectors_to_lengths_angles
 from wepy.util.json_top import json_top_subset
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology
+from wepy.util.util import (box_vectors_to_lengths_angles,
+                            traj_box_vectors_to_lengths_angles)
 
-import mdtraj as mdj
 
 class WalkerReporter(ProgressiveFileReporter):
     """Reporter for generating 3D molecular structure files of the walkers
@@ -42,18 +43,15 @@ class WalkerReporter(ProgressiveFileReporter):
 
     """
 
-
     # the order the files are in
-    FILE_ORDER = ('init_state_path', 'walker_path')
+    FILE_ORDER = ("init_state_path", "walker_path")
 
     # the extnesions that will be used in orchestration
-    SUGGESTED_EXTENSIONS = ('init_top.pdb', 'walkers.dcd')
+    SUGGESTED_EXTENSIONS = ("init_top.pdb", "walkers.dcd")
 
-    def __init__(self, *,
-                 init_state=None,
-                 json_topology=None,
-                 main_rep_idxs=None,
-                 **kwargs):
+    def __init__(
+        self, *, init_state=None, json_topology=None, main_rep_idxs=None, **kwargs
+    ):
         """Constructor for the WalkerReporter.
 
         Parameters
@@ -78,7 +76,7 @@ class WalkerReporter(ProgressiveFileReporter):
 
         # if the main rep indices were not given infer them as all of the atoms
         if main_rep_idxs is None:
-            self.main_rep_idxs = list(range(init_state['positions'].shape[0]))
+            self.main_rep_idxs = list(range(init_state["positions"].shape[0]))
         else:
             self.main_rep_idxs = main_rep_idxs
 
@@ -86,12 +84,13 @@ class WalkerReporter(ProgressiveFileReporter):
         self.json_main_rep_top = json_top_subset(json_topology, self.main_rep_idxs)
 
         # get the main rep idxs only
-        self.init_main_rep_positions = init_state['positions'][self.main_rep_idxs]
+        self.init_main_rep_positions = init_state["positions"][self.main_rep_idxs]
 
         # convert the box vectors
-        self.init_unitcell_lengths, self.init_unitcell_angles = box_vectors_to_lengths_angles(
-                                                                       init_state['box_vectors'])
-
+        (
+            self.init_unitcell_lengths,
+            self.init_unitcell_angles,
+        ) = box_vectors_to_lengths_angles(init_state["box_vectors"])
 
     def init(self, **kwargs):
         """Initialize the reporter at simulation time.
@@ -107,17 +106,18 @@ class WalkerReporter(ProgressiveFileReporter):
 
         # make a traj for the initial state to use as a topology for
         # visualizing the walkers
-        init_traj = mdj.Trajectory([self.init_main_rep_positions],
-                                   unitcell_lengths=[self.init_unitcell_lengths],
-                                   unitcell_angles=[self.init_unitcell_angles],
-                                   topology=mdtraj_top)
+        init_traj = mdj.Trajectory(
+            [self.init_main_rep_positions],
+            unitcell_lengths=[self.init_unitcell_lengths],
+            unitcell_angles=[self.init_unitcell_angles],
+            topology=mdtraj_top,
+        )
 
         # write out the init traj as a pdb
         logging.info("Writing initial state to {}".format(self.init_state_path))
         init_traj.save_pdb(self.init_state_path)
 
-    def report(self, cycle_idx=None, new_walkers=None,
-               **kwargs):
+    def report(self, cycle_idx=None, new_walkers=None, **kwargs):
         """Report the current cycle's walker states as 3D molecular
         structures.
 
@@ -134,19 +134,22 @@ class WalkerReporter(ProgressiveFileReporter):
 
         # slice off the main_rep indices because that is all we want
         # to write for these
-        main_rep_positions = np.array([walker.state['positions'][self.main_rep_idxs]
-                                       for walker in new_walkers])
+        main_rep_positions = np.array(
+            [walker.state["positions"][self.main_rep_idxs] for walker in new_walkers]
+        )
 
         # convert the box vectors
         unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(
-            np.array([walker.state['box_vectors'] for walker in new_walkers]))
+            np.array([walker.state["box_vectors"] for walker in new_walkers])
+        )
 
         # make a trajectory from these walkers
-        traj = mdj.Trajectory(main_rep_positions,
-                              unitcell_lengths=unitcell_lengths,
-                              unitcell_angles=unitcell_angles,
-                              topology=mdtraj_top)
-
+        traj = mdj.Trajectory(
+            main_rep_positions,
+            unitcell_lengths=unitcell_lengths,
+            unitcell_angles=unitcell_angles,
+            topology=mdtraj_top,
+        )
 
         # write to the file for this trajectory
         traj.save_dcd(self.walker_path)
