@@ -13,8 +13,6 @@ from copy import deepcopy
 # Third Party Library
 import numpy as np
 
-# First Party Library
-
 
 class BoundaryConditions(object):
     """Abstract base class for conveniently making compliant boundary condition classes.

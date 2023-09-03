@@ -48,8 +48,6 @@ perform them on the collection of walkers.
 # Standard Library
 from enum import Enum
 
-# Third Party Library
-
 
 # ABC for the Decision class
 class Decision(object):

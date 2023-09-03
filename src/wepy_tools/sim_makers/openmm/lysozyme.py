@@ -10,10 +10,7 @@ from wepy.boundary_conditions.receptor import UnbindingBC
 from wepy.reporter.receptor.dashboard import UnbindingBCDashboardSection
 from wepy.resampling.distances.receptor import UnbindingDistance
 from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
-from wepy.util.json_top import (
-    json_top_atom_df,
-    json_top_residue_df,
-)
+from wepy.util.json_top import json_top_atom_df, json_top_residue_df
 from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
 from wepy_tools.systems import receptor as receptor_tools
 

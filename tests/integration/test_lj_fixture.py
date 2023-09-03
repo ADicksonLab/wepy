@@ -69,12 +69,10 @@ class TestLJPairNewOrch:
     def test_orch_interactive(self, lj_orchestrator_defaults):
         pdb.set_trace()
 
-
     @pytest.mark.interactive
     def test_reconciled_orch(self, lj_orch_reconciled_orchs):
         host_orch, other_orch, reconciled_orch = lj_orch_reconciled_orchs
         pdb.set_trace()
-
 
 
 @pytest.mark.usefixtures(

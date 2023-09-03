@@ -42,7 +42,6 @@ LINT_TARGETS = [
     # "src/wepy/walker.py",
     # "src/wepy/sim_manager.py",
     # "src/wepy/util",
-
     # TODO: skipping a lot of stuff so we can focus on the main codebase
     # "src/wepy_tools",
     # "src/wepy_test_drive.py",

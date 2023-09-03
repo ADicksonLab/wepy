@@ -15,8 +15,6 @@ from warnings import warn
 # Third Party Library
 import numpy as np
 
-# First Party Library
-
 
 class ResamplingTreeLayout:
     """Class that wraps the parameters for generating resampling tree layouts.

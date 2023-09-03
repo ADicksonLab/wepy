@@ -404,10 +404,7 @@ import numpy as np
 # First Party Library
 from wepy.analysis.parents import resampling_panel
 from wepy.util.json_top import json_top_atom_count, json_top_subset
-from wepy.util.mdtraj import (
-    json_to_mdtraj_topology,
-    traj_fields_to_mdtraj,
-)
+from wepy.util.mdtraj import json_to_mdtraj_topology, traj_fields_to_mdtraj
 from wepy.util.util import traj_box_vectors_to_lengths_angles
 
 # optional dependencies

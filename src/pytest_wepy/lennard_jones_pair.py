@@ -6,6 +6,12 @@ import simtk.openmm as omm
 from openmm_systems.test_systems import LennardJonesPair
 
 # First Party Library
+## Runner
+from wepy.runners.openmm import OpenMMRunner, gen_walker_state
+
+## Work Mappers
+from wepy_tools.sim_makers.openmm.sim_maker import OpenMMSimMaker
+
 ## Boundary Conditions
 
 ### Orchestration
@@ -14,18 +20,11 @@ from openmm_systems.test_systems import LennardJonesPair
 
 ## Resampler
 
-## Runner
-from wepy.runners.openmm import (
-    OpenMMRunner,
-    gen_walker_state,
-)
 
 ### Utilities
 
 ## Initial Walkers
 
-## Work Mappers
-from wepy_tools.sim_makers.openmm.sim_maker import OpenMMSimMaker
 
 ### Apparatus
 

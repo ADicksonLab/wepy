@@ -16,8 +16,6 @@ from warnings import warn
 # Third Party Library
 from eliot import log_call
 
-# First Party Library
-
 PY_MAP = map
 
 

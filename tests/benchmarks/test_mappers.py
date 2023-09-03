@@ -7,10 +7,7 @@ import pytest
 # First Party Library
 from wepy.walker import Walker, WalkerState
 from wepy.work_mapper.mapper import Mapper
-from wepy.work_mapper.task_mapper import (
-    TaskMapper,
-    WalkerTaskProcess,
-)
+from wepy.work_mapper.task_mapper import TaskMapper, WalkerTaskProcess
 from wepy.work_mapper.worker import Worker, WorkerMapper
 from wepy_tools.sim_makers.openmm.lennard_jones import LennardJonesPairOpenMMSimMaker
 from wepy_tools.sim_makers.openmm.lysozyme import LysozymeImplicitOpenMMSimMaker

@@ -50,9 +50,7 @@ from wepy.runners.openmm import (
     OpenMMRunner,
     gen_walker_state,
 )
-from wepy.util.json_top import (
-    json_top_atom_df,
-)
+from wepy.util.json_top import json_top_atom_df
 from wepy.util.mdtraj import mdtraj_to_json_topology
 from wepy.walker import Walker
 
