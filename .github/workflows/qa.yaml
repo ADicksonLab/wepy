@@ -1,4 +1,4 @@
-name: Test
+name: Quality Checks
 
 on: push
 
@@ -6,7 +6,7 @@ permissions:
   contents: read
 
 jobs:
-  build:
+  validate:
 
     runs-on: ubuntu-latest
 
@@ -16,9 +16,26 @@ jobs:
       uses: actions/setup-python@v3
       with:
         python-version: "3.10"
-    - name: Install dependencies
+    - name: Install tools
       run: |
         python -m pip install --upgrade pip
         pip install nox
     - name: Static analysis
       run: python -m nox -s validate
+
+  test:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: "3.10"
+    - name: Install tools
+      run: |
+        python -m pip install --upgrade pip
+        pip install nox
+    - name: Unit Tests
+      run: python -m nox -s tests_unit
