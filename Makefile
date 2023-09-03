@@ -31,26 +31,26 @@ clean-env: ## Clean the dev environments
 	rm -rf .venv
 .PHONY: clean-env
 
-##@ QA (TODO)
+##@ QA
 
-# format: ## Run source code formatters manually.
-# 	nox -s format
-# .PHONY: docstrings
+format: ## Run source code formatters manually.
+	nox -s format
+.PHONY: docstrings
 
-# validate:  ## Run all linters, type checks, static analysis, etc.
-# 	nox -s validate
-# .PHONY: validate
+validate:  ## Run all linters, type checks, static analysis, etc.
+	nox -s validate
+.PHONY: validate
 
-# format-check: ## Run code formatting checks
-# 	nox -s format_check
-# .PHONY: format-check
+format-check: ## Run code formatting checks
+	nox -s format_check
+.PHONY: format-check
 
-# # check: ## Run only miscellaneous maintenance checks
-# # .PHONY: check
+# check: ## Run only miscellaneous maintenance checks
+# .PHONY: check
 
-# lint: ## Run only the linters (non-autoformatters).
-# 	nox -s lint
-# .PHONY: lint
+lint: ## Run only the linters (non-autoformatters).
+	nox -s lint
+.PHONY: lint
 
 # docstring-check: ## Run docstring coverage only.
 # 	nox -s docstring_lint
