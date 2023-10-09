@@ -1,23 +1,25 @@
 """Boundary conditions for random walk.
 """
 
-from collections import defaultdict
-import logging
+# Standard Library
 import itertools as it
+import logging
 import time
+from collections import defaultdict
 
+# Third Party Library
 import numpy as np
-
-from geomm.grouping import group_pair
-from geomm.superimpose import superimpose
-from geomm.rmsd import calc_rmsd
 from geomm.centering import center_around
 from geomm.distance import minimum_distance
+from geomm.grouping import group_pair
+from geomm.rmsd import calc_rmsd
+from geomm.superimpose import superimpose
 
-from wepy.walker import WalkerState
-from wepy.util.util import box_vectors_to_lengths_angles
-
+# First Party Library
 from wepy.boundary_conditions.boundary import WarpBC
+from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.walker import WalkerState
+
 
 class RandomWalkBC(WarpBC):
     """Boundary condition for a random walk simulation with warping
@@ -26,15 +28,15 @@ class RandomWalkBC(WarpBC):
     Implements the WarpBC superclass.
 
     This boundary condition will warp walkers to a number of initial
-    states whenever a walker crosses the threshold distance from the 
+    states whenever a walker crosses the threshold distance from the
     origin.
     """
 
     # Records of boundary condition changes (sporadic)
-    BC_FIELDS = WarpBC.BC_FIELDS + ('threshold_distance', )
+    BC_FIELDS = WarpBC.BC_FIELDS + ("threshold_distance",)
 
-    BC_SHAPES = WarpBC.BC_SHAPES + ((1,), )
-    BC_DTYPES = WarpBC.BC_DTYPES + (int, )
+    BC_SHAPES = WarpBC.BC_SHAPES + ((1,),)
+    BC_DTYPES = WarpBC.BC_DTYPES + (int,)
 
     # warping (sporadic)
     WARPING_FIELDS = WarpBC.WARPING_FIELDS + ()
@@ -44,16 +46,15 @@ class RandomWalkBC(WarpBC):
     WARPING_RECORD_FIELDS = WarpBC.WARPING_RECORD_FIELDS + ()
 
     # progress towards the boundary conditions (continual)
-    PROGRESS_FIELDS = WarpBC.PROGRESS_FIELDS + ('distance',)
+    PROGRESS_FIELDS = WarpBC.PROGRESS_FIELDS + ("distance",)
     PROGRESS_SHAPES = WarpBC.PROGRESS_SHAPES + (Ellipsis,)
     PROGRESS_DTYPES = WarpBC.PROGRESS_DTYPES + (int,)
 
-    PROGRESS_RECORD_FIELDS = WarpBC.PROGRESS_RECORD_FIELDS + ('distance', )
+    PROGRESS_RECORD_FIELDS = WarpBC.PROGRESS_RECORD_FIELDS + ("distance",)
 
-    def __init__(self, threshold=None,
-                 initial_states=None,
-                 initial_weights=None,
-                 **kwargs):
+    def __init__(
+        self, threshold=None, initial_states=None, initial_weights=None, **kwargs
+    ):
         """Constructor for RandomWalkBC.
 
         Arguments
@@ -85,9 +86,9 @@ class RandomWalkBC(WarpBC):
             threshold, initial_states.
         """
 
-        super().__init__(initial_states=initial_states,
-                         initial_weights=initial_weights,
-                         **kwargs)
+        super().__init__(
+            initial_states=initial_states, initial_weights=initial_weights, **kwargs
+        )
 
         # test inputs
         assert threshold is not None, "Must give a threshold distance"
@@ -118,7 +119,7 @@ class RandomWalkBC(WarpBC):
 
         """
 
-        pos = walker.state['positions']
+        pos = walker.state["positions"]
 
         distance = np.sum(pos)
 
@@ -127,7 +128,6 @@ class RandomWalkBC(WarpBC):
         if distance >= self._threshold:
             crossed = True
 
-        progress_data = {'distance' : distance}
+        progress_data = {"distance": distance}
 
         return crossed, progress_data
-

@@ -26,9 +26,11 @@ magic method for the accessor syntax, i.e. walker.state['positions'].
 
 """
 
-import random as rand
+# Standard Library
 import logging
+import random as rand
 from copy import deepcopy
+
 
 def split(walker, number=2):
     """Split (AKA make multiple clones) of a single walker.
@@ -58,6 +60,7 @@ def split(walker, number=2):
 
     return clones
 
+
 def keep_merge(walkers, keep_idx):
     """Merge a set of walkers using the state of one of them.
 
@@ -82,6 +85,7 @@ def keep_merge(walkers, keep_idx):
     new_walker = type(walkers[0])(walkers[keep_idx].state, new_weight)
 
     return new_walker
+
 
 def merge(walkers):
     """Merge this walker with another keeping the state of one of them
@@ -116,6 +120,7 @@ def merge(walkers):
     new_walker = type(walkers[0])(keep_walker.state, new_weight)
 
     return new_walker, keep_idx
+
 
 class Walker(object):
     """Reference implementation of the Walker interface.
@@ -163,10 +168,10 @@ class Walker(object):
         """
 
         # calculate the weight of all child walkers split uniformly
-        split_prob = self.weight / (number+1)
+        split_prob = self.weight / (number + 1)
         # make the clones
         clones = []
-        for i in range(number+1):
+        for i in range(number + 1):
             clones.append(type(self)(self.state, split_prob))
 
         return clones
@@ -200,7 +205,8 @@ class Walker(object):
         merged_walker : object implementing the Walker interface
 
         """
-        return merge([self]+other_walkers)
+        return merge([self] + other_walkers)
+
 
 class WalkerState(object):
     """Reference implementation of the WalkerState interface.

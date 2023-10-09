@@ -3,23 +3,25 @@ including unbinding and rebinding.
 
 """
 
-from collections import defaultdict
-import logging
+# Standard Library
 import itertools as it
+import logging
 import time
+from collections import defaultdict
 
+# Third Party Library
 import numpy as np
-
-from geomm.grouping import group_pair
-from geomm.superimpose import superimpose
-from geomm.rmsd import calc_rmsd
 from geomm.centering import center_around
 from geomm.distance import minimum_distance
+from geomm.grouping import group_pair
+from geomm.rmsd import calc_rmsd
+from geomm.superimpose import superimpose
 
-from wepy.walker import WalkerState
-from wepy.util.util import box_vectors_to_lengths_angles
-
+# First Party Library
 from wepy.boundary_conditions.boundary import WarpBC
+from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.walker import WalkerState
+
 
 class ReceptorBC(WarpBC):
     """Abstract base class for ligand-receptor based boundary conditions.
@@ -69,11 +71,14 @@ class ReceptorBC(WarpBC):
 
     """
 
-    def __init__(self, initial_states=None,
-                 initial_weights=None,
-                 ligand_idxs=None,
-                 receptor_idxs=None,
-                 **kwargs):
+    def __init__(
+        self,
+        initial_states=None,
+        initial_weights=None,
+        ligand_idxs=None,
+        receptor_idxs=None,
+        **kwargs
+    ):
         """Base constructor for ReceptorBC.
 
         This should be called immediately in the subclass `__init__`
@@ -100,9 +105,9 @@ class ReceptorBC(WarpBC):
 
         """
 
-        super().__init__(initial_states=initial_states,
-                         initial_weights=initial_weights,
-                         **kwargs)
+        super().__init__(
+            initial_states=initial_states, initial_weights=initial_weights, **kwargs
+        )
 
         # make sure necessary inputs are given
         assert ligand_idxs is not None, "Must give ligand indices"
@@ -121,6 +126,7 @@ class ReceptorBC(WarpBC):
         """The indices of the atom positions in the state considered the receptor."""
 
         return self._receptor_idxs
+
 
 class RebindingBC(ReceptorBC):
     """Boundary condition for doing re-binding simulations of ligands to a
@@ -154,7 +160,7 @@ class RebindingBC(ReceptorBC):
     """
 
     # Records of boundary condition changes (sporadic)
-    BC_FIELDS = ReceptorBC.BC_FIELDS + ('native_rmsd_cutoff', )
+    BC_FIELDS = ReceptorBC.BC_FIELDS + ("native_rmsd_cutoff",)
     """The 'native_rmsd_cutoff' is the cutoff used to determine when
     walkers have re-bound to the receptor, which is defined as the
     RMSD of the ligand to the native ligand bound state, when the
@@ -162,10 +168,10 @@ class RebindingBC(ReceptorBC):
 
     """
 
-    BC_SHAPES = ReceptorBC.BC_SHAPES + ((1,), )
-    BC_DTYPES = ReceptorBC.BC_DTYPES + (np.float, )
+    BC_SHAPES = ReceptorBC.BC_SHAPES + ((1,),)
+    BC_DTYPES = ReceptorBC.BC_DTYPES + (np.float,)
 
-    BC_RECORD_FIELDS = ReceptorBC.BC_RECORD_FIELDS + ('native_rmsd_cutoff', )
+    BC_RECORD_FIELDS = ReceptorBC.BC_RECORD_FIELDS + ("native_rmsd_cutoff",)
 
     # warping (sporadic)
     WARPING_FIELDS = ReceptorBC.WARPING_FIELDS + ()
@@ -175,11 +181,11 @@ class RebindingBC(ReceptorBC):
     WARPING_RECORD_FIELDS = ReceptorBC.WARPING_RECORD_FIELDS + ()
 
     # progress towards the boundary conditions (continual)
-    PROGRESS_FIELDS = ReceptorBC.PROGRESS_FIELDS + ('native_rmsd',)
+    PROGRESS_FIELDS = ReceptorBC.PROGRESS_FIELDS + ("native_rmsd",)
     PROGRESS_SHAPES = ReceptorBC.PROGRESS_SHAPES + (Ellipsis,)
     PROGRESS_DTYPES = ReceptorBC.PROGRESS_DTYPES + (np.float,)
 
-    PROGRESS_RECORD_FIELDS = ReceptorBC.PROGRESS_RECORD_FIELDS + ('native_rmsd', )
+    PROGRESS_RECORD_FIELDS = ReceptorBC.PROGRESS_RECORD_FIELDS + ("native_rmsd",)
     """Records for the state of this record group.
 
     The 'native_rmsd' is the is the RMSD of the ligand to the native
@@ -188,13 +194,16 @@ class RebindingBC(ReceptorBC):
 
     """
 
-    def __init__(self, native_state=None,
-                 cutoff_rmsd=0.2,
-                 initial_states=None,
-                 initial_weights=None,
-                 ligand_idxs=None,
-                 binding_site_idxs=None,
-                 **kwargs):
+    def __init__(
+        self,
+        native_state=None,
+        cutoff_rmsd=0.2,
+        initial_states=None,
+        initial_weights=None,
+        ligand_idxs=None,
+        binding_site_idxs=None,
+        **kwargs
+    ):
         """Constructor for RebindingBC.
 
         Arguments
@@ -231,11 +240,12 @@ class RebindingBC(ReceptorBC):
 
         """
 
-        super().__init__(initial_states=initial_states,
-                         initial_weights=initial_weights,
-                         ligand_idxs=ligand_idxs,
-                         receptor_idxs=binding_site_idxs
-                         **kwargs)
+        super().__init__(
+            initial_states=initial_states,
+            initial_weights=initial_weights,
+            ligand_idxs=ligand_idxs,
+            receptor_idxs=binding_site_idxs**kwargs,
+        )
 
         # test inputs
         assert native_state is not None, "Must give a native state"
@@ -244,7 +254,9 @@ class RebindingBC(ReceptorBC):
         native_state_d = native_state.dict()
 
         # save the native state and center it around it's binding site
-        native_state_d['positions'] = center_around(native_state['positions'], binding_site_idxs)
+        native_state_d["positions"] = center_around(
+            native_state["positions"], binding_site_idxs
+        )
 
         native_state = WalkerState(**native_state_d)
 
@@ -287,29 +299,39 @@ class RebindingBC(ReceptorBC):
         """
 
         # first recenter the ligand and the receptor in the walker
-        box_lengths, box_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
-        grouped_walker_pos = group_pair(walker.state['positions'], box_lengths,
-                                     self.binding_site_idxs, self.ligand_idxs)
+        box_lengths, box_angles = box_vectors_to_lengths_angles(
+            walker.state["box_vectors"]
+        )
+        grouped_walker_pos = group_pair(
+            walker.state["positions"],
+            box_lengths,
+            self.binding_site_idxs,
+            self.ligand_idxs,
+        )
 
         # center the positions around the center of the binding site
         centered_walker_pos = center_around(grouped_walker_pos, self.binding_site_idxs)
 
         # superimpose the walker state positions over the native state
         # matching the binding site indices only
-        sup_walker_pos, _, _ = superimpose(self.native_state['positions'], centered_walker_pos,
-                                 idxs=self.binding_site_idxs)
+        sup_walker_pos, _, _ = superimpose(
+            self.native_state["positions"],
+            centered_walker_pos,
+            idxs=self.binding_site_idxs,
+        )
 
         # calculate the rmsd of the walker ligand (superimposed
         # according to the binding sites) to the native state ligand
-        native_rmsd = calc_rmsd(self.native_state['positions'], sup_walker_pos,
-                                idxs=self.ligand_idxs)
+        native_rmsd = calc_rmsd(
+            self.native_state["positions"], sup_walker_pos, idxs=self.ligand_idxs
+        )
 
         # test to see if the ligand is re-bound
         rebound = False
         if native_rmsd <= self.cutoff_rmsd:
             rebound = True
 
-        progress_data = {'native_rmsd' : native_rmsd}
+        progress_data = {"native_rmsd": native_rmsd}
 
         return rebound, progress_data
 
@@ -329,15 +351,15 @@ class UnbindingBC(ReceptorBC):
     """
 
     # records of boundary condition changes (sporadic)
-    BC_FIELDS = ReceptorBC.BC_FIELDS + ('boundary_distance', )
+    BC_FIELDS = ReceptorBC.BC_FIELDS + ("boundary_distance",)
     """
     Only occurs at the start of the simulation and just reports on the
     min-min cutoff distance.
     """
 
-    BC_SHAPES = ReceptorBC.BC_SHAPES + ((1,), )
-    BC_DTYPES = ReceptorBC.BC_DTYPES + (np.float, )
-    BC_RECORD_FIELDS = ReceptorBC.BC_RECORD_FIELDS + ('boundary_distance', )
+    BC_SHAPES = ReceptorBC.BC_SHAPES + ((1,),)
+    BC_DTYPES = ReceptorBC.BC_DTYPES + (np.float,)
+    BC_RECORD_FIELDS = ReceptorBC.BC_RECORD_FIELDS + ("boundary_distance",)
 
     # warping (sporadic)
     WARPING_FIELDS = ReceptorBC.WARPING_FIELDS + ()
@@ -347,7 +369,7 @@ class UnbindingBC(ReceptorBC):
     WARPING_RECORD_FIELDS = ReceptorBC.WARPING_RECORD_FIELDS + ()
 
     # progress record group
-    PROGRESS_FIELDS = ReceptorBC.PROGRESS_FIELDS + ('min_distances',)
+    PROGRESS_FIELDS = ReceptorBC.PROGRESS_FIELDS + ("min_distances",)
     """
     The 'min_distances' field reports on the min-min ligand-receptor
     distance for each walker.
@@ -356,15 +378,18 @@ class UnbindingBC(ReceptorBC):
 
     PROGRESS_SHAPES = ReceptorBC.PROGRESS_SHAPES + (Ellipsis,)
     PROGRESS_DTYPES = ReceptorBC.PROGRESS_DTYPES + (np.float,)
-    PROGRESS_RECORD_FIELDS = ReceptorBC.PROGRESS_RECORD_FIELDS + ('min_distances', )
+    PROGRESS_RECORD_FIELDS = ReceptorBC.PROGRESS_RECORD_FIELDS + ("min_distances",)
 
-    def __init__(self, initial_state=None,
-                 cutoff_distance=1.0,
-                 topology=None,
-                 ligand_idxs=None,
-                 receptor_idxs=None,
-                 periodic=True,
-                 **kwargs):
+    def __init__(
+        self,
+        initial_state=None,
+        cutoff_distance=1.0,
+        topology=None,
+        ligand_idxs=None,
+        receptor_idxs=None,
+        periodic=True,
+        **kwargs
+    ):
         """Constructor for UnbindingBC class.
 
         All the key-word arguments are necessary.
@@ -395,7 +420,7 @@ class UnbindingBC(ReceptorBC):
         Raises
         ------
         AssertionError
-            If any of the following are not provided: initial_state, 
+            If any of the following are not provided: initial_state,
             ligand_idxs, receptor_idxs
 
         AssertionError
@@ -410,10 +435,12 @@ class UnbindingBC(ReceptorBC):
 
         # since the super class can handle multiple initial states we
         # wrap the single initial state to a list.
-        super().__init__(initial_states=[initial_state],
-                         ligand_idxs=ligand_idxs,
-                         receptor_idxs=receptor_idxs,
-                         **kwargs)
+        super().__init__(
+            initial_states=[initial_state],
+            ligand_idxs=ligand_idxs,
+            receptor_idxs=receptor_idxs,
+            **kwargs
+        )
 
         # test input
         assert type(cutoff_distance) is float
@@ -425,7 +452,6 @@ class UnbindingBC(ReceptorBC):
         # distance calculation
         self._periodic = periodic
 
-
     @property
     def cutoff_distance(self):
         """The distance a ligand must be to be unbound."""
@@ -433,7 +459,7 @@ class UnbindingBC(ReceptorBC):
 
     @property
     def topology(self):
-        """JSON string topology of the system. 
+        """JSON string topology of the system.
         Note: Deprecated and will be removed in future versions."""
         return self._topology
 
@@ -451,11 +477,16 @@ class UnbindingBC(ReceptorBC):
         """
 
         # first recenter the ligand and the receptor in the walker
-        box_lengths, box_angles = box_vectors_to_lengths_angles(walker.state['box_vectors'])
-        grouped_walker_pos = group_pair(walker.state['positions'], box_lengths,
-                                     self.receptor_idxs, self.ligand_idxs)
+        box_lengths, box_angles = box_vectors_to_lengths_angles(
+            walker.state["box_vectors"]
+        )
+        grouped_walker_pos = group_pair(
+            walker.state["positions"], box_lengths, self.receptor_idxs, self.ligand_idxs
+        )
 
-        min_dist = minimum_distance(grouped_walker_pos[self.ligand_idxs],grouped_walker_pos[self.receptor_idxs])
+        min_dist = minimum_distance(
+            grouped_walker_pos[self.ligand_idxs], grouped_walker_pos[self.receptor_idxs]
+        )
 
         return min_dist
 
@@ -485,7 +516,7 @@ class UnbindingBC(ReceptorBC):
         if min_distance >= self._cutoff_distance:
             unbound = True
 
-        progress_data = {'min_distances' : min_distance}
+        progress_data = {"min_distances": min_distance}
 
         return unbound, progress_data
 
@@ -517,6 +548,10 @@ class UnbindingBC(ReceptorBC):
         # the first cycle which gives the distance at which walkers
         # are warped
         if cycle == 0:
-            return [{'boundary_distance' : np.array([self._cutoff_distance]),},]
+            return [
+                {
+                    "boundary_distance": np.array([self._cutoff_distance]),
+                },
+            ]
         else:
             return []

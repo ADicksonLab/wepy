@@ -23,48 +23,64 @@ allow passing of the device index to OpenMM for which GPU device to
 use.
 
 """
-from copy import copy
-import random as rand
-from warnings import warn
+# Standard Library
 import logging
+import random as rand
 import time
+from copy import copy
+from warnings import warn
 
+# Third Party Library
+import numpy as np
 from eliot import log_call, start_action
 
-import numpy as np
-
 try:
-    import simtk.openmm.app as omma
+    # Third Party Library
     import simtk.openmm as omm
+    import simtk.openmm.app as omma
     import simtk.unit as unit
 except ModuleNotFoundError:
-    raise ModuleNotFoundError("OpenMM has not been installed, which this runner requires.")
+    raise ModuleNotFoundError(
+        "OpenMM has not been installed, which this runner requires."
+    )
 
-from wepy.walker import Walker, WalkerState
-from wepy.runners.runner import Runner
-from wepy.work_mapper.worker import Worker
-from wepy.work_mapper.task_mapper import WalkerTaskProcess
+# First Party Library
 from wepy.reporter.reporter import Reporter
+from wepy.runners.runner import Runner
 from wepy.util.util import box_vectors_to_lengths_angles
+from wepy.walker import Walker, WalkerState
+from wepy.work_mapper.task_mapper import WalkerTaskProcess
+from wepy.work_mapper.worker import Worker
 
 ## Constants
 
-KEYS = ('positions', 'velocities', 'forces', 'kinetic_energy',
-        'potential_energy', 'time', 'box_vectors', 'box_volume',
-        'parameters', 'parameter_derivatives')
+KEYS = (
+    "positions",
+    "velocities",
+    "forces",
+    "kinetic_energy",
+    "potential_energy",
+    "time",
+    "box_vectors",
+    "box_volume",
+    "parameters",
+    "parameter_derivatives",
+)
 """Names of the fields of the OpenMMState."""
 
 # when we use the get_state function from the simulation context we
 # can pass options for what kind of data to get, this is the default
 # to get all the data. TODO not really sure what the 'groups' keyword
 # is for though
-GET_STATE_KWARG_DEFAULTS = (('getPositions', True),
-                            ('getVelocities', True),
-                            ('getForces', True),
-                            ('getEnergy', True),
-                            ('getParameters', True),
-                            ('getParameterDerivatives', True),
-                            ('enforcePeriodicBox', True),)
+GET_STATE_KWARG_DEFAULTS = (
+    ("getPositions", True),
+    ("getVelocities", True),
+    ("getForces", True),
+    ("getEnergy", True),
+    ("getParameters", True),
+    ("getParameterDerivatives", True),
+    ("enforcePeriodicBox", True),
+)
 """Mapping of key word arguments to the simulation.context.getState
 method for retrieving data for a simulation state. By default we set
 each as True to retrieve all information. The presence or absence of
@@ -93,15 +109,16 @@ them is handled by the OpenMMState.
 
 # the names of the units from the units objects above. This is used
 # for saving them to files
-UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
-         ('time_unit', unit.picosecond.get_name()),
-         ('box_vectors_unit', unit.nanometer.get_name()),
-         ('velocities_unit', (unit.nanometer/unit.picosecond).get_name()),
-         ('forces_unit', (unit.kilojoule / (unit.nanometer * unit.mole)).get_name()),
-         ('box_volume_unit', unit.nanometer.get_name()),
-         ('kinetic_energy_unit', (unit.kilojoule / unit.mole).get_name()),
-         ('potential_energy_unit', (unit.kilojoule / unit.mole).get_name()),
-        )
+UNIT_NAMES = (
+    ("positions_unit", unit.nanometer.get_name()),
+    ("time_unit", unit.picosecond.get_name()),
+    ("box_vectors_unit", unit.nanometer.get_name()),
+    ("velocities_unit", (unit.nanometer / unit.picosecond).get_name()),
+    ("forces_unit", (unit.kilojoule / (unit.nanometer * unit.mole)).get_name()),
+    ("box_volume_unit", unit.nanometer.get_name()),
+    ("kinetic_energy_unit", (unit.kilojoule / unit.mole).get_name()),
+    ("potential_energy_unit", (unit.kilojoule / unit.mole).get_name()),
+)
 """Mapping of unit identifier strings to the serialized string spec of the unit."""
 
 # a random seed will be chosen from 1 to RAND_SEED_RANGE_MAX when the
@@ -111,14 +128,20 @@ UNIT_NAMES = (('positions_unit', unit.nanometer.get_name()),
 # TODO: test this isn't needed
 # RAND_SEED_RANGE_MAX = 1000000
 
+
 # the runner for the simulation which runs the actual dynamics
 class OpenMMRunner(Runner):
     """Runner for OpenMM simulations."""
 
-    def __init__(self, system, topology, integrator,
-                 platform=None,
-                 platform_kwargs=None,
-                 enforce_box=False):
+    def __init__(
+        self,
+        system,
+        topology,
+        integrator,
+        platform=None,
+        platform_kwargs=None,
+        enforce_box=False,
+    ):
         """Constructor for OpenMMRunner.
 
         Parameters
@@ -175,7 +198,9 @@ class OpenMMRunner(Runner):
 
         """
 
-        assert isinstance(platform, str), f"platform should be a string, not {type(platform)}"
+        assert isinstance(
+            platform, str
+        ), f"platform should be a string, not {type(platform)}"
 
         # we save the different components. However, if we are to make
         # this runner picklable we have to convert the SWIG objects to
@@ -192,7 +217,7 @@ class OpenMMRunner(Runner):
 
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
-        self.getState_kwargs['enforcePeriodicBox'] = self.enforce_box
+        self.getState_kwargs["enforcePeriodicBox"] = self.enforce_box
 
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
@@ -201,25 +226,22 @@ class OpenMMRunner(Runner):
         # performance
         self._last_cycle_segments_split_times = []
 
-    @log_call(include_args=[
-        'platform',
-        'platform_kwargs',
-    ],
-              include_result=False)
-    def pre_cycle(self,
-                  platform=None,
-                  platform_kwargs=None,
-                  **kwargs
-    ):
-
+    @log_call(
+        include_args=[
+            "platform",
+            "platform_kwargs",
+        ],
+        include_result=False,
+    )
+    def pre_cycle(self, platform=None, platform_kwargs=None, **kwargs):
         # choose to use the platform spec in this function call or to
         # use the default one saved in the runner
 
         # if the platform is given locally use this one
         if platform is not None:
-
-            logging.info(f"Setting the platform ({platform}) in the 'pre_cycle' OpenMM Runner call"
-                         f"with platform kwargs: {platform_kwargs}"
+            logging.info(
+                f"Setting the platform ({platform}) in the 'pre_cycle' OpenMM Runner call"
+                f"with platform kwargs: {platform_kwargs}"
             )
             # set the platform and kwargs for this cycle
             self._cycle_platform = platform
@@ -230,26 +252,22 @@ class OpenMMRunner(Runner):
 
         super().pre_cycle(**kwargs)
 
-
         # each segment split times will get appended to this
         self._last_cycle_segments_split_times = []
 
-
-    @log_call(include_args=[],
-              include_result=False)
+    @log_call(include_args=[], include_result=False)
     def post_cycle(self, **kwargs):
-
         super().post_cycle(**kwargs)
 
         # remove the platform and kwargs for this cycle
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
-
-    def _resolve_platform(self,
-                          platform,
-                          platform_kwargs,
-        ):
+    def _resolve_platform(
+        self,
+        platform,
+        platform_kwargs,
+    ):
         # resolve which platform to use
 
         # force usage of environmental one
@@ -278,25 +296,29 @@ class OpenMMRunner(Runner):
             platform_name = None
             platform_kwargs = None
 
-        return platform_name, \
-               platform_kwargs,
+        return (
+            platform_name,
+            platform_kwargs,
+        )
 
     @log_call(
         include_args=[
-            'segment_length',
-            'getState_kwargs',
-            'platform',
-            'platform_kwargs',
+            "segment_length",
+            "getState_kwargs",
+            "platform",
+            "platform_kwargs",
         ],
         include_result=False,
     )
-    def run_segment(self,
-                    walker,
-                    segment_length,
-                    getState_kwargs=None,
-                    platform=None,
-                    platform_kwargs=None,
-                    **kwargs):
+    def run_segment(
+        self,
+        walker,
+        segment_length,
+        getState_kwargs=None,
+        platform=None,
+        platform_kwargs=None,
+        **kwargs,
+    ):
         """Run dynamics for the walker.
 
         Parameters
@@ -338,20 +360,21 @@ class OpenMMRunner(Runner):
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
 
-        logging.info("Default 'getState_kwargs' in runner: "
-                     f"{self.getState_kwargs}")
+        logging.info("Default 'getState_kwargs' in runner: " f"{self.getState_kwargs}")
 
-        logging.info("'getState_kwargs' passed to 'run_segment' : "
-                     f"{getState_kwargs}")
+        logging.info(
+            "'getState_kwargs' passed to 'run_segment' : " f"{getState_kwargs}"
+        )
 
         # start with the object value
         getState_kwargs = copy(self.getState_kwargs)
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
-        logging.info("After resolving 'getState_kwargs' that will be used are: "
-                     f"{getState_kwargs}")
-
+        logging.info(
+            "After resolving 'getState_kwargs' that will be used are: "
+            f"{getState_kwargs}"
+        )
 
         gen_sim_start = time.time()
 
@@ -364,47 +387,37 @@ class OpenMMRunner(Runner):
 
         ## Platform
 
-        logging.info("Default 'platform' in runner: "
-                     f"{self.platform_name}")
+        logging.info("Default 'platform' in runner: " f"{self.platform_name}")
 
-        logging.info("pre_cycle set 'platform' in runner: "
-                     f"{self._cycle_platform}")
+        logging.info("pre_cycle set 'platform' in runner: " f"{self._cycle_platform}")
 
-        logging.info("'platform' passed to 'run_segment' : "
-                     f"{platform}")
+        logging.info("'platform' passed to 'run_segment' : " f"{platform}")
 
-        logging.info("Default 'platform_kwargs' in runner: "
-                     f"{self.platform_kwargs}")
+        logging.info("Default 'platform_kwargs' in runner: " f"{self.platform_kwargs}")
 
-        logging.info("pre_cycle set 'platform_kwargs' in runner: "
-                     f"{self._cycle_platform_kwargs}")
+        logging.info(
+            "pre_cycle set 'platform_kwargs' in runner: "
+            f"{self._cycle_platform_kwargs}"
+        )
 
-
-        logging.info("'platform_kwargs' passed to 'run_segment' : "
-                     f"{platform_kwargs}")
+        logging.info(
+            "'platform_kwargs' passed to 'run_segment' : " f"{platform_kwargs}"
+        )
 
         platform_name, platform_kwargs = self._resolve_platform(
             platform, platform_kwargs
         )
 
+        logging.info("Resolved 'platform' : " f"{platform_name}")
 
-        logging.info("Resolved 'platform' : "
-                     f"{platform_name}")
-
-        logging.info("Resolved 'platform_kwargs' : "
-                     f"{platform_kwargs}")
-
-
+        logging.info("Resolved 'platform_kwargs' : " f"{platform_kwargs}")
 
         # create simulation object
 
         ## create the platform and customize
 
-
-
         # if a platform was given we use it to make a Simulation object
         if platform_name is not None:
-
             logging.info("Using platform configured in code.")
 
             # get the platform by its name to use
@@ -416,25 +429,25 @@ class OpenMMRunner(Runner):
 
             # set properties from the kwargs if they apply to the platform
             for key, value in platform_kwargs.items():
-
                 if key in platform.getPropertyNames():
-
                     logging.info(f"Setting platform property: {key} : {value}")
                     platform.setPropertyDefaultValue(key, value)
 
                 else:
-                    warn(f"Platform kwargs given ({key} : {value}) "
-                         f"but is not valid for this platform ({platform_name})")
+                    warn(
+                        f"Platform kwargs given ({key} : {value}) "
+                        f"but is not valid for this platform ({platform_name})"
+                    )
 
             # make a new simulation object
-            simulation = omma.Simulation(self.topology, self.system,
-                                         new_integrator, platform)
+            simulation = omma.Simulation(
+                self.topology, self.system, new_integrator, platform
+            )
 
         # otherwise just use the default or environmentally defined one
         else:
             logging.info("Using environmental platform.")
-            simulation = omma.Simulation(self.topology, self.system,
-                                         new_integrator)
+            simulation = omma.Simulation(self.topology, self.system, new_integrator)
 
         # set the state to the context from the walker
         simulation.context.setState(walker.state.sim_state)
@@ -443,7 +456,6 @@ class OpenMMRunner(Runner):
         gen_sim_time = gen_sim_end - gen_sim_start
 
         logging.info("Time to generate the system: {}".format(gen_sim_time))
-
 
         # actually run the simulation
 
@@ -456,21 +468,18 @@ class OpenMMRunner(Runner):
         steps_end = time.time()
         steps_time = steps_end - steps_start
 
-
         logging.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
 
-
         get_state_start = time.time()
-
 
         get_state_end = time.time()
         get_state_time = get_state_end - get_state_start
         logging.info("Getting context state time: {}".format(get_state_time))
 
-
         # generate the new state/walker
-        new_state = self.generate_state(simulation, segment_length,
-                                        walker, getState_kwargs)
+        new_state = self.generate_state(
+            simulation, segment_length, walker, getState_kwargs
+        )
 
         # create a new walker for this
         new_walker = OpenMMWalker(new_state, walker.weight)
@@ -479,21 +488,21 @@ class OpenMMRunner(Runner):
         run_segment_time = run_segment_end - run_segment_start
         logging.info("Total internal run_segment time: {}".format(run_segment_time))
 
-
         segment_split_times = {
-            'gen_sim_time' :  gen_sim_time,
-            'steps_time' : steps_time,
-            'get_state_time' : get_state_time,
-            'run_segment_time' : run_segment_time,
+            "gen_sim_time": gen_sim_time,
+            "steps_time": steps_time,
+            "get_state_time": get_state_time,
+            "run_segment_time": run_segment_time,
         }
 
         self._last_cycle_segments_split_times.append(segment_split_times)
 
         return new_walker
 
-    @log_call(include_args=['getState_kwargs'],
-              include_result=False)
-    def generate_state(self, simulation, segment_length, starting_walker, getState_kwargs):
+    @log_call(include_args=["getState_kwargs"], include_result=False)
+    def generate_state(
+        self, simulation, segment_length, starting_walker, getState_kwargs
+    ):
         """Method for generating a wepy compliant state from an OpenMM
         simulation object and data about the last segment of dynamics run.
 
@@ -582,13 +591,16 @@ class OpenMMState(WalkerState):
         # save additional data if given
         self._data = {}
         for key, value in kwargs.items():
-
             # if the key is already in the sim_state keys we need to
             # modify it and raise a warning
             if key in self.KEYS:
-
-                warn("Key {} in kwargs is already taken by this class, renaming to {}".format(
-                    self.OTHER_KEY_TEMPLATE).format(key))
+                warn(
+                    "Key {} in kwargs is already taken by this class, renaming to {}".format(
+                        self.OTHER_KEY_TEMPLATE
+                    ).format(
+                        key
+                    )
+                )
 
                 # make a new key
                 new_key = self.OTHER_KEY_TEMPLATE.format(key)
@@ -606,52 +618,49 @@ class OpenMMState(WalkerState):
         return self._sim_state
 
     def __getitem__(self, key):
-
         # if this was a key for data not mapped from the OpenMM.State
         # object we use the _data attribute
         if (key not in self.KEYS) and (
-                (not key.startswith('parameters')) and
-                (not key.startswith('parameter_derivatives'))
+            (not key.startswith("parameters"))
+            and (not key.startswith("parameter_derivatives"))
         ):
             return self._data[key]
 
         # otherwise we have to specifically get the correct data and
         # process it into an array from the OpenMM.State
         else:
-
-            if key == 'positions':
+            if key == "positions":
                 return self.positions_values()
-            elif key == 'velocities':
+            elif key == "velocities":
                 return self.velocities_values()
-            elif key == 'forces':
+            elif key == "forces":
                 return self.forces_values()
-            elif key == 'kinetic_energy':
+            elif key == "kinetic_energy":
                 return self.kinetic_energy_value()
-            elif key == 'potential_energy':
+            elif key == "potential_energy":
                 return self.potential_energy_value()
-            elif key == 'time':
+            elif key == "time":
                 return self.time_value()
-            elif key == 'box_vectors':
+            elif key == "box_vectors":
                 return self.box_vectors_values()
-            elif key == 'box_volume':
+            elif key == "box_volume":
                 return self.box_volume_value()
 
             # handle the parameters differently since they are dictionaries of values
-            elif key.startswith('parameters'):
+            elif key.startswith("parameters"):
                 parameters_dict = self.parameters_values()
                 if parameters_dict is None:
                     return None
                 else:
-
                     # TODO: this was an attempt at a general way to do
                     # this but it doesn't work and I only ever need
                     # one nested level, so for now we just implement it that way
                     # return self._get_nested_attr_from_compound_key(key, parameters_dict)
 
-                    param_key = key.split('/')[-1]
+                    param_key = key.split("/")[-1]
                     return parameters_dict[param_key]
 
-            elif key.startswith('parameter_derivatives'):
+            elif key.startswith("parameter_derivatives"):
                 pd_dict = self.parameter_derivatives_values()
                 if pd_dict is None:
                     return None
@@ -667,8 +676,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getPositions(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getPositions()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getPositions()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -691,8 +702,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getVelocities(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getVelocities()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getVelocities()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -720,8 +733,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getForces(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getForces()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getForces()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -749,8 +764,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getPeriodicBoxVectors(asNumpy=True)
         except:
-            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVectors()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getPeriodicBoxVectors()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -771,7 +788,6 @@ class OpenMMState(WalkerState):
         else:
             return self.box_vectors.value_in_unit(self.box_vectors_unit)
 
-
     ## non-array properties
 
     # Kinetic Energy
@@ -781,8 +797,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getKineticEnergy()
         except:
-            warn("Unknown exception handled from `self.sim_state.getKineticEnergy()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getKineticEnergy()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -801,7 +819,9 @@ class OpenMMState(WalkerState):
         if kinetic_energy is None:
             return None
         else:
-            return np.array([self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)])
+            return np.array(
+                [self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)]
+            )
 
     # Potential Energy
     @property
@@ -810,8 +830,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getPotentialEnergy()
         except:
-            warn("Unknown exception handled from `self.sim_state.getPotentialEnergy()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getPotentialEnergy()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -830,7 +852,9 @@ class OpenMMState(WalkerState):
         if potential_energy is None:
             return None
         else:
-            return np.array([self.potential_energy.value_in_unit(self.potential_energy_unit)])
+            return np.array(
+                [self.potential_energy.value_in_unit(self.potential_energy_unit)]
+            )
 
     # Time
     @property
@@ -839,8 +863,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getTime()
         except:
-            warn("Unknown exception handled from `self.sim_state.getTime()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getTime()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -868,8 +894,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getPeriodicBoxVolume()
         except:
-            warn("Unknown exception handled from `self.sim_state.getPeriodicBoxVolume()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getPeriodicBoxVolume()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -905,8 +933,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getParameters()
         except:
-            warn("Unknown exception handled from `self.sim_state.getParameters()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getParameters()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -916,7 +946,7 @@ class OpenMMState(WalkerState):
         object.
 
         """
-        param_units = {key : None for key, val in self.parameters.items()}
+        param_units = {key: None for key, val in self.parameters.items()}
         return param_units
 
     def parameters_values(self):
@@ -933,8 +963,7 @@ class OpenMMState(WalkerState):
         if self.parameters is None:
             return None
 
-        param_arrs = {key : np.array(val) for key, val
-                          in self.parameters.items()}
+        param_arrs = {key: np.array(val) for key, val in self.parameters.items()}
 
         # return None if there is nothing in this
         if len(param_arrs) == 0:
@@ -954,8 +983,10 @@ class OpenMMState(WalkerState):
         try:
             return self.sim_state.getEnergyParameterDerivatives()
         except:
-            warn("Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, "
-                     "this is probably because this attribute is not in the State.")
+            warn(
+                "Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, "
+                "this is probably because this attribute is not in the State."
+            )
             return None
 
     @property
@@ -966,7 +997,7 @@ class OpenMMState(WalkerState):
 
         """
 
-        param_units = {key : None for key, val in self.parameter_derivatives.items()}
+        param_units = {key: None for key, val in self.parameter_derivatives.items()}
         return param_units
 
     def parameter_derivatives_values(self):
@@ -984,8 +1015,9 @@ class OpenMMState(WalkerState):
         if self.parameter_derivatives is None:
             return None
 
-        param_arrs = {key : np.array(val) for key, val
-                          in self.parameter_derivatives.items()}
+        param_arrs = {
+            key: np.array(val) for key, val in self.parameter_derivatives.items()
+        }
 
         # return None if there is nothing in this
         if len(param_arrs) == 0:
@@ -1019,12 +1051,11 @@ class OpenMMState(WalkerState):
         key_template = "{}/{}"
         cmpd_key_d = {}
         for key, value in attr_dict.items():
-
             new_key = key_template.format(root_key, key)
             # if this is a proper feature
             if type(value) == np.ndarray:
                 cmpd_key_d[new_key] = value
-            elif hasattr(value, '__getitem__'):
+            elif hasattr(value, "__getitem__"):
                 cmpd_key_d.update(self._dict_attr_to_compound_key_dict(new_key, value))
             else:
                 raise TypeError("Unsupported attribute type")
@@ -1050,24 +1081,23 @@ class OpenMMState(WalkerState):
 
         """
 
-        key_components = compound_key.split('/')
+        key_components = compound_key.split("/")
 
         # if there is only one component of the key then it is not
         # really compound, we won't complain just return the
         # "dictionary" if it is not actually a dict like
-        if not hasattr(compound_feat_dict, '__getitem__'):
+        if not hasattr(compound_feat_dict, "__getitem__"):
             raise TypeError("Must provide a dict-like with the compound key")
 
         value = compound_feat_dict[key_components[0]]
 
         # if the value itself is compound recursively fetch the value
-        if hasattr(value, '__getitem__') and len(key_components[1:]) > 0:
-
-            subgroup_key = '/'.join(key_components[1:])
+        if hasattr(value, "__getitem__") and len(key_components[1:]) > 0:
+            subgroup_key = "/".join(key_components[1:])
 
             return self._get_nested_attr_from_compound_key(subgroup_key, value)
 
-        elif hasattr(value, '__getitem__') and len(key_components[1:]) < 1:
+        elif hasattr(value, "__getitem__") and len(key_components[1:]) < 1:
             raise ValueError("Key does not reference a leaf node of attribute")
 
         # otherwise we have the right key so return the object
@@ -1083,7 +1113,7 @@ class OpenMMState(WalkerState):
         if parameters is None:
             return None
         else:
-            return self._dict_attr_to_compound_key_dict('parameters', parameters)
+            return self._dict_attr_to_compound_key_dict("parameters", parameters)
 
     def parameter_derivatives_features(self):
         """Returns a dictionary of the parameter derivatives with their appropriate
@@ -1094,22 +1124,24 @@ class OpenMMState(WalkerState):
         if parameter_derivatives is None:
             return None
         else:
-            return self._dict_attr_to_compound_key_dict('parameter_derivatives',
-                                                        parameter_derivatives)
+            return self._dict_attr_to_compound_key_dict(
+                "parameter_derivatives", parameter_derivatives
+            )
 
     def omm_state_dict(self):
         """Return a dictionary with all of the default keys from the wrapped
         simtk.openmm.State object"""
 
-        feature_d = {'positions' : self.positions_values(),
-                'velocities' : self.velocities_values(),
-                'forces' : self.forces_values(),
-                'kinetic_energy' : self.kinetic_energy_value(),
-                'potential_energy' : self.potential_energy_value(),
-                'time' : self.time_value(),
-                'box_vectors' : self.box_vectors_values(),
-                'box_volume' : self.box_volume_value(),
-                    }
+        feature_d = {
+            "positions": self.positions_values(),
+            "velocities": self.velocities_values(),
+            "forces": self.forces_values(),
+            "kinetic_energy": self.kinetic_energy_value(),
+            "potential_energy": self.potential_energy_value(),
+            "time": self.time_value(),
+            "box_vectors": self.box_vectors_values(),
+            "box_volume": self.box_volume_value(),
+        }
 
         params = self.parameters_features()
         param_derivs = self.parameter_derivatives_features()
@@ -1144,16 +1176,22 @@ class OpenMMState(WalkerState):
 
         """
 
+        # Third Party Library
         import mdtraj as mdj
-        # resize the time to a 1D vector
-        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(self.box_vectors)
-        return mdj.Trajectory(np.array([self.positions_values()]),
-                              unitcell_lengths=[unitcell_lengths],
-                              unitcell_angles=[unitcell_angles],
-                              topology=topology)
 
-def gen_sim_state(positions, system, integrator,
-                  getState_kwargs=None):
+        # resize the time to a 1D vector
+        unitcell_lengths, unitcell_angles = box_vectors_to_lengths_angles(
+            self.box_vectors
+        )
+        return mdj.Trajectory(
+            np.array([self.positions_values()]),
+            unitcell_lengths=[unitcell_lengths],
+            unitcell_angles=[unitcell_angles],
+            topology=topology,
+        )
+
+
+def gen_sim_state(positions, system, integrator, getState_kwargs=None):
     """Convenience function for generating an omm.State object.
 
     Parameters
@@ -1185,7 +1223,7 @@ def gen_sim_state(positions, system, integrator,
 
     # generate a throwaway context, using the reference platform so we
     # don't screw up other platform stuff later in the same process
-    platform = omm.Platform.getPlatformByName('Reference')
+    platform = omm.Platform.getPlatformByName("Reference")
     context = omm.Context(system, copy(integrator), platform)
 
     # set the positions
@@ -1196,8 +1234,8 @@ def gen_sim_state(positions, system, integrator,
 
     return sim_state
 
-def gen_walker_state(positions, system, integrator,
-                     getState_kwargs=None):
+
+def gen_walker_state(positions, system, integrator, getState_kwargs=None):
     """Convenience function for generating a wepy walker State object for
     an openmm simulation state.
 
@@ -1218,8 +1256,9 @@ def gen_walker_state(positions, system, integrator,
 
     """
 
-    state = OpenMMState(gen_sim_state(positions, system, integrator,
-                                      getState_kwargs=getState_kwargs))
+    state = OpenMMState(
+        gen_sim_state(positions, system, integrator, getState_kwargs=getState_kwargs)
+    )
 
     return state
 
@@ -1235,8 +1274,9 @@ class OpenMMWalker(Walker):
     def __init__(self, state, weight):
         # documented in superclass
 
-        assert isinstance(state, OpenMMState), \
-            "state must be an instance of class OpenMMState not {}".format(type(state))
+        assert isinstance(
+            state, OpenMMState
+        ), "state must be an instance of class OpenMMState not {}".format(type(state))
 
         super().__init__(state, weight)
 
@@ -1259,21 +1299,18 @@ class OpenMMCPUWorker(Worker):
     DEFAULT_NUM_THREADS = 1
 
     def __init__(self, *args, **kwargs):
-
-        if 'num_threads' not in kwargs:
+        if "num_threads" not in kwargs:
             num_threads = self.DEFAULT_NUM_THREADS
         else:
-            num_threads = kwargs.pop('num_threads')
+            num_threads = kwargs.pop("num_threads")
 
-        super().__init__(*args,
-                         num_threads=num_threads,
-                         **kwargs)
+        super().__init__(*args, num_threads=num_threads, **kwargs)
 
     def run_task(self, task):
         # documented in superclass
 
         # make the platform kwargs dictionary
-        platform_options = {'Threads' : str(self.attributes['num_threads'])}
+        platform_options = {"Threads": str(self.attributes["num_threads"])}
 
         # run the task and pass in the DeviceIndex for OpenMM to
         # assign work to the correct GPU
@@ -1296,15 +1333,14 @@ class OpenMMGPUWorker(Worker):
     the process number."""
 
     def run_task(self, task):
-
         # get the platform
-        platform = self.mapper_attributes['platform']
+        platform = self.mapper_attributes["platform"]
 
         # get the device index from the attributes
-        device_id = self.mapper_attributes['device_ids'][self._worker_idx]
+        device_id = self.mapper_attributes["device_ids"][self._worker_idx]
 
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : str(device_id)}
+        platform_options = {"DeviceIndex": str(device_id)}
 
         logging.info(f"platform={platform}, platform_options={platform_options}")
 
@@ -1315,17 +1351,14 @@ class OpenMMGPUWorker(Worker):
 
 
 class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
-
     NAME_TEMPLATE = "OpenMM_CPU_Walker_Task-{}"
 
-
     def run_task(self, task):
-
-        if 'num_threads' in self.mapper_attributes:
-            num_threads = self.mapper_attributes['num_threads']
+        if "num_threads" in self.mapper_attributes:
+            num_threads = self.mapper_attributes["num_threads"]
 
             # make the platform kwargs dictionary
-            platform_options = {'Threads' : str(num_threads)}
+            platform_options = {"Threads": str(num_threads)}
 
             logging.info(f"Threads={num_threads}")
 
@@ -1336,24 +1369,21 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
             platform_kwargs=platform_options,
         )
 
-class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
 
+class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
     NAME_TEMPLATE = "OpenMM_GPU_Walker_Task-{}"
 
-
     def run_task(self, task):
-
-
         logging.info(f"Starting to run a task as worker {self._worker_idx}")
 
         # get the platform
-        platform = self.mapper_attributes['platform']
+        platform = self.mapper_attributes["platform"]
 
         # get the device index from the attributes
-        device_id = self.mapper_attributes['device_ids'][self._worker_idx]
+        device_id = self.mapper_attributes["device_ids"][self._worker_idx]
 
         # make the platform kwargs dictionary
-        platform_options = {'DeviceIndex' : str(device_id)}
+        platform_options = {"DeviceIndex": str(device_id)}
 
         logging.info(f"platform={platform}, platform_options={platform_options}")
 

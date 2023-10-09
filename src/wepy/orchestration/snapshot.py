@@ -1,9 +1,11 @@
+# Standard Library
 from copy import copy, deepcopy
 
-class SimApparatus():
+
+class SimApparatus:
     """The simulation apparatus are the components needed for running a
     simulation without the initial conditions for starting the simulation.
-    
+
     A runner is strictly necessary but a resampler and boundary
     conditions are not.
 
@@ -24,7 +26,6 @@ class SimApparatus():
         return self._filters
 
 
-
 class WepySimApparatus(SimApparatus):
     """ """
 
@@ -33,7 +34,6 @@ class WepySimApparatus(SimApparatus):
     RESAMPLER_IDX = 2
 
     def __init__(self, runner, resampler=None, boundary_conditions=None):
-
         if resampler is None:
             raise ValueError("must provide a resampler")
 
@@ -55,11 +55,10 @@ class WepySimApparatus(SimApparatus):
         return self.filters[self.RESAMPLER_IDX]
 
 
-class SimSnapshot():
+class SimSnapshot:
     """ """
 
     def __init__(self, walkers, apparatus):
-
         self._walkers = deepcopy(walkers)
         self._apparatus = deepcopy(apparatus)
 
@@ -72,4 +71,3 @@ class SimSnapshot():
     def apparatus(self):
         """ """
         return self._apparatus
-

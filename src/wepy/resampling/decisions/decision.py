@@ -45,18 +45,19 @@ perform them on the collection of walkers.
 
 """
 
+# Standard Library
+import logging
 from collections import namedtuple
 from enum import Enum
 from string import ascii_lowercase
-import logging
 
+# Third Party Library
 import numpy as np
+
 
 # ABC for the Decision class
 class Decision(object):
-    """Represents and provides methods for a set of decision values.
-
-    """
+    """Represents and provides methods for a set of decision values."""
 
     ENUM = None
     """The enumeration of the decision types. Maps them to integers."""
@@ -64,7 +65,7 @@ class Decision(object):
     DEFAULT_DECISION = None
     """The default decision to choose."""
 
-    FIELDS = ('decision_id',)
+    FIELDS = ("decision_id",)
     """The names of the fields that go into the decision record."""
 
     # suggestion for subclassing, FIELDS and others
@@ -79,7 +80,7 @@ class Decision(object):
     DTYPES = (int,)
     """Field data types."""
 
-    RECORD_FIELDS = ('decision_id',)
+    RECORD_FIELDS = ("decision_id",)
     """The fields that could be used in a reduced table-like representation."""
 
     ANCESTOR_DECISION_IDS = None
@@ -116,9 +117,7 @@ class Decision(object):
             Field specs each spec is of the form (name, shape, dtype).
 
         """
-        return list(zip(cls.field_names(),
-                   cls.field_shapes(),
-                   cls.field_dtypes()))
+        return list(zip(cls.field_names(), cls.field_shapes(), cls.field_dtypes()))
 
     @classmethod
     def record_field_names(cls):
@@ -181,7 +180,6 @@ class Decision(object):
         d = cls.enum_dict_by_name()
         return d[enum_name]
 
-
     @classmethod
     def record(cls, enum_value, **fields):
         """Generate a record for the enum_value and the other fields.
@@ -196,14 +194,17 @@ class Decision(object):
 
         """
 
-        assert enum_value in cls.enum_dict_by_value(), "value is not a valid Enumerated value"
+        assert (
+            enum_value in cls.enum_dict_by_value()
+        ), "value is not a valid Enumerated value"
 
         for field_key in fields.keys():
-            assert field_key in cls.FIELDS, \
-                "The field {} is not a field for that decision".format(field_key)
-            assert field_key != 'decision_id', "'decision_id' cannot be an extra field"
+            assert (
+                field_key in cls.FIELDS
+            ), "The field {} is not a field for that decision".format(field_key)
+            assert field_key != "decision_id", "'decision_id' cannot be an extra field"
 
-        rec = {'decision_id' : enum_value}
+        rec = {"decision_id": enum_value}
         rec.update(fields)
 
         return rec
@@ -270,7 +271,6 @@ class Decision(object):
 
         # the rest of the stages parents are based on the previous stage
         for parent_idx, parent_rec in enumerate(step):
-
             # if the decision is an ancestor then the instruction
             # values will be the children
             if parent_rec[0] in cls.ANCESTOR_DECISION_IDS:
@@ -283,13 +283,12 @@ class Decision(object):
         return step_parents
 
 
-
-
 class NothingDecisionEnum(Enum):
     """Enumeration of the decision values for doing nothing."""
 
     NOTHING = 0
     """Do nothing with the walker."""
+
 
 class NoDecision(Decision):
     """Decision for a resampling process that does no resampling."""
@@ -297,17 +296,16 @@ class NoDecision(Decision):
     ENUM = NothingDecisionEnum
     DEFAULT_DECISION = ENUM.NOTHING
 
-    FIELDS = Decision.FIELDS + ('target_idxs',)
+    FIELDS = Decision.FIELDS + ("target_idxs",)
     SHAPES = Decision.SHAPES + (Ellipsis,)
     DTYPES = Decision.DTYPES + (int,)
 
-    RECORD_FIELDS = Decision.RECORD_FIELDS + ('target_idxs',)
+    RECORD_FIELDS = Decision.RECORD_FIELDS + ("target_idxs",)
 
     ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,)
 
     @classmethod
     def action(cls, walkers, decisions):
-
         # list for the modified walkers
         mod_walkers = [None for i in range(len(walkers))]
         # go through each decision and perform the decision
@@ -315,16 +313,17 @@ class NoDecision(Decision):
         for walker_idx, decision in enumerate(decisions):
             decision_value, instruction = decision
             if decision_value == cls.ENUM.NOTHING.value:
-
                 # check to make sure a walker doesn't already exist
                 # where you are going to put it
                 if mod_walkers[instruction[0]] is not None:
                     raise ValueError(
-                        "Multiple walkers assigned to position {}".format(instruction[0]))
+                        "Multiple walkers assigned to position {}".format(
+                            instruction[0]
+                        )
+                    )
 
                 # put the walker in the position specified by the
                 # instruction
                 mod_walkers[instruction[0]] = walkers[walker_idx]
-
 
         return mod_walkers

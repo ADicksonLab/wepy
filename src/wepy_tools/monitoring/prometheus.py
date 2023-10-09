@@ -1,66 +1,54 @@
+# Standard Library
 import logging
 
-from pympler.asizeof import asizeof
+# Third Party Library
 import prometheus_client as prom
+from pympler.asizeof import asizeof
+
 
 class SimMonitor:
     """A simulation monitor using a prometheus http server"""
 
     DEFAULT_PORT = 9001
 
-    def __init__(self,
-                 tag="",
-                 port=None,
-                 reporter_order=(),
+    def __init__(
+        self,
+        tag="",
+        port=None,
+        reporter_order=(),
     ):
-
         self.port = port
         self.tag = tag
 
         self.reporter_order = reporter_order
 
-
     def _init_metrics(self):
-
         logging.info(f"SimMonitor ({self}): Initializing monitoring metrics")
 
         ## progress tracking
-        self.cycle_counter = prom.Counter('wepy_cycle_idx', "",
-                                          ['tag']
-        )
+        self.cycle_counter = prom.Counter("wepy_cycle_idx", "", ["tag"])
 
         # TODO unbinding events
 
         # TODO largest progresses
 
         ## object sizes
-        self.walker_size_g = prom.Gauge('wepy_walker_single_size_bytes', "",
-                                          ['tag']
-        )
-        self.ensemble_size_g = prom.Gauge('wepy_walker_ensemble_size_bytes', "",
-                                          ['tag']
+        self.walker_size_g = prom.Gauge("wepy_walker_single_size_bytes", "", ["tag"])
+        self.ensemble_size_g = prom.Gauge(
+            "wepy_walker_ensemble_size_bytes", "", ["tag"]
         )
 
-        self.runner_size_g = prom.Gauge('wepy_runner_size_bytes', "",
-                                          ['tag']
-        )
-        self.resampler_size_g = prom.Gauge('wepy_resampler_size_bytes', "",
-                                          ['tag']
-        )
-        self.bc_size_g = prom.Gauge('wepy_bc_size_bytes', "",
-                                          ['tag']
-        )
-        self.mapper_size_g = prom.Gauge('wepy_mapper_size_bytes', "",
-                                          ['tag']
-        )
+        self.runner_size_g = prom.Gauge("wepy_runner_size_bytes", "", ["tag"])
+        self.resampler_size_g = prom.Gauge("wepy_resampler_size_bytes", "", ["tag"])
+        self.bc_size_g = prom.Gauge("wepy_bc_size_bytes", "", ["tag"])
+        self.mapper_size_g = prom.Gauge("wepy_mapper_size_bytes", "", ["tag"])
 
-        self.sim_manager_size_g = prom.Gauge('wepy_sim_manager_size_bytes', "",
-                                          ['tag']
-        )
+        self.sim_manager_size_g = prom.Gauge("wepy_sim_manager_size_bytes", "", ["tag"])
 
-        self.reporter_size_g = prom.Gauge('wepy_reporters_size_bytes',
-                                          "",
-                                          ['tag', "name"],
+        self.reporter_size_g = prom.Gauge(
+            "wepy_reporters_size_bytes",
+            "",
+            ["tag", "name"],
         )
 
         ## timings
@@ -69,61 +57,68 @@ class SimMonitor:
 
         # components
 
-        self.bc_time_g = prom.Gauge('wepy_bc_cycle_time_seconds', "",
-                                          ['tag']
-        )
-        self.resampling_time_g = prom.Gauge('wepy_resampling_cycle_time_seconds', "",
-                                          ['tag']
+        self.bc_time_g = prom.Gauge("wepy_bc_cycle_time_seconds", "", ["tag"])
+        self.resampling_time_g = prom.Gauge(
+            "wepy_resampling_cycle_time_seconds", "", ["tag"]
         )
 
         # runner splits
-        self.runner_precycle_time_g = prom.Gauge('wepy_runner_precycle_time_seconds', "",
-                                          ['tag']
+        self.runner_precycle_time_g = prom.Gauge(
+            "wepy_runner_precycle_time_seconds", "", ["tag"]
         )
-        self.runner_postcycle_time_g = prom.Gauge('wepy_runner_postcycle_time_seconds', "",
-                                          ['tag']
+        self.runner_postcycle_time_g = prom.Gauge(
+            "wepy_runner_postcycle_time_seconds", "", ["tag"]
         )
-        self.sim_manager_segment_time_g = prom.Gauge('wepy_sim_manager_segment_time_seconds', "",
-                                          ['tag']
+        self.sim_manager_segment_time_g = prom.Gauge(
+            "wepy_sim_manager_segment_time_seconds", "", ["tag"]
         )
         self.sim_manager_segment_overhead_time_g = prom.Gauge(
-            'wepy_sim_manager_segment_overhead_time_seconds',
-            "",
-            ['tag']
+            "wepy_sim_manager_segment_overhead_time_seconds", "", ["tag"]
         )
 
         # runner segment splits
         self.runner_segment_gen_sim_time_g = prom.Gauge(
-            'wepy_runner_segment_gen_sim_time_seconds',
+            "wepy_runner_segment_gen_sim_time_seconds",
             "",
-            ['tag', 'segment_idx',]
+            [
+                "tag",
+                "segment_idx",
+            ],
         )
 
         self.runner_segment_steps_time_g = prom.Gauge(
-            'wepy_runner_segment_steps_time_seconds',
+            "wepy_runner_segment_steps_time_seconds",
             "",
-            ['tag', 'segment_idx',]
+            [
+                "tag",
+                "segment_idx",
+            ],
         )
 
         self.runner_segment_get_state_time_g = prom.Gauge(
-            'wepy_runner_segment_get_state_time_seconds',
+            "wepy_runner_segment_get_state_time_seconds",
             "",
-            ['tag', 'segment_idx',]
+            [
+                "tag",
+                "segment_idx",
+            ],
         )
 
         self.runner_segment_run_segment_time_g = prom.Gauge(
-            'wepy_runner_segment_run_segment_time_seconds',
+            "wepy_runner_segment_run_segment_time_seconds",
             "",
-            ['tag', 'segment_idx',]
+            [
+                "tag",
+                "segment_idx",
+            ],
         )
 
         # work mapper segment times
-        self.mapper_seg_times_g = prom.Gauge('wepy_mapper_segment_times_seconds',
-                                             "",
-                                             ['tag', 'worker_idx', 'seg_idx'])
+        self.mapper_seg_times_g = prom.Gauge(
+            "wepy_mapper_segment_times_seconds", "", ["tag", "worker_idx", "seg_idx"]
+        )
 
     def _cleanup_metrics(self):
-
         logging.info(f"SimMonitor ({self}): cleaning up metrics")
 
         ## progress tracking
@@ -167,10 +162,10 @@ class SimMonitor:
         # work mapper segment times
         del self.mapper_seg_times_g
 
-    def init(self,
-             port=None,
+    def init(
+        self,
+        port=None,
     ):
-
         if port is not None:
             port = port
 
@@ -180,7 +175,9 @@ class SimMonitor:
         else:
             port = self.DEFAULT_PORT
 
-        logging.info(f"SimMonitor ({self}): starting prometheus client http server at port {port}")
+        logging.info(
+            f"SimMonitor ({self}): starting prometheus client http server at port {port}"
+        )
         prom.start_http_server(port)
 
         # initialize all the metrics. These need to be done at init
@@ -188,15 +185,11 @@ class SimMonitor:
         self._init_metrics()
 
     def cleanup(self):
-
         # remove all the metrics
         logging.info(f"SimMonitor ({self}): cleaning up")
         self._cleanup_metrics()
 
-
-
     def cycle_monitor(self, sim_manager, walkers):
-
         logging.info(f"SimMonitor ({self}): running the cycle monitoring")
 
         last_report = sim_manager._last_report
@@ -239,65 +232,59 @@ class SimMonitor:
                 name=reporter_name,
             ).set(reporter_sizes[reporter_name])
 
-
         ## Timings
 
-        self.bc_time_g.labels(tag=self.tag).set(last_report['cycle_bc_time'])
-        self.resampling_time_g.labels(tag=self.tag).set(last_report['cycle_resampling_time'])
+        self.bc_time_g.labels(tag=self.tag).set(last_report["cycle_bc_time"])
+        self.resampling_time_g.labels(tag=self.tag).set(
+            last_report["cycle_resampling_time"]
+        )
 
         # runner splits for each segment
-        for seg_idx, segment in enumerate(last_report['runner_splits_time']):
-
+        for seg_idx, segment in enumerate(last_report["runner_splits_time"]):
             self.runner_segment_gen_sim_time_g.labels(
                 tag=self.tag,
                 segment_idx=seg_idx,
-            ).set(segment['gen_sim_time'])
+            ).set(segment["gen_sim_time"])
 
             self.runner_segment_steps_time_g.labels(
                 tag=self.tag,
                 segment_idx=seg_idx,
-            ).set(segment['steps_time'])
+            ).set(segment["steps_time"])
 
             self.runner_segment_get_state_time_g.labels(
                 tag=self.tag,
                 segment_idx=seg_idx,
-            ).set(segment['get_state_time'])
+            ).set(segment["get_state_time"])
 
             self.runner_segment_run_segment_time_g.labels(
                 tag=self.tag,
                 segment_idx=seg_idx,
-            ).set(segment['run_segment_time'])
+            ).set(segment["run_segment_time"])
 
         # components
-        self.runner_precycle_time_g.labels(
-            tag=self.tag
-        ).set(
-            last_report['runner_precycle_time'])
+        self.runner_precycle_time_g.labels(tag=self.tag).set(
+            last_report["runner_precycle_time"]
+        )
 
-        self.runner_postcycle_time_g.labels(
-            tag=self.tag
-        ).set(
-            last_report['runner_postcycle_time'])
+        self.runner_postcycle_time_g.labels(tag=self.tag).set(
+            last_report["runner_postcycle_time"]
+        )
 
-        self.sim_manager_segment_time_g.labels(
-            tag=self.tag
-        ).set(
-            last_report['cycle_sim_manager_segment_time'])
+        self.sim_manager_segment_time_g.labels(tag=self.tag).set(
+            last_report["cycle_sim_manager_segment_time"]
+        )
 
-        self.sim_manager_segment_overhead_time_g.labels(
-            tag=self.tag
-        ).set(
-            last_report['sim_manager_segment_overhead_time'])
+        self.sim_manager_segment_overhead_time_g.labels(tag=self.tag).set(
+            last_report["sim_manager_segment_overhead_time"]
+        )
 
         # work mapper workers timings
-        for worker_idx, segments in last_report['worker_segment_times'].items():
-
+        for worker_idx, segments in last_report["worker_segment_times"].items():
             for seg_idx, segment in enumerate(segments):
                 self.mapper_seg_times_g.labels(
                     tag=self.tag,
                     worker_idx=worker_idx,
                     seg_idx=seg_idx,
                 ).set(segment)
-
 
         logging.info(f"SimMonitor ({self}): done with cycle monitoring")

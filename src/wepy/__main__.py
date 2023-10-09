@@ -1,5 +1,6 @@
 """Glue all the CLIs together into one interface."""
 
+# First Party Library
 from wepy.orchestration.cli import cli as orch_cli
 
 cli = orch_cli
@@ -22,5 +23,4 @@ cli = orch_cli
 #     cli.add_command(subgroup)
 
 if __name__ == "__main__":
-
     cli()

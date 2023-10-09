@@ -1,72 +1,70 @@
-import pytest
-
-from pathlib import Path
-import os.path as osp
+# Standard Library
 import importlib
-from copy import copy
+import os.path as osp
 import pickle
+from copy import copy
+from pathlib import Path
 
+# Third Party Library
+import mdtraj as mdj
 import numpy as np
+import pytest
+import simtk.openmm as omm
+import simtk.openmm.app as omma
+import simtk.unit as unit
+from openmm_systems.test_systems import LennardJonesPair
 from scipy.spatial.distance import euclidean
 
-import simtk.openmm.app as omma
-import simtk.openmm as omm
-import simtk.unit as unit
-
-import mdtraj as mdj
-
-from openmm_systems.test_systems import LennardJonesPair
-
-from wepy.sim_manager import Manager
-
-### Apparatus
-
-## Resampler
-from wepy.resampling.distances.distance import Distance
-from wepy.resampling.resamplers.wexplore import WExploreResampler
-from wepy.resampling.resamplers.revo import REVOResampler
-from wepy.resampling.resamplers.resampler import NoResampler
-
+# First Party Library
 ## Boundary Conditions
 from wepy.boundary_conditions.unbinding import UnbindingBC
-
-## Runner
-from wepy.runners.openmm import (
-    OpenMMRunner,
-    OpenMMState,
-    OpenMMWalker,
-    UNIT_NAMES,
-    GET_STATE_KWARG_DEFAULTS,
-    gen_walker_state,
-)
-
-## Initial Walkers
-from wepy.walker import Walker
-
-### Configuration
-
-## Reporters
-from wepy.reporter.hdf5 import WepyHDF5Reporter
-from wepy.reporter.restree import ResTreeReporter
-from wepy.reporter.dashboard import DashboardReporter
-
-## Work Mappers
-from wepy.work_mapper.mapper import Mapper
-from wepy.work_mapper.mapper import WorkerMapper
-from wepy.work_mapper.task_mapper import TaskMapper
-
-### Utilities
-from wepy.util.mdtraj import mdtraj_to_json_topology
 
 ### Orchestration
 from wepy.orchestration.configuration import Configuration
 from wepy.orchestration.orchestrator import Orchestrator, reconcile_orchestrators
-from wepy.orchestration.snapshot import WepySimApparatus, SimSnapshot
+from wepy.orchestration.snapshot import SimSnapshot, WepySimApparatus
+from wepy.reporter.dashboard import DashboardReporter
 
-### Mock Systems
+## Reporters
+from wepy.reporter.hdf5 import WepyHDF5Reporter
+from wepy.reporter.restree import ResTreeReporter
 
+## Resampler
+from wepy.resampling.distances.distance import Distance
+from wepy.resampling.resamplers.resampler import NoResampler
+from wepy.resampling.resamplers.revo import REVOResampler
+from wepy.resampling.resamplers.wexplore import WExploreResampler
+
+## Runner
+from wepy.runners.openmm import (
+    GET_STATE_KWARG_DEFAULTS,
+    UNIT_NAMES,
+    OpenMMRunner,
+    OpenMMState,
+    OpenMMWalker,
+    gen_walker_state,
+)
+from wepy.sim_manager import Manager
+
+### Utilities
+from wepy.util.mdtraj import mdtraj_to_json_topology
+
+## Initial Walkers
+from wepy.walker import Walker
+
+## Work Mappers
+from wepy.work_mapper.mapper import Mapper, WorkerMapper
+from wepy.work_mapper.task_mapper import TaskMapper
 from wepy_tools.sim_makers.openmm.sim_maker import OpenMMSimMaker
 from wepy_tools.systems.lennard_jones import PairDistance
+
+### Apparatus
+
+
+### Configuration
+
+
+### Mock Systems
 
 
 ### Constants
@@ -75,45 +73,49 @@ from wepy_tools.systems.lennard_jones import PairDistance
 # purposes
 PLATFORM = "Reference"
 
+
 ### Sanity Test
-@pytest.fixture(scope='class')
+@pytest.fixture(scope="class")
 def lj_sanity_test():
     """Sanity test to make sure we even have the plugin fixtures installed."""
     return "sanity"
+
 
 ### Fixtures
 
 
 ## OpenMM Misc.
 
-@pytest.fixture(scope='class')
+
+@pytest.fixture(scope="class")
 def lj_omm_sys():
     return LennardJonesPair()
 
-@pytest.fixture(scope='class')
-def langevin_integrator():
 
+@pytest.fixture(scope="class")
+def langevin_integrator():
     integrator = omm.LangevinIntegrator(
-        *OpenMMSimMaker.DEFAULT_INTEGRATOR_PARAMS['LangevinIntegrator']
+        *OpenMMSimMaker.DEFAULT_INTEGRATOR_PARAMS["LangevinIntegrator"]
     )
 
     return integrator
+
 
 integrators = [
     langevin_integrator,
 ]
 
+
 @pytest.fixture(
-    scope='class',
+    scope="class",
     params=[
-        'LangevinIntegrator',
-    ]
+        "LangevinIntegrator",
+    ],
 )
 def lj_integrator(
-        request,
-        *integrators,
+    request,
+    *integrators,
 ):
-
     intgr_spec = request.param
     if intgr_spec == "LangevinIntegrator":
         return langevin_integrator
@@ -123,36 +125,28 @@ def lj_integrator(
 
 ## Runner
 
-@pytest.fixture(
-    scope='class',
-    params=[
-        'Reference',
-    ]
-)
-def lj_openmm_runner(
-        request,
-        lj_omm_sys,
-        lj_integrator
-):
 
+@pytest.fixture(
+    scope="class",
+    params=[
+        "Reference",
+    ],
+)
+def lj_openmm_runner(request, lj_omm_sys, lj_integrator):
     # parametrize the platform
     platform = request.param
 
     positions = test_sys.positions.value_in_unit(test_sys.positions.unit)
 
-    init_state = gen_walker_state(
-        positions,
-        test_sys.system,
-        integrator)
+    init_state = gen_walker_state(positions, test_sys.system, integrator)
 
     # initialize the runner
     runner = OpenMMRunner(
-        lj_omm_sys.system,
-        lj_omm_sys.topology,
-        lj_integrator,
-        platform=platform)
+        lj_omm_sys.system, lj_omm_sys.topology, lj_integrator, platform=platform
+    )
 
     return runner
+
 
 ## Resampler
 
@@ -276,7 +270,6 @@ def lj_openmm_runner(
 #     return SimSnapshot(lj_init_walkers, lj_apparatus)
 
 
-
 # @pytest.fixture(scope='class')
 # def lj_configuration(tmp_path_factory, lj_reporter_classes, lj_reporter_kwargs):
 
@@ -306,7 +299,6 @@ def lj_openmm_runner(
 #     }
 
 #     reporter_kwargs = [hdf5_reporter_kwargs]
-
 
 
 #     # make a temporary directory for this configuration to work with
@@ -369,8 +361,6 @@ def lj_openmm_runner(
 #     return config.reporters
 
 
-
-
 # @pytest.fixture(scope='class')
 # def lj_orchestrator(lj_apparatus, lj_init_walkers, lj_configuration):
 
@@ -426,7 +416,6 @@ def lj_openmm_runner(
 
 
 #     return lj_orchestrator
-
 
 
 # @pytest.fixture(scope='class')

@@ -1,12 +1,15 @@
-from collections import namedtuple, defaultdict
-from enum import Enum
+# Standard Library
 import logging
+from collections import defaultdict, namedtuple
+from enum import Enum
 
+# Third Party Library
 import numpy as np
 
+# First Party Library
 from wepy.resampling.decisions.decision import Decision
+from wepy.walker import keep_merge, split
 
-from wepy.walker import split, keep_merge
 
 # the possible types of decisions that can be made enumerated for
 # storage, these each correspond to specific instruction type
@@ -35,7 +38,6 @@ class CloneMergeDecisionEnum(Enum):
     donate their weight to it."""
 
 
-
 class MultiCloneMergeDecision(Decision):
     """Decision encoding cloning and merging decisions for weighted ensemble.
 
@@ -57,35 +59,33 @@ class MultiCloneMergeDecision(Decision):
 
     """
 
-
     ENUM = CloneMergeDecisionEnum
 
     DEFAULT_DECISION = ENUM.NOTHING
 
-    FIELDS = Decision.FIELDS + ('target_idxs',)
+    FIELDS = Decision.FIELDS + ("target_idxs",)
     SHAPES = Decision.SHAPES + (Ellipsis,)
     DTYPES = Decision.DTYPES + (int,)
 
-    RECORD_FIELDS = Decision.RECORD_FIELDS + ('target_idxs',)
-
+    RECORD_FIELDS = Decision.RECORD_FIELDS + ("target_idxs",)
 
     # the decision types that pass on their state
-    ANCESTOR_DECISION_IDS = (ENUM.NOTHING.value,
-                             ENUM.KEEP_MERGE.value,
-                             ENUM.CLONE.value,)
-
+    ANCESTOR_DECISION_IDS = (
+        ENUM.NOTHING.value,
+        ENUM.KEEP_MERGE.value,
+        ENUM.CLONE.value,
+    )
 
     # TODO deprecate in favor of Decision implementation
     @classmethod
     def record(cls, enum_value, target_idxs):
         record = super().record(enum_value)
-        record['target_idxs'] = target_idxs
+        record["target_idxs"] = target_idxs
 
         return record
 
     @classmethod
     def action(cls, walkers, decisions):
-
         # list for the modified walkers
         mod_walkers = [None for i in range(len(walkers))]
 
@@ -98,16 +98,18 @@ class MultiCloneMergeDecision(Decision):
             # go through each decision and perform the decision
             # instructions
             for walker_idx, walker_rec in enumerate(step_recs):
-
-                decision_value = walker_rec['decision_id']
-                instruction = walker_rec['target_idxs']
+                decision_value = walker_rec["decision_id"]
+                instruction = walker_rec["target_idxs"]
 
                 if decision_value == cls.ENUM.NOTHING.value:
                     # check to make sure a walker doesn't already exist
                     # where you are going to put it
                     if mod_walkers[instruction[0]] is not None:
                         raise ValueError(
-                            "Multiple walkers assigned to position {}".format(instruction[0]))
+                            "Multiple walkers assigned to position {}".format(
+                                instruction[0]
+                            )
+                        )
 
                     # put the walker in the position specified by the
                     # instruction
@@ -115,7 +117,6 @@ class MultiCloneMergeDecision(Decision):
 
                 # for a clone
                 elif decision_value == cls.ENUM.CLONE.value:
-
                     # get the walker to be cloned
                     walker = walkers[walker_idx]
                     # "clone" it by splitting it into walkers of the
@@ -125,12 +126,14 @@ class MultiCloneMergeDecision(Decision):
                     # then assign each of these clones to a target
                     # walker index in the next step
                     for clone_idx, target_idx in enumerate(instruction):
-
                         # check that there are not another walker
                         # already assigned to this position
                         if mod_walkers[target_idx] is not None:
                             raise ValueError(
-                                "Multiple walkers assigned to position {}".format(instruction[0]))
+                                "Multiple walkers assigned to position {}".format(
+                                    instruction[0]
+                                )
+                            )
 
                         # TODO this comment was just fixed so I
                         # believe that there was some serious problems
@@ -143,7 +146,6 @@ class MultiCloneMergeDecision(Decision):
                 # if it is a decision for merging we must perform this
                 # once we know all the merge targets for each merge group
                 elif decision_value == cls.ENUM.SQUASH.value:
-
                     # save this walker to the appropriate merge group to
                     # merge after going through the list of walkers
                     squash_walkers[instruction[0]].append(walker_idx)
@@ -156,7 +158,6 @@ class MultiCloneMergeDecision(Decision):
 
             # do the merging for each merge group
             for target_idx, walker_idxs in squash_walkers.items():
-
                 keep_idx = keep_walkers[target_idx]
 
                 # collect the walkers in the merge group, the keep idx is
@@ -169,14 +170,13 @@ class MultiCloneMergeDecision(Decision):
                 # make sure there is not already a walker in this slot
                 if mod_walkers[target_idx] is not None:
                     raise ValueError(
-                        "Multiple walkers assigned to position {}".format(target_idx))
+                        "Multiple walkers assigned to position {}".format(target_idx)
+                    )
 
                 # set it in the slot for the keep_idx
                 mod_walkers[keep_idx] = merged_walker
 
-
         if not all([False if walker is None else True for walker in mod_walkers]):
-
             raise ValueError("Some walkers were not created")
 
         return mod_walkers

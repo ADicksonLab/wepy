@@ -1,6 +1,8 @@
 """Compute rates for warping events."""
 
+# Standard Library
 from collections import defaultdict
+
 
 def calc_warp_rate(warping_records, total_sampling_time):
     """Calculate the warping rates for each target in these records.
@@ -51,14 +53,12 @@ def calc_warp_rate(warping_records, total_sampling_time):
     # we separate them based on the target
     target_warp_weights = defaultdict(list)
     for rec in warping_records:
-
         # get the weight
         target_warp_weights[rec.target_idx].append(rec.weight)
 
     # sum each target weights up, and compute the weights
     target_results = {}
     for target_key, weights in target_warp_weights.items():
-
         total_weight = sum(weights)
         rate = total_weight / total_sampling_time
 
@@ -131,8 +131,9 @@ def contig_warp_rates(contig, cycle_time, time_points=None):
     # calculate the total sampling time for each point which is the
     # cycle_index times the real sampling time for each walker in the
     # ensemble times the number of walkers
-    total_sampling_times = [n_cycle * cycle_time * n_walkers[i]
-                            for i, n_cycle in enumerate(n_cycle_points)]
+    total_sampling_times = [
+        n_cycle * cycle_time * n_walkers[i] for i, n_cycle in enumerate(n_cycle_points)
+    ]
 
     all_recs = contig.warping_records()
 
