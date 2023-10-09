@@ -413,27 +413,54 @@ class WepyHDF5Reporter(FileReporter):
             # initialize it as such
 
             # initialize a new run
-            run_grp = self.wepy_h5.new_run(filtered_init_walkers, continue_run=continue_run)
+            run_grp = self.wepy_h5.new_run(
+                filtered_init_walkers,
+                continue_run=continue_run,
+            )
             self.wepy_run_idx = run_grp.attrs['run_idx']
 
             # initialize the run record groups using their fields
-            self.wepy_h5.init_run_fields_resampling(self.wepy_run_idx, self.resampling_fields)
+            self.wepy_h5.init_run_fields_resampling(
+                self.wepy_run_idx,
+                self.resampling_fields,
+            )
             # the enumeration for the values of resampling
-            self.wepy_h5.init_run_fields_resampling_decision(self.wepy_run_idx, self.decision_enum)
-            self.wepy_h5.init_run_fields_resampler(self.wepy_run_idx, self.resampler_fields)
+            self.wepy_h5.init_run_fields_resampling_decision(
+                self.wepy_run_idx,
+                self.decision_enum,
+            )
+            self.wepy_h5.init_run_fields_resampler(
+                self.wepy_run_idx,
+                self.resampler_fields,
+            )
             # set the fields that are records for tables etc. unless
             # they are already set
             if 'resampling' not in self.wepy_h5.record_fields:
-                self.wepy_h5.init_record_fields('resampling', self.resampling_records)
+                self.wepy_h5.init_record_fields(
+                    'resampling',
+                    self.resampling_records,
+                )
             if 'resampler' not in self.wepy_h5.record_fields:
-                self.wepy_h5.init_record_fields('resampler', self.resampler_records)
+                self.wepy_h5.init_record_fields(
+                    'resampler',
+                    self.resampler_records,
+                )
 
             # if there were no warping fields set there is no boundary
             # conditions and we don't initialize them
             if self.warping_fields is not None:
-                self.wepy_h5.init_run_fields_warping(self.wepy_run_idx, self.warping_fields)
-                self.wepy_h5.init_run_fields_progress(self.wepy_run_idx, self.progress_fields)
-                self.wepy_h5.init_run_fields_bc(self.wepy_run_idx, self.bc_fields)
+                self.wepy_h5.init_run_fields_warping(
+                    self.wepy_run_idx,
+                    self.warping_fields,
+                )
+                self.wepy_h5.init_run_fields_progress(
+                    self.wepy_run_idx,
+                    self.progress_fields,
+                )
+                self.wepy_h5.init_run_fields_bc(
+                    self.wepy_run_idx,
+                    self.bc_fields,
+                )
                 # table records
                 if 'warping' not in self.wepy_h5.record_fields:
                     self.wepy_h5.init_record_fields('warping', self.warping_records)
