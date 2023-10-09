@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import os
 import os.path as osp
 import pickle

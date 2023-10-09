@@ -1,17 +1,19 @@
-
+import logging
+logger = logging.getLogger(__name__)
 if __name__ == "__main__":
 
     import os
     import shutil
     import sys
     import logging
+logger = logging.getLogger(__name__)
     from pathlib import Path
 
     from multiprocessing_logging import install_mp_handler
 
     from wepy_tools.sim_makers.openmm.lysozyme import LysozymeImplicitOpenMMSimMaker
 
-    logging.getLogger().setLevel(logging.DEBUG)
+    logging.getLogger(__name__).setLevel(logging.DEBUG)
     install_mp_handler()
 
     if sys.argv[1] == "-h" or sys.argv[1] == "--help":

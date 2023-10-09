@@ -4,6 +4,9 @@
 # Standard Library
 import itertools as it
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import time
 from collections import defaultdict
 

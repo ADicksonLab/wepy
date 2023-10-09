@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 from copy import deepcopy
 
 # Third Party Library
@@ -346,7 +349,7 @@ class WepyHDF5Reporter(FileReporter):
         super().init(**kwargs)
 
         # open and initialize the HDF5 file
-        logging.info("Initializing HDF5 file at {}".format(self.file_path))
+        logger.info("Initializing HDF5 file at {}".format(self.file_path))
 
         self.wepy_h5 = WepyHDF5(
             self.file_path,

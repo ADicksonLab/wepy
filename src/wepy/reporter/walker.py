@@ -9,6 +9,8 @@ simulation as it progresses.
 # Standard Library
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third Party Library
 import mdtraj as mdj
 import numpy as np
@@ -119,7 +121,7 @@ class WalkerReporter(ProgressiveFileReporter):
         )
 
         # write out the init traj as a pdb
-        logging.info("Writing initial state to {}".format(self.init_state_path))
+        logger.info("Writing initial state to {}".format(self.init_state_path))
         init_traj.save_pdb(self.init_state_path)
 
     def report(self, cycle_idx=None, new_walkers=None, **kwargs):

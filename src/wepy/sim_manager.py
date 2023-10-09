@@ -44,6 +44,9 @@ to be determined adaptively (e.g. according to some time limit).
 
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import sys
 import time
 from copy import deepcopy
@@ -224,7 +227,7 @@ class Manager(object):
 
         num_walkers = len(walkers)
 
-        logging.info("Starting segment")
+        logger.info("Starting segment")
 
         try:
             new_walkers = list(
@@ -245,7 +248,7 @@ class Manager(object):
             # report on all of the errors that occured
             raise exception
 
-        logging.info("Ending segment")
+        logger.info("Ending segment")
 
         return new_walkers
 
@@ -377,7 +380,7 @@ class Manager(object):
         else:
             runner_splits = None
 
-        logging.info("Starting post cycle")
+        logger.info("Starting post cycle")
         # run post-cycle hook
         start = time.time()
 
@@ -386,7 +389,7 @@ class Manager(object):
         end = time.time()
         runner_postcycle_time = end - start
 
-        logging.info("End cycle {}".format(cycle_idx))
+        logger.info("End cycle {}".format(cycle_idx))
 
         # boundary conditions should be optional;
 
@@ -400,7 +403,7 @@ class Manager(object):
         if self.boundary_conditions is not None:
             # apply rules of boundary conditions and warp walkers through space
             start = time.time()
-            logging.info("Starting boundary conditions")
+            logger.info("Starting boundary conditions")
             bc_results = self.boundary_conditions.warp_walkers(new_walkers, cycle_idx)
             end = time.time()
             bc_time = end - start
@@ -412,11 +415,11 @@ class Manager(object):
             progress_data = bc_results[3]
 
             if len(warp_data) > 0:
-                logging.info("Returned warp record in cycle {}".format(cycle_idx))
+                logger.info("Returned warp record in cycle {}".format(cycle_idx))
 
         # resample walkers
         start = time.time()
-        logging.info("Starting resampler")
+        logger.info("Starting resampler")
 
         resampling_results = self.resampler.resample(warped_walkers)
 
@@ -434,7 +437,7 @@ class Manager(object):
         # result_template_str = "|".join(["{:^5}" for i in range(self.n_init_walkers + 1)])
         # walker_weight_str = result_template_str.format("weight",
         #     *[round(walker.weight, 3) for walker in resampled_walkers])
-        # logging.info(walker_weight_str)
+        # logger.info(walker_weight_str)
 
         # make a dictionary of all the results that will be reported
         seg_times = {}
@@ -456,14 +459,14 @@ class Manager(object):
             # calculate the overhead for logging
             sim_manager_segment_overhead_time = sim_manager_segment_time - sampling_time
 
-            # logging.info(
+            # logger.info(
             #     "Runner time = {}; Sampling = ({}); Overhead = ({})".format(
             #         runner_time, sampling_time, overhead_time))
 
         else:
             sim_manager_segment_overhead_time = 0.0
-            # logging.info("No worker segment times given")
-            # logging.info("Runner time = {}".format(runner_time))
+            # logger.info("No worker segment times given")
+            # logger.info("Runner time = {}".format(runner_time))
 
         report = {
             "cycle_idx": cycle_idx,
@@ -495,7 +498,7 @@ class Manager(object):
             [True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS]
         )
 
-        logging.info("Starting reporting")
+        logger.info("Starting reporting")
         # report results to the reporters
         for reporter in self.reporters:
             reporter.report(**report)
@@ -505,7 +508,7 @@ class Manager(object):
 
         # run the simulation monitor to get metrics on everything
         if self.monitor is not None:
-            logging.info("Running monitoring")
+            logger.info("Running monitoring")
             self.monitor.cycle_monitor(self, walkers)
 
         # we also return a list of the "filters" which are the
@@ -520,7 +523,7 @@ class Manager(object):
         # mutated. We don't do this here for efficiency.
         filters = [self.runner, self.boundary_conditions, self.resampler]
 
-        logging.info("Done: returning walkers")
+        logger.info("Done: returning walkers")
         return walkers, filters
 
     @log_call
@@ -569,7 +572,7 @@ class Manager(object):
 
         """
 
-        logging.info("Starting simulation")
+        logger.info("Starting simulation")
 
         # initialize the monitoring object
 
@@ -683,7 +686,7 @@ class Manager(object):
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
-            logging.info(
+            logger.info(
                 "starting cycle {} at time {}".format(
                     cycle_idx, time.time() - start_time
                 )
@@ -691,13 +694,13 @@ class Manager(object):
 
             walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
-            logging.info(
+            logger.info(
                 "ending cycle {} at time {}".format(cycle_idx, time.time() - start_time)
             )
 
             cycle_idx += 1
 
-        logging.info("Cleaning up simulation")
+        logger.info("Cleaning up simulation")
         self.cleanup()
 
         return walkers, deepcopy(filters)
@@ -868,7 +871,7 @@ class Manager(object):
         cycle_idx = 0
         walkers = self.init_walkers
         while time.time() - start_time < run_time:
-            logging.info(
+            logger.info(
                 "starting cycle {} at time {}".format(
                     cycle_idx, time.time() - start_time
                 )
@@ -876,7 +879,7 @@ class Manager(object):
 
             walkers, filters = self.run_cycle(walkers, segments_length, cycle_idx)
 
-            logging.info(
+            logger.info(
                 "ending cycle {} at time {}".format(cycle_idx, time.time() - start_time)
             )
 

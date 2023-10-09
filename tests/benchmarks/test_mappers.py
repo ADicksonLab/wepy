@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import multiprocessing as mp
 import time
 from copy import deepcopy

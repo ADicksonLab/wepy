@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 from collections import defaultdict, namedtuple
 from enum import Enum
 

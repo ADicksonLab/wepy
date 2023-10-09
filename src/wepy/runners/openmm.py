@@ -25,6 +25,9 @@ use.
 """
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import random as rand
 import time
 from copy import copy
@@ -239,7 +242,7 @@ class OpenMMRunner(Runner):
 
         # if the platform is given locally use this one
         if platform is not None:
-            logging.info(
+            logger.info(
                 f"Setting the platform ({platform}) in the 'pre_cycle' OpenMM Runner call"
                 f"with platform kwargs: {platform_kwargs}"
             )
@@ -360,18 +363,16 @@ class OpenMMRunner(Runner):
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
 
-        logging.info("Default 'getState_kwargs' in runner: " f"{self.getState_kwargs}")
+        logger.info("Default 'getState_kwargs' in runner: " f"{self.getState_kwargs}")
 
-        logging.info(
-            "'getState_kwargs' passed to 'run_segment' : " f"{getState_kwargs}"
-        )
+        logger.info("'getState_kwargs' passed to 'run_segment' : " f"{getState_kwargs}")
 
         # start with the object value
         getState_kwargs = copy(self.getState_kwargs)
         if tmp_getState_kwargs is not None:
             getState_kwargs.update(tmp_getState_kwargs)
 
-        logging.info(
+        logger.info(
             "After resolving 'getState_kwargs' that will be used are: "
             f"{getState_kwargs}"
         )
@@ -387,30 +388,28 @@ class OpenMMRunner(Runner):
 
         ## Platform
 
-        logging.info("Default 'platform' in runner: " f"{self.platform_name}")
+        logger.info("Default 'platform' in runner: " f"{self.platform_name}")
 
-        logging.info("pre_cycle set 'platform' in runner: " f"{self._cycle_platform}")
+        logger.info("pre_cycle set 'platform' in runner: " f"{self._cycle_platform}")
 
-        logging.info("'platform' passed to 'run_segment' : " f"{platform}")
+        logger.info("'platform' passed to 'run_segment' : " f"{platform}")
 
-        logging.info("Default 'platform_kwargs' in runner: " f"{self.platform_kwargs}")
+        logger.info("Default 'platform_kwargs' in runner: " f"{self.platform_kwargs}")
 
-        logging.info(
+        logger.info(
             "pre_cycle set 'platform_kwargs' in runner: "
             f"{self._cycle_platform_kwargs}"
         )
 
-        logging.info(
-            "'platform_kwargs' passed to 'run_segment' : " f"{platform_kwargs}"
-        )
+        logger.info("'platform_kwargs' passed to 'run_segment' : " f"{platform_kwargs}")
 
         platform_name, platform_kwargs = self._resolve_platform(
             platform, platform_kwargs
         )
 
-        logging.info("Resolved 'platform' : " f"{platform_name}")
+        logger.info("Resolved 'platform' : " f"{platform_name}")
 
-        logging.info("Resolved 'platform_kwargs' : " f"{platform_kwargs}")
+        logger.info("Resolved 'platform_kwargs' : " f"{platform_kwargs}")
 
         # create simulation object
 
@@ -418,11 +417,11 @@ class OpenMMRunner(Runner):
 
         # if a platform was given we use it to make a Simulation object
         if platform_name is not None:
-            logging.info("Using platform configured in code.")
+            logger.info("Using platform configured in code.")
 
             # get the platform by its name to use
             platform = omm.Platform.getPlatformByName(platform_name)
-            logging.info(f"Platform object created: {platform}")
+            logger.info(f"Platform object created: {platform}")
 
             if platform_kwargs is None:
                 platform_kwargs = {}
@@ -430,7 +429,7 @@ class OpenMMRunner(Runner):
             # set properties from the kwargs if they apply to the platform
             for key, value in platform_kwargs.items():
                 if key in platform.getPropertyNames():
-                    logging.info(f"Setting platform property: {key} : {value}")
+                    logger.info(f"Setting platform property: {key} : {value}")
                     platform.setPropertyDefaultValue(key, value)
 
                 else:
@@ -446,7 +445,7 @@ class OpenMMRunner(Runner):
 
         # otherwise just use the default or environmentally defined one
         else:
-            logging.info("Using environmental platform.")
+            logger.info("Using environmental platform.")
             simulation = omma.Simulation(self.topology, self.system, new_integrator)
 
         # set the state to the context from the walker
@@ -455,7 +454,7 @@ class OpenMMRunner(Runner):
         gen_sim_end = time.time()
         gen_sim_time = gen_sim_end - gen_sim_start
 
-        logging.info("Time to generate the system: {}".format(gen_sim_time))
+        logger.info("Time to generate the system: {}".format(gen_sim_time))
 
         # actually run the simulation
 
@@ -468,13 +467,13 @@ class OpenMMRunner(Runner):
         steps_end = time.time()
         steps_time = steps_end - steps_start
 
-        logging.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
+        logger.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
 
         get_state_start = time.time()
 
         get_state_end = time.time()
         get_state_time = get_state_end - get_state_start
-        logging.info("Getting context state time: {}".format(get_state_time))
+        logger.info("Getting context state time: {}".format(get_state_time))
 
         # generate the new state/walker
         new_state = self.generate_state(
@@ -486,7 +485,7 @@ class OpenMMRunner(Runner):
 
         run_segment_end = time.time()
         run_segment_time = run_segment_end - run_segment_start
-        logging.info("Total internal run_segment time: {}".format(run_segment_time))
+        logger.info("Total internal run_segment time: {}".format(run_segment_time))
 
         segment_split_times = {
             "gen_sim_time": gen_sim_time,
@@ -1342,7 +1341,7 @@ class OpenMMGPUWorker(Worker):
         # make the platform kwargs dictionary
         platform_options = {"DeviceIndex": str(device_id)}
 
-        logging.info(f"platform={platform}, platform_options={platform_options}")
+        logger.info(f"platform={platform}, platform_options={platform_options}")
 
         return task(
             platform=platform,
@@ -1360,7 +1359,7 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
             # make the platform kwargs dictionary
             platform_options = {"Threads": str(num_threads)}
 
-            logging.info(f"Threads={num_threads}")
+            logger.info(f"Threads={num_threads}")
 
         else:
             platform_options = {}
@@ -1374,7 +1373,7 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
     NAME_TEMPLATE = "OpenMM_GPU_Walker_Task-{}"
 
     def run_task(self, task):
-        logging.info(f"Starting to run a task as worker {self._worker_idx}")
+        logger.info(f"Starting to run a task as worker {self._worker_idx}")
 
         # get the platform
         platform = self.mapper_attributes["platform"]
@@ -1385,7 +1384,7 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
         # make the platform kwargs dictionary
         platform_options = {"DeviceIndex": str(device_id)}
 
-        logging.info(f"platform={platform}, platform_options={platform_options}")
+        logger.info(f"platform={platform}, platform_options={platform_options}")
 
         return task(
             platform=platform,

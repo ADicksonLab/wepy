@@ -1,6 +1,8 @@
 # Standard Library
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third Party Library
 import click
 import simtk.unit as unit
@@ -132,9 +134,9 @@ def cli(
     """
 
     if verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
+        logging.getLogger(__name__).setLevel(logger.debug)
         install_mp_handler()
-        logging.debug("Starting the test")
+        logger.debug("Starting the test")
 
     resampler_fullname = resampler + "Resampler"
 

@@ -1,6 +1,8 @@
 # Standard Library
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third Party Library
 import prometheus_client as prom
 from pympler.asizeof import asizeof
@@ -23,7 +25,7 @@ class SimMonitor:
         self.reporter_order = reporter_order
 
     def _init_metrics(self):
-        logging.info(f"SimMonitor ({self}): Initializing monitoring metrics")
+        logger.info(f"SimMonitor ({self}): Initializing monitoring metrics")
 
         ## progress tracking
         self.cycle_counter = prom.Counter("wepy_cycle_idx", "", ["tag"])
@@ -119,7 +121,7 @@ class SimMonitor:
         )
 
     def _cleanup_metrics(self):
-        logging.info(f"SimMonitor ({self}): cleaning up metrics")
+        logger.info(f"SimMonitor ({self}): cleaning up metrics")
 
         ## progress tracking
         del self.cycle_counter
@@ -175,7 +177,7 @@ class SimMonitor:
         else:
             port = self.DEFAULT_PORT
 
-        logging.info(
+        logger.info(
             f"SimMonitor ({self}): starting prometheus client http server at port {port}"
         )
         prom.start_http_server(port)
@@ -186,11 +188,11 @@ class SimMonitor:
 
     def cleanup(self):
         # remove all the metrics
-        logging.info(f"SimMonitor ({self}): cleaning up")
+        logger.info(f"SimMonitor ({self}): cleaning up")
         self._cleanup_metrics()
 
     def cycle_monitor(self, sim_manager, walkers):
-        logging.info(f"SimMonitor ({self}): running the cycle monitoring")
+        logger.info(f"SimMonitor ({self}): running the cycle monitoring")
 
         last_report = sim_manager._last_report
 
@@ -287,4 +289,4 @@ class SimMonitor:
                     seg_idx=seg_idx,
                 ).set(segment)
 
-        logging.info(f"SimMonitor ({self}): done with cycle monitoring")
+        logger.info(f"SimMonitor ({self}): done with cycle monitoring")

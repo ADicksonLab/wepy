@@ -24,6 +24,8 @@ the 'image_distance' to compute distances using only those images.
 # Standard Library
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third Party Library
 import numpy as np
 

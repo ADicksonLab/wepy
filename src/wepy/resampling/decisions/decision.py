@@ -47,6 +47,9 @@ perform them on the collection of walkers.
 
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 from collections import namedtuple
 from enum import Enum
 from string import ascii_lowercase

@@ -1,6 +1,9 @@
 # Standard Library
 import itertools as it
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import multiprocessing as mulproc
 import random as rand
 
@@ -481,7 +484,7 @@ class REVOResampler(CloneMergeResampler):
         variations.append(variation)
 
         # maximize the variance through cloning and merging
-        logging.info("Starting variance optimization: {}".format(variation))
+        logger.info("Starting variance optimization: {}".format(variation))
 
         productive = True
         while productive:
@@ -594,7 +597,7 @@ class REVOResampler(CloneMergeResampler):
                 if new_variation > variation:
                     variations.append(new_variation)
 
-                    logging.info("Variance move to {} accepted".format(new_variation))
+                    logger.info("Variance move to {} accepted".format(new_variation))
 
                     productive = True
                     variation = new_variation
@@ -645,7 +648,7 @@ class REVOResampler(CloneMergeResampler):
                     )
                     variations.append(new_variation)
 
-                    logging.info("variance after selection: {}".format(new_variation))
+                    logger.info("variance after selection: {}".format(new_variation))
 
                 # if not productive
                 else:
@@ -736,8 +739,8 @@ class REVOResampler(CloneMergeResampler):
         # calculate distance matrix
         distance_matrix, images = self._all_to_all_distance(walkers)
 
-        logging.info("distance_matrix")
-        logging.info("\n{}".format(str(np.array(distance_matrix))))
+        logger.info("distance_matrix")
+        logger.info("\n{}".format(str(np.array(distance_matrix))))
 
         # determine cloning and merging actions to be performed, by
         # maximizing the variation, i.e. the Decider

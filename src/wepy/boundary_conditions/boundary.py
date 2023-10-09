@@ -6,6 +6,9 @@ wepy.
 
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import random
 import sys
 from collections import defaultdict
@@ -842,8 +845,8 @@ class WarpBC(BoundaryConditions):
                 # save the instruction record of the walker
                 warp_data.append(walker_warp_data)
 
-                logging.info("WARP EVENT observed at {}".format(cycle))
-                logging.info(
+                logger.info("WARP EVENT observed at {}".format(cycle))
+                logger.info(
                     "Warped Walker Weight = {}".format(walker_warp_data["weight"])
                 )
 

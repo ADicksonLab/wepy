@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import multiprocessing as mp
 import pickle
 import queue as pyq
@@ -63,7 +66,7 @@ class TaskMapper(ABCWorkerMapper):
         if walker_task_type is None:
             self._walker_task_type = WalkerTaskProcess
             warn("walker_task_type not given using the default base class")
-            logging.warn("walker_task_type not given using the default base class")
+            logger.warn("walker_task_type not given using the default base class")
         else:
             self._walker_task_type = walker_task_type
 
@@ -81,11 +84,11 @@ class TaskMapper(ABCWorkerMapper):
         signal.signal(signal.SIGTERM, self._sigterm_shutdown)
 
     def _sigterm_shutdown(self, signum, frame):
-        logging.critical("Received external SIGTERM, forcing shutdown.")
+        logger.critical("Received external SIGTERM, forcing shutdown.")
 
         self.force_shutdown()
 
-        logging.critical("Shutdown complete.")
+        logger.critical("Shutdown complete.")
 
     @property
     def walker_task_type(self):
@@ -100,7 +103,7 @@ class TaskMapper(ABCWorkerMapper):
     def force_shutdown(self):
         # send sigterm signals to processes to kill them
         for walker_idx, walker_process in enumerate(self._walker_processes):
-            logging.critical(
+            logger.critical(
                 "Sending SIGTERM message on {} to worker {}".format(
                     self._irq_parent_conns[walker_idx].fileno(), walker_idx
                 )
@@ -109,7 +112,7 @@ class TaskMapper(ABCWorkerMapper):
             # send a kill message to the worker
             self._irq_parent_conns[walker_idx].send(signal.SIGTERM)
 
-        logging.critical("All kill messages sent to workers")
+        logger.critical("All kill messages sent to workers")
 
         # wait for the walkers to finish and handle errors in them
         # appropriately
@@ -204,7 +207,7 @@ class TaskMapper(ABCWorkerMapper):
                     if results_found[walker_idx]:
                         continue
 
-                    # logging.info("Checking for walker {}".format(walker_idx))
+                    # logger.info("Checking for walker {}".format(walker_idx))
 
                     # first check to see if any of the task processes were
                     # terminated from the system
@@ -214,22 +217,22 @@ class TaskMapper(ABCWorkerMapper):
                         if issubclass(type(irq), TaskProcessKilledError):
                             # just terminate if a worker goes down. We
                             # could handle this better but it is not implemented now
-                            logging.critical(
+                            logger.critical(
                                 "Process {} was killed by sigterm, shutting down.".format(
                                     walker_process[walker_idx].name
                                 )
                             )
 
-                            logging.info(
+                            logger.info(
                                 "Recovery is possible here, but is not implemented "
                                 "so we opt to fail fast and let you know a problem exists."
                                 "Please use checkpointing to avoid lost data."
                             )
 
                             self.force_shutdown()
-                            logging.critical("Shutdown complete.")
+                            logger.critical("Shutdown complete.")
 
-                        logging.debug(
+                        logger.debug(
                             "Received {} acknowledgement from {}".format(
                                 ack, worker.name
                             )
@@ -248,7 +251,7 @@ class TaskMapper(ABCWorkerMapper):
                     # we have a tuple then we can handle that
                     # appropriately
                     elif type(result) == tuple:
-                        logging.debug("Received a results tuple")
+                        logger.debug("Received a results tuple")
 
                         assert (
                             len(result) == 2
@@ -258,13 +261,13 @@ class TaskMapper(ABCWorkerMapper):
 
                         # there was a walker successfully returned
                         if result_id == "Walker":
-                            logging.debug("Received a serialized results walker")
+                            logger.debug("Received a serialized results walker")
 
                             # deserialize
-                            logging.debug("deserializing")
+                            logger.debug("deserializing")
                             new_walker = pickle.loads(payload)
 
-                            logging.info("Got result for walker {}".format(walker_idx))
+                            logger.info("Got result for walker {}".format(walker_idx))
 
                             new_walkers[walker_idx] = new_walker
                             results_found[walker_idx] = True
@@ -273,21 +276,21 @@ class TaskMapper(ABCWorkerMapper):
                             raise ValueError("Unkown result ID: {}".format(result_id))
 
                     elif issubclass(type(result), TaskException):
-                        logging.critical(
+                        logger.critical(
                             "Exception encountered in a task which is unrecoverable."
                             "You will need to reconfigure your components in a stable manner."
                         )
 
                         self.force_shutdown()
 
-                        logging.critical("Shutdown complete.")
+                        logger.critical("Shutdown complete.")
                         raise result
 
                     elif issubclass(type(result), TaskProcessException):
                         # we make just an error message to say that errors
                         # in the worker may be due to the network or
                         # something and could recover
-                        logging.error(
+                        logger.error(
                             "Exception encountered in the work mapper task process."
                             "Recovery possible, see further messages."
                         )
@@ -296,35 +299,35 @@ class TaskMapper(ABCWorkerMapper):
                         # support retries or whatever so we issue a
                         # critical log informing that it has been elevated
                         # to critical and will force shutdown
-                        logging.critical(
+                        logger.critical(
                             "Task process error mode resiliency not supported at this time."
                             "Performing force shutdown and simulation ending."
                         )
 
                         self.force_shutdown()
 
-                        logging.critical("Shutdown complete.")
+                        logger.critical("Shutdown complete.")
                         raise result
 
                     elif issubclass(type(result), Exception):
-                        logging.critical(
+                        logger.critical(
                             "Unknown exception {} encountered.".format(result)
                         )
 
                         self.force_shutdown()
 
-                        logging.critical("Shutdown complete.")
+                        logger.critical("Shutdown complete.")
 
                         raise result
 
                     else:
-                        logging.critical(
+                        logger.critical(
                             "Unknown result value {} encountered.".format(result)
                         )
 
                         self.force_shutdown()
 
-                        logging.critical("Shutdown complete.")
+                        logger.critical("Shutdown complete.")
 
             # save the managed list of the recorded worker times locally
             for key, val in worker_segment_times.items():
@@ -333,7 +336,7 @@ class TaskMapper(ABCWorkerMapper):
             # wait for the processes to end
             # for walker in self._walker_processes:
             #     walker.join()
-            #     logging.info("Joined {}".format(walker.name))
+            #     logger.info("Joined {}".format(walker.name))
 
         # deinitialize the current walker processes
         self._walker_processes = None
@@ -387,9 +390,9 @@ class WalkerTaskProcess(mp.Process):
         signal.signal(signal.SIGTERM, self._external_sigterm_shutdown)
 
     def _external_sigterm_shutdown(self, signum, frame):
-        logging.debug("Received external SIGTERM kill command.")
+        logger.debug("Received external SIGTERM kill command.")
 
-        logging.debug("Alerting mapper that this will be honored.")
+        logger.debug("Alerting mapper that this will be honored.")
 
         # send an error to the mapper that the worker has been killed
         self._irq_channel.send(
@@ -400,23 +403,23 @@ class WalkerTaskProcess(mp.Process):
             )
         )
 
-        logging.debug("Acknowledgment sent")
+        logger.debug("Acknowledgment sent")
 
-        logging.debug("Shutting down process")
+        logger.debug("Shutting down process")
 
     def _shutdown(self):
         """The normal shutdown which can be ordered by the work mapper."""
 
-        logging.debug("Received SIGTERM kill command from mapper")
+        logger.debug("Received SIGTERM kill command from mapper")
 
-        logging.debug("Acknowledging kill request will be honored")
+        logger.debug("Acknowledging kill request will be honored")
 
         # report back that we are shutting down with a True
         self._irq_channel.send(True)
 
-        logging.debug("Acknowledgment sent")
+        logger.debug("Acknowledgment sent")
 
-        logging.debug("Shutting down process")
+        logger.debug("Shutting down process")
 
     @property
     def attributes(self, key):
@@ -428,7 +431,7 @@ class WalkerTaskProcess(mp.Process):
 
     def _run_task(self, task):
         # run the task thunk
-        logging.info("{}: Running task".format(self.name))
+        logger.info("{}: Running task".format(self.name))
         try:
             result = self.run_task(task)
         except Exception as task_exception:
@@ -448,7 +451,7 @@ class WalkerTaskProcess(mp.Process):
                 ),
             )
 
-            logging.critical("{}: ".format(self.name) + msg + "\n" + traceback_log_msg)
+            logger.critical("{}: ".format(self.name) + msg + "\n" + traceback_log_msg)
 
             # raise a TaskException to distinguish it from the worker
             # errors with the metadata about the original exception
@@ -462,12 +465,12 @@ class WalkerTaskProcess(mp.Process):
         return result
 
     def run_task(self, task):
-        logging.info("Running an unspecialized task")
+        logger.info("Running an unspecialized task")
 
         return task()
 
     def run(self):
-        logging.debug("{}: starting to run".format(self.name))
+        logger.debug("{}: starting to run".format(self.name))
 
         # try to run the worker and it's task, except either class of
         # error that can come from it either from the worker
@@ -485,14 +488,14 @@ class WalkerTaskProcess(mp.Process):
             self._run_walker()
 
         except TaskException as task_exception:
-            logging.error("{}: TaskException caught".format(self.name))
+            logger.error("{}: TaskException caught".format(self.name))
 
             run_exception = task_exception
 
         # anything else is considered a WorkerException so take the
         # original exception and generate a worker exception from that
         except Exception as exception:
-            logging.debug("{}: TaskProcessException Error caught".format(self.name))
+            logger.debug("{}: TaskProcessException Error caught".format(self.name))
 
             # get the traceback
             tb = sys.exc_info()[2]
@@ -508,7 +511,7 @@ class WalkerTaskProcess(mp.Process):
                 "".join(traceback.format_exception(type(exception), exception, tb)),
             )
 
-            logging.error(msg + "\n" + traceback_log_msg)
+            logger.error(msg + "\n" + traceback_log_msg)
 
             # raise a TaskError to distinguish it from the worker
             # errors with the metadata about the original exception
@@ -523,7 +526,7 @@ class WalkerTaskProcess(mp.Process):
 
         # raise worker_exception
         if run_exception is not None:
-            logging.debug(
+            logger.debug(
                 "{}: Putting exception in managed results list".format(self.name)
             )
 
@@ -532,14 +535,14 @@ class WalkerTaskProcess(mp.Process):
             try:
                 self._results_list[self.walker_idx] = run_exception
             except BrokenPipeError as exc:
-                logging.error(
+                logger.error(
                     "{}: Pipe is broken indicating the root process has already exited:\n{}".format(
                         self.name, exc
                     )
                 )
 
     def _run_walker(self):
-        logging.info(
+        logger.info(
             "Walker process started as name: {}; PID: {}".format(self.name, self.pid)
         )
 
@@ -558,11 +561,11 @@ class WalkerTaskProcess(mp.Process):
             else:
                 if type(worker_idx) == int:
                     worker_received = True
-                    logging.info("{}: acquired worker {}".format(self.name, worker_idx))
+                    logger.info("{}: acquired worker {}".format(self.name, worker_idx))
 
                 # if it is a shutdown signal we do so
                 elif worker_idx is signal.SIGTERM:
-                    logging.info(
+                    logger.info(
                         "{}: SIGTERM signal received from mapper. Shutting down.".format(
                             self.name
                         )
@@ -577,7 +580,7 @@ class WalkerTaskProcess(mp.Process):
                 # get the message
                 message = self._irq_channel.recv()
 
-                logging.debug(
+                logger.debug(
                     "{}: Received message from mapper on filehandle {}: {}".format(
                         self.name, self._irq_channel.fileno(), message
                     )
@@ -587,7 +590,7 @@ class WalkerTaskProcess(mp.Process):
 
                 # check for signals to die
                 if message is signal.SIGTERM:
-                    logging.critical(
+                    logger.critical(
                         f"{self.name}: SIGTERM signal received from mapper. Shutting down."
                     )
 
@@ -596,7 +599,7 @@ class WalkerTaskProcess(mp.Process):
                     return None
 
                 else:
-                    logging.error(
+                    logger.error(
                         "{}: Message not recognized, continuing operations and"
                         " sending error to mapper".format(self.name)
                     )
@@ -617,13 +620,13 @@ class WalkerTaskProcess(mp.Process):
 
         # run the task
         start = time.time()
-        logging.info("{}: running function. Time: {}".format(self.name, time.time()))
+        logger.info("{}: running function. Time: {}".format(self.name, time.time()))
 
         # run the task doing the proper handling of the task
         # exception, this can raise a task exception
         result = self._run_task(task)
 
-        logging.info(
+        logger.info(
             "{}: finished running function. Time {}".format(self.name, time.time())
         )
         end = time.time()
@@ -631,17 +634,17 @@ class WalkerTaskProcess(mp.Process):
         # we separately set the result to the results list. This is so
         # we can debug performance problems, and dissect what is due
         # to computation time and what is due to communication
-        logging.info(
+        logger.info(
             "{}: Setting value to results list. Time {}".format(self.name, time.time())
         )
 
-        logging.debug("Serializing the result walker")
+        logger.debug("Serializing the result walker")
 
         serial_result = pickle.dumps(result)
-        logging.debug("Putting tagged serialized walker tuple on managed results list")
+        logger.debug("Putting tagged serialized walker tuple on managed results list")
         self._results_list[self.walker_idx] = ("Walker", serial_result)
 
-        logging.info(
+        logger.info(
             "{}: Finished setting value to results list. Time {}".format(
                 self.name, time.time()
             )
@@ -650,7 +653,7 @@ class WalkerTaskProcess(mp.Process):
         # put the worker back onto the queue since we are done using it
         self._worker_queue.put(worker_idx)
 
-        logging.info("{}: released worker {}".format(self.name, worker_idx))
+        logger.info("{}: released worker {}".format(self.name, worker_idx))
 
         # add the time for this segment to the collection of the worker times
         segment_time = end - start
@@ -661,4 +664,4 @@ class WalkerTaskProcess(mp.Process):
         # proxy objects has no effect
         self._worker_segment_times[worker_idx] = seg_times
 
-        logging.info("{}: Exiting normally having completed the task".format(self.name))
+        logger.info("{}: Exiting normally having completed the task".format(self.name))
