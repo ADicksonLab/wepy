@@ -73,6 +73,7 @@ PIN_EXTRAS = [
     "md",
     "distributed",
     "prometheus",
+    "graphics",
 ]
 
 EXTRAS_REQUIREMENTS_MAP = {

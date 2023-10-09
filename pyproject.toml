@@ -32,7 +32,6 @@ dependencies = [
     "click",
     "scipy",
     "geomm",
-    "matplotlib",
     "tabulate",
     "jinja2",
     "pint",
@@ -54,6 +53,14 @@ distributed = [
 prometheus = [
   "prometheus_client",
   "pympler",
+]
+
+graphics = [
+  "matplotlib",
+  # NOTE: pillow only needed for matplotlib but it needs to be above this
+  # version for security reasons. If matplotlib also adds these constraints this
+  # can be removed
+  "pillow>=10.0.1",
 ]
 
 [project.urls]

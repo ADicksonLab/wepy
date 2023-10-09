@@ -13,10 +13,15 @@ import itertools as it
 from copy import copy
 from operator import attrgetter
 from collections import deque
+import warnings
 
 import networkx as nx
 import numpy as np
-from matplotlib import cm
+
+try:
+    from matplotlib import cm
+except ModuleNotFoundError:
+    warnings.warn("Matplotlib not installed, these features will not work")
 
 from geomm.free_energy import free_energy as calc_free_energy
 
