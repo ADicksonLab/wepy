@@ -35,7 +35,6 @@ from warnings import warn
 
 # Third Party Library
 import numpy as np
-from eliot import log_call, start_action
 
 try:
     # Third Party Library
@@ -229,13 +228,6 @@ class OpenMMRunner(Runner):
         # performance
         self._last_cycle_segments_split_times = []
 
-    @log_call(
-        include_args=[
-            "platform",
-            "platform_kwargs",
-        ],
-        include_result=False,
-    )
     def pre_cycle(self, platform=None, platform_kwargs=None, **kwargs):
         # choose to use the platform spec in this function call or to
         # use the default one saved in the runner
@@ -258,7 +250,6 @@ class OpenMMRunner(Runner):
         # each segment split times will get appended to this
         self._last_cycle_segments_split_times = []
 
-    @log_call(include_args=[], include_result=False)
     def post_cycle(self, **kwargs):
         super().post_cycle(**kwargs)
 
@@ -304,15 +295,6 @@ class OpenMMRunner(Runner):
             platform_kwargs,
         )
 
-    @log_call(
-        include_args=[
-            "segment_length",
-            "getState_kwargs",
-            "platform",
-            "platform_kwargs",
-        ],
-        include_result=False,
-    )
     def run_segment(
         self,
         walker,
@@ -498,7 +480,6 @@ class OpenMMRunner(Runner):
 
         return new_walker
 
-    @log_call(include_args=["getState_kwargs"], include_result=False)
     def generate_state(
         self, simulation, segment_length, starting_walker, getState_kwargs
     ):
