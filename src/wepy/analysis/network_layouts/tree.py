@@ -7,17 +7,21 @@ ResamplingTreeLayout.layout
 
 """
 
-from warnings import warn
+# Standard Library
+import itertools as it
 from collections import defaultdict
 from copy import copy
-import itertools as it
+from warnings import warn
 
-import numpy as np
+# Third Party Library
 import networkx as nx
+import numpy as np
 
+# First Party Library
 from wepy.analysis.network_layouts.layout import LayoutError
 
-class ResamplingTreeLayout():
+
+class ResamplingTreeLayout:
     """Class that wraps the parameters for generating resampling tree layouts.
 
     Use the 'layout' method to generate inputs to a LayoutGraph for rendering.
@@ -35,11 +39,9 @@ class ResamplingTreeLayout():
         X coordinate value to center each row around in the tree layout.
     """
 
-    def __init__(self,
-                 node_radius=1.0,
-                 row_spacing=5.0,
-                 step_spacing=20.0,
-                 central_axis=0.0):
+    def __init__(
+        self, node_radius=1.0, row_spacing=5.0, step_spacing=20.0, central_axis=0.0
+    ):
         """Constructing the object is just a setting of the parameters and
         collection of methods for generating layout positions.
 
@@ -61,7 +63,6 @@ class ResamplingTreeLayout():
             X coordinate value to center each row around in the tree layout.
              (Default value = 0.0)
         """
-
 
         self.node_radius = node_radius
         self.row_spacing = row_spacing
@@ -88,14 +89,18 @@ class ResamplingTreeLayout():
         # get the nodes that this one overlaps with
         overlaps = []
         for other_node_idx, other_node_position in enumerate(positions):
-
             # you can't overlap yourself
             if node_idx == other_node_idx:
                 overlaps.append(False)
             else:
                 # check if there is an overlap between nodes
                 diff = np.abs(positions[node_idx] - other_node_position)
-                if diff < node_radii[node_idx] + node_radii[other_node_idx] + self.row_spacing:
+                if (
+                    diff
+                    < node_radii[node_idx]
+                    + node_radii[other_node_idx]
+                    + self.row_spacing
+                ):
                     overlaps.append(True)
                 else:
                     overlaps.append(False)
@@ -153,7 +158,6 @@ class ResamplingTreeLayout():
         groups = []
         group_positions = []
         for node_idx, node_position in enumerate(node_positions):
-
             # first get if this nodes position is already in the list
             # of known positions
             if node_position in group_positions:
@@ -167,8 +171,7 @@ class ResamplingTreeLayout():
                 groups.append([node_idx])
 
         # now we filter out the groups that only have one node
-        chosen_idxs = [idx for idx, group in enumerate(groups)
-                       if len(group) > 1]
+        chosen_idxs = [idx for idx, group in enumerate(groups) if len(group) > 1]
 
         group_positions = [group_positions[idx] for idx in chosen_idxs]
 
@@ -183,13 +186,11 @@ class ResamplingTreeLayout():
         # and positions.
         group_radii = []
         for group_idx, group in enumerate(groups):
-
             # the new radii will be the sum of the diameters plus the
             # spacing between the nodes
 
             # the sum of the diamters
-            sum_diameters = sum([2 * node_radii[node_idx]
-                                 for node_idx in group])
+            sum_diameters = sum([2 * node_radii[node_idx] for node_idx in group])
 
             # the spacing between is for 1 less than the total number
             # of the nodes in the group
@@ -202,8 +203,11 @@ class ResamplingTreeLayout():
 
         # then we rip out the nodes that are part of groups and are
         # left with the singletons
-        singleton_idxs = [node_idx for node_idx, _ in enumerate(node_positions)
-                          if node_idx not in grouped_node_idxs]
+        singleton_idxs = [
+            node_idx
+            for node_idx, _ in enumerate(node_positions)
+            if node_idx not in grouped_node_idxs
+        ]
         singleton_positions = [node_positions[node_idx] for node_idx in singleton_idxs]
         singleton_radii = [node_radii[node_idx] for node_idx in singleton_idxs]
 
@@ -219,16 +223,21 @@ class ResamplingTreeLayout():
 
         # then for each node we place it sequentially
         for node_idx, node_radius in enumerate(eff_radii):
-
             # get the overlaps for this node
             overlaps = self._overlaps(eff_positions, eff_radii, node_idx)
 
             # get how many nodes overlap it to the left and to the
             # right of it's starting position
-            left_overlaps = [i for i, _ in enumerate(overlaps)
-                             if eff_positions[i] < eff_positions[node_idx]]
-            right_overlaps = [i for i, _ in enumerate(overlaps)
-                              if eff_positions[i] > eff_positions[node_idx]]
+            left_overlaps = [
+                i
+                for i, _ in enumerate(overlaps)
+                if eff_positions[i] < eff_positions[node_idx]
+            ]
+            right_overlaps = [
+                i
+                for i, _ in enumerate(overlaps)
+                if eff_positions[i] > eff_positions[node_idx]
+            ]
 
             left_n_overlaps = len(left_overlaps)
             right_n_overlaps = len(right_overlaps)
@@ -238,23 +247,29 @@ class ResamplingTreeLayout():
 
             # left overlaps
             if left_n_overlaps > 0:
-
                 # repel the other nodes around it
 
                 # get the node idxs to the left of this one
-                detangle_left_node_idxs = [i for i, position in enumerate(eff_positions)
-                                            if position < eff_positions[node_idx]]
+                detangle_left_node_idxs = [
+                    i
+                    for i, position in enumerate(eff_positions)
+                    if position < eff_positions[node_idx]
+                ]
 
                 # get the (center to center) distances from this node to
                 # all it's overlaps
-                cc_left_overlap_dists = [abs(eff_positions[node_idx] - eff_positions[i])
-                                         for i in left_overlaps]
+                cc_left_overlap_dists = [
+                    abs(eff_positions[node_idx] - eff_positions[i])
+                    for i in left_overlaps
+                ]
 
                 # then get the edge to edge distances (which can be
                 # negative where they cross over) this is the sum of the
                 # radii subtracted from the center to center distance (ee = d-(r_0 + r_1))
-                ee_left_overlap_dists = [cc_left_overlap_dists[i] - (node_radius + eff_radii[node_i])
-                                         for i, node_i in enumerate(left_overlaps)]
+                ee_left_overlap_dists = [
+                    cc_left_overlap_dists[i] - (node_radius + eff_radii[node_i])
+                    for i, node_i in enumerate(left_overlaps)
+                ]
 
                 # we want the minimum one of the edge to edges (even if
                 # its negative)
@@ -269,26 +284,30 @@ class ResamplingTreeLayout():
                 # then apply to those nodes
                 eff_positions[detangle_left_node_idxs] += left_move
 
-
             # right overlaps
             if right_n_overlaps > 0:
-
                 # see above for comments
-                detangle_right_node_idxs = [i for i, position in enumerate(eff_positions)
-                                            if position > eff_positions[node_idx]]
+                detangle_right_node_idxs = [
+                    i
+                    for i, position in enumerate(eff_positions)
+                    if position > eff_positions[node_idx]
+                ]
 
-                cc_right_overlap_dists = [abs(eff_positions[node_idx] - eff_positions[i])
-                                          for i in right_overlaps]
+                cc_right_overlap_dists = [
+                    abs(eff_positions[node_idx] - eff_positions[i])
+                    for i in right_overlaps
+                ]
 
-                ee_right_overlap_dists = [cc_right_overlap_dists[i] - (node_radius + eff_radii[node_i])
-                                         for i, node_i in enumerate(right_overlaps)]
+                ee_right_overlap_dists = [
+                    cc_right_overlap_dists[i] - (node_radius + eff_radii[node_i])
+                    for i, node_i in enumerate(right_overlaps)
+                ]
 
                 right_min_ee_overlap_dist = min(ee_right_overlap_dists)
 
                 right_move = +1 * (self.row_spacing + (-right_min_ee_overlap_dist))
 
                 eff_positions[detangle_right_node_idxs] += right_move
-
 
         # now that we have placed the effective nodes we want to
         # reconstruct the original nodes from the grouped ones
@@ -300,7 +319,6 @@ class ResamplingTreeLayout():
         # identical positions within the space created by their larger
         # effective nodes
         for group_idx, group in enumerate(groups):
-
             # the position of the group overall, since the grouped
             # nodes were at the front of the list of the effective
             # nodes with preserverd order we can use the group_index
@@ -328,14 +346,12 @@ class ResamplingTreeLayout():
         # The singletons were at the end of the effective positions so
         # we have N_group_nodes + i where i is the index over the singletons
         for i, node_idx in enumerate(singleton_idxs):
-
             new_node_positions[node_idx] = eff_positions[n_groups + i]
 
         # sanity check that we covered them all
-        assert all([True if pos is not None else False
-                    for pos in new_node_positions]),\
-                        "not all positions recovered from the effective nodes"
-
+        assert all(
+            [True if pos is not None else False for pos in new_node_positions]
+        ), "not all positions recovered from the effective nodes"
 
         return new_node_positions
 
@@ -369,10 +385,9 @@ class ResamplingTreeLayout():
             overlaps = self._overlaps(children_x, node_radii, node_idx)
             if any(overlaps):
                 pass
-                #raise LayoutError("node {} has an overlap".format(node_idx))
+                # raise LayoutError("node {} has an overlap".format(node_idx))
 
         return children_x
-
 
     def _initial_parent_distribution(self, node_radii):
         """
@@ -405,7 +420,6 @@ class ResamplingTreeLayout():
 
         # then do the rest
         for node_idx, node_radius in enumerate(node_radii[1:]):
-
             node_idx += 1
 
             # set the position from the last edge plus the space and
@@ -474,15 +488,18 @@ class ResamplingTreeLayout():
 
         # initialize the positions to zeros, we add one to the
         # timesteps for the roots of the resampling trees
-        node_positions = np.zeros((n_timesteps+1, n_walkers, 3))
+        node_positions = np.zeros((n_timesteps + 1, n_walkers, 3))
 
         # initialize the first generation (cycle) node positions, this
         # is the root positions, we give it the radii of the first row in the array
-        first_gen_positions = np.array(self._initial_parent_distribution(radii_array[0]))
+        first_gen_positions = np.array(
+            self._initial_parent_distribution(radii_array[0])
+        )
 
         # then center them around the central axis
-        first_gen_positions = self._center_row(first_gen_positions, radii_array[0],
-                                               self.central_axis)
+        first_gen_positions = self._center_row(
+            first_gen_positions, radii_array[0], self.central_axis
+        )
 
         # save them as full coordinates for visualization
         node_positions[0] = np.array([[x, 0.0, 0.0] for x in first_gen_positions])
@@ -492,7 +509,6 @@ class ResamplingTreeLayout():
 
         # layout all the rest of the steps
         for step_idx in range(n_timesteps):
-
             # the generation index is the one used for the actual tree
             # and it is always one more than the step index, since the
             # first generation is not counted as a step and was
@@ -500,15 +516,14 @@ class ResamplingTreeLayout():
             generation_idx = step_idx + 1
 
             # generate the starting positions for the next generation nodes
-            curr_gen_positions = self._simple_next_gen(last_gen_positions,
-                                                       parent_table[step_idx],
-                                                       radii_array[generation_idx])
+            curr_gen_positions = self._simple_next_gen(
+                last_gen_positions, parent_table[step_idx], radii_array[generation_idx]
+            )
 
             # center them around the central axis
-            curr_gen_positions = self._center_row(curr_gen_positions,
-                                                  radii_array[generation_idx],
-                                                   self.central_axis)
-
+            curr_gen_positions = self._center_row(
+                curr_gen_positions, radii_array[generation_idx], self.central_axis
+            )
 
             # figure out how big the increase in the Y direction
             # should be. This is based on the largest radii of the
@@ -516,10 +531,10 @@ class ResamplingTreeLayout():
             # mandatory spacing in between
 
             # get the y dimension of the last step
-            last_y = node_positions[generation_idx-1, 0, 1]
+            last_y = node_positions[generation_idx - 1, 0, 1]
 
             # get the largest radii of the last step
-            last_max_radius = max(radii_array[generation_idx-1])
+            last_max_radius = max(radii_array[generation_idx - 1])
 
             # get the largest radii of this step
             this_max_radius = max(radii_array[generation_idx])
@@ -530,14 +545,13 @@ class ResamplingTreeLayout():
 
             # then generate the coordinates
             node_positions[generation_idx] = np.array(
-                [np.array([x, step_y, 0.0])
-                 for x in curr_gen_positions])
+                [np.array([x, step_y, 0.0]) for x in curr_gen_positions]
+            )
 
             # set the last gen positions
             last_gen_positions = curr_gen_positions
 
         return node_positions
-
 
     def layout(self, parent_forest, node_radii=None):
         """Given a parent forest object, returns a dictionary
@@ -609,7 +623,6 @@ class ResamplingTreeLayout():
         n_new_radii = 0
         if node_radii is not None:
             for node_id, radius in node_radii.items():
-
                 # we know that the node_id is the (cycle_idx,
                 # walker_idx), so we use these as indices on the array
                 cycle_idx, walker_idx = node_id
@@ -630,19 +643,18 @@ class ResamplingTreeLayout():
         if n_new_radii < n_nodes:
             warn(
                 "not all nodes were assigned custom radii,"
-                " default value {} was used instead".format(self.node_radius))
+                " default value {} was used instead".format(self.node_radius)
+            )
 
         layout_array = self._layout_array(parent_table, radii_array)
 
         # make a dictionary mapping node ids to layout values
         node_coords = {}
         for cycle_idx, layout_row in enumerate(layout_array):
-
             for walker_idx, coord in enumerate(layout_row):
-
                 # since the layout array starts at the root nodes (cycle
                 # -1) we just reduce the cycle_idx by one when we set the
                 # node attribute
-                node_coords[(cycle_idx-1, walker_idx)] = coord
+                node_coords[(cycle_idx - 1, walker_idx)] = coord
 
         return node_coords

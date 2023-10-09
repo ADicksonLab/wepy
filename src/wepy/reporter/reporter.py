@@ -1,11 +1,15 @@
+# Standard Library
+import logging
 import os
 import os.path as osp
 import pickle
-import logging
+
 
 class ReporterError(Exception):
     """ """
+
     pass
+
 
 class Reporter(object):
     """Abstract base class for wepy reporters.
@@ -19,7 +23,6 @@ class Reporter(object):
     wepy.sim_manager : details of calls to reporter methods.
 
     """
-
 
     def __init__(self, **kwargs):
         """Construct a reporter.
@@ -74,9 +77,10 @@ class Reporter(object):
             same file.
 
         """
-        method_name = 'init'
-        assert not hasattr(super(), method_name), \
-            "Superclass with method {} is masked".format(method_name)
+        method_name = "init"
+        assert not hasattr(
+            super(), method_name
+        ), "Superclass with method {} is masked".format(method_name)
 
     def report(self, **kwargs):
         """Given data concerning the main simulation components state, perform
@@ -138,9 +142,10 @@ class Reporter(object):
 
         """
 
-        method_name = 'report'
-        assert not hasattr(super(), method_name), \
-            "Superclass with method {} is masked".format(method_name)
+        method_name = "report"
+        assert not hasattr(
+            super(), method_name
+        ), "Superclass with method {} is masked".format(method_name)
 
     def cleanup(self, **kwargs):
         """Teardown routines for the reporter at the end of the simulation.
@@ -172,9 +177,10 @@ class Reporter(object):
             The list of reporters at the end of the simulation
 
         """
-        method_name = 'cleanup'
-        assert not hasattr(super(), method_name), \
-            "Superclass with method {} is masked".format(method_name)
+        method_name = "cleanup"
+        assert not hasattr(
+            super(), method_name
+        ), "Superclass with method {} is masked".format(method_name)
 
 
 class FileReporter(Reporter):
@@ -206,13 +212,18 @@ class FileReporter(Reporter):
 
     """
 
-    MODES = ('x', 'w', 'w-', 'r', 'r+',)
+    MODES = (
+        "x",
+        "w",
+        "w-",
+        "r",
+        "r+",
+    )
     """Valid modes accepted for files."""
 
-    DEFAULT_MODE = 'x'
+    DEFAULT_MODE = "x"
     """The default mode to set for opening files if none is specified
     (create if doesn't exist, fail if it does.)"""
-
 
     SUGGESTED_FILENAME_TEMPLATE = "{config}{narration}{reporter_class}.{ext}"
     """Template to use for dynamic reparametrization of file path names.
@@ -237,7 +248,7 @@ class FileReporter(Reporter):
 
     """
 
-    DEFAULT_SUGGESTED_EXTENSION = 'report'
+    DEFAULT_SUGGESTED_EXTENSION = "report"
     """The default file extension used for files during dynamic
     reparametrization, if none is specified"""
 
@@ -248,9 +259,9 @@ class FileReporter(Reporter):
     """Suggested extensions for file paths for use with the automatic
     reparametrization feature. Should be customized."""
 
-    def __init__(self, file_paths=None, modes=None,
-                 file_path=None, mode=None,
-                 **kwargs):
+    def __init__(
+        self, file_paths=None, modes=None, file_path=None, mode=None, **kwargs
+    ):
         """Constructor for FileReporter.
 
         This constructor allows the specification of either a list of
@@ -279,13 +290,13 @@ class FileReporter(Reporter):
 
         # file paths
 
-        assert not ((file_paths is not None) and (file_path is not None)), \
-            "only file_paths or file_path kwargs can be specified"
+        assert not (
+            (file_paths is not None) and (file_path is not None)
+        ), "only file_paths or file_path kwargs can be specified"
 
         # if only one file path is given then we handle it as multiple
         if file_path is not None:
             file_paths = [file_path]
-
 
         # if any of the explicit paths are given (from the FILE_ORDER
         # constant) in the kwargs then we automatically add those to
@@ -300,70 +311,66 @@ class FileReporter(Reporter):
         # they are, use them to set the 'file_paths' kwarg
 
         # make a list of the presence of the given explicit keys
-        given_explicit_kwargs = [(True if file_key in kwargs else False)
-                                for file_key in self.FILE_ORDER]
+        given_explicit_kwargs = [
+            (True if file_key in kwargs else False) for file_key in self.FILE_ORDER
+        ]
 
         # check that all the keys are present, if they aren't all
         # present then the flag will stay false and the fallback of
         # using the 'file_paths' kwarg will be used
         if all(given_explicit_kwargs):
-
             # then get the values and check them
-            valid_explicit_kwargs = [(True if kwargs[file_key] is not None else False)
-                                     for file_key in self.FILE_ORDER]
-
+            valid_explicit_kwargs = [
+                (True if kwargs[file_key] is not None else False)
+                for file_key in self.FILE_ORDER
+            ]
 
             # if they are all valid then we can use them
             if not all(valid_explicit_kwargs):
-
                 use_explicit_path_kwargs = True
 
         # if only some were given this is wrong
         elif any(given_explicit_kwargs):
-
-            raise ValueError("If you explicitly pass in the paths, all must be given explicitly")
-
-
+            raise ValueError(
+                "If you explicitly pass in the paths, all must be given explicitly"
+            )
 
         # if we use the explicit path kwargs, then we need to put them
         # into the 'file_paths' for superclass initialization
         if use_explicit_path_kwargs:
-
-                file_paths = []
-                for file_key in self.FILE_ORDER:
-
-                    # add it to the file paths for superclass initialization
-                    file_paths.append(kwargs[file_key])
+            file_paths = []
+            for file_key in self.FILE_ORDER:
+                # add it to the file paths for superclass initialization
+                file_paths.append(kwargs[file_key])
 
         # otherwise we need to use the file_paths argument that should
         # have been given
         else:
-
             # make sure it is in kwargs and valid
-            assert file_paths is not None, \
-                "if no explicit file path is given the 'file_paths' must have a value"
+            assert (
+                file_paths is not None
+            ), "if no explicit file path is given the 'file_paths' must have a value"
 
-            assert len(file_paths) == len(self.FILE_ORDER), \
-                "you must give file_paths {} paths".format(len(self.FILE_ORDER))
+            assert len(file_paths) == len(
+                self.FILE_ORDER
+            ), "you must give file_paths {} paths".format(len(self.FILE_ORDER))
 
         # using the file_path paths we got above we set them as
         # attributes in this object
         for i, file_key in enumerate(self.FILE_ORDER):
             setattr(self, file_key, file_paths[i])
 
-
         # set the underlying file paths
         self._file_paths = file_paths
 
-
         # modes
 
-        assert not ((modes is not None) and (mode is not None)), \
-            "only modes or mode kwargs can be specified"
+        assert not (
+            (modes is not None) and (mode is not None)
+        ), "only modes or mode kwargs can be specified"
 
         # if modes is None we make modes, from defaults if we have to
         if modes is None:
-
             # if mode is None set it to the default
             if modes is None and mode is None:
                 mode = self.DEFAULT_MODE
@@ -374,7 +381,6 @@ class FileReporter(Reporter):
         self._modes = modes
 
         super().__init__(**kwargs)
-
 
     def _validate_mode(self, mode):
         """Check if the mode spec is a valid one.
@@ -473,7 +479,6 @@ class FileReporter(Reporter):
         else:
             raise ValueError("Incorrect mode {}".format(mode))
 
-
     def reparametrize(self, file_paths, modes):
         """Set the file paths and modes for all files in the reporter.
 
@@ -488,6 +493,7 @@ class FileReporter(Reporter):
 
         self.file_paths = file_paths
         self.modes = modes
+
 
 class ProgressiveFileReporter(FileReporter):
     """Super class for a reporter that will successively overwrite the
@@ -535,14 +541,13 @@ class ProgressiveFileReporter(FileReporter):
 
         # go thourgh each file managed by this reporter
         for file_i, mode in enumerate(self.modes):
-
             # if the mode is 'x' or 'w-' we check to make sure the file
             # doesn't exist
-            if mode in ['x', 'w-']:
+            if mode in ["x", "w-"]:
                 file_path = self.file_paths[file_i]
                 if osp.exists(file_path):
                     raise FileExistsError("File exists: '{}'".format(file_path))
 
             # now that we have checked if the file exists we set it into
             # overwrite mode
-            self.set_mode(file_i, 'w')
+            self.set_mode(file_i, "w")

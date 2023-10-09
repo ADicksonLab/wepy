@@ -1,15 +1,17 @@
+# Third Party Library
 import numpy as np
 from scipy.spatial.distance import euclidean
 
+# First Party Library
 from wepy.resampling.distances.distance import Distance
 
-class PairDistance(Distance):
 
+class PairDistance(Distance):
     def __init__(self, metric=euclidean):
         self.metric = metric
 
     def image(self, state):
-        return state['positions']
+        return state["positions"]
 
     def image_distance(self, image_a, image_b):
         dist_a = self.metric(image_a[0], image_a[1])

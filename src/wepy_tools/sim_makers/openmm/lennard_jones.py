@@ -1,12 +1,12 @@
+# Third Party Library
 import numpy as np
+from openmm_systems.test_systems import LennardJonesPair
 from scipy.spatial.distance import euclidean
 
-from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
-from wepy.resampling.distances.distance import Distance
+# First Party Library
 from wepy.boundary_conditions.receptor import UnbindingBC
-
-from openmm_systems.test_systems import LennardJonesPair
-
+from wepy.resampling.distances.distance import Distance
+from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
 from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
 
 
@@ -14,12 +14,11 @@ from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
 # we define a simple distance metric for this system, assuming the
 # positions are in a 'positions' field
 class PairDistance(Distance):
-
     def __init__(self, metric=euclidean):
         self.metric = metric
 
     def image(self, state):
-        return state['positions']
+        return state["positions"]
 
     def image_distance(self, image_a, image_b):
         dist_a = self.metric(image_a[0], image_a[1])
@@ -32,8 +31,8 @@ class PairDistance(Distance):
 
 #     pass
 
-class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
 
+class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     TEST_SYS = LennardJonesPair
 
     BCS = OpenMMToolsTestSysSimMaker.BCS + [UnbindingBC]
@@ -42,27 +41,26 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     RECEPTOR_IDXS = [1]
 
     UNBINDING_BC_DEFAULTS = {
-        'cutoff_distance' : 1.0, # nm
-        'periodic' : False,
+        "cutoff_distance": 1.0,  # nm
+        "periodic": False,
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
     DEFAULT_BC_PARAMS.update(
         {
-            'UnbindingBC' : UNBINDING_BC_DEFAULTS,
+            "UnbindingBC": UNBINDING_BC_DEFAULTS,
         }
     )
 
     def make_bc(self, bc_class, bc_params):
-
         if bc_class == UnbindingBC:
             bc_params.update(
                 {
-                    'distance' : self.distance,
-                    'initial_state' : self.init_state,
-                    'topology' : self.json_top(),
-                    'ligand_idxs' : self.LIGAND_IDXS,
-                    'receptor_idxs' : self.RECEPTOR_IDXS,
+                    "distance": self.distance,
+                    "initial_state": self.init_state,
+                    "topology": self.json_top(),
+                    "ligand_idxs": self.LIGAND_IDXS,
+                    "receptor_idxs": self.RECEPTOR_IDXS,
                 }
             )
 
@@ -71,7 +69,6 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
         return bc
 
     def __init__(self):
-
         # must set this here since we need it to generate the state,
         # will get called again in the superclass method
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
@@ -88,4 +85,3 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
             system=test_sys.system,
             topology=test_sys.topology,
         )
-

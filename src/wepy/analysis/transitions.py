@@ -47,15 +47,15 @@ run_transition_probability_matrix : Generates an asymmetric transition
     probability matrix directly from a single WepyHDF5 run.
 """
 
+# Standard Library
 import itertools as it
 from collections import defaultdict
 
+# Third Party Library
 import numpy as np
 
-def transition_counts(
-        assignments,
-        transitions,
-        weights=None):
+
+def transition_counts(assignments, transitions, weights=None):
     """Make a dictionary of the count of microstate transitions between macrostates.
 
     If weights are given counts are the weight instead of 1.
@@ -89,14 +89,12 @@ def transition_counts(
     # up in a dictionary
     countsmat_d = defaultdict(int)
     for transition in transitions:
-
         start = transition[0]
         end = transition[-1]
 
         # get the assignments for the transition
         start_assignment = assignments[start[0]][start[1]][start[2]]
         end_assignment = assignments[end[0]][end[1]][end[2]]
-
 
         if weights is not None:
             # get the weight for this walker
@@ -109,8 +107,9 @@ def transition_counts(
 
     return countsmat_d
 
+
 def counts_d_to_matrix(
-        counts_d,
+    counts_d,
 ):
     """Convert a dictionary of counts for macrostate transitions to an
     assymetric transitions counts matrix.
@@ -138,16 +137,15 @@ def counts_d_to_matrix(
 
     # allocate the matrix and initialize to zero for each element
     countsmat = np.zeros(
-        (max_assignment+1,
-         max_assignment+1),
+        (max_assignment + 1, max_assignment + 1),
     )
 
     for transition, n_trans in counts_d.items():
-
         # add it to the counts matrix in source, target order
         countsmat[transition] = n_trans
 
     return countsmat
+
 
 def normalize_counts(transition_counts_matrix):
     """Normalize the macrostate outgoing transition counts to 1.0 for each macrostate.
@@ -178,6 +176,7 @@ def normalize_counts(transition_counts_matrix):
 
     return np.divide(transition_counts_matrix, transition_counts_matrix.sum(axis=0))
 
+
 def transition_counts_matrix(assignments, transitions):
     """Make an asymmetric array of the count of microstate transitions between macrostates.
 
@@ -204,6 +203,7 @@ def transition_counts_matrix(assignments, transitions):
     countsmat = counts_d_to_matrix(countsmat_d)
 
     return countsmat
+
 
 def transition_probability_matrix(assignments, transitions):
     """Make an asymmetric array of macrostates transition probabilities from microstate assignments.
@@ -232,6 +232,7 @@ def transition_probability_matrix(assignments, transitions):
 
     return trans_prob_mat
 
+
 def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions):
     """Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.
 
@@ -254,18 +255,17 @@ def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions
 
     """
 
-
     total_counts_d = defaultdict(int)
 
     max_assignment = 0
     for transition in transitions:
-
         start = transition[0]
         end = transition[-1]
 
         # Gets cluster pair from the hdf5 file
-        assignments = wepy_hdf5.get_run_trace_fields(run_idx, [start, end],
-                                                  [assignment_key])[assignment_key]
+        assignments = wepy_hdf5.get_run_trace_fields(
+            run_idx, [start, end], [assignment_key]
+        )[assignment_key]
 
         # Add a count to the cluster pair in the dictionary
         total_counts_d[(assignments[0], assignments[1])] += 1
@@ -277,11 +277,12 @@ def run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions
             max_assignment = max_assg
 
     # make a matrix of the counts
-    counts_matrix = np.zeros((max_assignment+1, max_assignment+1))
+    counts_matrix = np.zeros((max_assignment + 1, max_assignment + 1))
     for transition, n_trans in total_counts_d.items():
-            counts_matrix[transition] = n_trans
+        counts_matrix[transition] = n_trans
 
     return counts_matrix
+
 
 def run_transition_probability_matrix(wepy_hdf5, run_idx, assignment_key, transitions):
     """Generates an asymmetric transition counts matrix directly from a single WepyHDF5 run.
@@ -306,7 +307,9 @@ def run_transition_probability_matrix(wepy_hdf5, run_idx, assignment_key, transi
     """
 
     # get the counts for the run
-    counts_mat = run_transition_counts_matrix(wepy_hdf5, run_idx, assignment_key, transitions)
+    counts_mat = run_transition_counts_matrix(
+        wepy_hdf5, run_idx, assignment_key, transitions
+    )
 
     # normalize to get the probabilities
     trans_prob_matrix = normalize_counts(counts_mat)

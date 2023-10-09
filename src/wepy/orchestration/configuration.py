@@ -1,12 +1,15 @@
+# Standard Library
+import itertools as it
+import logging
 import os.path as osp
 from copy import deepcopy
-import logging
-import itertools as it
 
+# First Party Library
 from wepy.work_mapper.mapper import Mapper, WorkerMapper
 from wepy.work_mapper.worker import Worker
 
-class Configuration():
+
+class Configuration:
     """ """
 
     DEFAULT_WORKDIR = osp.realpath(osp.curdir)
@@ -17,26 +20,26 @@ class Configuration():
     # if there is to be reporter class in filenames use this template
     # to put it into the filename
     REPORTER_CLASS_SEG_TEMPLATE = ".{}"
-    DEFAULT_MODE = 'x'
+    DEFAULT_MODE = "x"
 
-    def __init__(self,
-                 # reporters
-                 config_name=None,
-                 work_dir=None,
-                 mode=None,
-                 narration=None,
-                 reporter_classes=None,
-                 reporter_partial_kwargs=None,
-                 # work mappers
-                 work_mapper_class=None,
-                 work_mapper_partial_kwargs=None,
-                 # monitors
-                 monitor_class=None,
-                 monitor_partial_kwargs=None,
-                 # apparatus configuration options
-                 apparatus_opts=None,
+    def __init__(
+        self,
+        # reporters
+        config_name=None,
+        work_dir=None,
+        mode=None,
+        narration=None,
+        reporter_classes=None,
+        reporter_partial_kwargs=None,
+        # work mappers
+        work_mapper_class=None,
+        work_mapper_partial_kwargs=None,
+        # monitors
+        monitor_class=None,
+        monitor_partial_kwargs=None,
+        # apparatus configuration options
+        apparatus_opts=None,
     ):
-
         ## reporter stuff
 
         # reporters and partial kwargs
@@ -70,7 +73,6 @@ class Configuration():
         else:
             self._narration = self.DEFAULT_NARRATION
 
-
         # file modes, if none are given we set to the default, this
         # needs to be done before generating the reporters
         if mode is not None:
@@ -90,23 +92,25 @@ class Configuration():
             self._work_mapper_partial_kwargs = work_mapper_partial_kwargs
 
         # if the number of workers is not given set it to None
-        if 'num_workers' not in self._work_mapper_partial_kwargs:
-            self._work_mapper_partial_kwargs['num_workers'] = None
+        if "num_workers" not in self._work_mapper_partial_kwargs:
+            self._work_mapper_partial_kwargs["num_workers"] = None
 
         # same for the worker type
-        if 'worker_type' not in self._work_mapper_partial_kwargs:
-            self._work_mapper_partial_kwargs['worker_type'] = None
+        if "worker_type" not in self._work_mapper_partial_kwargs:
+            self._work_mapper_partial_kwargs["worker_type"] = None
 
         # if the number of workers was sepcified and no work_mapper
         # class was specified default to the WorkerMapper
-        if (self._work_mapper_partial_kwargs['num_workers'] is not None) and \
-           (work_mapper_class is None):
+        if (self._work_mapper_partial_kwargs["num_workers"] is not None) and (
+            work_mapper_class is None
+        ):
             self._work_mapper_class = WorkerMapper
 
         # if no number of workers was specified and no work_mapper
         # class was specified we default to the serial mapper
-        elif (self._work_mapper_partial_kwargs['num_workers'] is None) and \
-             (work_mapper_class is None):
+        elif (self._work_mapper_partial_kwargs["num_workers"] is None) and (
+            work_mapper_class is None
+        ):
             self._work_mapper_class = Mapper
 
         # otherwise if the work_mapper class was given we use it and
@@ -117,12 +121,12 @@ class Configuration():
         # then generate a work mapper
         self._work_mapper = self._work_mapper_class(**self._work_mapper_partial_kwargs)
 
-
         ### Monitor options
 
         # get the names of the reporters in the order they are
-        reporter_order = tuple([str(reporter_class.__name__)
-                                for reporter_class in self._reporter_classes])
+        reporter_order = tuple(
+            [str(reporter_class.__name__) for reporter_class in self._reporter_classes]
+        )
 
         # init the kwargs for the monitor
         if monitor_partial_kwargs is None:
@@ -135,7 +139,6 @@ class Configuration():
 
         # generate the object
         if self._monitor_class is not None:
-
             self._monitor = self._monitor_class(
                 reporter_order=reporter_order,
                 **self._monitor_partial_kwargs,
@@ -215,12 +218,10 @@ class Configuration():
         """ """
         return self._monitor
 
-
     @property
     def apparatus_opts(self):
         """ """
         return self._apparatus_opts
-
 
     def _gen_reporters(self):
         """ """
@@ -230,8 +231,14 @@ class Configuration():
         # filenames
 
         # the number of filenames
-        all_exts = list(it.chain(*[[ext for ext in rep.SUGGESTED_EXTENSIONS]
-                                 for rep in self.reporter_classes]))
+        all_exts = list(
+            it.chain(
+                *[
+                    [ext for ext in rep.SUGGESTED_EXTENSIONS]
+                    for rep in self.reporter_classes
+                ]
+            )
+        )
         n_exts = len(all_exts)
 
         # the number of unique ones
@@ -244,39 +251,37 @@ class Configuration():
         # then go through and make the inputs for each reporter
         reporters = []
         for idx, reporter_class in enumerate(self.reporter_classes):
-
             # first we have to generate the filenames for all the
             # files this reporter needs. The number of file names the
             # reporter needs is given by the number of suggested
             # extensions it has
             file_paths = []
             for extension in reporter_class.SUGGESTED_EXTENSIONS:
-
-
                 # if previously found that there are duplicates in the
                 # extensions we need to name with the reporter class string
                 if duplicates:
-
                     # use the __name__ attribute of the class and put
                     # it into the template to make a segment out of it
                     reporter_class_seg_str = self.REPORTER_CLASS_SEG_TEMPLATE.format(
-                        reporter_class.__name__)
+                        reporter_class.__name__
+                    )
 
                     # then make the filename with this
                     filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
-                                       narration=self.narration,
-                                       config=self.config_name,
-                                       reporter_class=reporter_class_seg_str,
-                                       ext=extension)
+                        narration=self.narration,
+                        config=self.config_name,
+                        reporter_class=reporter_class_seg_str,
+                        ext=extension,
+                    )
 
                 # otherwise don't use the reporter class names to keep it clean
                 else:
                     filename = reporter_class.SUGGESTED_FILENAME_TEMPLATE.format(
-                                       narration=self.narration,
-                                       config=self.config_name,
-                                       reporter_class=self.DEFAULT_REPORTER_CLASS,
-                                       ext=extension)
-
+                        narration=self.narration,
+                        config=self.config_name,
+                        reporter_class=self.DEFAULT_REPORTER_CLASS,
+                        ext=extension,
+                    )
 
                 file_path = osp.join(self.work_dir, filename)
 
@@ -284,8 +289,9 @@ class Configuration():
 
             modes = [self.mode for i in range(len(file_paths))]
 
-            reporter = reporter_class(file_paths=file_paths, modes=modes,
-                                  **self.reporter_partial_kwargs[idx])
+            reporter = reporter_class(
+                file_paths=file_paths, modes=modes, **self.reporter_partial_kwargs[idx]
+            )
 
             reporters.append(reporter)
 
@@ -315,7 +321,7 @@ class Configuration():
         Parameters
         ----------
         **kwargs :
-            
+
 
         Returns
         -------
@@ -325,35 +331,30 @@ class Configuration():
         # dictionary of the possible reparametrizations from the
         # current configuration
         params = {
-
             # related to the work mapper
-            'work_mapper_class' : self.work_mapper_class,
-            'work_mapper_partial_kwargs' : self.work_mapper_partial_kwargs,
-
+            "work_mapper_class": self.work_mapper_class,
+            "work_mapper_partial_kwargs": self.work_mapper_partial_kwargs,
             # monitor
-            'monitor_class' : self.monitor_class,
-            'monitor_partial_kwargs' : self.monitor_partial_kwargs,
-
+            "monitor_class": self.monitor_class,
+            "monitor_partial_kwargs": self.monitor_partial_kwargs,
             # those related to the reporters
-            'mode' : self.mode,
-            'config_name' : self.config_name,
-            'work_dir' : self.work_dir,
-            'narration' : self.narration,
-            'reporter_classes' : self.reporter_classes,
-            'reporter_partial_kwargs' : self.reporter_partial_kwargs,
-
+            "mode": self.mode,
+            "config_name": self.config_name,
+            "work_dir": self.work_dir,
+            "narration": self.narration,
+            "reporter_classes": self.reporter_classes,
+            "reporter_partial_kwargs": self.reporter_partial_kwargs,
             # apparatus
-            'apparatus_opts' : self.apparatus_opts,
+            "apparatus_opts": self.apparatus_opts,
         }
 
         for key, value in kwargs.items():
-
             # for the partial kwargs we need to update them not
             # completely overwrite
             if key in [
-                    'work_mapper_partial_kwargs',
-                    'reporter_partial_kwargs',
-                    'monitor_partial_kwargs',
+                "work_mapper_partial_kwargs",
+                "reporter_partial_kwargs",
+                "monitor_partial_kwargs",
             ]:
                 if value is not None:
                     params[key].update(value)

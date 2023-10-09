@@ -2,53 +2,62 @@
 resampling parent trees.
 """
 
+# Standard Library
 from collections import namedtuple
 
-import numpy as np
+# Third Party Library
 import networkx as nx
+import numpy as np
 
 try:
+    # Third Party Library
     from matplotlib import cm
 except ModuleNotFoundError:
     warnings.warn("Matplotlib not installed, these features will not work")
 
+# Third Party Library
 from geomm.free_energy import free_energy
 
-from wepy.reporter.reporter import ProgressiveFileReporter
-from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
+# First Party Library
 from wepy.analysis.network_layouts.layout_graph import LayoutGraph
-
-from wepy.analysis.parents import resampling_panel, \
-                                  parent_panel, net_parent_table,\
-                                  ParentForest
+from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
+from wepy.analysis.parents import (
+    ParentForest,
+    net_parent_table,
+    parent_panel,
+    resampling_panel,
+)
+from wepy.reporter.reporter import ProgressiveFileReporter
 
 
 class ResTreeReporter(ProgressiveFileReporter):
     """Reporter that generates resampling parent trees in the GEXF
     format."""
 
-    FILE_ORDER = ('gexf_restree_path',)
+    FILE_ORDER = ("gexf_restree_path",)
 
-    SUGGESTED_EXTENSIONS = ('restree.gexf',)
+    SUGGESTED_EXTENSIONS = ("restree.gexf",)
 
     MAX_PROGRESS_NORM = 1.0
 
-    DISCONTINUOUS_NODE_SHAPE = 'square'
+    DISCONTINUOUS_NODE_SHAPE = "square"
     """The shape of nodes that signify a discontinuity in the lineage."""
 
-    DEFAULT_NODE_SHAPE = 'disc'
+    DEFAULT_NODE_SHAPE = "disc"
     """The shape of normal nodes that signify a continuity in the lineage."""
 
-    def __init__(self,
-                 resampler=None,
-                 boundary_conditions=None,
-                 row_spacing=None,
-                 step_spacing=None,
-                 default_node_radius=None,
-                 progress_key=None,
-                 max_progress_value=None,
-                 colormap_name='plasma',
-                 **kwargs):
+    def __init__(
+        self,
+        resampler=None,
+        boundary_conditions=None,
+        row_spacing=None,
+        step_spacing=None,
+        default_node_radius=None,
+        progress_key=None,
+        max_progress_value=None,
+        colormap_name="plasma",
+        **kwargs
+    ):
         """Constructor for the ResTreeReporter.
 
         Parameters
@@ -85,9 +94,10 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         """
 
-        assert resampler is not None, \
-            "Must provide a resampler, this is used to get the correct records "\
+        assert resampler is not None, (
+            "Must provide a resampler, this is used to get the correct records "
             "from resampling data and is not saved in this object"
+        )
 
         assert boundary_conditions is not None, "must give the boundary condition class"
 
@@ -120,7 +130,6 @@ class ResTreeReporter(ProgressiveFileReporter):
         self._resampling_field_shapes = resampler.resampling_field_shapes()
         self._resampling_field_dtypes = resampler.resampling_field_dtypes()
 
-
         # make a namedtuple record for these records
         # self._ResamplingRecord = namedtuple('{}_Record'.format('Resampling'),
         #                 ['cycle_idx'] + list(self._resampling_record_field_names))
@@ -136,8 +145,6 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         # self._WarpingRecord = namedtuple('{}_Record'.format('Warping'),
         #                             ['cycle_idx'] + list(self._warping_record_field_names))
-
-
 
         # initialize the parent table that will be generated as the
         # simulation progresses
@@ -176,14 +183,19 @@ class ResTreeReporter(ProgressiveFileReporter):
         """
 
         # make a namedtuple record for these records
-        ResamplingRecord = namedtuple('{}_Record'.format('Resampling'),
-                        ['cycle_idx'] + list(self._resampling_record_field_names))
+        ResamplingRecord = namedtuple(
+            "{}_Record".format("Resampling"),
+            ["cycle_idx"] + list(self._resampling_record_field_names),
+        )
 
-
-        record = self._make_record(record_d, cycle_idx,
-                                   self._resampling_record_field_names,
-                                   self._resampling_field_names, self._resampling_field_shapes,
-                                   ResamplingRecord)
+        record = self._make_record(
+            record_d,
+            cycle_idx,
+            self._resampling_record_field_names,
+            self._resampling_field_names,
+            self._resampling_field_shapes,
+            ResamplingRecord,
+        )
 
         return record
 
@@ -205,20 +217,31 @@ class ResTreeReporter(ProgressiveFileReporter):
         """
 
         # make a namedtuple record for these records
-        WarpingRecord = namedtuple('{}_Record'.format('Warping'),
-                                   ['cycle_idx'] + list(self._warping_record_field_names))
+        WarpingRecord = namedtuple(
+            "{}_Record".format("Warping"),
+            ["cycle_idx"] + list(self._warping_record_field_names),
+        )
 
-        record = self._make_record(record_d, cycle_idx,
-                                   self._warping_record_field_names,
-                                   self._warping_field_names, self._warping_field_shapes,
-                                   WarpingRecord)
+        record = self._make_record(
+            record_d,
+            cycle_idx,
+            self._warping_record_field_names,
+            self._warping_field_names,
+            self._warping_field_shapes,
+            WarpingRecord,
+        )
 
         return record
 
-
     @staticmethod
-    def _make_record(record_d, cycle_idx,
-                     record_field_names, field_names, field_shapes, rec_namedtuple):
+    def _make_record(
+        record_d,
+        cycle_idx,
+        record_field_names,
+        field_names,
+        field_shapes,
+        rec_namedtuple,
+    ):
         """Generic record making function.
 
         Parameters
@@ -247,9 +270,8 @@ class ResTreeReporter(ProgressiveFileReporter):
         """
 
         # go through each field of the record
-        rec_d = {'cycle_idx' : cycle_idx}
+        rec_d = {"cycle_idx": cycle_idx}
         for field_name, field_value in record_d.items():
-
             field_idx = field_names.index(field_name)
             field_shape = field_shapes[field_idx]
 
@@ -260,7 +282,6 @@ class ResTreeReporter(ProgressiveFileReporter):
 
             # otherwise we need to do some formatting
             else:
-
                 # if it is variable length (shape is Ellipsis) or if
                 # it has more than one element cast all elements to
                 # tuples
@@ -272,8 +293,8 @@ class ResTreeReporter(ProgressiveFileReporter):
                 elif len(field_shape) > 2:
                     raise TypeError(
                         "cannot convert fields with feature vectors more than 1 dimension,"
-                        " was given {} for {}".format(
-                            field_value.shape[1:], field_name))
+                        " was given {} for {}".format(field_value.shape[1:], field_name)
+                    )
 
                 # if it is only a rank 1 feature vector and it has more than
                 # one element make a tuple out of it
@@ -293,13 +314,15 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         return record
 
-
-    def report(self, cycle_idx=None,
-               resampled_walkers=None,
-               warp_data=None,
-               progress_data=None,
-               resampling_data=None,
-               **kwargs):
+    def report(
+        self,
+        cycle_idx=None,
+        resampled_walkers=None,
+        warp_data=None,
+        progress_data=None,
+        resampling_data=None,
+        **kwargs
+    ):
         """Generate the resampling tree GEXF file.
 
         Parameters
@@ -316,7 +339,6 @@ class ResTreeReporter(ProgressiveFileReporter):
 
         """
 
-
         # we basically want to generate a new parent table from the
         # records we were just given and then add that to our existing
         # parent table
@@ -324,11 +346,13 @@ class ResTreeReporter(ProgressiveFileReporter):
         # we first have to generate the resampling and warping records
         # though adding the cycle_idx
 
-        resampling_records = [self._make_resampling_record(rec_d, cycle_idx)
-                              for rec_d in resampling_data]
+        resampling_records = [
+            self._make_resampling_record(rec_d, cycle_idx) for rec_d in resampling_data
+        ]
 
-        warping_records = [self._make_warping_record(rec_d, cycle_idx)
-                              for rec_d in warp_data]
+        warping_records = [
+            self._make_warping_record(rec_d, cycle_idx) for rec_d in warp_data
+        ]
 
         # tabulate the discontinuities
         for warping_record in warping_records:
@@ -394,7 +418,9 @@ class ResTreeReporter(ProgressiveFileReporter):
         free_energies = []
         last_index = 0
         for cycle_n_walkers in cycles_n_walkers:
-            free_energies.append(flattened_free_energies[last_index:last_index + cycle_n_walkers])
+            free_energies.append(
+                flattened_free_energies[last_index : last_index + cycle_n_walkers]
+            )
             last_index += cycle_n_walkers
 
         # we want to set the colors based on the progress, first we
@@ -414,16 +440,18 @@ class ResTreeReporter(ProgressiveFileReporter):
         # RGB color values
         colors = []
         for progress_row in self._walkers_progress:
-            color_row = [self.colormap(progress * norm_ratio, bytes=True)
-                         for progress in progress_row]
+            color_row = [
+                self.colormap(progress * norm_ratio, bytes=True)
+                for progress in progress_row
+            ]
             colors.append(color_row)
 
         # put these into the parent forest graph as node attributes,
         # so we can get them out as a lookup table by node id for
         # assigning to nodes in the layout. We skip the first row of
         # free energies for the roots in this step
-        parent_forest.set_attrs_by_array('free_energy', free_energies[1:])
-        parent_forest.set_attrs_by_array('color', colors)
+        parent_forest.set_attrs_by_array("free_energy", free_energies[1:])
+        parent_forest.set_attrs_by_array("color", colors)
 
         # get the free energies out as a dictionary, flattening it to
         # a single value. Set the nodes with None for their FE to a
@@ -433,14 +461,14 @@ class ResTreeReporter(ProgressiveFileReporter):
         # information
         layout_forest = LayoutGraph(parent_forest.graph)
 
-
         # get the free energy attributes out using the root weight for
         # the nodes with no fe defined
 
         # start it with the root weights
-        node_fes = {(-1, i) : free_energy for i, free_energy in enumerate(free_energies[0])}
-        for node_id, fe_arr in layout_forest.get_node_attributes('free_energy').items():
-
+        node_fes = {
+            (-1, i): free_energy for i, free_energy in enumerate(free_energies[0])
+        }
+        for node_id, fe_arr in layout_forest.get_node_attributes("free_energy").items():
             if fe_arr is None:
                 node_fes[node_id] = 0.0
             else:
@@ -449,8 +477,7 @@ class ResTreeReporter(ProgressiveFileReporter):
         # the default progress for the root ones is 0 and so the color
         # is also 0
         node_colors = {}
-        for node_id, color_arr in layout_forest.get_node_attributes('color').items():
-
+        for node_id, color_arr in layout_forest.get_node_attributes("color").items():
             if color_arr is None:
                 # make a black color for these
                 node_colors[node_id] = tuple(int(255) for a in range(4))
@@ -470,7 +497,6 @@ class ResTreeReporter(ProgressiveFileReporter):
         for discontinuous_node in self._discontinuous_nodes:
             node_colors[discontinuous_node] = tuple(int(0) for a in range(4))
 
-
         # we are going to output to the gexf format so we use the
         # pertinent methods
 
@@ -485,19 +511,17 @@ class ResTreeReporter(ProgressiveFileReporter):
         # warped or not
         layout_forest.set_node_gexf_shape(node_shapes)
 
-
         # now we get to the part where we make the layout (positioning
         # of nodes), so we parametrize a layout engine
-        tree_layout = ResamplingTreeLayout(row_spacing=self.row_spacing,
-                                           step_spacing=self.step_spacing,
-                                           node_radius=self.default_node_radius)
+        tree_layout = ResamplingTreeLayout(
+            row_spacing=self.row_spacing,
+            step_spacing=self.step_spacing,
+            node_radius=self.default_node_radius,
+        )
 
-
-        node_coords = tree_layout.layout(parent_forest,
-                                         node_radii=node_fes)
+        node_coords = tree_layout.layout(parent_forest, node_radii=node_fes)
 
         layout_forest.set_node_gexf_positions(node_coords)
-
 
         # now we can write this graph to the gexf format to the file
         nx.write_gexf(layout_forest.viz_graph, self.gexf_restree_path)
