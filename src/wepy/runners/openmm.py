@@ -39,8 +39,8 @@ from eliot import log_call, start_action
 
 try:
     # Third Party Library
-    import simtk.openmm as omm
-    import simtk.openmm.app as omma
+    import openmm as omm
+    import openmm.app as omma
     import simtk.unit as unit
 except ModuleNotFoundError:
     raise ModuleNotFoundError(

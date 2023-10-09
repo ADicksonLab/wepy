@@ -26,8 +26,8 @@ import os.path as osp
 
 import numpy as np
 
-import simtk.openmm.app as omma
-import simtk.openmm as omm
+import openmm.app as omma
+import openmm as omm
 import simtk.unit as unit
 
 from openmm_systems.test_systems import LennardJonesPair

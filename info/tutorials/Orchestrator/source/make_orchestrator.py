@@ -5,8 +5,8 @@ from pathlib import Path
 import numpy as np
 from scipy.spatial.distance import euclidean
 
-import simtk.openmm.app as omma
-import simtk.openmm as omm
+import openmm.app as omma
+import openmm as omm
 import simtk.unit as unit
 
 import mdtraj as mdj

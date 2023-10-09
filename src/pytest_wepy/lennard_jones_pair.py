@@ -8,9 +8,9 @@ from pathlib import Path
 # Third Party Library
 import mdtraj as mdj
 import numpy as np
+import openmm as omm
+import openmm.app as omma
 import pytest
-import simtk.openmm as omm
-import simtk.openmm.app as omma
 import simtk.unit as unit
 from openmm_systems.test_systems import LennardJonesPair
 from scipy.spatial.distance import euclidean

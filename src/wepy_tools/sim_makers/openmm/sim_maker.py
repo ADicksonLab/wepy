@@ -6,8 +6,8 @@ from copy import copy, deepcopy
 # Third Party Library
 import mdtraj as mdj
 import numpy as np
-import simtk.openmm as omm
-import simtk.openmm.app as omma
+import openmm as omm
+import openmm.app as omma
 import simtk.unit as unit
 
 # integrators
