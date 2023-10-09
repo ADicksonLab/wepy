@@ -36,7 +36,6 @@ dependencies = [
     "jinja2",
     "pint",
     "multiprocessing_logging",
-    "eliot",
 ]
 
 [project.optional-dependencies]

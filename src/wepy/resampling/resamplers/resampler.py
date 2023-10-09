@@ -9,7 +9,6 @@ from warnings import warn
 
 # Third Party Library
 import numpy as np
-from eliot import log_call, start_action
 
 # First Party Library
 from wepy.resampling.decisions.decision import Decision, NoDecision
@@ -588,7 +587,6 @@ class Resampler:
         # unset the number of walkers for this resampling
         self._unset_resampling_num_walkers()
 
-    @log_call(include_args=[], include_result=False)
     def resample(self, walkers, debug_mode=False):
         """Perform resampling on the set of walkers.
 
@@ -634,7 +632,6 @@ class NoResampler(Resampler):
 
     RESAMPLING_RECORD_FIELDS = DECISION.RECORD_FIELDS + Resampler.CYCLE_RECORD_FIELDS
 
-    @log_call(include_args=[], include_result=False)
     def resample(self, walkers, **kwargs):
         self._resample_init(walkers=walkers)
 

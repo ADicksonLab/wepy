@@ -3,3 +3,4 @@ astunparse==1.6.3
 mdtraj==1.9.7
 openmm-systems==0.0.0
 pyparsing==3.0.9
+wheel==0.41.2

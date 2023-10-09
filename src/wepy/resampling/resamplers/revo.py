@@ -9,7 +9,6 @@ import random as rand
 
 # Third Party Library
 import numpy as np
-from eliot import log_call, start_action
 
 # First Party Library
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision

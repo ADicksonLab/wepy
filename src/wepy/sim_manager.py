@@ -53,7 +53,6 @@ from copy import deepcopy
 
 # Third Party Library
 import numpy as np
-from eliot import log_call, start_action
 
 # First Party Library
 from wepy.work_mapper.mapper import Mapper
@@ -196,13 +195,6 @@ class Manager(object):
         # break it and no one cares about this anyhow
         self._last_report = None
 
-    @log_call(
-        include_args=[
-            "segment_length",
-            "cycle_idx",
-        ],
-        include_result=False,
-    )
     def run_segment(self, walkers, segment_length, cycle_idx):
         """Run a time segment for all walkers using the available workers.
 
@@ -252,10 +244,6 @@ class Manager(object):
 
         return new_walkers
 
-    @log_call(
-        include_args=["n_segment_steps", "cycle_idx", "runner_opts"],
-        include_result=False,
-    )
     def run_cycle(
         self,
         walkers,
@@ -526,7 +514,6 @@ class Manager(object):
         logger.info("Done: returning walkers")
         return walkers, filters
 
-    @log_call
     def init(
         self,
         num_workers=None,
@@ -705,14 +692,6 @@ class Manager(object):
 
         return walkers, deepcopy(filters)
 
-    @log_call(
-        include_args=[
-            "n_cycles",
-            "segment_lengths",
-            "num_workers",
-        ],
-        include_result=False,
-    )
     def run_simulation(
         self,
         n_cycles,

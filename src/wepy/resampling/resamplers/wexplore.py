@@ -12,7 +12,6 @@ from copy import copy, deepcopy
 # Third Party Library
 import networkx as nx
 import numpy as np
-from eliot import log_call, start_action
 
 # First Party Library
 from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
@@ -2648,7 +2647,6 @@ class WExploreResampler(CloneMergeResampler):
         self.region_tree.max_num_walkers = False
         self.region_tree.min_num_walkers = False
 
-    @log_call(include_args=[], include_result=False)
     def resample(self, walkers):
         # do some initialiation routines and debugging preparations if
         # necessary
