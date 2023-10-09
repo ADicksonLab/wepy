@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import multiprocessing as mp
 import pdb
 
@@ -154,9 +157,9 @@ class TestLJSimIntegration:
         amount of time, just to make sure they all work together and don't give errors.
         """
 
-        logging.getLogger().setLevel(logging.DEBUG)
+        logger = logging.getLogger("testing").setLevel(logging.DEBUG)
         install_mp_handler()
-        logging.debug("Starting the test")
+        logger.debug("Starting the test")
 
         print("starting the test")
 
@@ -317,7 +320,7 @@ class TestLJSimIntegration:
             lj_omm_sys.system, lj_omm_sys.topology, lj_integrator, platform=platform
         )
 
-        logging.debug("Constructing the manager")
+        logger.debug("Constructing the manager")
 
         manager = Manager(
             walkers,
@@ -332,7 +335,7 @@ class TestLJSimIntegration:
         # methods for different platforms i.e. CUDA and linux fork
         # vs. spawn we choose the appropriate one for each method.
 
-        logging.debug("Starting the simulation")
+        logger.debug("Starting the simulation")
 
         walkers, filters = manager.run_simulation(
             n_cycles, steps, num_workers=num_workers

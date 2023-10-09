@@ -7,6 +7,8 @@ metric is a scaled version of the Manhattan Norm.
 # Standard Library
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third Party Library
 import numpy as np
 

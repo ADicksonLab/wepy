@@ -394,6 +394,9 @@ import gc
 import itertools as it
 import json
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import os.path as osp
 from collections import Counter, defaultdict, namedtuple
 from copy import copy
@@ -2373,7 +2376,7 @@ class WepyHDF5(object):
         #     # if we are in a permissive write mode we delete the
         #     # old dataset and add the new one, overwriting old data
         #     if self.mode in ['w', 'w-', 'x', 'r+']:
-        #         logging.info("Dataset already present. Overwriting.")
+        #         logger.info("Dataset already present. Overwriting.")
         #         del obs_grp[field_name]
         #         obs_grp.create_dataset(field_name, data=results)
         #     # this will happen in 'c' and 'c-' modes

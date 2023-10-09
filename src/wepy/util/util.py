@@ -3,6 +3,9 @@
 # Standard Library
 import json
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import warnings
 
 # Third Party Library

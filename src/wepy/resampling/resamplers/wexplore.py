@@ -1,6 +1,9 @@
 # Standard Library
 import itertools as it
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import math
 import random as rand
 from collections import defaultdict, namedtuple
@@ -2473,15 +2476,15 @@ class WExploreResampler(CloneMergeResampler):
             delta_walkers=delta_walkers
         )
 
-        logging.info("merge_groups\n{}".format(merge_groups))
-        logging.info("Walker number of clones\n{}".format(walkers_num_clones))
-        logging.info(
+        logger.info("merge_groups\n{}".format(merge_groups))
+        logger.info("Walker number of clones\n{}".format(walkers_num_clones))
+        logger.info(
             "Walker assignments\n{}".format(self.region_tree.walker_assignments)
         )
-        logging.info("Walker weights\n{}".format(self.region_tree.walker_weights))
+        logger.info("Walker weights\n{}".format(self.region_tree.walker_weights))
 
         # check to make sure we have selected appropriate walkers to clone
-        logging.info("images_assignments\n{}".format(self.region_tree.regions))
+        logger.info("images_assignments\n{}".format(self.region_tree.regions))
 
         # take the specs for cloning and merging and generate the
         # actual resampling actions (instructions) for each walker,

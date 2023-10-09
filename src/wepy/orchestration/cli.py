@@ -1,5 +1,8 @@
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import os.path as osp
 import subprocess
 from copy import deepcopy
@@ -173,14 +176,14 @@ def run_snapshot(
 
     set_loglevel(log)
 
-    logging.info("Loading the starting snapshot file")
+    logger.info("Loading the starting snapshot file")
     # read the config and snapshot in
     serial_snapshot = snapshot.read()
 
-    logging.info("Creating orchestrating orch database")
+    logger.info("Creating orchestrating orch database")
     # make the orchestrator for this simulation in memory to start
     orch = Orchestrator()
-    logging.info("Adding the starting snapshot to database")
+    logger.info("Adding the starting snapshot to database")
     start_hash = orch.add_serial_snapshot(serial_snapshot)
 
     # settle what the defaults etc. are for the different options as they are interdependent
@@ -202,8 +205,8 @@ def run_snapshot(
     # add the parametrized configuration to the orchestrator
     # config_hash = orch.add_serial_configuration(config)
 
-    logging.info("Orchestrator loaded")
-    logging.info("Running snapshot by time")
+    logger.info("Orchestrator loaded")
+    logger.info("Running snapshot by time")
     run_orch = orch.orchestrate_snapshot_run_by_time(
         start_hash,
         run_time,
@@ -214,24 +217,24 @@ def run_snapshot(
         narration=narration,
         configuration=config,
     )
-    logging.info("Finished running snapshot by time")
+    logger.info("Finished running snapshot by time")
 
     start_hash, end_hash = run_orch.run_hashes()[0]
 
     run_orch.close()
-    logging.info("Closed the resultant orch")
+    logger.info("Closed the resultant orch")
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
 
     # log it
-    logging.info(run_line_str)
+    logger.info(run_line_str)
 
     # also put it to the terminal
     click.echo(run_line_str)
 
     orch.close()
-    logging.info("closed the orchestrating orch database")
+    logger.info("closed the orchestrating orch database")
 
 
 @click.option("--log", default="WARNING")
@@ -307,9 +310,9 @@ def run_orch(
     # the inputs for the simulation
     orch = Orchestrator(orchestrator, mode="r")
 
-    logging.info("Orchestrator loaded")
+    logger.info("Orchestrator loaded")
 
-    logging.info("Running snapshot by time")
+    logger.info("Running snapshot by time")
     run_orch = orch.orchestrate_snapshot_run_by_time(
         start_hash,
         run_time,
@@ -320,23 +323,23 @@ def run_orch(
         narration=narration,
         configuration=config,
     )
-    logging.info("Finished running snapshot by time")
+    logger.info("Finished running snapshot by time")
 
     start_hash, end_hash = run_orch.run_hashes()[0]
 
-    logging.info("Closing the resultant orchestrator")
+    logger.info("Closing the resultant orchestrator")
     run_orch.close()
 
     # write the run tuple out to the log
     run_line_str = "Run start and end hashes: {}, {}".format(start_hash, end_hash)
 
     # log it
-    logging.info(run_line_str)
+    logger.info(run_line_str)
 
     # also put it to the terminal
     click.echo(run_line_str)
 
-    logging.info("Closing the orchestrating orch")
+    logger.info("Closing the orchestrating orch")
     orch.close()
 
 

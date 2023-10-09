@@ -31,6 +31,9 @@
 
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import os
 import os.path as osp
 import sqlite3
@@ -322,7 +325,7 @@ class KV(MutableMapping):
         self.lockless_set(key, value)
 
     def __delitem__(self, key):
-        logging.debug("Deleting the snapshot {}".format(key))
+        logger.debug("Deleting the snapshot {}".format(key))
 
         # no deletions in append only mode
         if self.append_only:
@@ -333,9 +336,9 @@ class KV(MutableMapping):
 
         # delete it if it exists
         elif key in self:
-            logging.debug("executing delete query")
+            logger.debug("executing delete query")
             self._execute(self.del_query, (key,))
-            logging.debug("finished")
+            logger.debug("finished")
 
         else:
             raise KeyError

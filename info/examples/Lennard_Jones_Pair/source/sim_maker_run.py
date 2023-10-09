@@ -1,3 +1,5 @@
+import logging
+logger = logging.getLogger(__name__)
 
 if __name__ == "__main__":
 
@@ -5,13 +7,14 @@ if __name__ == "__main__":
     import shutil
     import sys
     import logging
+logger = logging.getLogger(__name__)
     from multiprocessing_logging import install_mp_handler
 
     from wepy_tools.sim_makers.openmm.lennard_jones import LennardJonesPairOpenMMSimMaker
 
     OUTPUT_DIR = "_output/sim_maker_run"
 
-    logging.getLogger().setLevel(logging.DEBUG)
+    logger.setLevel(logging.DEBUG)
     install_mp_handler()
 
     if sys.argv[1] == "-h" or sys.argv[1] == "--help":

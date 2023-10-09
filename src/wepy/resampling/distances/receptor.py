@@ -20,6 +20,8 @@ a ligand towards a reference state.
 # Standard Library
 import logging
 
+logger = logging.getLogger(__name__)
+
 # Third Party Library
 import numpy as np
 from geomm.centering import center_around

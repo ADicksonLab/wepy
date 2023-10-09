@@ -18,6 +18,9 @@ Using the Weighted Ensemble Algorithm" and
 
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import random as rand
 
 # Third Party Library

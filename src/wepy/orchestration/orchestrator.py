@@ -1,6 +1,9 @@
 # Standard Library
 import itertools as it
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import os
 import os.path as osp
 import sqlite3
@@ -731,17 +734,17 @@ class Orchestrator:
                 return None
 
     def _init_checkpoint_db(self, start_hash, configuration, checkpoint_dir, mode="x"):
-        logging.debug("Initializing checkpoint orch database")
+        logger.debug("Initializing checkpoint orch database")
 
         # make the checkpoint with the default filename at the checkpoint directory
         checkpoint_path = osp.join(checkpoint_dir, self.DEFAULT_CHECKPOINT_FILENAME)
 
         # create a new database in the mode specified
-        logging.debug("Creating checkpoint database")
+        logger.debug("Creating checkpoint database")
         checkpoint_orch = Orchestrator(checkpoint_path, mode=mode)
 
         # add the starting snapshot, bypassing the serialization stuff
-        logging.debug("Setting the starting snapshot")
+        logger.debug("Setting the starting snapshot")
         checkpoint_orch.snapshot_kv[start_hash] = self.snapshot_kv[start_hash]
 
         # if we have a new configuration at runtime serialize and
@@ -753,7 +756,7 @@ class Orchestrator:
         checkpoint_orch.configuration_kv[config_hash] = serialized_config
 
         checkpoint_orch.close()
-        logging.debug("closing connection to checkpoint database")
+        logger.debug("closing connection to checkpoint database")
 
         return checkpoint_path, config_hash
 
@@ -783,7 +786,7 @@ class Orchestrator:
         """
 
         # orchestrator wrapper to the db
-        logging.debug("Opening the checkpoint orch database")
+        logger.debug("Opening the checkpoint orch database")
         checkpoint_orch = Orchestrator(checkpoint_db_path, mode="r+")
 
         # connection to the db
@@ -825,36 +828,36 @@ class Orchestrator:
 
         # start this whole process as a transaction so we don't get
         # something weird in between
-        logging.debug("Starting transaction for updating run table in checkpoint")
+        logger.debug("Starting transaction for updating run table in checkpoint")
         cursor.execute("BEGIN TRANSACTION")
 
         # add the new one, using a special method for setting inside
         # of a transaction
-        logging.debug("setting the new checkpoint snapshot into the KV")
+        logger.debug("setting the new checkpoint snapshot into the KV")
         cursor = checkpoint_orch.snapshot_kv.set_in_tx(
             cursor, snaphash, serialized_snapshot
         )
-        logging.debug("finished")
+        logger.debug("finished")
 
         # if we need to delete the old end of the run snapshot and the
         # run record for it
         if delete_params is not None:
-            logging.debug("Old run record needs to be removed")
+            logger.debug("Old run record needs to be removed")
 
             # remove the old run from the run table
-            logging.debug("Deleting the old run record")
+            logger.debug("Deleting the old run record")
             cursor.execute(delete_query, delete_params)
-            logging.debug("finished")
+            logger.debug("finished")
 
         # register the new run in the run table
-        logging.debug("Inserting the new run record")
+        logger.debug("Inserting the new run record")
         cursor.execute(insert_query, insert_params)
-        logging.debug("finished")
+        logger.debug("finished")
 
         # end the transaction
-        logging.debug("Finishing transaction")
+        logger.debug("Finishing transaction")
         cursor.execute("COMMIT")
-        logging.debug("Transaction committed")
+        logger.debug("Transaction committed")
 
         # we do the removal of the old snapshot outside of the
         # transaction since it is slow and can cause timeouts to
@@ -871,16 +874,16 @@ class Orchestrator:
             # resort, we check that they don't have the same hash. If
             # they do we don't delete it!
             if snaphash != old_checkpoint_hash:
-                logging.debug("Deleting the old snapshot")
+                logger.debug("Deleting the old snapshot")
                 del checkpoint_orch.snapshot_kv[old_checkpoint_hash]
-                logging.debug("finished")
+                logger.debug("finished")
             else:
-                logging.warn(
+                logger.warn(
                     "Final snapshot has same hash as the previous checkpoint. Not deleting the previous one."
                 )
 
         checkpoint_orch.close()
-        logging.debug("closed the checkpoint orch connection")
+        logger.debug("closed the checkpoint orch connection")
 
     @staticmethod
     def gen_sim_manager(start_snapshot, configuration):
@@ -984,11 +987,11 @@ class Orchestrator:
         # checkpoint db orch
         checkpoint_db_path = None
         if checkpoint_dir is not None:
-            logging.debug("Initialization of checkpoint database is requested")
+            logger.debug("Initialization of checkpoint database is requested")
             checkpoint_db_path, configuration_hash = self._init_checkpoint_db(
                 start_hash, configuration, checkpoint_dir, mode=checkpoint_mode
             )
-            logging.debug("finished initializing checkpoint database")
+            logger.debug("finished initializing checkpoint database")
 
         # get the snapshot and the configuration to use for the sim_manager
         start_snapshot = self.get_snapshot(start_hash)
@@ -1004,16 +1007,16 @@ class Orchestrator:
             runner_opts = None
 
         # run the init subroutine for the simulation manager
-        logging.debug("Running sim_manager.init")
+        logger.debug("Running sim_manager.init")
         sim_manager.init()
 
         # run each cycle manually creating checkpoints when necessary
-        logging.debug("Starting run loop")
+        logger.debug("Starting run loop")
         walkers = sim_manager.init_walkers
         cycle_idx = 0
         start_time = time.time()
         while time.time() - start_time < run_time:
-            logging.debug("Running cycle {}".format(cycle_idx))
+            logger.debug("Running cycle {}".format(cycle_idx))
             # run the cycle
             walkers, filters = sim_manager.run_cycle(
                 walkers,
@@ -1025,39 +1028,39 @@ class Orchestrator:
             # check to see if a checkpoint is necessary
             if checkpoint_freq is not None:
                 if cycle_idx % checkpoint_freq == 0:
-                    logging.debug("Checkpoint is required for this cycle")
+                    logger.debug("Checkpoint is required for this cycle")
 
                     # make the checkpoint snapshot
-                    logging.debug("Generating the simulation snapshot")
+                    logger.debug("Generating the simulation snapshot")
                     checkpoint_snapshot = SimSnapshot(walkers, SimApparatus(filters))
 
                     # save the checkpoint (however that is implemented)
-                    logging.debug("saving the checkpoint to the database")
+                    logger.debug("saving the checkpoint to the database")
                     self._save_checkpoint(
                         checkpoint_snapshot,
                         configuration_hash,
                         checkpoint_db_path,
                         cycle_idx,
                     )
-                    logging.debug("finished saving the checkpoint to the database")
+                    logger.debug("finished saving the checkpoint to the database")
 
             # increase the cycle index for the next cycle
             cycle_idx += 1
 
-        logging.debug("Finished the run cycle")
+        logger.debug("Finished the run cycle")
 
         # the cycle index was set for the next cycle which didn't run
         # so we decrement it
         last_cycle_idx = cycle_idx - 1
 
-        logging.debug("Running sim_manager.cleanup")
+        logger.debug("Running sim_manager.cleanup")
         # run the cleanup subroutine
         sim_manager.cleanup()
 
         # run the segment given the sim manager and run parameters
         end_snapshot = SimSnapshot(walkers, SimApparatus(filters))
 
-        logging.debug("Run finished")
+        logger.debug("Run finished")
         # return the things necessary for saving to the checkpoint if
         # that is what is wanted later on
         return end_snapshot, configuration_hash, checkpoint_db_path, last_cycle_idx
@@ -1179,7 +1182,7 @@ class Orchestrator:
             # reparametrize the configuration with the given path
             # parameters and anything else in kwargs. If they are none
             # this will have no effect anyhow
-            logging.debug("Reparametrizing the configuration")
+            logger.debug("Reparametrizing the configuration")
             configuration = configuration.reparametrize(
                 work_dir=work_dir,
                 config_name=config_name,
@@ -1193,10 +1196,10 @@ class Orchestrator:
 
         if checkpoint_dir is None:
             # the checkpoint directory will be in the work dir
-            logging.debug("checkpoint directory defaulted to the work_dir")
+            logger.debug("checkpoint directory defaulted to the work_dir")
             checkpoint_dir = work_dir
 
-        logging.debug("In the orchestrate run, calling to run_snapshot by time")
+        logger.debug("In the orchestrate run, calling to run_snapshot by time")
         # then actually run the simulation with checkpointing. This
         # returns the end snapshot and doesn't write out anything to
         # orchestrators other than the checkpointing
@@ -1215,7 +1218,7 @@ class Orchestrator:
             checkpoint_mode=orch_mode,
         )
 
-        logging.debug("Finished running snapshot by time")
+        logger.debug("Finished running snapshot by time")
 
         # if the last cycle in the run was a checkpoint skip this step
         # of saving a checkpoint
@@ -1224,11 +1227,11 @@ class Orchestrator:
         # make sure the checkpoint_freq is defined before testing it
         if checkpoint_freq is not None:
             if checkpoint_freq % last_cycle_idx == 0:
-                logging.debug("Last cycle saved a checkpoint, no need to save one")
+                logger.debug("Last cycle saved a checkpoint, no need to save one")
                 do_final_checkpoint = False
 
         if do_final_checkpoint:
-            logging.debug("Saving a final checkpoint for the end of the run")
+            logger.debug("Saving a final checkpoint for the end of the run")
             # now that it is finished we save the final snapshot to the
             # checkpoint file. This is done transactionally using the
             # SQLite transaction functionality (either succeeds or doesn't
@@ -1238,10 +1241,10 @@ class Orchestrator:
             self._save_checkpoint(
                 end_snapshot, configuration_hash, checkpoint_db_path, last_cycle_idx
             )
-            logging.debug("Finished saving the final checkpoint for the run")
+            logger.debug("Finished saving the final checkpoint for the run")
 
         # then return the final orchestrator
-        logging.debug("Getting a connection to that orch to retun")
+        logger.debug("Getting a connection to that orch to retun")
         checkpoint_orch = Orchestrator(checkpoint_db_path, mode="r+", append_only=True)
 
         return checkpoint_orch

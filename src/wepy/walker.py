@@ -28,6 +28,9 @@ magic method for the accessor syntax, i.e. walker.state['positions'].
 
 # Standard Library
 import logging
+
+logger = logging.getLogger(__name__)
+# Standard Library
 import random as rand
 from copy import deepcopy
 
