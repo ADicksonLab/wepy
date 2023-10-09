@@ -6,7 +6,11 @@ from collections import namedtuple
 
 import numpy as np
 import networkx as nx
-from matplotlib import cm
+
+try:
+    from matplotlib import cm
+except ModuleNotFoundError:
+    warnings.warn("Matplotlib not installed, these features will not work")
 
 from geomm.free_energy import free_energy
 
