@@ -3,7 +3,7 @@ conditions"""
 
 from copy import copy
 
-import simtk.openmm as omm
+import openmm as omm
 import simtk.unit as unit
 
 from openmm_systems.test_systems import LennardJonesPair
