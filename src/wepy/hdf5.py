@@ -2867,7 +2867,7 @@ class WepyHDF5(object):
     @property
     def sparse_fields(self):
         """The trajectory fields that are sparse."""
-        return self.h5['{}/{}'.format(SETTINGS, SPARSE_FIELDS)][:]
+        return self.h5['{}/{}'.format(SETTINGS, SPARSE_FIELDS)].asstr()[:]
 
     @property
     def main_rep_idxs(self):
