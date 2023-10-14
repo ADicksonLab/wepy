@@ -230,31 +230,6 @@ class REVOResampler(CloneMergeResampler):
         # setting the number of processors
         self.num_proc = num_proc
 
-        # we do not know the shape and dtype of the images until
-        # runtime so we determine them here
-
-        image = self.distance.image(init_state)
-        self.image_dtype = image.dtype
-
-    def resampler_field_dtypes(self):
-        """Finds out the datatype of the image.
-
-        Returns
-        -------
-        datatypes : tuple of datatype
-        The type of reasampler image.
-
-        """
-
-        # index of the image idx
-        image_idx = self.resampler_field_names().index("images")
-
-        # dtypes adding the image dtype
-        dtypes = list(super().resampler_field_dtypes())
-        dtypes[image_idx] = self.image_dtype
-
-        return tuple(dtypes)
-
     def _novelty(self, walker_weight, num_walker_copy):
         """Calculates the novelty function value.
 
