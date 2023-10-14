@@ -25,7 +25,7 @@ Distance Exponent: {{ dist_exponent }}
 Characteristic Distance: {{ char_dist }}
 Merge Distance: {{ merge_dist }}
 
-** Resamplig
+** Resampling
 Cycle index: {{ cycle_idx }}
 The percentage of cloned walkers: {{ percentage_cloned_walkers }} %
 The percentage of merged walkers: {{ percentage_merged_walkers }} %
