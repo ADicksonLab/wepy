@@ -738,15 +738,14 @@ class Manager(object):
         walkers = self.init_walkers
 
         # the main cycle loop
-        with start_action(action_type="Simulation Loop") as simloop_cx:
-            for cycle_idx in range(n_cycles):
-                walkers, filters = self.run_cycle(
-                    walkers, segment_lengths[cycle_idx], cycle_idx
-                )
+        for cycle_idx in range(n_cycles):
+            walkers, filters = self.run_cycle(
+                walkers, segment_lengths[cycle_idx], cycle_idx
+            )
 
-                # run the simulation monitor to get metrics on everything
-                if self.monitor is not None:
-                    self.monitor.cycle_monitor(self, walkers)
+            # run the simulation monitor to get metrics on everything
+            if self.monitor is not None:
+                self.monitor.cycle_monitor(self, walkers)
 
         self.cleanup()
 

@@ -443,8 +443,7 @@ class OpenMMRunner(Runner):
         steps_start = time.time()
 
         # Run the simulation segment for the number of time steps
-        with start_action(action_type="OpenMM Simulation.steps") as ommsim_cx:
-            simulation.step(segment_length)
+        simulation.step(segment_length)
 
         steps_end = time.time()
         steps_time = steps_end - steps_start
