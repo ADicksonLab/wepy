@@ -90,6 +90,45 @@ them is handled by the OpenMMState.
 
 """
 
+STATE_DATA_TYPE_ENUM_VALUES = (
+    ("positions", 1),
+    ("velocities", 2),
+    ("forces", 4),
+    ("energy", 8),
+    ("parameters", 16),
+    ("parameter_derivatives", 32),
+    ("integrator_parameters", 64),
+)
+"""Enum values for the state data field flags."""
+
+
+def get_state_fields_present(sim_state):
+    """For a state returns a set of the field data types present in it."""
+
+    flag_sum = sim_state.getDataTypes()
+
+    flag_fields = []
+    flag_values = []
+    flag_cum = flag_sum
+    for field_name, flag_value in reversed(STATE_DATA_TYPE_ENUM_VALUES):
+        if flag_value > flag_cum:
+            continue
+        elif flag_value == flag_cum:
+            flag_fields.append(field_name)
+            flag_values.append(flag_value)
+            break
+
+        else:
+            flag_fields.append(field_name)
+            flag_values.append(flag_value)
+            flag_cum -= flag_value
+
+    # double check they sum up
+    assert sum(flag_values) == flag_sum
+
+    return flag_fields
+
+
 # the Units objects that OpenMM uses internally and are returned from
 # simulation data
 
@@ -1111,19 +1150,38 @@ class OpenMMState(WalkerState):
         """Return a dictionary with all of the default keys from the wrapped
         simtk.openmm.State object"""
 
+        # figure out which fields the state has
+        fields_present = get_state_fields_present(self.sim_state)
+
         feature_d = {
-            "positions": self.positions_values(),
-            "velocities": self.velocities_values(),
-            "forces": self.forces_values(),
-            "kinetic_energy": self.kinetic_energy_value(),
-            "potential_energy": self.potential_energy_value(),
+            "positions": self.positions_values()
+            if "positions" in fields_present
+            else None,
+            "velocities": self.velocities_values()
+            if "velocities" in fields_present
+            else None,
+            "forces": self.forces_values() if "forces" in fields_present else None,
+            "kinetic_energy": self.kinetic_energy_value()
+            if "kinetic_energy" in fields_present
+            else None,
+            "potential_energy": self.potential_energy_value()
+            if "potential_energy" in fields_present
+            else None,
             "time": self.time_value(),
             "box_vectors": self.box_vectors_values(),
             "box_volume": self.box_volume_value(),
         }
 
-        params = self.parameters_features()
-        param_derivs = self.parameter_derivatives_features()
+        if "parameters" in fields_present:
+            params = self.parameters_features()
+        else:
+            params = None
+
+        if "parameter_derivatives" in fields_present:
+            param_derivs = self.parameter_derivatives_features()
+        else:
+            param_derivs = None
+
         if params is not None:
             feature_d.update(params)
         if param_derivs is not None:
