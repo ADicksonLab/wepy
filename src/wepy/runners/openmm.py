@@ -90,6 +90,73 @@ them is handled by the OpenMMState.
 
 """
 
+STATE_DATA_TYPE_ENUM_NAMES = {
+    "positions": "Positions",
+    "velocities": "Velocities",
+    "forces": "Forces",
+    "energy": "Energy",
+    "parameters": "Parameters",
+    "parameter_derivatives": "ParameterDerivatives",
+    "integrator_parameters": "IntegratorParameters",
+}
+
+# STATE_DATA_TYPE_ENUM_VALUES = (
+#     ("positions", 1),
+#     ("velocities", 2),
+#     ("forces", 4),
+#     ("energy", 8),
+#     ("parameters", 16),
+#     ("parameter_derivatives", 32),
+#     ("integrator_parameters", 64),
+# )
+# """Enum values for the state data field flags."""
+
+
+def resolve_state_data_type_enum_values():
+    enum_values = {}
+    for our_name, enum_name in STATE_DATA_TYPE_ENUM_NAMES.items():
+        enum_values[our_name] = getattr(omm.State, enum_name)
+
+    return enum_values
+
+
+# reversed since that is the order we check them in and is a frequent operation
+STATE_DATA_TYPE_ENUM_VALUES = list(
+    sorted(
+        [(k, v) for k, v in resolve_state_data_type_enum_values().items()],
+        key=lambda x: x[1],
+        reverse=True,
+    )
+)
+
+
+def get_state_fields_present(sim_state):
+    """For a state returns a set of the field data types present in it."""
+
+    flag_sum = sim_state.getDataTypes()
+
+    flag_fields = []
+    flag_values = []
+    flag_cum = flag_sum
+    for field_name, flag_value in STATE_DATA_TYPE_ENUM_VALUES:
+        if flag_value > flag_cum:
+            continue
+        elif flag_value == flag_cum:
+            flag_fields.append(field_name)
+            flag_values.append(flag_value)
+            break
+
+        else:
+            flag_fields.append(field_name)
+            flag_values.append(flag_value)
+            flag_cum -= flag_value
+
+    # double check they sum up
+    assert sum(flag_values) == flag_sum
+
+    return flag_fields
+
+
 # the Units objects that OpenMM uses internally and are returned from
 # simulation data
 
@@ -567,6 +634,9 @@ class OpenMMState(WalkerState):
         # save the simulation state
         self._sim_state = sim_state
 
+        # probe which data fields it has
+        self._sim_state_fields_present = get_state_fields_present(self.sim_state)
+
         # save additional data if given
         self._data = {}
         for key, value in kwargs.items():
@@ -652,13 +722,10 @@ class OpenMMState(WalkerState):
     @property
     def positions(self):
         """The positions of the state as a numpy array simtk.units.Quantity object."""
-        try:
+
+        if "positions" in self._sim_state_fields_present:
             return self.sim_state.getPositions(asNumpy=True)
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getPositions()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -678,13 +745,10 @@ class OpenMMState(WalkerState):
     @property
     def velocities(self):
         """The velocities of the state as a numpy array simtk.units.Quantity object."""
-        try:
+
+        if "velocities" in self._sim_state_fields_present:
             return self.sim_state.getVelocities(asNumpy=True)
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getVelocities()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -709,13 +773,10 @@ class OpenMMState(WalkerState):
     @property
     def forces(self):
         """The forces of the state as a numpy array simtk.units.Quantity object."""
-        try:
+
+        if "forces" in self._sim_state_fields_present:
             return self.sim_state.getForces(asNumpy=True)
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getForces()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -909,13 +970,9 @@ class OpenMMState(WalkerState):
 
         """
 
-        try:
+        if "parameters" in self._sim_state_fields_present:
             return self.sim_state.getParameters()
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getParameters()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -959,13 +1016,9 @@ class OpenMMState(WalkerState):
 
         """
 
-        try:
+        if "parameter_derivatives" in self._sim_state_fields_present:
             return self.sim_state.getEnergyParameterDerivatives()
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -1124,6 +1177,7 @@ class OpenMMState(WalkerState):
 
         params = self.parameters_features()
         param_derivs = self.parameter_derivatives_features()
+
         if params is not None:
             feature_d.update(params)
         if param_derivs is not None:
