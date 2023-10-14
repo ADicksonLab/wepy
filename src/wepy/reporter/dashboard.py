@@ -1,4 +1,4 @@
-"""WIP: Reporter that produces a text file that gives high level
+"""Reporter that produces a text file that gives high level
 information on the progress of a simulation.
 """
 # Standard Library
@@ -43,10 +43,9 @@ Last write Datetime: {{ curr_date_time }}
 Total Run time: {{ total_run_time }} s
 Last Cycle Index: {{ last_cycle_idx }}
 Number of Cycles: {{ n_cycles }}
+
 ** Walkers Summary
 {{ walker_cycle_summary_table }}
-** Walker Progress Summary
-{{ progress_summary_table }}
 """
 
     PERFORMANCE_SECTION_TEMPLATE = """
@@ -54,22 +53,31 @@ Average Cycle Time: {{ avg_cycle_time }}
 {% if avg_runner_time %}Average Runner Time: {{ avg_runner_time }}{% else %}{% endif %}
 {% if avg_bc_time %}Average Boundary Conditions Time: {{ avg_bc_time }}{% else %}{% endif %}
 {% if avg_resampling_time %}Average Resampling Time: {{ avg_resampling_time }}{% else %}{% endif %}
-Worker Avg. Segment Times:
+
+** Worker Avg. Segment Times:
 {{ worker_avg_segment_time }}
+
 ** Cycle Performance Log
 {{ cycle_log }}
+
 ** Worker Performance Log
 {{ performance_log }}
 """
 
     DASHBOARD_TEMPLATE = """* Simulation
 {{ simulation }}
+
+
 {% if resampler %}* Resampler{% else %}{% endif %}
 {% if resampler %}{{ resampler }}{% else %}{% endif %}
+
 {% if boundary_condition %}* Boundary Condition{% else %}{% endif %}
 {% if boundary_condition %}{{ boundary_condition }}{% else %}{% endif %}
+
 {% if runner %}* Runner{% else %}{% endif %}
+
 {% if runner %}{{ runner }}{% else %}{% endif %}
+
 * Performance
 {{ performance }}
 """
@@ -113,9 +121,6 @@ Worker Avg. Segment Times:
         self.cycle_resampling_times = []
         self.worker_records = []
 
-        # progress statistics
-        self.progress_summaries = []
-
     def init(self, **kwargs):
         super().init(**kwargs)
 
@@ -135,27 +140,11 @@ Worker Avg. Segment Times:
 
         return summary
 
-    def calc_progress_summary(self, **kwargs):
-        prog_data_dic = kwargs["progress_data"]
-
-        prog_data_key = [*prog_data_dic][0]
-
-        prog_data = prog_data_dic[prog_data_key]
-
-        summary = {
-            "min": np.min(prog_data),
-            "max": np.max(prog_data),
-            "mean": np.mean(prog_data),
-        }
-
-        return summary
-
     def update_values(self, **kwargs):
         ### simulation
 
         self.n_cycles += 1
         self.walker_prob_summaries.append(self.calc_walker_summary(**kwargs))
-        self.progress_summaries.append(self.calc_progress_summary(**kwargs))
 
         self.update_performance_values(**kwargs)
 
@@ -241,11 +230,6 @@ Worker Avg. Segment Times:
             walker_df, headers=walker_df.columns, tablefmt="orgtbl"
         )
 
-        prog_df = pd.DataFrame(self.progress_summaries)
-        prog_summary_tbl_str = tabulate(
-            prog_df, headers=prog_df.columns, tablefmt="orgtbl"
-        )
-
         # render the simulation section
         sim_section_d = {
             "init_date_time": self.init_date_time,
@@ -254,7 +238,6 @@ Worker Avg. Segment Times:
             "last_cycle_idx": kwargs["cycle_idx"],
             "n_cycles": self.n_cycles,
             "walker_cycle_summary_table": walker_summary_tbl_str,
-            "progress_summary_table": prog_summary_tbl_str,
         }
 
         sim_section_str = Template(self.SIMULATION_SECTION_TEMPLATE).render(
@@ -442,6 +425,11 @@ Total Number of Crossings: {{ total_crossings }}
 
 Cumulative Boundary Crossed Weight: {{ total_crossed_weight }}
 
+** Progress Log
+
+{{ progress_summary_table }}
+
+
 ** Warping Log
 
 {{ warping_log }}
@@ -480,10 +468,37 @@ Cumulative Boundary Crossed Weight: {{ total_crossed_weight }}
         self.total_crossings = 0
         self.total_crossed_weight = 0.0
 
+        # progress statistics
+        self.progress_summaries = []
+
+    def calc_progress_summary(self, **kwargs):
+        prog_data_dic = kwargs["progress_data"]
+
+        if len(prog_data_dic) == 0:
+            return {
+                "min": np.nan,
+                "max": np.nan,
+                "mean": np.nan,
+            }
+
+        else:
+            prog_data_key = [*prog_data_dic][0]
+
+            prog_data = prog_data_dic[prog_data_key]
+
+            return {
+                "min": np.min(prog_data),
+                "max": np.max(prog_data),
+                "mean": np.mean(prog_data),
+            }
+
     def update_values(self, **kwargs):
         # keep track of exactly how many walker segments are run, this
         # is useful for rate calculations via Hill's relation.
         self.total_n_walker_segments += len(kwargs["new_walkers"])
+
+        # report on the walker progress
+        self.progress_summaries.append(self.calc_progress_summary(**kwargs))
 
         # just create the bare warp records, since we know no more
         # domain knowledge, feel free to override and add more data to
@@ -524,11 +539,17 @@ Cumulative Boundary Crossed Weight: {{ total_crossed_weight }}
             warp_table_df, headers=warp_table_df.columns, tablefmt="orgtbl"
         )
 
+        prog_df = pd.DataFrame(self.progress_summaries)
+        prog_summary_tbl_str = tabulate(
+            prog_df, headers=prog_df.columns, tablefmt="orgtbl"
+        )
+
         fields = {
             "name": self.bc_name,
             "total_n_walker_segments": self.total_n_walker_segments,
             "total_crossings": self.total_crossings,
             "total_crossed_weight": self.total_crossed_weight,
+            "progress_summary_table": prog_summary_tbl_str,
             "warping_log": warp_table_str,
         }
 
