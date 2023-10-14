@@ -482,82 +482,6 @@ class NoBC(BoundaryConditions):
         return False
 
 
-class RandomBC(BoundaryConditions):
-    """Boundary conditions that randomly warps both continuously and
-    discontinuously.
-
-    Can be used with any system as it won't actually mutate states.
-
-    """
-
-    # records of boundary condition changes (sporadic)
-    BC_FIELDS = ("ping",)
-    BC_SHAPES = ((1,),)
-    BC_DTYPES = (int,)
-
-    BC_RECORD_FIELDS = ("ping",)
-
-    # warping fields are directly inherited
-
-    # progress towards the boundary conditions (continual)
-    PROGRESS_FIELDS = ("weight",)
-    PROGRESS_SHAPES = (Ellipsis,)
-    PROGRESS_DTYPES = (float,)
-
-    PROGRESS_RECORD_FIELDS = ("weight",)
-
-    DISCONTINUITY_TARGET_IDXS = (0,)
-
-    def warp_walkers(self, walkers, cycle):
-        ## warping walkers
-
-        # just return the same walkers
-        new_walkers = deepcopy(walkers)
-
-        ## warping data
-
-        warp_data = []
-        # generate warping data: 50% of the time generate a warping
-        # event, 25% is discontinuous (target 0), and 25% is
-        # continuous (target 1)
-        for walker_idx, walker in enumerate(walkers):
-            # warping event?
-            if random.random() >= 0.5:
-                # discontinuous?
-                if random.random() >= 0.5:
-                    warp_record = {
-                        "walker_idx": np.array([walker_idx]),
-                        "target_idx": np.array([0]),
-                        "weight": np.array([walker.weight]),
-                    }
-
-                    warp_data.append(warp_record)
-
-                # continuous
-                else:
-                    warp_record = {
-                        "walker_idx": np.array([walker_idx]),
-                        "target_idx": np.array([1]),
-                        "weight": np.array([walker.weight]),
-                    }
-
-                    warp_data.append(warp_record)
-
-        ## BC data
-        bc_data = []
-        # choose whether to generate a bc record
-        if random.random() >= 0.5:
-            bc_data.append({"ping": np.array([1])})
-
-        ## Progress data
-
-        # just set the walker progress to be its weight so there is a
-        # number there
-        progress_data = {"weight": [walker.weight for walker in walkers]}
-
-        return new_walkers, warp_data, bc_data, progress_data
-
-
 class WarpBC(BoundaryConditions):
     """Base class for boundary conditions with warping."""
 
@@ -703,55 +627,6 @@ class WarpBC(BoundaryConditions):
         }
 
         return warped_walker, warp_data
-
-    def warp_walkers(self, walkers, cycle):
-        ## warping walkers
-
-        # just return the same walkers
-        new_walkers = deepcopy(walkers)
-
-        ## warping data
-
-        warp_data = []
-        # generate warping data: 50% of the time generate a warping
-        # event, 25% is discontinuous (target 0), and 25% is
-        # continuous (target 1)
-        for walker_idx, walker in enumerate(walkers):
-            # warping event?
-            if random.random() >= 0.5:
-                # discontinuous?
-                if random.random() >= 0.5:
-                    warp_record = {
-                        "walker_idx": np.array([walker_idx]),
-                        "target_idx": np.array([0]),
-                        "weight": np.array([walker.weight]),
-                    }
-
-                    warp_data.append(warp_record)
-
-                # continuous
-                else:
-                    warp_record = {
-                        "walker_idx": np.array([walker_idx]),
-                        "target_idx": np.array([1]),
-                        "weight": np.array([walker.weight]),
-                    }
-
-                    warp_data.append(warp_record)
-
-        ## BC data
-        bc_data = []
-        # choose whether to generate a bc record
-        if random.random() >= 0.5:
-            bc_data.append({"ping": np.array([1])})
-
-        ## Progress data
-
-        # just set the walker progress to be its weight so there is a
-        # number there
-        progress_data = {"weight": [walker.weight for walker in walkers]}
-
-        return new_walkers, warp_data, bc_data, progress_data
 
     def _update_bc(self, new_walkers, warp_data, progress_data, cycle):
         """Perform an update to the boundary conditions.
@@ -901,3 +776,79 @@ class WarpBC(BoundaryConditions):
         # otherwise it wasn't a discontinuous target
         else:
             return False
+
+
+class RandomBC(BoundaryConditions):
+    """Boundary conditions that randomly warps both continuously and
+    discontinuously.
+
+    Can be used with any system as it won't actually mutate states.
+
+    """
+
+    # records of boundary condition changes (sporadic)
+    BC_FIELDS = ("ping",)
+    BC_SHAPES = ((1,),)
+    BC_DTYPES = (int,)
+
+    BC_RECORD_FIELDS = ("ping",)
+
+    # warping fields are directly inherited
+
+    # progress towards the boundary conditions (continual)
+    PROGRESS_FIELDS = ("weight",)
+    PROGRESS_SHAPES = (Ellipsis,)
+    PROGRESS_DTYPES = (float,)
+
+    PROGRESS_RECORD_FIELDS = ("weight",)
+
+    DISCONTINUITY_TARGET_IDXS = (0,)
+
+    def warp_walkers(self, walkers, cycle):
+        ## warping walkers
+
+        # just return the same walkers
+        new_walkers = deepcopy(walkers)
+
+        ## warping data
+
+        warp_data = []
+        # generate warping data: 50% of the time generate a warping
+        # event, 25% is discontinuous (target 0), and 25% is
+        # continuous (target 1)
+        for walker_idx, walker in enumerate(walkers):
+            # warping event?
+            if random.random() >= 0.5:
+                # discontinuous?
+                if random.random() >= 0.5:
+                    warp_record = {
+                        "walker_idx": np.array([walker_idx]),
+                        "target_idx": np.array([0]),
+                        "weight": np.array([walker.weight]),
+                    }
+
+                    warp_data.append(warp_record)
+
+                # continuous
+                else:
+                    warp_record = {
+                        "walker_idx": np.array([walker_idx]),
+                        "target_idx": np.array([1]),
+                        "weight": np.array([walker.weight]),
+                    }
+
+                    warp_data.append(warp_record)
+
+        ## BC data
+        bc_data = []
+        # choose whether to generate a bc record
+        if random.random() >= 0.5:
+            bc_data.append({"ping": np.array([1])})
+
+        ## Progress data
+
+        # just set the walker progress to be its weight so there is a
+        # number there
+        progress_data = {"weight": [walker.weight for walker in walkers]}
+
+        return new_walkers, warp_data, bc_data, progress_data
