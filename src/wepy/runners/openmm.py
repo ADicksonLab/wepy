@@ -606,6 +606,9 @@ class OpenMMState(WalkerState):
         # save the simulation state
         self._sim_state = sim_state
 
+        # probe which data fields it has
+        self._sim_state_fields_present = get_state_fields_present(self.sim_state)
+
         # save additional data if given
         self._data = {}
         for key, value in kwargs.items():
@@ -691,13 +694,10 @@ class OpenMMState(WalkerState):
     @property
     def positions(self):
         """The positions of the state as a numpy array simtk.units.Quantity object."""
-        try:
+
+        if "positions" in self._sim_state_fields_present:
             return self.sim_state.getPositions(asNumpy=True)
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getPositions()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -717,13 +717,10 @@ class OpenMMState(WalkerState):
     @property
     def velocities(self):
         """The velocities of the state as a numpy array simtk.units.Quantity object."""
-        try:
+
+        if "velocities" in self._sim_state_fields_present:
             return self.sim_state.getVelocities(asNumpy=True)
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getVelocities()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -748,13 +745,10 @@ class OpenMMState(WalkerState):
     @property
     def forces(self):
         """The forces of the state as a numpy array simtk.units.Quantity object."""
-        try:
+
+        if "forces" in self._sim_state_fields_present:
             return self.sim_state.getForces(asNumpy=True)
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getForces()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -948,13 +942,9 @@ class OpenMMState(WalkerState):
 
         """
 
-        try:
+        if "parameters" in self._sim_state_fields_present:
             return self.sim_state.getParameters()
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getParameters()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -998,13 +988,9 @@ class OpenMMState(WalkerState):
 
         """
 
-        try:
+        if "parameter_derivatives" in self._sim_state_fields_present:
             return self.sim_state.getEnergyParameterDerivatives()
-        except:
-            warn(
-                "Unknown exception handled from `self.sim_state.getEnergyParameterDerivatives()`, "
-                "this is probably because this attribute is not in the State."
-            )
+        else:
             return None
 
     @property
@@ -1150,37 +1136,19 @@ class OpenMMState(WalkerState):
         """Return a dictionary with all of the default keys from the wrapped
         simtk.openmm.State object"""
 
-        # figure out which fields the state has
-        fields_present = get_state_fields_present(self.sim_state)
-
         feature_d = {
-            "positions": self.positions_values()
-            if "positions" in fields_present
-            else None,
-            "velocities": self.velocities_values()
-            if "velocities" in fields_present
-            else None,
-            "forces": self.forces_values() if "forces" in fields_present else None,
-            "kinetic_energy": self.kinetic_energy_value()
-            if "kinetic_energy" in fields_present
-            else None,
-            "potential_energy": self.potential_energy_value()
-            if "potential_energy" in fields_present
-            else None,
+            "positions": self.positions_values(),
+            "velocities": self.velocities_values(),
+            "forces": self.forces_values(),
+            "kinetic_energy": self.kinetic_energy_value(),
+            "potential_energy": self.potential_energy_value(),
             "time": self.time_value(),
             "box_vectors": self.box_vectors_values(),
             "box_volume": self.box_volume_value(),
         }
 
-        if "parameters" in fields_present:
-            params = self.parameters_features()
-        else:
-            params = None
-
-        if "parameter_derivatives" in fields_present:
-            param_derivs = self.parameter_derivatives_features()
-        else:
-            param_derivs = None
+        params = self.parameters_features()
+        param_derivs = self.parameter_derivatives_features()
 
         if params is not None:
             feature_d.update(params)
