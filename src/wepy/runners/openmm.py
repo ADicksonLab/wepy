@@ -90,16 +90,44 @@ them is handled by the OpenMMState.
 
 """
 
-STATE_DATA_TYPE_ENUM_VALUES = (
-    ("positions", 1),
-    ("velocities", 2),
-    ("forces", 4),
-    ("energy", 8),
-    ("parameters", 16),
-    ("parameter_derivatives", 32),
-    ("integrator_parameters", 64),
+STATE_DATA_TYPE_ENUM_NAMES = {
+    "positions": "Positions",
+    "velocities": "Velocities",
+    "forces": "Forces",
+    "energy": "Energy",
+    "parameters": "Parameters",
+    "parameter_derivatives": "ParameterDerivatives",
+    "integrator_parameters": "IntegratorParameters",
+}
+
+# STATE_DATA_TYPE_ENUM_VALUES = (
+#     ("positions", 1),
+#     ("velocities", 2),
+#     ("forces", 4),
+#     ("energy", 8),
+#     ("parameters", 16),
+#     ("parameter_derivatives", 32),
+#     ("integrator_parameters", 64),
+# )
+# """Enum values for the state data field flags."""
+
+
+def resolve_state_data_type_enum_values():
+    enum_values = {}
+    for our_name, enum_name in STATE_DATA_TYPE_ENUM_NAMES.items():
+        enum_values[our_name] = getattr(omm.State, enum_name)
+
+    return enum_values
+
+
+# reversed since that is the order we check them in and is a frequent operation
+STATE_DATA_TYPE_ENUM_VALUES = list(
+    sorted(
+        [(k, v) for k, v in resolve_state_data_type_enum_values().items()],
+        key=lambda x: x[1],
+        reverse=True,
+    )
 )
-"""Enum values for the state data field flags."""
 
 
 def get_state_fields_present(sim_state):
@@ -110,7 +138,7 @@ def get_state_fields_present(sim_state):
     flag_fields = []
     flag_values = []
     flag_cum = flag_sum
-    for field_name, flag_value in reversed(STATE_DATA_TYPE_ENUM_VALUES):
+    for field_name, flag_value in STATE_DATA_TYPE_ENUM_VALUES:
         if flag_value > flag_cum:
             continue
         elif flag_value == flag_cum:
