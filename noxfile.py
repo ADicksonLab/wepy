@@ -342,7 +342,7 @@ def format(session):
 
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
-def tests_unit(
+def test_unit(
     session: nox.Session,
 ) -> None:
     """Run the unit tests, generate the coverage database and the HTML report."""
@@ -418,6 +418,67 @@ def build(session):
 
     session.run("hatch", "build")
 
+PACKAGE_NAME = 'wepy'
+PYTHON_DIST_DIR = PROJECT_ROOT_DIR / "dist"
+
+def gen_install_dist_spec(
+        session, dist_type,
+) -> Path:
+    """List paths to built python dists for installation.
+
+    Args:
+        dist_type: 'sdist' or 'wheel'
+
+    """
+
+    if dist_type == "sdist":
+        glob_pattern = f"{PACKAGE_NAME}*.tar.gz"
+
+    # TODO: add specifics for architectures
+    elif dist_type == "wheel":
+        glob_pattern = f"{PACKAGE_NAME}*.whl"
+
+    else:
+        raise ValueError(f"Unrecognized dist_type: {dist_type}")
+
+    dist_path_matches = list(PYTHON_DIST_DIR.glob(glob_pattern))
+
+    if len(dist_path_matches) > 1:
+        raise RuntimeError(
+            f"Multiple matches ({dist_path_matches}) "
+            f"for pattern ({glob_pattern}) on {PYTHON_DIST_DIR}"
+        )
+
+    if len(dist_path_matches) == 0:
+        raise RuntimeError(
+            "No matches found for pattern " f"{glob_pattern} on {PYTHON_DIST_DIR}"
+        )
+
+    dist_path = dist_path_matches[0]
+
+    return dist_path
+
+def create_dist_test_venv(
+    session, dist_type
+) -> tuple[Path, Path]:
+    venv_dir = PYTHON_DIST_DIR / f"{PACKAGE_NAME}-{dist_type}"
+
+    python_bin_path = make_virtualenv(session, venv_dir, force=True)
+
+    return venv_dir, python_bin_path
+
+
+@nox.session(python=DEFAULT_PYTHON_VERSION)
+def test_build(session):
+
+    for dist_type in (
+            "sdist",
+            "wheel",
+    ):
+        dist_path = gen_install_dist_spec(session, dist_type)
+
+        venv_dir, python_bin = create_dist_test_venv(
+)
 
 @nox.session(python=DEFAULT_PYTHON_VERSION)
 def bumpversion(session):

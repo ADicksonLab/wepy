@@ -38,4 +38,4 @@ jobs:
         python -m pip install --upgrade pip
         pip install nox
     - name: Unit Tests
-      run: python -m nox -s tests_unit
+      run: python -m nox -s test_unit
