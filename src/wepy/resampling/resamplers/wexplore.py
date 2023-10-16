@@ -2281,7 +2281,7 @@ class WExploreResampler(CloneMergeResampler):
     # fields for resampling data
     RESAMPLING_FIELDS = CloneMergeResampler.RESAMPLING_FIELDS + ("region_assignment",)
     RESAMPLING_SHAPES = CloneMergeResampler.RESAMPLING_SHAPES + (Ellipsis,)
-    RESAMPLING_DTYPES = CloneMergeResampler.RESAMPLING_DTYPES + (np.int,)
+    RESAMPLING_DTYPES = CloneMergeResampler.RESAMPLING_DTYPES + (int,)
 
     # fields that can be used for a table like representation
     RESAMPLING_RECORD_FIELDS = CloneMergeResampler.RESAMPLING_RECORD_FIELDS + (
@@ -2306,9 +2306,9 @@ class WExploreResampler(CloneMergeResampler):
         Ellipsis,
     )
     RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + (
-        np.int,
-        np.float,
-        np.int,
+        int,
+        float,
+        int,
         None,
     )
 

@@ -115,9 +115,9 @@ class REVOResampler(CloneMergeResampler):
         (1,),
     )
     RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + (
-        np.int,
-        np.float,
-        np.float,
+        int,
+        float,
+        float,
     )
 
     # fields that can be used for a table like representation
