@@ -181,7 +181,7 @@ Average Cycle Time: {{ avg_cycle_time }}
             # the aggregated table for the workers
             self.worker_agg_table = worker_df.groupby("worker_idx")[
                 ["segment_time"]
-            ].aggregate(np.mean)
+            ].aggregate("mean")
             self.worker_agg_table.rename(
                 columns={"segment_time": "avg_segment_time (s)"}, inplace=True
             )
