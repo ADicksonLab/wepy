@@ -489,6 +489,7 @@ class Manager(object):
         logger.info("Starting reporting")
         # report results to the reporters
         for reporter in self.reporters:
+            logger.info(f"Reporting with reporter: {reporter}")
             reporter.report(**report)
 
         # prepare resampled walkers for running new state changes
