@@ -80,7 +80,7 @@ GET_STATE_KWARG_DEFAULTS = (
     ("getForces", True),
     ("getEnergy", True),
     ("getParameters", True),
-    ("getParameterDerivatives", True),
+    ("getParameterDerivatives", False),
     ("enforcePeriodicBox", True),
 )
 """Mapping of key word arguments to the simulation.context.getState
@@ -210,6 +210,7 @@ class OpenMMRunner(Runner):
         platform=None,
         platform_kwargs=None,
         enforce_box=False,
+        get_parameter_derivs=False,
     ):
         """Constructor for OpenMMRunner.
 
@@ -239,6 +240,10 @@ class OpenMMRunner(Runner):
 
         enforce_box : bool
             Calls 'context.getState' with 'enforcePeriodicBox' if True.
+             (Default value = False)
+
+        get_parameter_derivs : bool
+            Calls 'context.getState' with 'getParameterDerivatives=True' if True),
              (Default value = False)
 
         Warnings
@@ -287,7 +292,8 @@ class OpenMMRunner(Runner):
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
         self.getState_kwargs["enforcePeriodicBox"] = self.enforce_box
-
+        self.getState_kwargs["getParameterDerivatives"] = self.get_parameter_derivs
+        
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
@@ -1176,12 +1182,13 @@ class OpenMMState(WalkerState):
         }
 
         params = self.parameters_features()
-        param_derivs = self.parameter_derivatives_features()
-
         if params is not None:
             feature_d.update(params)
-        if param_derivs is not None:
-            feature_d.update(param_derivs)
+
+        if self.getParamDerivs:
+            param_derivs = self.parameter_derivatives_features()
+            if param_derivs is not None:
+                feature_d.update(param_derivs)
 
         return feature_d
 
