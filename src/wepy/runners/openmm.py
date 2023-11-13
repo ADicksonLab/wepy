@@ -288,7 +288,8 @@ class OpenMMRunner(Runner):
         self.platform_kwargs = platform_kwargs
 
         self.enforce_box = enforce_box
-
+        self.get_parameter_derivs = get_parameter_derivs
+        
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
         self.getState_kwargs["enforcePeriodicBox"] = self.enforce_box
@@ -1185,10 +1186,9 @@ class OpenMMState(WalkerState):
         if params is not None:
             feature_d.update(params)
 
-        if self.getParamDerivs:
-            param_derivs = self.parameter_derivatives_features()
-            if param_derivs is not None:
-                feature_d.update(param_derivs)
+        param_derivs = self.parameter_derivatives_features()
+        if param_derivs is not None:
+            feature_d.update(param_derivs)
 
         return feature_d
 
