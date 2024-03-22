@@ -28,6 +28,7 @@ logger = logging.getLogger(__name__)
 
 # Third Party Library
 import numpy as np
+from wepy.util.util import box_vectors_to_lengths_angles
 
 
 class Distance(object):
@@ -116,3 +117,54 @@ class XYEuclideanDistance(Distance):
 
     def image_distance(self, image_a, image_b):
         return np.sqrt((image_a[0] - image_b[0]) ** 2 + (image_a[1] - image_b[1]) ** 2)
+
+class AtomPairDistance(Distance):
+    """Constructs a vector of atomic distances for each state.
+    Distance is the root mean squared distance between the vectors.
+    """
+
+    def __init__(self, pair_list, periodic=True):
+        """Construct a distance metric.
+
+        Parameters
+        ----------
+
+        pair_list : arraylike of tuples
+            The indices of the atom pairs between which to compute
+            distances.
+
+        """
+        self.pair_list = pair_list
+        self.periodic = periodic
+
+    def _adjust_disp_vector(self, disp, box_lengths):
+        edited = True
+        while edited:
+            edited = False
+            for i in range(3):
+                if disp[i] > box_lengths[i]/2:
+                    disp[i] -= box_lengths[i]
+                    edited = True
+                elif disp[i] < -box_lengths[i]/2:
+                    disp[i] += box_lengths[i]
+                    edited = True
+        return disp
+        
+    def image(self, state):
+
+        if self.periodic:
+            # get the box lengths from the vectors
+            box_lengths, box_angles = box_vectors_to_lengths_angles(state["box_vectors"])
+
+        dist_list = np.zeros((len(self.pair_list)))
+        for i,p in enumerate(self.pair_list):
+            disp_vector = state["positions"][p[0]] - state["positions"][p[1]]
+            if self.periodic:
+                dist_list[i] = np.sqrt(np.sum(np.square(self._adjust_disp_vector(disp_vector,box_lengths))))
+            else:
+                dist_list[i] = np.sqrt(np.sum(np.square(disp_vector)))
+        
+        return dist_list
+
+    def image_distance(self, image_a, image_b):
+        return np.sqrt(np.mean(np.square(image_a - image_b)))
