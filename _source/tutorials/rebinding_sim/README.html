@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Rebinding Simulation &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=2d51484f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=47a5fdc3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=bc181c52" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=2413df15"></script>
+    <script src="../../../_static/doctools.js?v=dcc2bf79"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/tutorials/rebinding_sim/README.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Analyzing Wepy Data" href="../data_analysis/index.html" />
+    <link rel="prev" title="Unbinding Simulation" href="../unbinding_sim/README.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../unbinding_sim/README.html" title="Previous document">Unbinding Simulation</a>
+        </li>
+        <li>
+          <a href="../data_analysis/index.html" title="Next document">Analyzing Wepy Data</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <section id="rebinding-simulation">
+<h1>Rebinding Simulation<a class="headerlink" href="#rebinding-simulation" title="Link to this heading">¶</a></h1>
+<p>In the previous step we mentioned about how to prepare your data for running a Wepy simulation. In this part, we will cover the topic of how to setup the simulation with this data.</p>
+<p>Which files you need depends on whether you are doing a rebinding or rebinding simulation. Since we are focusing on rebinding simulation for this tutorial we need the following files:</p>
+<ul class="simple">
+<li><p>system_bonded.pkl : Generated in the <cite>Building System and Topology Pickle Files</cite> section.</p></li>
+<li><p>topology_bonded.pkl : Generated in the <cite>Building System and Topology Pickle Files</cite> section.</p></li>
+<li><p>system_unbonded.pkl : Generated in the <cite>Building System and Topology Pickle Files</cite> section.</p></li>
+<li><p>topology_unbonded.pkl : Generated in the <cite>Building System and Topology Pickle Files</cite> section.</p></li>
+<li><p>*.rst : A restart file from the simulation you want to continue from. This is need for getting the positions and boundary values of the system. E.g. <cite>step5_10.rst</cite> in this case.</p></li>
+<li><p>*.pdb : A PDB file of the system. E.g. <cite>step3_input.pdb</cite> in this case.</p></li>
+</ul>
+<p>If you do not have these files, please visit the <code class="xref any docutils literal notranslate"><span class="pre">How</span> <span class="pre">to</span> <span class="pre">Prepare</span> <span class="pre">Your</span> <span class="pre">Data</span></code> section of this tutorial.</p>
+<p>After confirming that you have the necessary files, you can proceed to the next step. Let’s start by importing necessary modules.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">import</span> <span class="nn">pickle</span> <span class="k">as</span> <span class="nn">pkl</span>
+
+<span class="kn">import</span> <span class="nn">simtk.openmm.app</span> <span class="k">as</span> <span class="nn">omma</span>
+<span class="kn">import</span> <span class="nn">simtk.openmm</span> <span class="k">as</span> <span class="nn">omm</span>
+<span class="kn">import</span> <span class="nn">simtk.unit</span> <span class="k">as</span> <span class="nn">unit</span>
+
+<span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
+
+<span class="kn">from</span> <span class="nn">wepy.sim_manager</span> <span class="kn">import</span> <span class="n">Manager</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.revo</span> <span class="kn">import</span> <span class="n">REVOResampler</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.distances.receptor</span> <span class="kn">import</span> <span class="n">RebindingDistance</span>
+<span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="kn">import</span> <span class="n">OpenMMGPUWalkerTaskProcess</span><span class="p">,</span> <span class="n">OpenMMRunner</span><span class="p">,</span> <span class="n">OpenMMWalker</span><span class="p">,</span> <span class="n">OpenMMState</span><span class="p">,</span> <span class="n">gen_sim_state</span>
+<span class="kn">from</span> <span class="nn">wepy.boundary_conditions.receptor</span> <span class="kn">import</span> <span class="n">RebindingBC</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.hdf5</span> <span class="kn">import</span> <span class="n">WepyHDF5Reporter</span>
+<span class="kn">from</span> <span class="nn">wepy.work_mapper.task_mapper</span> <span class="kn">import</span> <span class="n">TaskMapper</span>
+<span class="kn">from</span> <span class="nn">wepy.util.mdtraj</span> <span class="kn">import</span> <span class="n">mdtraj_to_json_topology</span>
+
+<span class="kn">from</span> <span class="nn">walker_pkl_reporter</span> <span class="kn">import</span> <span class="n">WalkersPickleReporter</span>
+
+<span class="kn">from</span> <span class="nn">wepy.reporter.dashboard</span> <span class="kn">import</span> <span class="n">DashboardReporter</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.openmm</span> <span class="kn">import</span> <span class="n">OpenMMRunnerDashboardSection</span>
+</pre></div>
+</div>
+<p>Great! Now that we have imported the necessary modules, we can proceed to setup simulation parameters file directories. In this tutorial, we will utilize 8 walkers and run 2 cycles of 5 steps. These parameters can be adjusted to suit your needs since these parameters are for a short demonstration.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Typical sim details</span>
+<span class="n">num_walkers</span> <span class="o">=</span> <span class="mi">8</span>
+<span class="n">run</span> <span class="o">=</span> <span class="mi">1</span>
+<span class="n">n_steps</span> <span class="o">=</span> <span class="mi">5</span>
+<span class="n">n_cycles</span> <span class="o">=</span> <span class="mi">2</span>
+
+<span class="c1"># Native state</span>
+<span class="n">native_rst_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/native.rst&#39;</span>
+<span class="n">native_system_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/system_native.pkl&#39;</span>
+<span class="n">native_topology_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/topology_native.pkl&#39;</span>
+
+<span class="c1">#### Paths: Set it to your preference</span>
+<span class="n">inp_path</span> <span class="o">=</span> <span class="s1">&#39;./&#39;</span>
+<span class="n">pdb_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/step3_input.pdb&#39;</span>
+<span class="n">rst_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/step5_10.rst&#39;</span>
+<span class="n">system_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/system.pkl&#39;</span>
+<span class="n">topology_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">inp_path</span><span class="si">}</span><span class="s1">/topology.pkl&#39;</span>
+<span class="n">outputs_dir</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;simdata_run</span><span class="si">{</span><span class="n">run</span><span class="si">}</span><span class="s1">_steps</span><span class="si">{</span><span class="n">n_steps</span><span class="si">}</span><span class="s1">_cycs</span><span class="si">{</span><span class="n">n_cycles</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1">####</span>
+</pre></div>
+</div>
+<p>The next step is to use the files we have prepared to setup the simulation. We will start by loading the system and topology files.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">system_path</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+<span class="n">system</span> <span class="o">=</span> <span class="n">pkl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">topology_path</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">omm_top</span> <span class="o">=</span> <span class="n">pkl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># Load native state system</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">native_system_path</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">native_system</span> <span class="o">=</span> <span class="n">pkl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">native_topology_path</span><span class="p">,</span><span class="s1">&#39;rb&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">native_omm_top</span> <span class="o">=</span> <span class="n">pkl</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+
+<span class="c1"># Get positions and box vectors from an rst file</span>
+<span class="c1"># This is typically a restart file post nvt/npt from openmm</span>
+<span class="c1"># However, you can build it from scratch using omma.PDBFile() too</span>
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">rst_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">simtk_state</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">XmlSerializer</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">bv</span> <span class="o">=</span> <span class="n">simtk_state</span><span class="o">.</span><span class="n">getPeriodicBoxVectors</span><span class="p">()</span>
+    <span class="n">pos</span> <span class="o">=</span> <span class="n">simtk_state</span><span class="o">.</span><span class="n">getPositions</span><span class="p">()</span>
+
+<span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">native_rst_path</span><span class="p">,</span> <span class="s1">&#39;r&#39;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+    <span class="n">native_simtk_state</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">XmlSerializer</span><span class="o">.</span><span class="n">deserialize</span><span class="p">(</span><span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">())</span>
+    <span class="n">native_bv</span> <span class="o">=</span> <span class="n">native_simtk_state</span><span class="o">.</span><span class="n">getPeriodicBoxVectors</span><span class="p">()</span>
+    <span class="n">native_pos</span> <span class="o">=</span> <span class="n">native_simtk_state</span><span class="o">.</span><span class="n">getPositions</span><span class="p">()</span>
+
+<span class="n">system</span><span class="o">.</span><span class="n">setDefaultPeriodicBoxVectors</span><span class="p">(</span><span class="n">bv</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span><span class="n">bv</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span><span class="n">bv</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>Now we need an integrator and a runner for our simulation. an integrator is a computational method that updates the positions and velocities of particles over time. It calculates the motion of particles based on the forces acting on them, following Newton’s laws of motion. In this tutorial, we will use the Langevin integrator. This simulation will be running on a GPU, so we will use the <cite>platform=’CUDA’</cite> option while setting up the <cite>OpenMMRunner</cite>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">integrator</span> <span class="o">=</span> <span class="n">omm</span><span class="o">.</span><span class="n">LangevinIntegrator</span><span class="p">(</span><span class="mi">300</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">kelvin</span><span class="p">,</span>
+                                <span class="mi">1</span><span class="o">/</span><span class="n">unit</span><span class="o">.</span><span class="n">picosecond</span><span class="p">,</span>
+                                <span class="mf">0.002</span><span class="o">*</span><span class="n">unit</span><span class="o">.</span><span class="n">picoseconds</span><span class="p">)</span>
+
+<span class="n">runner</span> <span class="o">=</span> <span class="n">OpenMMRunner</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">omm_top</span><span class="p">,</span> <span class="n">integrator</span><span class="p">,</span> <span class="n">platform</span><span class="o">=</span><span class="s1">&#39;CUDA&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we will build the walkers for the simulation. For this, we need to generate the state from the system and topology files. All of the initial walkers will have the same state and weight at the start of the simulation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Generate a new simtk &quot;state&quot;</span>
+<span class="n">new_simtk_state</span> <span class="o">=</span> <span class="n">gen_sim_state</span><span class="p">(</span><span class="n">pos</span><span class="p">,</span>
+                                <span class="n">system</span><span class="p">,</span>
+                                <span class="n">integrator</span><span class="p">)</span>
+
+<span class="c1"># Generate native simtk state</span>
+<span class="n">native_simtk_state</span> <span class="o">=</span> <span class="n">gen_sim_state</span><span class="p">(</span><span class="n">native_pos</span><span class="p">,</span>
+                                <span class="n">native_system</span><span class="p">,</span>
+                                <span class="n">integrator</span><span class="p">)</span>
+
+<span class="c1"># Set up parameters for running the simulation</span>
+<span class="n">init_weight</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">num_walkers</span>
+
+<span class="c1"># Generate the walker state in wepy format</span>
+<span class="n">walker_state</span> <span class="o">=</span> <span class="n">OpenMMState</span><span class="p">(</span><span class="n">new_simtk_state</span><span class="p">)</span>
+
+<span class="c1"># Make a list of the initial walkers</span>
+<span class="n">init_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="n">OpenMMWalker</span><span class="p">(</span><span class="n">walker_state</span><span class="p">,</span> <span class="n">init_weight</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">num_walkers</span><span class="p">)]</span>
+
+<span class="n">native_state</span> <span class="o">=</span> <span class="n">OpenMMState</span><span class="p">(</span><span class="n">native_simtk_state</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Now that we have the walkers, we need a distance metric for measuring differences between walker states. In this case, we will use the RebindingDistance class from the wepy library, however you can define your own distance metrics if needed. For this tutorial, we will use the the indices of the ligand, binding site and the walker state.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">pdb</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">load_pdb</span><span class="p">(</span><span class="n">pdb_path</span><span class="p">)</span>
+<span class="n">json_top</span> <span class="o">=</span> <span class="n">mdtraj_to_json_topology</span><span class="p">(</span><span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="p">)</span>
+
+<span class="c1"># Save some relevant indices</span>
+<span class="n">lig_idxs</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;&lt;selection of your ligand&gt;&#39;</span><span class="p">)</span>
+<span class="n">binding_selection_idxs</span> <span class="o">=</span>  <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;&lt;selection of your binding site residues&gt;&#39;</span><span class="p">)</span>
+
+<span class="c1"># Distance metric to be used in REVO</span>
+<span class="n">rb_distance</span> <span class="o">=</span> <span class="n">RebindingDistance</span><span class="p">(</span><span class="n">lig_idxs</span><span class="p">,</span>
+                                 <span class="n">binding_selection_idxs</span><span class="p">,</span>
+                                 <span class="n">native_state</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we will setup the boundary conditions for the simulation. In this case, we will use the RebindingBC class from the wepy library. This class will be used to check if the walker has crossed the boundary and should be resampled.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">rbc</span> <span class="o">=</span> <span class="n">RebindingBC</span><span class="p">(</span><span class="n">cutoff_distance</span><span class="o">=</span><span class="mf">0.2</span><span class="p">,</span>  <span class="c1"># nm</span>
+                  <span class="n">native_state</span><span class="o">=</span><span class="n">native_state</span><span class="p">,</span>
+                  <span class="n">initial_state</span><span class="o">=</span><span class="n">walker_state</span><span class="p">,</span>
+                  <span class="n">initial_weights</span><span class="o">=</span><span class="n">init_weight</span><span class="p">,</span>
+                  <span class="n">topology</span><span class="o">=</span><span class="n">json_top</span><span class="p">,</span>
+                  <span class="n">ligand_idxs</span><span class="o">=</span><span class="n">lig_idxs</span><span class="p">,</span>
+                  <span class="n">binding_site_idxs</span><span class="o">=</span><span class="n">binding_selection_idxs</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Next, we will use the REVOResampler class from the wepy library to setup the resampler. This class will be used to resample the walkers based on the distance metric and boundary conditions we have defined.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Set up the REVO Resampler with the parameters</span>
+<span class="n">resampler</span> <span class="o">=</span> <span class="n">REVOResampler</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="n">rb_distance</span><span class="p">,</span>
+                          <span class="n">init_state</span><span class="o">=</span><span class="n">walker_state</span><span class="p">,</span>
+                          <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                          <span class="n">pmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                          <span class="n">dist_exponent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                          <span class="n">merge_dist</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                          <span class="n">char_dist</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And finally, we need to setup the reporters for recording the simulation data, define the task mapper and the simulation manager. An important point in this step is to define the number of workers and the device ids for the GPU. In this case, we will use 2 workers and the GPU device ids 0 and 1. If you are using more GPUs, you can increase the number of workers and device ids accordingly.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Set up the HDF5 reporter</span>
+<span class="n">hdf5_reporter</span> <span class="o">=</span> <span class="n">WepyHDF5Reporter</span><span class="p">(</span><span class="n">save_fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;positions&#39;</span><span class="p">,</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">),</span>
+                            <span class="n">file_path</span><span class="o">=</span><span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;wepy.results.h5&#39;</span><span class="p">)</span> <span class="p">,</span>
+                            <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+                            <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">rbc</span><span class="p">,</span>
+                            <span class="n">topology</span><span class="o">=</span><span class="n">json_top</span><span class="p">)</span>
+
+<span class="c1"># Set up the pickle reporter (Essential for restarts)</span>
+<span class="n">out_folder_pkl</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;pkls&#39;</span><span class="p">)</span>
+<span class="n">pkl_reporter</span> <span class="o">=</span> <span class="n">WalkersPickleReporter</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">=</span> <span class="n">out_folder_pkl</span><span class="p">,</span>
+                                 <span class="n">freq</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                                 <span class="n">num_backups</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+
+<span class="c1"># Set up the dashboard reporter</span>
+<span class="n">dashboard_path</span> <span class="o">=</span> <span class="n">osp</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">outputs_dir</span><span class="p">,</span><span class="sa">f</span><span class="s1">&#39;wepy.dash.org&#39;</span><span class="p">)</span>
+<span class="n">openmm_dashboard_sec</span> <span class="o">=</span> <span class="n">OpenMMRunnerDashboardSection</span><span class="p">(</span><span class="n">runner</span><span class="p">)</span>
+<span class="n">dashboard_reporter</span> <span class="o">=</span> <span class="n">DashboardReporter</span><span class="p">(</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">dashboard_path</span><span class="p">,</span>
+                                    <span class="n">runner_dash</span> <span class="o">=</span> <span class="n">openmm_dashboard_sec</span><span class="p">)</span>
+
+
+<span class="c1"># Create a work mapper for NVIDIA GPUs for a GPU cluster</span>
+<span class="n">mapper</span> <span class="o">=</span> <span class="n">TaskMapper</span><span class="p">(</span><span class="n">walker_task_type</span><span class="o">=</span><span class="n">OpenMMGPUWalkerTaskProcess</span><span class="p">,</span>
+                    <span class="n">num_workers</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                    <span class="n">platform</span><span class="o">=</span><span class="s1">&#39;CUDA&#39;</span><span class="p">,</span>
+                    <span class="n">device_ids</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">])</span>
+
+<span class="c1"># Build the simulation manager</span>
+<span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span>
+                      <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                      <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+                      <span class="n">boundary_conditions</span><span class="o">=</span><span class="n">rbc</span><span class="p">,</span>
+                      <span class="n">work_mapper</span><span class="o">=</span><span class="n">mapper</span><span class="p">,</span>
+                      <span class="n">reporters</span><span class="o">=</span><span class="p">[</span><span class="n">hdf5_reporter</span><span class="p">,</span> <span class="n">pkl_reporter</span><span class="p">,</span> <span class="n">dashboard_reporter</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Running the simulation...&#39;</span><span class="p">)</span>
+<span class="c1"># run a simulation with the manager for &#39;n_cycles&#39; with &#39;n_steps&#39; of integrator steps in each</span>
+<span class="n">steps_list</span> <span class="o">=</span> <span class="p">[</span><span class="n">n_steps</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">)]</span>
+
+<span class="c1"># and..... go!</span>
+<span class="n">sim_manager</span><span class="o">.</span><span class="n">run_simulation</span><span class="p">(</span><span class="n">n_cycles</span><span class="p">,</span>
+                           <span class="n">steps_list</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>And that is it! Now you can start the simulation by running <code class="docutils literal notranslate"><span class="pre">python</span> <span class="pre">wepy_run.py</span></code>. The simulation will run for the specified number of cycles and steps. The simulation data will be saved in the <code class="docutils literal notranslate"><span class="pre">outputs_dir</span></code> directory. You can use the saved data to analyze the simulation results.</p>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../unbinding_sim/README.html" title="Previous document">Unbinding Simulation</a>
+        </li>
+        <li>
+          <a href="../data_analysis/index.html" title="Next document">Analyzing Wepy Data</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide.html">Comprehensive User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Overview</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Tutorials</a><ul>
+      <li>Previous: <a href="../unbinding_sim/README.html" title="previous chapter">Unbinding Simulation</a></li>
+      <li>Next: <a href="../data_analysis/index.html" title="next chapter">Analyzing Wepy Data</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../_sources/_source/tutorials/rebinding_sim/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

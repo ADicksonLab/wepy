@@ -1,0 +1,207 @@
+Changelog
+=========
+
+Adapted from `keepachangelog.com <https://keepachangelog.com>`__ for
+org-mode.
+
+See the git commit log history for full details.
+
+.. _section-1:
+
+1.1.0 - 2021-03-22
+------------------
+
+-  Fixes uninitialized discontinuities when not using boundary
+   conditions in a ``ContigTree``. (Fixes: 10.gh\ :sub:`issue`)
+-  Fixes mistake in the ``ContigTree.lineages`` function. (Fixes:
+   10.gh\ :sub:`issue`)
+-  Adds an option to account for discontinuities in
+   ``ContigTree.lineages``.
+-  Fixes the ``WepyHDF5.observable_field_names`` function.
+-  Fixes the ``ContigTreeProfiler`` functions for partitioning FE
+   profiles into tranches: ``_tranche_cumulative_partitions``
+-  Fixes the setting of continuations in ``ContigTree`` initialization.
+-  Fixes computation of ``ContigTreeProfiler.fe_profile_all``.
+-  Fix the arguments to the mapped function in
+   ``MacroStateNetwork.node_fields_map``
+-  Removed all implicit file opening in ``MacroStateNetwork`` except for
+   in the ``BaseMacroStateNetwork`` constructor. This allows for
+   parallel processing.
+-  Improves calculations of transition counts when constructing
+   ``BaseMacroStateNetwork`` objects. Now instead of only calculating
+   the "weighted counts" for edges the "unweighted counts" are also
+   calculated and the full set of transition sample weights are also
+   saved as edge attributes. This change in interface is the reason for
+   the **breakages** and **regressions**, see below.
+-  Addition of the ``edge_attribute_to_matrix`` to the
+   ``BaseMacroStateNetwork`` (and ``MacroStateNetwork``) classes. This
+   generalizes and supercedes the use of the precomputed ``countsmat``
+   and ``probmat`` attributes. And makes the source-to-sink orientation
+   of the matrix explicit and user controlled.
+-  Addition of edge attribute getting methods similar to the node ones:
+   ``get_edge_attribute``, ``get_edge_attributes``,
+   ``get_edges_attributes``.
+-  Fixes the setting of the platform in the ``OpenMMRunner`` when the
+   ``pre_cycle()`` is called without a platform.
+-  Moves the ``set_loglevel`` function into ``wepy.util.util`` thus
+   making it a general purpose function rather than a helper to the
+   orchestration CLI (see breakages, but we don't expect anyone to have
+   used this and is minor).
+
+Breakages
+~~~~~~~~~
+
+-  The two attributes ``countsmat`` and ``probmat`` for
+   ``(Base)MacroStateNetwork`` classes have been removed, and superceded
+   by the ``edge_attribute_to_matrix`` method.
+-  The values of the columns of the nodes and edges dataframe have
+   changed. They no longer have the 'Weight' column, which was for
+   support of gephi tables, and was too tight a coupling. The edges
+   dataframe will no longer have the 'transition probability' or 'type'
+   columns. The latter for similar reasons and the former because this
+   value is no longer calculated.
+-  The ``set_loglevel`` function was removed from
+   ``wepy.orchestration.cli`` to ``wepy.util.util``, risk of breaking
+   other peoples code is low (we can put a stub in for backwards
+   compatibility if needed).
+
+Regression
+~~~~~~~~~~
+
+-  As stated in the Growth items, a potentially large amount of
+   transition sample weights are stored in the ``BaseMacroStateNetwork``
+   object now.
+
+.. _section-2:
+
+1.0.7 - 2020-11-12
+------------------
+
+-  Adds a check to make sure the ``platform`` for the
+   ``runners.openmm.OpenMMRunner`` is a string and not an actual
+   ``Platform`` object.
+-  Fixes the :sub:`tranchecumulativepartition` function in the
+   ``analysis.profiles`` module.
+-  Pins version of ``h5py`` to less than version 3, which introduced
+   breaking API changes.
+
+.. _section-3:
+
+1.0.6 - 2020-09-28
+------------------
+
+-  Fixes the ``WepyHDF5.get_trace_field`` function.
+
+   Previously I had implemented a chunking strategy to improve
+   performance for situations with very long traces. This has a bug
+   somewhere in it. For the time being we have just reverted this
+   optimization to the naive (but correct) approach. If an optimized
+   version is introduced it will be made explicit (either in the
+   ``get_trace_field`` call, or as a wrapper or separate method).
+
+.. _section-4:
+
+1.0.5 - 2020-09-14
+------------------
+
+-  Work around fix for final snapshot in orchestrator being deleted if
+   it is the same hash as the last checkpoint snapshot.
+
+.. _section-5:
+
+1.0.4 - 2020-08-27
+------------------
+
+-  Fixes the broken CLI interface. Moves it into the standard
+   ``__main__.py`` module.
+
+.. _section-6:
+
+1.0.3 - 2020-08-19
+------------------
+
+-  This fixes an issue with the MacroStateNetwork that allows for
+
+different shapes of state assignment arrays. This was previously an
+issue but did not completely solve the issue.
+
+.. _section-7:
+
+1.0.2 - 2020-08-13
+------------------
+
+-  Fixes too-large chunk size when copying observable run data to other
+   files in ``WepyHDF5.copy_run_slice``
+-  Improves docstrings for the MacroStateNetwork methods
+
+.. _section-8:
+
+1.0.1 - 2020-08-07
+------------------
+
+This fixes an issue with the MacroStateNetwork that allows for different
+shapes of state assignment arrays.
+
+.. _section-9:
+
+1.0.0 - 2020-08-04
+------------------
+
+Changes in rc6:
+
+-  adds feature to make weighted transition counts from simulation data.
+   This was also made the way that the MacroStateNetwork calculates the
+   counts and transition probabilities matrices.
+-  Fixed initialization errors in the TaskMapper which would cause a
+   zombie job.
+-  Fixed implementation of the CPU Task process for OpenMM.
+-  Fixed sim maker details in wepy\ :sub:`tools`
+
+Changes in rc5:
+
+-  adds simulation monitoring via prometheus (or whatever) as a feature
+
+Changes in rc4:
+
+-  fixes bugs introduced to work mappers from rc2
+
+Changes in rc3:
+
+-  removed integration with ``openmmtools.testsystems`` in favor of
+   ``openmm_systems`` fork
+
+Changes in rc2:
+
+-  adds support for setting the OpenMM Platform at ``run_segment`` or in
+   ``pre_cycle``
+-  add support for parametrizing apparatus components (runner,
+   resampler, or BC) in the orchestration ``Configuration`` object.
+-  Fixes ``wepy_tools.sim_makers`` for no longer default arguments for
+   resamplers.
+-  minor bugfixes found during testing.
+
+Changes in rc1:
+
+-  fixes bug in WorkerMapper
+
+1.0.0rc1 - 2020-04-09
+---------------------
+
+Changes in rc2:
+
+-  adds support for setting the OpenMM Platform at ``run_segment`` or in
+   ``pre_cycle``
+-  add support for parametrizing apparatus components (runner,
+   resampler, or BC) in the orchestration ``Configuration`` object.
+-  Fixes ``wepy_tools.sim_makers`` for no longer default arguments for
+   resamplers.
+-  minor bugfixes found during testing.
+
+Changes in rc1:
+
+-  fixes bug in WorkerMapper
+
+1.0.0rc0
+--------
+
+Prehistory

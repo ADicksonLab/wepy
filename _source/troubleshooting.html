@@ -1,30 +1,31 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>FAQ &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=2d51484f" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=47a5fdc3" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=bc181c52" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=2413df15"></script>
+    <script src="../_static/doctools.js?v=dcc2bf79"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/troubleshooting.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Reference" href="reference.html" />
-    <link rel="prev" title="User’s Guide" href="users_guide.html" />
+    <link rel="prev" title="Comprehensive User’s Guide" href="users_guide.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -38,7 +39,7 @@
     <ul>
         <li>
           &larr;
-          <a href="users_guide.html" title="Previous document">User’s Guide</a>
+          <a href="users_guide.html" title="Previous document">Comprehensive User’s Guide</a>
         </li>
         <li>
           <a href="reference.html" title="Next document">Reference</a>
@@ -51,21 +52,21 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="faq">
-<h1>FAQ<a class="headerlink" href="#faq" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="my-results-files-are-large-can-i-compress-them">
-<h2>My results files are large, can I compress them?<a class="headerlink" href="#my-results-files-are-large-can-i-compress-them" title="Permalink to this headline">¶</a></h2>
+  <section id="faq">
+<h1>FAQ<a class="headerlink" href="#faq" title="Link to this heading">¶</a></h1>
+<section id="my-results-files-are-large-can-i-compress-them">
+<h2>My results files are large, can I compress them?<a class="headerlink" href="#my-results-files-are-large-can-i-compress-them" title="Link to this heading">¶</a></h2>
 <p>There is an HDF5 tool that allows you to “repack” and compress your
 datasets called <code class="docutils literal notranslate"><span class="pre">h5repack</span></code>. A good ratio of compression to time is
 using GZIP level 2 but read the documentation to customize for yourself:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>h5repack -f <span class="nv">GZIP</span><span class="o">=</span><span class="m">2</span> original.wepy.h5 compressed.wepy.h5
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>h5repack<span class="w"> </span>-f<span class="w"> </span><span class="nv">GZIP</span><span class="o">=</span><span class="m">2</span><span class="w"> </span>original.wepy.h5<span class="w"> </span>compressed.wepy.h5
 </pre></div>
 </div>
 <p>There are other more involved mechanisms, but this should cut your size
 significantly.</p>
-</div>
-<div class="section" id="i-get-a-valid-identifiers-error-when-accessing-hdf5-data">
-<h2>I get a ‘valid identifiers’ error when accessing HDF5 data.<a class="headerlink" href="#i-get-a-valid-identifiers-error-when-accessing-hdf5-data" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="i-get-a-valid-identifiers-error-when-accessing-hdf5-data">
+<h2>I get a ‘valid identifiers’ error when accessing HDF5 data.<a class="headerlink" href="#i-get-a-valid-identifiers-error-when-accessing-hdf5-data" title="Link to this heading">¶</a></h2>
 <p>If you get something like this:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="ne">ValueError</span><span class="p">:</span> <span class="n">Type</span> <span class="n">names</span> <span class="ow">and</span> <span class="n">field</span> <span class="n">names</span> <span class="n">must</span> <span class="n">be</span> <span class="n">valid</span> <span class="n">identifiers</span><span class="p">:</span> <span class="s2">&quot;b&#39;decision_id&#39;&quot;</span>
 </pre></div>
@@ -73,18 +74,18 @@ significantly.</p>
 <p>When accessing your WepyHDF5 data its likely because you have a version
 of <code class="docutils literal notranslate"><span class="pre">h5py</span></code> that is too new. Simply downgrade to before version 3.0.</p>
 <p>You can check this by running:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip list <span class="p">|</span> grep h5py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>list<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>h5py
 </pre></div>
 </div>
 <p>And install an ealier version:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install <span class="s1">&#39;h5py&lt;3&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span><span class="s1">&#39;h5py&lt;3&#39;</span>
 </pre></div>
 </div>
 <p>See <em>I think I have the wrong versions of dependencies</em> for more info on
 fixing dependencies.</p>
-</div>
-<div class="section" id="i-think-i-have-the-wrong-versions-of-dependencies">
-<h2>I think I have the wrong versions of dependencies<a class="headerlink" href="#i-think-i-have-the-wrong-versions-of-dependencies" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="i-think-i-have-the-wrong-versions-of-dependencies">
+<h2>I think I have the wrong versions of dependencies<a class="headerlink" href="#i-think-i-have-the-wrong-versions-of-dependencies" title="Link to this heading">¶</a></h2>
 <p>All known version constrained dependencies are recorded both in the
 <code class="docutils literal notranslate"><span class="pre">setup.py</span></code> file (this is what gets installed) as well as the
 <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file. The <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> file allows for more
@@ -92,8 +93,8 @@ complex expressions of dependencies and may have notes as to why they
 are constrained.</p>
 <p>You can check <code class="docutils literal notranslate"><span class="pre">info/changelog.org</span></code> to find when and why a constraint
 was added as well.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -103,7 +104,7 @@ was added as well.</p>
     <ul>
         <li>
           &larr;
-          <a href="users_guide.html" title="Previous document">User’s Guide</a>
+          <a href="users_guide.html" title="Previous document">Comprehensive User’s Guide</a>
         </li>
         <li>
           <a href="reference.html" title="Next document">Reference</a>
@@ -115,11 +116,11 @@ was added as well.</p>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -144,19 +145,17 @@ was added as well.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start/index.html">Quick Start</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide.html">User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="users_guide.html">Comprehensive User’s Guide</a></li>
 <li class="toctree-l1 current"><a class="current reference internal" href="#">FAQ</a></li>
 <li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
 <li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="general_info.html">General Information</a></li>
@@ -169,21 +168,21 @@ was added as well.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="users_guide.html" title="previous chapter">User’s Guide</a></li>
+      <li>Previous: <a href="users_guide.html" title="previous chapter">Comprehensive User’s Guide</a></li>
       <li>Next: <a href="reference.html" title="next chapter">Reference</a></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -197,11 +196,11 @@ was added as well.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_source/troubleshooting.rst.txt"

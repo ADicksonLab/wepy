@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introducing Resamplers &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=2d51484f" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=47a5fdc3" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=bc181c52" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=2413df15"></script>
+    <script src="../../../_static/doctools.js?v=dcc2bf79"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/quick_start/introducing_resamplers/README.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Tutorials" href="../../tutorials/index.html" />
+    <link rel="prev" title="More on Reporters" href="../reporters/README.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../reporters/README.html" title="Previous document">More on Reporters</a>
+        </li>
+        <li>
+          <a href="../../tutorials/index.html" title="Next document">Tutorials</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <section id="introducing-resamplers">
+<h1>Introducing Resamplers<a class="headerlink" href="#introducing-resamplers" title="Link to this heading">¶</a></h1>
+<p>A resampler is a computational algorithm used in WE simulations to enhance sampling of particular states in a system. It typically operates on an ensemble of walkers (representing different states) and performs resampling operations such as cloning and merging. The main objective is typically to promote sampling of low probability states that are important to a process of interest.</p>
+<p>In this chapter, we will introduce the REVO resampler. You can find more detailed information in the paper <a class="reference external" href="https://pubmed.ncbi.nlm.nih.gov/31255090">“REVO: Resampling of ensembles by variation optimization”</a> but briefly: REVO is a Weighted Ensemble based enhanced sampling algorithm which uses cloning and merging to create ensembles of diverse trajectories without defining any regions. It measures the diversity using a quantity called the “trajectory variation”, which depends on the pairwise distances between the walkers, as well as their weights. REVO solves this optimization problem using a greedy algorithm which at each step selects best walkers for resampling operations (cloning and merging) in order to maximize the variation.</p>
+<p>Let’s start our building our resampler, but first, we need to define a way of measuring the distances between the trajectories, which we call the “distance metric”. This metric is important as it should correspond to the meaningful differences between trajectories that you want to see in your WE simulation. These are easy to customize for your system of interest.  Wepy also provides a few built-in distance metrics which you can use. Below we define a simple distance metric for our NaCl system, which uses the absolute value of the difference between the interatomic distances.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.resampling.distances.distance</span> <span class="kn">import</span> <span class="n">Distance</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.resamplers.revo</span> <span class="kn">import</span> <span class="n">REVOResampler</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="o">...</span>
+<span class="c1"># we define a simple distance metric for this system, assuming the</span>
+<span class="c1"># positions are in a &#39;positions&#39; field</span>
+<span class="k">class</span> <span class="nc">PairDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
+
+ <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+     <span class="k">pass</span>
+
+ <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
+     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">square</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">-</span> <span class="n">state</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="mi">1</span><span class="p">])))</span>
+
+ <span class="k">def</span> <span class="nf">image_distance</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">image_a</span><span class="p">,</span> <span class="n">image_b</span><span class="p">):</span>
+     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">image_a</span> <span class="o">-</span> <span class="n">image_b</span><span class="p">)</span>
+<span class="o">...</span>
+
+<span class="n">distance</span> <span class="o">=</span> <span class="n">PairDistance</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>A few notes are important here.</p>
+<ol class="arabic simple">
+<li><p>Remember that the <cite>PairDistance</cite> is measuring distances between two different walkers.  In other words, two different copies of the simulation.  Here these simulations are very simple: each has only two atoms, but in general these will each have their own solvent, protein, box sizes, etc.</p></li>
+<li><p>By convention the distance metric is split into two parts: the first is a function called <cite>image</cite> that extracts necessary information from the <cite>WalkerState</cite>.  This is a dictionary that contains positions, but also box vectors, velocities and other quantities as well.  Here, the “image” of each state is simply the distance between its two particles.  The second part is a function called <cite>image_distance</cite>, which performs the necessary calculations to get the distance between a pair of images.  Note that while <cite>image</cite> is called O(N) times by the resampler (where N is the number of walkers), <cite>image_distance</cite> is called O(N<sup>2</sup>) times.</p></li>
+</ol>
+<p>With the distance metric in hand, we can create our REVO resampler:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="o">...</span>
+<span class="c1"># Set up the REVO Resampler with the parameters</span>
+<span class="n">resampler</span> <span class="o">=</span> <span class="n">REVOResampler</span><span class="p">(</span><span class="n">distance</span><span class="o">=</span><span class="n">distance</span><span class="p">,</span>
+                           <span class="n">init_state</span><span class="o">=</span><span class="n">init_state</span><span class="p">,</span>
+                           <span class="n">weights</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                           <span class="n">pmax</span><span class="o">=</span><span class="mf">0.1</span><span class="p">,</span>
+                           <span class="n">dist_exponent</span><span class="o">=</span><span class="mi">4</span><span class="p">,</span>
+                           <span class="n">merge_dist</span><span class="o">=</span><span class="mf">0.25</span><span class="p">,</span>
+                           <span class="n">char_dist</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>You can find more details about the parameters in the documentation. Briefly:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">distance</span></code>: The distance metric to compare walkers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_state</span></code>: A <code class="docutils literal notranslate"><span class="pre">WalkerState</span></code> object used for automatically determining state image shape.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weights</span></code>: Turns off or on the weight novelty in calculating the variation equation. When <code class="docutils literal notranslate"><span class="pre">weights</span> <span class="pre">=</span> <span class="pre">False</span></code>, the value of the novelty function is set to 1 for all walkers.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pmax</span></code>: The maximum statistical weight. It prevents accumulation of excessive weight in one walker.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dist_exponent</span></code>: The distance exponent that modifies distance and weight novelty relative to each other in the variation equation.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">merge_dist</span></code>: The merge distance threshold. Walkers farther than this distance will not be merged. Units should be the same as the distance metric.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">char_dist</span></code>: The characteristic distance value. It is calculated by running a single dynamic cycle and then calculating the average distance between all walkers. Units should be the same as the distance metric.</p></li>
+</ul>
+<p>It is also useful to add a <code class="docutils literal notranslate"><span class="pre">REVODashboardSection</span></code> to the <code class="docutils literal notranslate"><span class="pre">DashboardReporter</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.reporter.revo.dashboard</span> <span class="kn">import</span> <span class="n">REVODashboardSection</span>
+
+<span class="o">...</span>
+
+<span class="n">revo_dashboard_sec</span> <span class="o">=</span> <span class="n">REVODashboardSection</span><span class="p">(</span><span class="n">resampler</span><span class="p">)</span>
+<span class="n">dashboard_reporter</span> <span class="o">=</span> <span class="n">DashboardReporter</span><span class="p">(</span><span class="n">file_path</span> <span class="o">=</span> <span class="n">dashboard_path</span><span class="p">,</span>
+                                       <span class="n">runner_dash</span> <span class="o">=</span> <span class="n">openmm_dashboard_sec</span><span class="p">,</span>
+                                       <span class="n">resampler_dash</span> <span class="o">=</span> <span class="n">revo_dashboard_sec</span><span class="p">)</span>
+
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>And that’s it! You have created a REVO resampler. Feel free to test this out for the NaCl example.  You can paste these code sections in or find the wepy_script_resampler.py file in the examples/quick_start folder.</p>
+<p>Now you can use this resampler in your simulations. This is the final chapter of our Quickstart guide, in the Tutorials section we will introduce how to prepare and use your own data along with how you can analyze the simulation results.</p>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../reporters/README.html" title="Previous document">More on Reporters</a>
+        </li>
+        <li>
+          <a href="../../tutorials/index.html" title="Next document">Tutorials</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../users_guide.html">Comprehensive User’s Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Overview</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Quick Start</a><ul>
+      <li>Previous: <a href="../reporters/README.html" title="previous chapter">More on Reporters</a></li>
+      <li>Next: <a href="../../tutorials/index.html" title="next chapter">Tutorials</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../_sources/_source/quick_start/introducing_resamplers/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,5 @@
+* Lysozyme Simulations
+
+#+begin_src bash :tangle _tangle_source/run0.bash
+  python source/we.py 2 2 10 1 CPU REVOResampler
+#+end_src

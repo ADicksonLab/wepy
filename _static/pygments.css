@@ -17,6 +17,7 @@ span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 
 .highlight .cs { color: #0099FF; font-weight: bold; font-style: italic } /* Comment.Special */
 .highlight .gd { background-color: #FFCCCC; border: 1px solid #CC0000 } /* Generic.Deleted */
 .highlight .ge { font-style: italic } /* Generic.Emph */
+.highlight .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
 .highlight .gr { color: #FF0000 } /* Generic.Error */
 .highlight .gh { color: #003300; font-weight: bold } /* Generic.Heading */
 .highlight .gi { background-color: #CCFFCC; border: 1px solid #00CC00 } /* Generic.Inserted */

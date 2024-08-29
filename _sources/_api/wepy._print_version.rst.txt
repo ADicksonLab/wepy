@@ -1,8 +1,0 @@
-wepy.\_print\_version module
-============================
-
-.. automodule:: wepy._print_version
-   :members:
-   :undoc-members:
-   :show-inheritance:
-   :private-members:

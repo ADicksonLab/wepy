@@ -1,0 +1,81 @@
+* Lennard-Jones particle pair simulation
+
+Very simple example using a pair of Lennard-Jones particles.
+
+** Basic run script
+
+To see a basic and full example of wepy in action just run the ~we.py~
+script with some arguments for the number of cycles, number of steps,
+and number of walkers to use:
+
+#+begin_src bash :tangle _tangle_source/run0.bash
+python source/we.py 10 100 10
+#+end_src
+
+You should see an ~_output/we~ folder appear with the files:
+~results.wepy.h5~ and ~wepy.dash.org~.
+
+The ~wepy.dash.org.txt~ is a plain text file that gives lots of high
+level information about the simulation. This file is written every
+cycle so it is useful for looking at the progress of the simulation as
+it runs, hence the 'dash' moniker. It also happens to be in a special
+format called "org-mode" which allows for folding of sections
+etc. when using the right editor which is primarily emacs.
+
+** Analysis
+
+Before running these you should have produce the
+~_output/results.wepy.h5~ file from running the ~we.py~ file.
+
+*** Computing Observables
+
+This script shows you how to write a function and to apply it to all
+trajectories and save it into the HDF5 file:
+
+#+begin_src bash :tangle _tangle_source/run1.bash
+  python source/compute_distance_observable.py
+#+end_src
+
+After this is run we can open up an interactive python session (we
+recommend using IPython) and see what has been done:
+
+#+begin_src python :tangle _tangle_source/inspect_observable.py
+  import numpy as np
+  from wepy.hdf5 import WepyHDF5
+
+  wepy_h5 = WepyHDF5('_output/we/results.wepy.h5', mode='r')
+
+  wepy_h5.open()
+
+  # the observables are put in a special compound field for
+  # trajectories, here we get the h5py.Group for the trajectory and list
+  # the contents ourselves
+  print(list(wepy_h5.traj(0,0)['observables']))
+
+  # we can retrieve the field for the trajectory like this
+  wepy_h5.get_traj_field(0, 0, 'observables/rmsd')
+
+  # to get all of these values for all of the trajectories we use the
+  # iterator methods
+  rmsds = np.array([fields['observables/rmsd']
+                    for fields in wepy_h5.iter_trajs_fields(['observables/rmsd'])])
+
+  print(rmsds.shape)
+
+  wepy_h5.close()
+
+#+end_src
+
+*** MacroState network
+
+This script shows an example of assigning labels to frames and then
+genrating a network representation.
+
+#+begin_src bash
+  python source/state_network.py
+#+end_src
+
+This will produce a GEXF format file which you can open up in Gephi to
+look at your network.
+
+

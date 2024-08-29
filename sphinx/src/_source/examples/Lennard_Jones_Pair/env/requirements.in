@@ -1,0 +1,12 @@
+--index-url https://pypi.python.org/simple/
+
+ipython
+pdbpp
+invoke
+
+wepy[all]
+
+multiprocessing_logging
+numpy
+scipy
+mdtraj

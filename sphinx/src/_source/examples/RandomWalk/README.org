@@ -1,0 +1,42 @@
+* Random walk simulations
+Examples of how to run the random walk simulations using different
+resamplers.
+
+The randomwalk system implements the random movement of walkers in an
+N-dimension space.
+
+** Basic run script
+
+To see a REVO example run ~rw_revo.py~ with arguments for the number of runs, number of cycles,
+number of walkers, and the dimension of space.
+
+#+begin_src bash :tangle _tangle_source/run0.bash
+python source/rw_revo.py 1 3 20 10 5
+#+end_src
+
+You should see an ~outputs~ folder appear with the files:
+~results.wepy.h5~ and  ~randomwalk_revo.org~
+
+The ~randomwalk_revo.org~ file is a plain text file that gives high
+level information about the simulation, including simulation properties
+and quality parameters for each run. This file is written at the end
+of the simulation.
+
+In this file the first section contains general information about
+random walk simulations:
+
+#+begin_src org
+,* Random walk simulation:
+-Number of runs: 2
+-Number of cycles: 5
+-Number of walkers:10
+-Move-forward probability:0.25
+-Dimension:5
+#+end_src
+
+
+The other file is ~results.wepy.h5~, a ~WepyHDF5~ formatted file that includes
+the data from the simulation.
+
+There are also examples provided for the ~WExplore~ resampler and no resampler. These
+two examples use the same arguments as REVO.
