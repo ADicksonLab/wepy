@@ -1,0 +1,11 @@
+* Analyzing Wepy Data
+:PROPERTIES:
+:CUSTOM_ID: data_analysis
+:END:
+
+Data of the Wepy runs are mostly stored as HDF5 files. In this section
+we will go over the basic tools to how to work with HDF5 files generated
+by Wepy.
+
+- [[file:./hdf5_access/README.rst][Working with HDF5]]
+- [[file:./observable_intro/README.rst][Introducing Observables]]

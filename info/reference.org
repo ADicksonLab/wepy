@@ -1,10 +1,5 @@
 
-* Reference
-
-
-** Architecture
-
-# TODO
+* HDF5 Reporter Data Structure
 
 ** Record Groups
 
