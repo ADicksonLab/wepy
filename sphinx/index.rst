@@ -5,7 +5,7 @@
 
 
 
-A Weighted Ensemble  (WE) simulation framework
+wepy: A Weighted Ensemble (WE) simulation framework
 ==============================================
 
 .. optional logo here
@@ -20,9 +20,9 @@ Getting Started
 .. toctree::
    :maxdepth: 1
 
-   _source/installation
-   _source/quick_start
    _source/introduction
+   _source/installation
+   _source/quick_start/index
 
 Software Documentation
 ----------------------
@@ -31,13 +31,9 @@ Software Documentation
    :maxdepth: 1
 
    _source/tutorials/index
-   _source/users_guide
-   _source/howtos
    _source/troubleshooting
    _source/reference              
    _source/glossary
-   API Overview <_source/api>
-   Full API <_api/modules>
               
 
 Project & Developer Information
@@ -64,7 +60,7 @@ Metrics, Reports, & Dashboards
 
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`

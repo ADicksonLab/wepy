@@ -29,7 +29,7 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "wepy"
-copyright = "2018, Samuel D. Lotz"
+copyright = "2024, Michigan State University"
 author = "Samuel D. Lotz"
 
 version = metadata.version("wepy")
@@ -176,7 +176,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, "wepy", "wepy Documentation", [author], 1)]
+# man_pages = [(master_doc, "wepy", "wepy Documentation", [author], 1)]
 
 
 # -- Options for Texinfo output ----------------------------------------------
@@ -230,7 +230,7 @@ autodoc_default_options = {
 # -- Options for intersphinx extension ---------------------------------------
 
 # Example configuration for intersphinx: refer to the Python standard library.
-intersphinx_mapping = {"https://docs.python.org/": None}
+intersphinx_mapping = {'python': ("https://docs.python.org/", None)}
 
 # -- Options for todo extension ----------------------------------------------
 

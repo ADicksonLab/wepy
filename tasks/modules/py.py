@@ -168,6 +168,8 @@ def docs_build(cx):
     # make sure the 'source' folder exists
     cx.run("mkdir -p sphinx/_source")
     cx.run("mkdir -p sphinx/_source/tutorials")
+    cx.run("mkdir -p sphinx/_source/tutorials/data_analysis")
+    cx.run("mkdir -p sphinx/_source/tutorials/multiple_runs")
     cx.run("mkdir -p sphinx/_source/examples")
     cx.run("mkdir -p sphinx/_static")
 
@@ -245,14 +247,28 @@ def docs_build(cx):
         "sphinx/tutorials_index.rst",
         "sphinx/_source/tutorials/index.rst",
     )
-
+    
+    sh.copyfile(
+        "sphinx/data_analysis_index.rst",
+        "sphinx/_source/tutorials/data_analysis/index.rst",
+    )
+    
+    sh.copyfile(
+        "sphinx/multiple_runs_index.rst",
+        "sphinx/_source/tutorials/multiple_runs/index.rst",
+    )
+    
+    sh.copyfile(
+        "sphinx/quick_start_index.rst",
+        "sphinx/_source/quick_start/index.rst",
+    )
+    
     # convert any of the tutorials that exist with an org mode extension as well
     for item in os.listdir('info/tutorials'):
         item = Path('info/tutorials') / item
-
+        
         # tutorials are in their own dirs
         if item.is_dir():
-
             docs = list(item.glob("README.org")) + \
                 list(item.glob("README.ipynb")) + \
                 list(item.glob("README.rst"))
@@ -290,6 +306,139 @@ def docs_build(cx):
                 raise ValueError(f"Unkown tutorial type for file: {readme_path.stem}{readme_path.suffix}")
 
 
+
+    # convert any of the data analysis files that exist with an org mode extension as well
+    for item in os.listdir('info/tutorials/data_analysis'):
+        item = Path('info/tutorials/data_analysis') / item
+
+        # quick starts are in their own dirs
+        if item.is_dir():
+
+            docs = list(item.glob("README.org")) + \
+                list(item.glob("README.ipynb")) + \
+                list(item.glob("README.rst"))
+
+            if len(docs) > 1:
+                raise ValueError(f"Multiple quick start files for {item}")
+            else:
+                readme_path = docs[0]
+
+            tutorial = item.stem
+
+            os.makedirs(f"sphinx/_source/tutorials/data_analysis/{tutorial}",
+                        exist_ok=True)
+
+            # we must convert org mode files to rst
+            if readme_path.suffix == '.org':
+
+                cx.run("pandoc "
+                       "-f org "
+                       "-t rst "
+                       f"-o sphinx/_source/tutorials/data_analysis/{tutorial}/README.rst "
+                       f"info/tutorials/data_analysis/{tutorial}/README.org")
+
+            # just copy notebooks since teh sphinx extension handles
+            # them
+            elif readme_path.suffix in ('.ipynb', '.rst',):
+
+                sh.copyfile(
+                    readme_path,
+                    f"sphinx/_source/tutorials/data_analysis/{tutorial}/{readme_path.stem}{readme_path.suffix}",
+                )
+
+            # otherwise just move it
+            else:
+                raise ValueError(f"Unkown tutorial type for file: {readme_path.stem}{readme_path.suffix}")
+      
+      
+    # convert any of the multiple runs files that exist with an org mode extension as well      
+    for item in os.listdir('info/tutorials/multiple_runs'):
+        item = Path('info/tutorials/multiple_runs') / item
+
+        # quick starts are in their own dirs
+        if item.is_dir():
+
+            docs = list(item.glob("README.org")) + \
+                list(item.glob("README.ipynb")) + \
+                list(item.glob("README.rst"))
+
+            if len(docs) > 1:
+                raise ValueError(f"Multiple quick start files for {item}")
+            else:
+                readme_path = docs[0]
+
+            tutorial = item.stem
+
+            os.makedirs(f"sphinx/_source/tutorials/multiple_runs/{tutorial}",
+                        exist_ok=True)
+
+            # we must convert org mode files to rst
+            if readme_path.suffix == '.org':
+
+                cx.run("pandoc "
+                       "-f org "
+                       "-t rst "
+                       f"-o sphinx/_source/tutorials/multiple_runs/{tutorial}/README.rst "
+                       f"info/tutorials/multiple_runs/{tutorial}/README.org")
+
+            # just copy notebooks since teh sphinx extension handles
+            # them
+            elif readme_path.suffix in ('.ipynb', '.rst',):
+
+                sh.copyfile(
+                    readme_path,
+                    f"sphinx/_source/tutorials/multiple_runs/{tutorial}/{readme_path.stem}{readme_path.suffix}",
+                )
+
+            # otherwise just move it
+            else:
+                raise ValueError(f"Unkown tutorial type for file: {readme_path.stem}{readme_path.suffix}")
+          
+          
+   
+    # convert any of the quick start files that exist with an org mode extension as well     
+    for item in os.listdir('info/quick_start'):
+        item = Path('info/quick_start') / item
+
+        # quick starts are in their own dirs
+        if item.is_dir():
+
+            docs = list(item.glob("README.org")) + \
+                list(item.glob("README.ipynb")) + \
+                list(item.glob("README.rst"))
+
+            if len(docs) > 1:
+                raise ValueError(f"Multiple quick start files for {item}")
+            else:
+                readme_path = docs[0]
+
+            tutorial = item.stem
+
+            os.makedirs(f"sphinx/_source/quick_start/{tutorial}",
+                        exist_ok=True)
+
+            # we must convert org mode files to rst
+            if readme_path.suffix == '.org':
+
+                cx.run("pandoc "
+                       "-f org "
+                       "-t rst "
+                       f"-o sphinx/_source/quick_start/{tutorial}/README.rst "
+                       f"info/quick_start/{tutorial}/README.org")
+
+            # just copy notebooks since teh sphinx extension handles
+            # them
+            elif readme_path.suffix in ('.ipynb', '.rst',):
+
+                sh.copyfile(
+                    readme_path,
+                    f"sphinx/_source/quick_start/{tutorial}/{readme_path.stem}{readme_path.suffix}",
+                )
+
+            # otherwise just move it
+            else:
+                raise ValueError(f"Unkown tutorial type for file: {readme_path.stem}{readme_path.suffix}")
+                 
     # run the build steps for sphinx
     with cx.cd('sphinx'):
 

@@ -1,50 +1,59 @@
-* Installation
+* Installation Guide
 
+Welcome to the installation guide for wepy. Follow the steps below to
+set up the environment and install wepy.
 
-To install from pip:
+** Prerequisites
 
-#+BEGIN_SRC bash
-  pip install wepy
-#+END_SRC
-
-To install the optional, but likely desired feature -- OpenMM -- see
-the [[http://docs.openmm.org/latest/userguide/application.html#installing-openmm][documentation]] for installing the version and build you want. For
-simply trying things out on a local machine running this should get
-you started:
+Ensure that you are using *Python 3.10*. It is recommended to set up a
+conda environment for managing dependencies and ensuring compatibility.
 
 #+BEGIN_SRC bash
-  conda install -c conda-forge openmm
+    conda create -n wepy-env python=3.10
+    conda activate wepy-env
 #+END_SRC
 
-If this doesn't work for some platform consult the OpenMM
-documentation.
+** Installing wepy
 
-There are some optional features you can install as well using the
-"extras" spec in pip. The base package aims to be very easy to install
-but lacks a lot of functionality that makes ~wepy~ useful for
-molecular dynamics. Currently, these are:
+You can install wepy from the latest git repository.
 
-- md :: extra packages for molecular dynamics
-- distributed :: extra packages to allow for distributed analysis
-- prometheus :: for monitoring simulations via [[https://prometheus.io][Prometheus]]
-- all :: installs all extras
-
-Check the setup.py file under ~extras_requirements~ for the full listing.
+Installing from Git (for the latest version):
 
 #+BEGIN_SRC bash
-pip install wepy[md]
+    pip install git+https://github.com/ADicksonLab/wepy.git
 #+END_SRC
 
-You can always install from git as well for the latest:
+** Installing OpenMM and mdtraj
+
+To install OpenMM, which is highly recommended for running molecular
+dynamics simulations:
 
 #+BEGIN_SRC bash
-pip install git+https://github.com/ADicksonLab/wepy.git
+    conda install -c conda-forge openmm=8.0.0
 #+END_SRC
 
+If the conda version of openmm doesn't work for your compute
+environment, consult the
+[[http://docs.openmm.org/latest/userguide/application.html#installing-openmm][OpenMM
+documentation]].
 
-If installation went alright you should have this command line
-interface for working with orchestration available:
+The mdtraj library is used by wepy to create and manipulate system
+topologies. It can also be installed via conda:
 
-#+BEGIN_SRC bash :tangle check_installation.bash
-  wepy --help
+#+BEGIN_SRC bash
+    conda install -c conda-forge mdtraj=1.9.9
 #+END_SRC
+
+These version numbers work correctly at the time of this writing and
+avoid some incompatibility issues with numpy and pandas dependencies.
+
+** Verifying Installation
+
+After installation, you should be able to import wepy in python. Verify
+it by running:
+
+#+BEGIN_SRC bash
+    python -c "import wepy"
+#+END_SRC
+
+If the installation was successful, you should not see any errors.
