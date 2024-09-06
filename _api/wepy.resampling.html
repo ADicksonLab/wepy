@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.resampling package &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.resampling.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.resampling.decisions package" href="wepy.resampling.decisions.html" />
-    <link rel="prev" title="wepy.reporter.walker module" href="wepy.reporter.walker.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.reporter.walker.html" title="Previous document">wepy.reporter.walker module</a>
-        </li>
-        <li>
-          <a href="wepy.resampling.decisions.html" title="Next document">wepy.resampling.decisions package</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,148 +42,10 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.resampling">
-<span id="wepy-resampling-package"></span><h1>wepy.resampling package<a class="headerlink" href="#module-wepy.resampling" title="Permalink to this headline">¶</a></h1>
-<p>Resampling functionality for weighted ensemble simulations.</p>
-<div class="section" id="role-of-resampling-in-we">
-<h2>Role of Resampling in WE<a class="headerlink" href="#role-of-resampling-in-we" title="Permalink to this headline">¶</a></h2>
-<p>The defining feature of weighted ensemble simulations (as opposed to
-simply running multiple independent simulations in parallel) is the
-addition of a processing step that allows for communication of the
-states of the parallel simulations. In this communication step we have
-the opportunity to make decisions about the relative productivity of
-each of them and attempt to bias the overall behavior of the ensemble
-of simulations, while not explicitly modifying the governing laws
-(e.g. equations of motion, force field, hamiltonian, etc.) of each
-parallel dynamics simulation universe.</p>
-<p>A resampler embodies this communication. At a basic level it takes as
-input a set of samples derived from dynamics, called walkers. In
-addition to the states (the random variable) the walkers also have an
-associated probability or weight. At the beginning of a WE simulation
-each walker in the ensemble has a uniform probability. But the
-probabilities are free to change due to the action of the resampler,
-that is due to a resampling process.</p>
-<p>Resampling characterizes a potentially large number of algorithms that
-may or may not be useful. In the original WE algorithm by Huber and
-Kim (TODO add citation) this resampling is achieved through the
-“cloning” and “merging” of walkers.</p>
-</div>
-<div class="section" id="outline-of-the-resampler-sub-package">
-<h2>Outline of the resampler sub-package<a class="headerlink" href="#outline-of-the-resampler-sub-package" title="Permalink to this headline">¶</a></h2>
-<p>The design of the wepy framework allows for any user to implement
-their own resampler.</p>
-<p>The only strict requirement that the framework is that a resampler
-must have a method “resample” that receives a list of walkers and
-returns some other list of walkers along with optional records the
-resampling process and any changes to the state of the resampler
-itself (while these records aren’t strictly necessary for a simulation
-to run, they are paramount to actually recording data on the
-simulations).</p>
-<p>However, useful resamplers share a lot of shared functionality. This
-sub-package attempts to provide a sub-framework that provides this
-functionality.</p>
-<div class="section" id="decisions">
-<h3>Decisions<a class="headerlink" href="#decisions" title="Permalink to this headline">¶</a></h3>
-<p>First is the definition of the “decisions” and the decision records.</p>
-<p>A resampling process given a set of weighted samples should produce a
-number of other samples where the set of states in the output is a
-subset of those in the input.</p>
-<p>For example a simple form of resampling is subsampling, where we
-simply drop some of the samples from the collection. Similar to how
-outliers are removed from a dataset.</p>
-<p>In the subsampling mechanism we might say that there are only two
-decisions a resampler can make: DROP and KEEP.</p>
-<p>These could then be embodied in a Decision class
-(e.g. SubsamplingDecision) which enumerates the possibilities and
-provides methods for performing the operations on a collection of
-walkers given a set of these decisions.</p>
-<p>Such a resampler wouldn’t be very useful for WE since the simulation
-would simply fade away as each walker was eventually eliminated.</p>
-<p>A more complex (and useful) example would be to add a possible
-decision to split up a walker into two. In this there are now two
-samples of the same random variable (state) but the total probability
-of that state is the same since the weights are normalized and divided
-in half for each.</p>
-<p>These decisions might be called: DROP, KEEP, SPLIT. Now we can replace
-dropped samples so that the number of samples is kept the same.</p>
-<p>We could also allow the splitting of a walker into multiple walkers
-instead of just two, in this case we replace SPLIT with CLONE. The
-CLONE record now needs some additional information to parametrize it’s
-action. A record containing the decision value and the decision
-parameters is called a ‘decision record’. A CLONE decision record would
-look like for example:</p>
-<p>(decision=CLONE, n_children=3)</p>
-<p>If we add data about which walker it applies to on which cycle and
-which step of resampling it would be a ‘resampling record’.</p>
-<p>One issue with the use of a pure subsampling scheme is that we must
-renormalize the weights of the walkers when any are dropped. In WE the
-sample distribution is preserved at each step by allowing the
-‘merging’ of walkers instead of just removing them. Merging involves
-choosing a walker/sample to remove and adding that weight to another
-walker, before discarding the sample value.</p>
-<p>This cloning-merging strategy is the primary Decision class used in
-wepy and the choice of most resamplers. The full listing of decisions
-is:</p>
-<ul class="simple">
-<li><p>NOTHING</p></li>
-<li><p>CLONE</p></li>
-<li><p>SQUASH</p></li>
-<li><p>KEEP_MERGE</p></li>
-</ul>
-<p>Where NOTHING and CLONE are as above, SQUASH is the walker that will
-be discarded and have it’s weight donated, and KEEP_MERGE is a walker
-that will be receiving weight from one or more squashed walkers.</p>
-</div>
-<div class="section" id="resamplers">
-<h3>Resamplers<a class="headerlink" href="#resamplers" title="Permalink to this headline">¶</a></h3>
-<p>Abstractly a resampler in the context of wepy is an algorithm that
-given a sample of walkers produces instructions on how to resample
-them. The instruction set is defined and implemented by a decision
-object.</p>
-<p>Concretely (and state above), the Resampler class is parametrized by a
-Decision class and has a method ‘resample’ which receives a set of
-walkers and returns a resampled collection of walkers.</p>
-<p>Resamplers in the sub-framework also produce resampling records in
-roughly the format described above so that storage formats can record
-the lineages (family trees) of walkers.</p>
-<p>Changes in the state of the resampler can also be recorded for
-profiling and analysis purposes if it is desired, but is completely
-specific to the resampling algorithm.</p>
-<p>It is important to note that the choice of resampler is entirely
-independent of:</p>
-<ul class="simple">
-<li><p>the type of sampling used e.g. molecular dynamics, monte carlo</p></li>
-<li><p>the system being simulated e.g. proteins, polymers</p></li>
-</ul>
-<p>The type of sampling being used is encapsulated in the Runner class.</p>
-<p>For the second point we would like our resamplers to be as resuable as
-possible between different systems.</p>
-<p>For example, wepy has implementations of both the WExplore and REVO
-resampling algorithms which are broadly applicable and interchangable.</p>
-<p>For instance if you want to simulate ligand unbinding for a particular
-protein-ligand system you can choose either WExplore or REVO. This
-choice can be made after you have already determined a metric for
-discerning novelty in you protein-ligand system, as long as the metric
-is encapsulated in a Distance class.</p>
-</div>
-<div class="section" id="distances">
-<h3>Distances<a class="headerlink" href="#distances" title="Permalink to this headline">¶</a></h3>
-<p>A distance metric (in the context of wepy) is simply a function that
-returns a single value when given the states of two walkers.</p>
-<p>For such a function to be considered a proper distance metric extra
-criterion are required but wepy does not enforce these in
-implementation.</p>
-<p>A Distance class is simply a class with a single method ‘distance’. To
-allow for certain basic performance requirements, it is also required
-that the ‘image’ and ‘image_distance’ methods be overriden. This
-allows for the transformation (which is potentially compute intensive)
-of a walker state to a reduced form called an image. The
-‘image_distance’ method should produce the same results as the
-‘distance’ method for the same walker states.</p>
-</div>
-</div>
-<div class="section" id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Permalink to this headline">¶</a></h2>
+  <section id="wepy-resampling-package">
+<h1>wepy.resampling package<a class="headerlink" href="#wepy-resampling-package" title="Link to this heading">¶</a></h1>
+<section id="subpackages">
+<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="wepy.resampling.decisions.html">wepy.resampling.decisions package</a></li>
@@ -200,8 +53,8 @@ of a walker state to a reduced form called an image. The
 <li class="toctree-l1"><a class="reference internal" href="wepy.resampling.resamplers.html">wepy.resampling.resamplers package</a></li>
 </ul>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -209,25 +62,17 @@ of a walker state to a reduced form called an image. The
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.reporter.walker.html" title="Previous document">wepy.reporter.walker module</a>
-        </li>
-        <li>
-          <a href="wepy.resampling.decisions.html" title="Next document">wepy.resampling.decisions package</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -252,19 +97,15 @@ of a walker state to a reduced form called an image. The
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -277,25 +118,19 @@ of a walker state to a reduced form called an image. The
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-      <li>Previous: <a href="wepy.reporter.walker.html" title="previous chapter">wepy.reporter.walker module</a></li>
-      <li>Next: <a href="wepy.resampling.decisions.html" title="next chapter">wepy.resampling.decisions package</a></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -309,11 +144,11 @@ of a walker state to a reduced form called an image. The
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.resampling.rst.txt"

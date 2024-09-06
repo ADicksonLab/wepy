@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>A First Look at wepy Data &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../../../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../../../" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/tutorials/extended_test_drive/README.html" />
-    <link rel="shortcut icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
-    <link rel="next" title="Introduction to Weighted Ensemble Data Analysis in wepy" href="../data_analysis/README.html" />
-    <link rel="prev" title="Tutorials" href="../index.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="../index.html" title="Previous document">Tutorials</a>
-        </li>
-        <li>
-          <a href="../data_analysis/README.html" title="Next document">Introduction to Weighted Ensemble Data Analysis in wepy</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,8 +42,8 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="a-first-look-at-wepy-data">
-<h1>A First Look at wepy Data<a class="headerlink" href="#a-first-look-at-wepy-data" title="Permalink to this headline">¶</a></h1>
+  <section id="a-first-look-at-wepy-data">
+<h1>A First Look at wepy Data<a class="headerlink" href="#a-first-look-at-wepy-data" title="Link to this heading">¶</a></h1>
 <p>In the Quick Start we showed how you could easily get a simulation
 running with wepy.</p>
 <p>In this tutorial we will add onto this quick example to give some more
@@ -60,7 +51,7 @@ explanation and show some simple examples of analysis.</p>
 <p>We assume users are using a POSIX-like shell such as <code class="docutils literal notranslate"><span class="pre">bash</span></code>.</p>
 <p>As from before the test drive script is installed as a module and can be
 run as a python script:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python -m wepy_test_drive --help
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-m<span class="w"> </span>wepy_test_drive<span class="w"> </span>--help
 </pre></div>
 </div>
 <p>NOTE: That the test drive is a specific “application” that is built
@@ -71,16 +62,16 @@ recommended for any situation.</p>
 <p>In order to use <code class="docutils literal notranslate"><span class="pre">wepy</span></code> effectively you will have to use and program
 the Python API. The intent here is to quickly introduce users to all the
 pieces, parts, and objects you will need to interact with.</p>
-<div class="section" id="running-a-simulation-and-producing-results">
-<h2>Running a Simulation and Producing Results<a class="headerlink" href="#running-a-simulation-and-producing-results" title="Permalink to this headline">¶</a></h2>
+<section id="running-a-simulation-and-producing-results">
+<h2>Running a Simulation and Producing Results<a class="headerlink" href="#running-a-simulation-and-producing-results" title="Link to this heading">¶</a></h2>
 <p>The test drive is configured so that all of the file outputs are dropped
 into the current folder. When writing code for your own simulations this
 can be configured.</p>
 <p>All outputs in this tutorial will be in the <code class="docutils literal notranslate"><span class="pre">_output</span></code> directory so
 before running the simulations you should change to that directory:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p _output/run0
-<span class="o">(</span><span class="nb">cd</span> _output/run0 <span class="o">&amp;&amp;</span> python -m wepy_test_drive LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span><span class="o">)</span>
-ls _output/run0
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>_output/run0
+<span class="o">(</span><span class="nb">cd</span><span class="w"> </span>_output/run0<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>wepy_test_drive<span class="w"> </span>LennardJonesPair/OpenMM-Reference<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span><span class="o">)</span>
+ls<span class="w"> </span>_output/run0
 </pre></div>
 </div>
 <p>You should see something like:</p>
@@ -113,26 +104,26 @@ simulation components like resamplers.</p>
 different resamplers were used to generate simulations.</p>
 <p>For instance we can run again using the REVO <code class="docutils literal notranslate"><span class="pre">--resampler</span></code> by using
 the resampler flag:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p _output/revo_run
-<span class="o">(</span><span class="nb">cd</span> _output/revo_run <span class="o">&amp;&amp;</span> python -m wepy_test_drive --resampler REVO LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span><span class="o">)</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>_output/revo_run
+<span class="o">(</span><span class="nb">cd</span><span class="w"> </span>_output/revo_run<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>wepy_test_drive<span class="w"> </span>--resampler<span class="w"> </span>REVO<span class="w"> </span>LennardJonesPair/OpenMM-Reference<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span><span class="o">)</span>
 </pre></div>
 </div>
 <p>You can even disable using a resampler entirely by using the dummy “No”
 resampler. This is actually quite useful for comparing improvements in
 sampling using resampling:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir -p _output/no_run
-<span class="o">(</span><span class="nb">cd</span> _output/no_run <span class="o">&amp;&amp;</span> python -m wepy_test_drive --resampler No LennardJonesPair/OpenMM-Reference <span class="m">20</span> <span class="m">10</span> <span class="m">4</span> <span class="m">3</span><span class="o">)</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>mkdir<span class="w"> </span>-p<span class="w"> </span>_output/no_run
+<span class="o">(</span><span class="nb">cd</span><span class="w"> </span>_output/no_run<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>python<span class="w"> </span>-m<span class="w"> </span>wepy_test_drive<span class="w"> </span>--resampler<span class="w"> </span>No<span class="w"> </span>LennardJonesPair/OpenMM-Reference<span class="w"> </span><span class="m">20</span><span class="w"> </span><span class="m">10</span><span class="w"> </span><span class="m">4</span><span class="w"> </span><span class="m">3</span><span class="o">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="analyzing-results">
-<h2>Analyzing Results<a class="headerlink" href="#analyzing-results" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="analyzing-results">
+<h2>Analyzing Results<a class="headerlink" href="#analyzing-results" title="Link to this heading">¶</a></h2>
 <p>Now that we have created some data we want to analyze it.</p>
 <p>We will just cover the absolute basics of opening and exploring files
 here since this is a large topic and will be covered in detail in other
 tutorials.</p>
-<div class="section" id="opening-the-hdf5-database">
-<h3>Opening the HDF5 database<a class="headerlink" href="#opening-the-hdf5-database" title="Permalink to this headline">¶</a></h3>
+<section id="opening-the-hdf5-database">
+<h3>Opening the HDF5 database<a class="headerlink" href="#opening-the-hdf5-database" title="Link to this heading">¶</a></h3>
 <p>To access the data that is stored in the HDF5 file you can use any
 number of tools available for the job. This includes python libraries
 like <code class="docutils literal notranslate"><span class="pre">h5py</span></code>, but can also be other tools like <code class="docutils literal notranslate"><span class="pre">h5ls</span></code> or <code class="docutils literal notranslate"><span class="pre">hdfql</span></code>
@@ -214,9 +205,9 @@ interactively such as in an IPython session or Jupyter Notebook:</p>
 <div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>&lt;HDF5 file &quot;root.wepy.h5&quot; (mode r)&gt;
 </pre></div>
 </div>
-</div>
-<div class="section" id="accessing-run-trajectory-data">
-<h3>Accessing Run &amp; Trajectory Data<a class="headerlink" href="#accessing-run-trajectory-data" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="accessing-run-trajectory-data">
+<h3>Accessing Run &amp; Trajectory Data<a class="headerlink" href="#accessing-run-trajectory-data" title="Link to this heading">¶</a></h3>
 <p>The main category of data are the “runs” that are stored in the HDF5.
 Each “run” dataset corresponds to a single self-contained simulation.</p>
 <p>A <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> can have multiple runs but it is common to only have one
@@ -379,9 +370,9 @@ there are some convenience functions for exporting directly to
 </div>
 <p>You can even use the <code class="docutils literal notranslate"><span class="pre">_output/run0/root.init_top.pdb</span></code> file and the
 <code class="docutils literal notranslate"><span class="pre">_output/run0/traj0.dcd</span></code> files to view them in something like VMD.</p>
-</div>
-<div class="section" id="topologies">
-<h3>Topologies<a class="headerlink" href="#topologies" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="topologies">
+<h3>Topologies<a class="headerlink" href="#topologies" title="Link to this heading">¶</a></h3>
 <p>That’s neat but how did it know the molecular topology in order to be
 able to generate the trajectory? This is because <code class="docutils literal notranslate"><span class="pre">wepy</span></code> records the
 molecular topology in the HDF5 file and retrieves it automatically for
@@ -465,9 +456,9 @@ run in a file should be the same system being simulated. While there
 isn’t any reason why a user couldn’t add other topology files (say as a
 field) most of the convenience functions in the <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code> interface
 assume a single master topology.</p>
-</div>
-<div class="section" id="more-ways-to-get-trajectory-data">
-<h3>More Ways to get Trajectory Data<a class="headerlink" href="#more-ways-to-get-trajectory-data" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="more-ways-to-get-trajectory-data">
+<h3>More Ways to get Trajectory Data<a class="headerlink" href="#more-ways-to-get-trajectory-data" title="Link to this heading">¶</a></h3>
 <p>The simplicity of the runs of trajectories may make it seem that the
 structure of WE is not that different from normal simulations. This is
 not the case however, and unfortunately we must admit here that the
@@ -574,9 +565,9 @@ trajectories directly from traces:</p>
 easiest way to get data. However, we don’t always care about the
 continuity of trajectories and for many purposes just want to chunk it
 up and compute properties which are not time dependent.</p>
-</div>
-<div class="section" id="computing-observables">
-<h3>Computing Observables<a class="headerlink" href="#computing-observables" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="computing-observables">
+<h3>Computing Observables<a class="headerlink" href="#computing-observables" title="Link to this heading">¶</a></h3>
 <p>When we don’t need to worry about continuous trajectories it makes sense
 to just think of the runs and trajectory datasets.</p>
 <p>The simplest way to do this is to iterate through them:</p>
@@ -688,9 +679,9 @@ two Lennard-Jones particles in the simulation:</p>
 <p>While we won’t cover it here you can optionally save this data back into
 the HDF5 file so that it aligns to the walker-frame that it was computed
 on. This is useful for some of the more advanced analyses.</p>
-</div>
-<div class="section" id="cloning-merging-data">
-<h3>Cloning &amp; Merging Data<a class="headerlink" href="#cloning-merging-data" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="cloning-merging-data">
+<h3>Cloning &amp; Merging Data<a class="headerlink" href="#cloning-merging-data" title="Link to this heading">¶</a></h3>
 <p>Before we wrap up the basics we should mention one of the other key
 pieces of data that is the foundation for the WE features. That is the
 resampling records.</p>
@@ -731,9 +722,9 @@ cloning/merging decision taking place for this walker at this point in
 time.</p>
 <p>If you want to understand what all these columns mean see the specific
 documentation on them in the Reference section.</p>
-</div>
-<div class="section" id="in-closing">
-<h3>In Closing<a class="headerlink" href="#in-closing" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="in-closing">
+<h3>In Closing<a class="headerlink" href="#in-closing" title="Link to this heading">¶</a></h3>
 <p>We acknowledge that analyzing WE data is a bit more challenging to
 understand and access and that it is a little overwhelming at first.</p>
 <p>However, once you understand that there are actually very few commonly
@@ -754,9 +745,9 @@ documentation.</p>
 <div class="highlight-fundamental notranslate"><div class="highlight"><pre><span></span>Good job!
 </pre></div>
 </div>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -764,25 +755,17 @@ documentation.</p>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="../index.html" title="Previous document">Tutorials</a>
-        </li>
-        <li>
-          <a href="../data_analysis/README.html" title="Next document">Introduction to Weighted Ensemble Data Analysis in wepy</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../../index.html">
-    <img class="logo" src="../../../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -807,19 +790,15 @@ documentation.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../users_guide.html">User’s Guide</a></li>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../index.html">Tutorials</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../../_api/modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
@@ -832,23 +811,19 @@ documentation.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../../../index.html">Documentation overview</a><ul>
-  <li><a href="../index.html">Tutorials</a><ul>
-      <li>Previous: <a href="../index.html" title="previous chapter">Tutorials</a></li>
-      <li>Next: <a href="../data_analysis/README.html" title="next chapter">Introduction to Weighted Ensemble Data Analysis in wepy</a></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -862,11 +837,11 @@ documentation.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../../../_sources/_source/tutorials/extended_test_drive/README.rst.txt"

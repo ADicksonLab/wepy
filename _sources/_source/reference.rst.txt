@@ -1,8 +1,5 @@
-Reference
-=========
-
-Architecture
-------------
+HDF5 Reporter Data Structure
+============================
 
 Record Groups
 -------------

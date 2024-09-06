@@ -1,21 +1,21 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Changelog &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/changelog.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="Development Guide" href="dev_guide.html" />
@@ -23,8 +23,9 @@
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -51,13 +52,13 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="changelog">
-<h1>Changelog<a class="headerlink" href="#changelog" title="Permalink to this headline">¶</a></h1>
+  <section id="changelog">
+<h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
 <p>Adapted from <a class="reference external" href="https://keepachangelog.com">keepachangelog.com</a> for
 org-mode.</p>
 <p>See the git commit log history for full details.</p>
-<div class="section" id="section-1">
-<span id="id1"></span><h2>1.1.0 - 2021-03-22<a class="headerlink" href="#section-1" title="Permalink to this headline">¶</a></h2>
+<section id="section-1">
+<span id="id1"></span><h2>1.1.0 - 2021-03-22<a class="headerlink" href="#section-1" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes uninitialized discontinuities when not using boundary
 conditions in a <code class="docutils literal notranslate"><span class="pre">ContigTree</span></code>. (Fixes: 10.gh<sub>issue</sub>)</p></li>
@@ -96,8 +97,8 @@ making it a general purpose function rather than a helper to the
 orchestration CLI (see breakages, but we don’t expect anyone to have
 used this and is minor).</p></li>
 </ul>
-<div class="section" id="breakages">
-<h3>Breakages<a class="headerlink" href="#breakages" title="Permalink to this headline">¶</a></h3>
+<section id="breakages">
+<h3>Breakages<a class="headerlink" href="#breakages" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>The two attributes <code class="docutils literal notranslate"><span class="pre">countsmat</span></code> and <code class="docutils literal notranslate"><span class="pre">probmat</span></code> for
 <code class="docutils literal notranslate"><span class="pre">(Base)MacroStateNetwork</span></code> classes have been removed, and superceded
@@ -113,18 +114,18 @@ value is no longer calculated.</p></li>
 other peoples code is low (we can put a stub in for backwards
 compatibility if needed).</p></li>
 </ul>
-</div>
-<div class="section" id="regression">
-<h3>Regression<a class="headerlink" href="#regression" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="regression">
+<h3>Regression<a class="headerlink" href="#regression" title="Link to this heading">¶</a></h3>
 <ul class="simple">
 <li><p>As stated in the Growth items, a potentially large amount of
 transition sample weights are stored in the <code class="docutils literal notranslate"><span class="pre">BaseMacroStateNetwork</span></code>
 object now.</p></li>
 </ul>
-</div>
-</div>
-<div class="section" id="section-2">
-<span id="id2"></span><h2>1.0.7 - 2020-11-12<a class="headerlink" href="#section-2" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="section-2">
+<span id="id2"></span><h2>1.0.7 - 2020-11-12<a class="headerlink" href="#section-2" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Adds a check to make sure the <code class="docutils literal notranslate"><span class="pre">platform</span></code> for the
 <code class="docutils literal notranslate"><span class="pre">runners.openmm.OpenMMRunner</span></code> is a string and not an actual
@@ -134,9 +135,9 @@ object now.</p></li>
 <li><p>Pins version of <code class="docutils literal notranslate"><span class="pre">h5py</span></code> to less than version 3, which introduced
 breaking API changes.</p></li>
 </ul>
-</div>
-<div class="section" id="section-3">
-<span id="id3"></span><h2>1.0.6 - 2020-09-28<a class="headerlink" href="#section-3" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-3">
+<span id="id3"></span><h2>1.0.6 - 2020-09-28<a class="headerlink" href="#section-3" title="Link to this heading">¶</a></h2>
 <ul>
 <li><p>Fixes the <code class="docutils literal notranslate"><span class="pre">WepyHDF5.get_trace_field</span></code> function.</p>
 <p>Previously I had implemented a chunking strategy to improve
@@ -147,44 +148,44 @@ version is introduced it will be made explicit (either in the
 <code class="docutils literal notranslate"><span class="pre">get_trace_field</span></code> call, or as a wrapper or separate method).</p>
 </li>
 </ul>
-</div>
-<div class="section" id="section-4">
-<span id="id4"></span><h2>1.0.5 - 2020-09-14<a class="headerlink" href="#section-4" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-4">
+<span id="id4"></span><h2>1.0.5 - 2020-09-14<a class="headerlink" href="#section-4" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Work around fix for final snapshot in orchestrator being deleted if
 it is the same hash as the last checkpoint snapshot.</p></li>
 </ul>
-</div>
-<div class="section" id="section-5">
-<span id="id5"></span><h2>1.0.4 - 2020-08-27<a class="headerlink" href="#section-5" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-5">
+<span id="id5"></span><h2>1.0.4 - 2020-08-27<a class="headerlink" href="#section-5" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes the broken CLI interface. Moves it into the standard
 <code class="docutils literal notranslate"><span class="pre">__main__.py</span></code> module.</p></li>
 </ul>
-</div>
-<div class="section" id="section-6">
-<span id="id6"></span><h2>1.0.3 - 2020-08-19<a class="headerlink" href="#section-6" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-6">
+<span id="id6"></span><h2>1.0.3 - 2020-08-19<a class="headerlink" href="#section-6" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>This fixes an issue with the MacroStateNetwork that allows for</p></li>
 </ul>
 <p>different shapes of state assignment arrays. This was previously an
 issue but did not completely solve the issue.</p>
-</div>
-<div class="section" id="section-7">
-<span id="id7"></span><h2>1.0.2 - 2020-08-13<a class="headerlink" href="#section-7" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-7">
+<span id="id7"></span><h2>1.0.2 - 2020-08-13<a class="headerlink" href="#section-7" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>Fixes too-large chunk size when copying observable run data to other
 files in <code class="docutils literal notranslate"><span class="pre">WepyHDF5.copy_run_slice</span></code></p></li>
 <li><p>Improves docstrings for the MacroStateNetwork methods</p></li>
 </ul>
-</div>
-<div class="section" id="section-8">
-<span id="id8"></span><h2>1.0.1 - 2020-08-07<a class="headerlink" href="#section-8" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-8">
+<span id="id8"></span><h2>1.0.1 - 2020-08-07<a class="headerlink" href="#section-8" title="Link to this heading">¶</a></h2>
 <p>This fixes an issue with the MacroStateNetwork that allows for different
 shapes of state assignment arrays.</p>
-</div>
-<div class="section" id="section-9">
-<span id="id9"></span><h2>1.0.0 - 2020-08-04<a class="headerlink" href="#section-9" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="section-9">
+<span id="id9"></span><h2>1.0.0 - 2020-08-04<a class="headerlink" href="#section-9" title="Link to this heading">¶</a></h2>
 <p>Changes in rc6:</p>
 <ul class="simple">
 <li><p>adds feature to make weighted transition counts from simulation data.
@@ -222,9 +223,9 @@ resamplers.</p></li>
 <ul class="simple">
 <li><p>fixes bug in WorkerMapper</p></li>
 </ul>
-</div>
-<div class="section" id="rc1-2020-04-09">
-<h2>1.0.0rc1 - 2020-04-09<a class="headerlink" href="#rc1-2020-04-09" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="rc1-2020-04-09">
+<h2>1.0.0rc1 - 2020-04-09<a class="headerlink" href="#rc1-2020-04-09" title="Link to this heading">¶</a></h2>
 <p>Changes in rc2:</p>
 <ul class="simple">
 <li><p>adds support for setting the OpenMM Platform at <code class="docutils literal notranslate"><span class="pre">run_segment</span></code> or in
@@ -239,12 +240,12 @@ resamplers.</p></li>
 <ul class="simple">
 <li><p>fixes bug in WorkerMapper</p></li>
 </ul>
-</div>
-<div class="section" id="rc0">
-<h2>1.0.0rc0<a class="headerlink" href="#rc0" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="rc0">
+<h2>1.0.0rc0<a class="headerlink" href="#rc0" title="Link to this heading">¶</a></h2>
 <p>Prehistory</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -266,11 +267,11 @@ resamplers.</p></li>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -295,19 +296,15 @@ resamplers.</p></li>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start/index.html">Quick Start</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="general_info.html">General Information</a></li>
@@ -325,16 +322,16 @@ resamplers.</p></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -348,11 +345,11 @@ resamplers.</p></li>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_source/changelog.rst.txt"

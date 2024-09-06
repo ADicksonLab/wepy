@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>How to Prepare Your Data &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/tutorials/prepare/README.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Unbinding Simulation" href="../unbinding_sim/README.html" />
+    <link rel="prev" title="Tutorials" href="../index.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../index.html" title="Previous document">Tutorials</a>
+        </li>
+        <li>
+          <a href="../unbinding_sim/README.html" title="Next document">Unbinding Simulation</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <section id="how-to-prepare-your-data">
+<span id="prepare"></span><h1>How to Prepare Your Data<a class="headerlink" href="#how-to-prepare-your-data" title="Link to this heading">¶</a></h1>
+<p>Preparing your biomolecular system for Wepy simulation mostly follows
+the same steps you would use to run a normal molecular dynamics (MD)
+trajectory with OpenMM.</p>
+<p>To prepare your data for Wepy you can follow these 3 steps:</p>
+<ol class="arabic simple">
+<li><p>Use a system builder (e.g. CharmmGUI) to build your system.</p></li>
+<li><p>Perform a short MD simulation with OpenMM.</p></li>
+<li><p>Use the simulation output to build a restart file, as well as pickle
+files for the system and topology.</p></li>
+</ol>
+<p>We describe a protocol using CharmmGUI below, but this can be easily
+adapted to accomodate other workflows as well.</p>
+<section id="building-your-system-with-charmmgui">
+<h2>Building your system with CharmmGUI<a class="headerlink" href="#building-your-system-with-charmmgui" title="Link to this heading">¶</a></h2>
+<p><a class="reference external" href="https://www.charmm-gui.org/">CharmmGUI</a> is a powerful web-based
+interface for preparing input files for MD simulations. There are a
+number of resources on that page to assist you in choosing the
+appropriate options for your project. A minimal workflow is provided
+below:</p>
+<ol class="arabic">
+<li><p><strong>Visit CharmmGUI:</strong> Open your web browser and go to
+<a class="reference external" href="https://www.charmm-gui.org">https://www.charmm-gui.org</a> . You will need to create an account
+and/or log in.</p></li>
+<li><p><strong>Select the Appropriate Module:</strong> Choose the module that best suits
+your needs (e.g., “Membrane Builder”, “Solution Builder”, etc.). For
+most MD simulations, the “Solution Builder” is commonly used.</p></li>
+<li><p><strong>Upload Your Molecular Structure</strong>: Upload your molecular structure
+file (e.g., PDB file) to the CharmmGUI interface, or enter the PDB
+ID. If uploading, ensure your file is correctly formatted and
+contains all necessary components.</p></li>
+<li><p><strong>Set Up Your Simulation Parameters:</strong> Follow the guided steps in
+CharmmGUI to set up the details of your simulation. This typically
+includes selecting the appropriate chains and entities, defining the
+type of solvent, adding ions, setting the box size, temperature and
+other relevant details.</p></li>
+<li><p><strong>Generate Input Files:</strong> Once you have configured your system,
+CharmmGUI will generate the necessary input files for your MD
+simulation. <strong>For output type, be sure to select OpenMM</strong>. This will
+include all of the necessary topology files, coordinate files, and
+parameter files.</p></li>
+<li><p><strong>Download the Input Files:</strong> Download the tgz-format archive file to
+your local machine and/or move them into your cluster or computing
+environment. Expand this using:</p>
+<p><code class="docutils literal notranslate"><span class="pre">tar</span> <span class="pre">-xzf</span> <span class="pre">&lt;charmm-gui-file&gt;.tgz</span></code>.</p>
+<p>The files are now in the directory <code class="docutils literal notranslate"><span class="pre">charmm-gui-XXXXXXXXXX/openmm</span></code>
+where XXXXXXXXXX is your particular job number. You will use the
+files in this directory to perform the MD simulation in the next
+step.</p>
+</li>
+</ol>
+</section>
+<section id="md-simulation">
+<h2>MD Simulation<a class="headerlink" href="#md-simulation" title="Link to this heading">¶</a></h2>
+<p>The output from CharmmGUI is not yet equilibrated. It should be energy
+minimized and then gradually heated to the production temperature.
+CharmmGUI has provided scripts for this purpose, which are contained in
+the <code class="docutils literal notranslate"><span class="pre">README</span></code> file.</p>
+<p>A nice way to carry out this equilibration is to make this file
+executable (with <code class="docutils literal notranslate"><span class="pre">chmod</span> <span class="pre">+x</span> <span class="pre">README</span></code>) and then execute its contents:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>./README
+</pre></div>
+</div>
+<p>This can also be run in a SLURM script, if working on a compute cluster:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="c1">#SBATCH --job-name=charmm-gui-equil</span>
+<span class="c1">#SBATCH --gpus=1</span>
+<span class="c1">#SBATCH --time=4:00:00</span>
+<span class="c1">#SBATCH --mem=5G</span>
+
+<span class="c1"># activate the conda environment with openmm</span>
+conda<span class="w"> </span>activate<span class="w"> </span>wepy-env
+
+<span class="c1"># load a CUDA module if necessary</span>
+module<span class="w"> </span>load<span class="w"> </span>CUDA/11.8.0
+
+<span class="nb">cd</span><span class="w"> </span>~/charmm-gui-XXXXXXXXXX/openmm
+
+./README<span class="w"> </span>&gt;<span class="p">&amp;</span><span class="w"> </span>t.log
+</pre></div>
+</div>
+</section>
+<section id="building-system-and-topology-pickle-files">
+<h2>Building System and Topology Pickle Files<a class="headerlink" href="#building-system-and-topology-pickle-files" title="Link to this heading">¶</a></h2>
+<p>Now that you have your equilibrated system, you can use the simulation
+output to build system and topology pickle files. To achieve this you
+will use the <code class="docutils literal notranslate"><span class="pre">openmm_run.py</span></code> script in the
+<code class="docutils literal notranslate"><span class="pre">charmm-gui-XXXXXXXXXX/openmm</span></code> folder and the corresponding README
+file generated by CHARMM-GUI.</p>
+<p>To build the system and topology pickle files, follow these steps:</p>
+<ol class="arabic">
+<li><p><strong>Modify the openmmrun.py script:</strong> This script is generated by
+CHARMM-GUI. It contains the necessary code to generate the system and
+topology objects which we will save in pkl files, and then exit the
+script. An example of this modified file is given below, which is
+also included in <code class="docutils literal notranslate"><span class="pre">examples/charmm-gui/openmm_make_pkls.py</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">Generated by CHARMM-GUI (http://www.charmm-gui.org)</span>
+
+<span class="sd">openmm_run.py</span>
+
+<span class="sd">This program is OpenMM running scripts written in python.</span>
+
+<span class="sd">Correspondance: jul316@lehigh.edu or wonpil@lehigh.edu</span>
+<span class="sd">Last update: June 18, 2021</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">print_function</span>
+<span class="kn">import</span> <span class="nn">argparse</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">pickle</span> <span class="k">as</span> <span class="nn">pkl</span>
+
+<span class="kn">from</span> <span class="nn">omm_readinputs</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">omm_readparams</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">omm_vfswitch</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">omm_barostat</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">omm_restraints</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">omm_rewrap</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="kn">from</span> <span class="nn">openmm.unit</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">openmm</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">from</span> <span class="nn">openmm.app</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">()</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;--platform&#39;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;OpenMM platform (default: CUDA or OpenCL)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-i&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;inpfile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input parameter file&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-p&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;topfile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input topology file&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-c&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;crdfile&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input coordinate file&#39;</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-t&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;toppar&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input CHARMM-GUI toppar stream file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-b&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;sysinfo&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input CHARMM-GUI sysinfo stream file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-ff&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;fftype&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input force field type (default: CHARMM)&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="s1">&#39;CHARMM&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-icrst&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;RSTFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;icrst&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input CHARMM RST file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-irst&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;RSTFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;irst&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input restart file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-ichk&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;CHKFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;ichk&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Input checkpoint file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-opdb&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;PDBFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;opdb&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Output PDB file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-orst&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;RSTFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;orst&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Output restart file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-ochk&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;CHKFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;ochk&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Output checkpoint file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-odcd&#39;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s1">&#39;DCDFILE&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;odcd&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Output trajectory file (optional)&#39;</span><span class="p">)</span>
+<span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s1">&#39;-rewrap&#39;</span><span class="p">,</span> <span class="n">dest</span><span class="o">=</span><span class="s1">&#39;rewrap&#39;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s1">&#39;Re-wrap the coordinates in a molecular basis (optional)&#39;</span><span class="p">,</span> <span class="n">action</span><span class="o">=</span><span class="s1">&#39;store_true&#39;</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+<span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
+
+<span class="c1"># Load parameters</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Loading parameters&quot;</span><span class="p">)</span>
+<span class="n">inputs</span> <span class="o">=</span> <span class="n">read_inputs</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">inpfile</span><span class="p">)</span>
+
+<span class="n">top</span> <span class="o">=</span> <span class="n">read_top</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">topfile</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">fftype</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+<span class="n">crd</span> <span class="o">=</span> <span class="n">read_crd</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">crdfile</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">fftype</span><span class="o">.</span><span class="n">upper</span><span class="p">())</span>
+<span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">fftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;CHARMM&#39;</span><span class="p">:</span>
+<span class="n">params</span> <span class="o">=</span> <span class="n">read_params</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">toppar</span><span class="p">)</span>
+<span class="n">top</span> <span class="o">=</span> <span class="n">read_box</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sysinfo</span><span class="p">)</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sysinfo</span> <span class="k">else</span> <span class="n">gen_box</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">crd</span><span class="p">)</span>
+
+<span class="c1"># Build system</span>
+<span class="n">nboptions</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">nonbondedMethod</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">coulomb</span><span class="p">,</span>
+               <span class="n">nonbondedCutoff</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">r_off</span><span class="o">*</span><span class="n">nanometers</span><span class="p">,</span>
+               <span class="n">constraints</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">cons</span><span class="p">,</span>
+               <span class="n">ewaldErrorTolerance</span><span class="o">=</span><span class="n">inputs</span><span class="o">.</span><span class="n">ewald_Tol</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">vdw</span> <span class="o">==</span> <span class="s1">&#39;Switch&#39;</span><span class="p">:</span> <span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;switchDistance&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">r_on</span><span class="o">*</span><span class="n">nanometers</span>
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">vdw</span> <span class="o">==</span> <span class="s1">&#39;LJPME&#39;</span><span class="p">:</span>  <span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;nonbondedMethod&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">LJPME</span>
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">implicitSolvent</span><span class="p">:</span>
+<span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;implicitSolvent&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">implicitSolvent</span>
+<span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;implicitSolventSaltConc&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">implicit_salt</span><span class="o">*</span><span class="p">(</span><span class="n">moles</span><span class="o">/</span><span class="n">liter</span><span class="p">)</span>
+<span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;temperature&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">temp</span><span class="o">*</span><span class="n">kelvin</span>
+<span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;soluteDielectric&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">solut_diele</span>
+<span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;solventDielectric&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">solve_diele</span>
+<span class="n">nboptions</span><span class="p">[</span><span class="s1">&#39;gbsaModel&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">inputs</span><span class="o">.</span><span class="n">gbsamodel</span>
+
+<span class="k">if</span>   <span class="n">args</span><span class="o">.</span><span class="n">fftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;CHARMM&#39;</span><span class="p">:</span> <span class="n">system</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">createSystem</span><span class="p">(</span><span class="n">params</span><span class="p">,</span> <span class="o">**</span><span class="n">nboptions</span><span class="p">)</span>
+<span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">fftype</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s1">&#39;AMBER&#39;</span><span class="p">:</span>  <span class="n">system</span> <span class="o">=</span> <span class="n">top</span><span class="o">.</span><span class="n">createSystem</span><span class="p">(</span><span class="o">**</span><span class="n">nboptions</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">vdw</span> <span class="o">==</span> <span class="s1">&#39;Force-switch&#39;</span><span class="p">:</span> <span class="n">system</span> <span class="o">=</span> <span class="n">vfswitch</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">top</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">lj_lrc</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>
+<span class="k">for</span> <span class="n">force</span> <span class="ow">in</span> <span class="n">system</span><span class="o">.</span><span class="n">getForces</span><span class="p">():</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="n">NonbondedForce</span><span class="p">):</span> <span class="n">force</span><span class="o">.</span><span class="n">setUseDispersionCorrection</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="n">CustomNonbondedForce</span><span class="p">)</span> <span class="ow">and</span> <span class="n">force</span><span class="o">.</span><span class="n">getNumTabulatedFunctions</span><span class="p">()</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="n">force</span><span class="o">.</span><span class="n">setUseLongRangeCorrection</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">e14scale</span> <span class="o">!=</span> <span class="mf">1.0</span><span class="p">:</span>
+<span class="k">for</span> <span class="n">force</span> <span class="ow">in</span> <span class="n">system</span><span class="o">.</span><span class="n">getForces</span><span class="p">():</span>
+      <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">force</span><span class="p">,</span> <span class="n">NonbondedForce</span><span class="p">):</span> <span class="n">nonbonded</span> <span class="o">=</span> <span class="n">force</span><span class="p">;</span> <span class="k">break</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">nonbonded</span><span class="o">.</span><span class="n">getNumExceptions</span><span class="p">()):</span>
+         <span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">chg</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">eps</span> <span class="o">=</span> <span class="n">nonbonded</span><span class="o">.</span><span class="n">getExceptionParameters</span><span class="p">(</span><span class="n">i</span><span class="p">)</span>
+         <span class="n">nonbonded</span><span class="o">.</span><span class="n">setExceptionParameters</span><span class="p">(</span><span class="n">i</span><span class="p">,</span> <span class="n">atom1</span><span class="p">,</span> <span class="n">atom2</span><span class="p">,</span> <span class="n">chg</span><span class="o">*</span><span class="n">inputs</span><span class="o">.</span><span class="n">e14scale</span><span class="p">,</span> <span class="n">sig</span><span class="p">,</span> <span class="n">eps</span><span class="p">)</span>
+
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">pcouple</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>      <span class="n">system</span> <span class="o">=</span> <span class="n">barostat</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">inputs</span><span class="o">.</span><span class="n">rest</span> <span class="o">==</span> <span class="s1">&#39;yes&#39;</span><span class="p">:</span>         <span class="n">system</span> <span class="o">=</span> <span class="n">restraints</span><span class="p">(</span><span class="n">system</span><span class="p">,</span> <span class="n">crd</span><span class="p">,</span> <span class="n">inputs</span><span class="p">)</span>
+
+<span class="c1"># system and topology are made!</span>
+<span class="c1"># write the pkl files</span>
+<span class="n">pkl</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">system</span><span class="p">,</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;system.pkl&#39;</span><span class="p">,</span><span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+<span class="n">pkl</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">top</span><span class="o">.</span><span class="n">topology</span><span class="p">,</span><span class="nb">open</span><span class="p">(</span><span class="s1">&#39;topology.pkl&#39;</span><span class="p">,</span><span class="s1">&#39;wb&#39;</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>NOTE again that this is just a truncated version of the
+<code class="docutils literal notranslate"><span class="pre">openmm_run.py</span></code> script with two <code class="docutils literal notranslate"><span class="pre">pkl.dump</span></code> commands at the end.
+It will create system and topology objects that correspond to the
+options specified in the CharmmGUI configuration files.</p>
+</li>
+<li><p><strong>Call the new script as done in the README:</strong> The README file, also
+generated by CHARMM-GUI, provides the call signature for running this
+script with the “production” parameters. Check your README script for
+the appropriate call signature. A sample command is as follows:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>-u<span class="w"> </span>openmm_make_pkls.py<span class="w"> </span>-i<span class="w"> </span>step5_production.inp<span class="w"> </span>-t<span class="w"> </span>toppar.str<span class="w"> </span>-p<span class="w"> </span>step3_input.psf<span class="w"> </span>-c<span class="w"> </span>step3_input.crd
+</pre></div>
+</div>
+<p>This script will generate two pickle files: <code class="docutils literal notranslate"><span class="pre">system.pkl</span></code> and
+<code class="docutils literal notranslate"><span class="pre">topology.pkl</span></code>. These files will be used in the next step to run
+the simulation with the generated system and topology. Now you are
+all set to start setting up the Wepy simulation.</p>
+</li>
+</ol>
+<p>​** For rebinding simulations, you will need to generate system and
+topology files for the bonded state as well. **</p>
+</section>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../index.html" title="Previous document">Tutorials</a>
+        </li>
+        <li>
+          <a href="../unbinding_sim/README.html" title="Next document">Unbinding Simulation</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Tutorials</a><ul>
+      <li>Previous: <a href="../index.html" title="previous chapter">Tutorials</a></li>
+      <li>Next: <a href="../unbinding_sim/README.html" title="next chapter">Unbinding Simulation</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../_sources/_source/tutorials/prepare/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

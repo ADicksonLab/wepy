@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.util.kv module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.util.kv.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.util.mdtraj module" href="wepy.util.mdtraj.html" />
-    <link rel="prev" title="wepy.util.json_top module" href="wepy.util.json_top.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.util.json_top.html" title="Previous document">wepy.util.json_top module</a>
-        </li>
-        <li>
-          <a href="wepy.util.mdtraj.html" title="Next document">wepy.util.mdtraj module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,166 +42,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.util.kv">
-<span id="wepy-util-kv-module"></span><h1>wepy.util.kv module<a class="headerlink" href="#module-wepy.util.kv" title="Permalink to this headline">¶</a></h1>
-<p>Implement a key-value store on top of sqlite3 database.</p>
-<dl class="py function">
-<dt id="wepy.util.kv.gen_uri">
-<code class="sig-prename descclassname"><span class="pre">wepy.util.kv.</span></code><code class="sig-name descname"><span class="pre">gen_uri</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">db_url</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode_spec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#gen_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.gen_uri" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py class">
-<dt id="wepy.util.kv.KV">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.util.kv.</span></code><code class="sig-name descname"><span class="pre">KV</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">db_url=None</span></em>, <em class="sig-param"><span class="pre">table='data'</span></em>, <em class="sig-param"><span class="pre">primary_key='key'</span></em>, <em class="sig-param"><span class="pre">value_name='value'</span></em>, <em class="sig-param"><span class="pre">timeout=5</span></em>, <em class="sig-param"><span class="pre">mode='x'</span></em>, <em class="sig-param"><span class="pre">append_only=False</span></em>, <em class="sig-param"><span class="pre">value_types=(&lt;class</span> <span class="pre">'bytes'&gt;</span></em>, <em class="sig-param"><span class="pre">&lt;class</span> <span class="pre">'bytearray'&gt;)</span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/collections.abc.html#collections.abc.MutableMapping" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">collections.abc.MutableMapping</span></code></a></p>
-<dl class="py method">
-<dt id="wepy.util.kv.KV.mode">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#wepy.util.kv.KV.mode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.append_only">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">append_only</span></code><a class="headerlink" href="#wepy.util.kv.KV.append_only" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.close">
-<code class="sig-name descname"><span class="pre">close</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV.close"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV.close" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.db_uri">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db_uri</span></code><a class="headerlink" href="#wepy.util.kv.KV.db_uri" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.db">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">db</span></code><a class="headerlink" href="#wepy.util.kv.KV.db" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.table">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">table</span></code><a class="headerlink" href="#wepy.util.kv.KV.table" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.primary_key">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">primary_key</span></code><a class="headerlink" href="#wepy.util.kv.KV.primary_key" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.value_name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value_name</span></code><a class="headerlink" href="#wepy.util.kv.KV.value_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.value_types">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">value_types</span></code><a class="headerlink" href="#wepy.util.kv.KV.value_types" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV._execute">
-<code class="sig-name descname"><span class="pre">_execute</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV._execute"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV._execute" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.insert_query">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">insert_query</span></code><a class="headerlink" href="#wepy.util.kv.KV.insert_query" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.update_query">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">update_query</span></code><a class="headerlink" href="#wepy.util.kv.KV.update_query" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.del_query">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">del_query</span></code><a class="headerlink" href="#wepy.util.kv.KV.del_query" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.lockless_set">
-<code class="sig-name descname"><span class="pre">lockless_set</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV.lockless_set"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV.lockless_set" title="Permalink to this definition">¶</a></dt>
-<dd><p>an implementation of the __setitem__ without the lock context
-manager which turns on the DEFERRED isolation level. The
-isolation level of the KV is set to autocommit so now lock is
-needed anyhow.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.set_in_tx">
-<code class="sig-name descname"><span class="pre">set_in_tx</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cursor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV.set_in_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV.set_in_tx" title="Permalink to this definition">¶</a></dt>
-<dd><p>Do a set with a cursor, this allows it to be done in a transaction.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.del_in_tx">
-<code class="sig-name descname"><span class="pre">del_in_tx</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cursor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV.del_in_tx"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV.del_in_tx" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.lock">
-<code class="sig-name descname"><span class="pre">lock</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/kv.html#KV.lock"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.kv.KV.lock" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.util.kv.KV._abc_impl">
-<code class="sig-name descname"><span class="pre">_abc_impl</span></code><em class="property"> <span class="pre">=</span> <span class="pre">&lt;_abc_data</span> <span class="pre">object&gt;</span></em><a class="headerlink" href="#wepy.util.kv.KV._abc_impl" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.clear">
-<code class="sig-name descname"><span class="pre">clear</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">None.</span>&#160; <span class="pre">Remove</span> <span class="pre">all</span> <span class="pre">items</span> <span class="pre">from</span> <span class="pre">D.</span><a class="headerlink" href="#wepy.util.kv.KV.clear" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.get">
-<code class="sig-name descname"><span class="pre">get</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; <span class="pre">D[k]</span> <span class="pre">if</span> <span class="pre">k</span> <span class="pre">in</span> <span class="pre">D,</span> <span class="pre">else</span> <span class="pre">d.</span>&#160; <span class="pre">d</span> <span class="pre">defaults</span> <span class="pre">to</span> <span class="pre">None.</span><a class="headerlink" href="#wepy.util.kv.KV.get" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.items">
-<code class="sig-name descname"><span class="pre">items</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">items</span><a class="headerlink" href="#wepy.util.kv.KV.items" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.keys">
-<code class="sig-name descname"><span class="pre">keys</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">a</span> <span class="pre">set-like</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">keys</span><a class="headerlink" href="#wepy.util.kv.KV.keys" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.pop">
-<code class="sig-name descname"><span class="pre">pop</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; <span class="pre">v,</span> <span class="pre">remove</span> <span class="pre">specified</span> <span class="pre">key</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">the</span> <span class="pre">corresponding</span> <span class="pre">value.</span><a class="headerlink" href="#wepy.util.kv.KV.pop" title="Permalink to this definition">¶</a></dt>
-<dd><p>If key is not found, d is returned if given, otherwise KeyError is raised.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.popitem">
-<code class="sig-name descname"><span class="pre">popitem</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">(k,</span> <span class="pre">v),</span> <span class="pre">remove</span> <span class="pre">and</span> <span class="pre">return</span> <span class="pre">some</span> <span class="pre">(key,</span> <span class="pre">value)</span> <span class="pre">pair</span><a class="headerlink" href="#wepy.util.kv.KV.popitem" title="Permalink to this definition">¶</a></dt>
-<dd><p>as a 2-tuple; but raise KeyError if D is empty.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.setdefault">
-<code class="sig-name descname"><span class="pre">setdefault</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="pre">k</span></em><span class="optional">[</span>, <em class="sig-param"><span class="pre">d</span></em><span class="optional">]</span><span class="sig-paren">)</span> &#x2192; <span class="pre">D.get(k,d),</span> <span class="pre">also</span> <span class="pre">set</span> <span class="pre">D[k]=d</span> <span class="pre">if</span> <span class="pre">k</span> <span class="pre">not</span> <span class="pre">in</span> <span class="pre">D</span><a class="headerlink" href="#wepy.util.kv.KV.setdefault" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.update">
-<code class="sig-name descname"><span class="pre">update</span></code><span class="sig-paren">(</span><span class="optional">[</span><em class="sig-param"><span class="pre">E</span></em>, <span class="optional">]</span><em class="sig-param"><span class="pre">**F</span></em><span class="sig-paren">)</span> &#x2192; <span class="pre">None.</span>&#160; <span class="pre">Update</span> <span class="pre">D</span> <span class="pre">from</span> <span class="pre">mapping/iterable</span> <span class="pre">E</span> <span class="pre">and</span> <span class="pre">F.</span><a class="headerlink" href="#wepy.util.kv.KV.update" title="Permalink to this definition">¶</a></dt>
-<dd><p>If E present and has a .keys() method, does:     for k in E: D[k] = E[k]
-If E present and lacks .keys() method, does:     for (k, v) in E: D[k] = v
-In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.util.kv.KV.values">
-<code class="sig-name descname"><span class="pre">values</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span> &#x2192; <span class="pre">an</span> <span class="pre">object</span> <span class="pre">providing</span> <span class="pre">a</span> <span class="pre">view</span> <span class="pre">on</span> <span class="pre">D’s</span> <span class="pre">values</span><a class="headerlink" href="#wepy.util.kv.KV.values" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
+  <section id="wepy-util-kv-module">
+<h1>wepy.util.kv module<a class="headerlink" href="#wepy-util-kv-module" title="Link to this heading">¶</a></h1>
+</section>
 
 
           </div>
@@ -218,25 +52,17 @@ In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.util.json_top.html" title="Previous document">wepy.util.json_top module</a>
-        </li>
-        <li>
-          <a href="wepy.util.mdtraj.html" title="Next document">wepy.util.mdtraj module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -261,19 +87,15 @@ In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -286,27 +108,19 @@ In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-  <li><a href="wepy.util.html">wepy.util package</a><ul>
-      <li>Previous: <a href="wepy.util.json_top.html" title="previous chapter">wepy.util.json_top module</a></li>
-      <li>Next: <a href="wepy.util.mdtraj.html" title="next chapter">wepy.util.mdtraj module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -320,11 +134,11 @@ In either case, this is followed by: for k, v in F.items(): D[k] = v</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.util.kv.rst.txt"

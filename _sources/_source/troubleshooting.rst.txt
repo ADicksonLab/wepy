@@ -1,6 +1,9 @@
 FAQ
 ===
 
+HDF5
+----
+
 My results files are large, can I compress them?
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -39,8 +42,22 @@ And install an ealier version:
 
    pip install 'h5py<3'
 
-See *I think I have the wrong versions of dependencies* for more info on
+See I think I have the wrong versions of dependencies for more info on
 fixing dependencies.
+
+Clearing HDF5 Write Locks
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Sometimes if processes don't shut down correctly there will be open
+locks on the dataset. If you are absolutely sure that no processes are
+still active you can manually clear these flags using the HDF5 toolkit:
+
+.. code:: bash
+
+   h5clear -s -m $file
+
+Dependencies
+------------
 
 I think I have the wrong versions of dependencies
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

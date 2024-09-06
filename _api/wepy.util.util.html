@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.util.util module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.util.util.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.work_mapper package" href="wepy.work_mapper.html" />
-    <link rel="prev" title="wepy.util.mdtraj module" href="wepy.util.mdtraj.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.util.mdtraj.html" title="Previous document">wepy.util.mdtraj module</a>
-        </li>
-        <li>
-          <a href="wepy.work_mapper.html" title="Next document">wepy.work_mapper package</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,98 +42,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.util.util">
-<span id="wepy-util-util-module"></span><h1>wepy.util.util module<a class="headerlink" href="#module-wepy.util.util" title="Permalink to this headline">¶</a></h1>
-<p>Miscellaneous functions needed by wepy.</p>
-<dl class="py function">
-<dt id="wepy.util.util.set_loglevel">
-<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">set_loglevel</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loglevel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#set_loglevel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.set_loglevel" title="Permalink to this definition">¶</a></dt>
-<dd><p>
-:param loglevel:</p>
-<p></p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="wepy.util.util.traj_box_vectors_to_lengths_angles">
-<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">traj_box_vectors_to_lengths_angles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_box_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#traj_box_vectors_to_lengths_angles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.traj_box_vectors_to_lengths_angles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert box vectors for multiple ‘frames’ (a ‘trajectory’) to box lengths and angles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>traj_box_vectors</strong> (<em>arraylike of float of shape</em><em> (</em><em>n_frames</em><em>, </em><em>n_dims</em><em>, </em><em>n_dims</em><em>)</em>) – Box vector matrices (x, y, z) for a trajectory of frames.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>traj_box_lengths</strong> (<em>arraylike of float of shape (n_frames, n_dims)</em>) – The lengths of the box for each frame</p></li>
-<li><p><strong>traj_box_angles</strong> (<em>arraylike of float of shape (n_frames, n_dims)</em>) – The angles of the box vectors to normal for each frame in degrees.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="wepy.util.util.box_vectors_to_lengths_angles">
-<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">box_vectors_to_lengths_angles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#box_vectors_to_lengths_angles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.box_vectors_to_lengths_angles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert box vectors for a single ‘frame’ to lengths and angles.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>box_vectors</strong> (<em>arraylike of float of shape</em><em> (</em><em>n_dims</em><em>, </em><em>n_dims</em><em>)</em>) – Box vector matrices (x, y, z) for a single frame.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>box_lengths</strong> (<em>arraylike of float of shape (n_dims,)</em>) – The lengths of the box</p></li>
-<li><p><strong>box_angles</strong> (<em>arraylike of float of shape (n_dims,)</em>) – The angles of the box vectors to normal in degrees.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="wepy.util.util.lengths_and_angles_to_box_vectors">
-<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">lengths_and_angles_to_box_vectors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#lengths_and_angles_to_box_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.lengths_and_angles_to_box_vectors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert from the lengths/angles of the unit cell to the box
-vectors (Bravais vectors). The angles should be in degrees.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>a_length</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – length of Bravais unit vector <strong>a</strong></p></li>
-<li><p><strong>b_length</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – length of Bravais unit vector <strong>b</strong></p></li>
-<li><p><strong>c_length</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – length of Bravais unit vector <strong>c</strong></p></li>
-<li><p><strong>alpha</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – angle between vectors <strong>b</strong> and <strong>c</strong>, in degrees.</p></li>
-<li><p><strong>beta</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – angle between vectors <strong>c</strong> and <strong>a</strong>, in degrees.</p></li>
-<li><p><strong>gamma</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – angle between vectors <strong>a</strong> and <strong>b</strong>, in degrees.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>a</strong> (<em>np.ndarray</em>) – If the inputs are scalar, the vectors will one dimesninoal (length 3).
-If the inputs are one dimension, shape=(n_frames, ), then the output
-will be (n_frames, 3)</p></li>
-<li><p><strong>b</strong> (<em>np.ndarray</em>) – If the inputs are scalar, the vectors will one dimesninoal (length 3).
-If the inputs are one dimension, shape=(n_frames, ), then the output
-will be (n_frames, 3)</p></li>
-<li><p><strong>c</strong> (<em>np.ndarray</em>) – If the inputs are scalar, the vectors will one dimesninoal (length 3).
-If the inputs are one dimension, shape=(n_frames, ), then the output
-will be (n_frames, 3)</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-<p class="rubric">Examples</p>
-<p class="rubric">Notes</p>
-<p>This code is adapted from gyroid, which is licensed under the BSD
-<a class="reference external" href="http://pythonhosted.org/gyroid/_modules/gyroid/unitcell.html">http://pythonhosted.org/gyroid/_modules/gyroid/unitcell.html</a>
-&gt;&gt;&gt; import numpy as np
-&gt;&gt;&gt; result = lengths_and_angles_to_box_vectors(1, 1, 1, 90.0, 90.0, 90.0)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt id="wepy.util.util.concat_traj_fields">
-<code class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></code><code class="sig-name descname"><span class="pre">concat_traj_fields</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajs_fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#concat_traj_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.concat_traj_fields" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</div>
+  <section id="wepy-util-util-module">
+<h1>wepy.util.util module<a class="headerlink" href="#wepy-util-util-module" title="Link to this heading">¶</a></h1>
+</section>
 
 
           </div>
@@ -150,25 +52,17 @@ will be (n_frames, 3)</p></li>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.util.mdtraj.html" title="Previous document">wepy.util.mdtraj module</a>
-        </li>
-        <li>
-          <a href="wepy.work_mapper.html" title="Next document">wepy.work_mapper package</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -193,19 +87,15 @@ will be (n_frames, 3)</p></li>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -218,27 +108,19 @@ will be (n_frames, 3)</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-  <li><a href="wepy.util.html">wepy.util package</a><ul>
-      <li>Previous: <a href="wepy.util.mdtraj.html" title="previous chapter">wepy.util.mdtraj module</a></li>
-      <li>Next: <a href="wepy.work_mapper.html" title="next chapter">wepy.work_mapper package</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -252,11 +134,11 @@ will be (n_frames, 3)</p></li>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.util.util.rst.txt"

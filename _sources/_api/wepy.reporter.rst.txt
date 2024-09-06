@@ -29,3 +29,4 @@ Submodules
    wepy.reporter.reporter
    wepy.reporter.restree
    wepy.reporter.walker
+   wepy.reporter.walker_pkl

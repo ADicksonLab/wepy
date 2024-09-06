@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.work_mapper.task_mapper module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.work_mapper.task_mapper.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.work_mapper.worker module" href="wepy.work_mapper.worker.html" />
-    <link rel="prev" title="wepy.work_mapper.mapper module" href="wepy.work_mapper.mapper.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.work_mapper.mapper.html" title="Previous document">wepy.work_mapper.mapper module</a>
-        </li>
-        <li>
-          <a href="wepy.work_mapper.worker.html" title="Next document">wepy.work_mapper.worker module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,360 +42,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.work_mapper.task_mapper">
-<span id="wepy-work-mapper-task-mapper-module"></span><h1>wepy.work_mapper.task_mapper module<a class="headerlink" href="#module-wepy.work_mapper.task_mapper" title="Permalink to this headline">¶</a></h1>
-<dl class="py exception">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessException">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.work_mapper.task_mapper.</span></code><code class="sig-name descname"><span class="pre">TaskProcessException</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">message</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wrapped_exception</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tb</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskProcessException"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessException" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.WrapperException" title="wepy.work_mapper.mapper.WrapperException"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.WrapperException</span></code></a></p>
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessException.args">
-<code class="sig-name descname"><span class="pre">args</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessException.args" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessException.with_traceback">
-<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessException.with_traceback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception.with_traceback(tb) –
-set self.__traceback__ to tb and return self.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py exception">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError">
-<em class="property"><span class="pre">exception</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.work_mapper.task_mapper.</span></code><code class="sig-name descname"><span class="pre">TaskProcessKilledError</span></code><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskProcessKilledError"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ChildProcessError" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">ChildProcessError</span></code></a></p>
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.args">
-<code class="sig-name descname"><span class="pre">args</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.args" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.characters_written">
-<code class="sig-name descname"><span class="pre">characters_written</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.characters_written" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.errno">
-<code class="sig-name descname"><span class="pre">errno</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.errno" title="Permalink to this definition">¶</a></dt>
-<dd><p>POSIX exception code</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.filename">
-<code class="sig-name descname"><span class="pre">filename</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.filename" title="Permalink to this definition">¶</a></dt>
-<dd><p>exception filename</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.filename2">
-<code class="sig-name descname"><span class="pre">filename2</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.filename2" title="Permalink to this definition">¶</a></dt>
-<dd><p>second exception filename</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.strerror">
-<code class="sig-name descname"><span class="pre">strerror</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.strerror" title="Permalink to this definition">¶</a></dt>
-<dd><p>exception strerror</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskProcessKilledError.with_traceback">
-<code class="sig-name descname"><span class="pre">with_traceback</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskProcessKilledError.with_traceback" title="Permalink to this definition">¶</a></dt>
-<dd><p>Exception.with_traceback(tb) –
-set self.__traceback__ to tb and return self.</p>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.work_mapper.task_mapper.</span></code><code class="sig-name descname"><span class="pre">TaskMapper</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker_task_type</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_workers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_func</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskMapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference internal" href="wepy.work_mapper.mapper.html#wepy.work_mapper.mapper.ABCWorkerMapper" title="wepy.work_mapper.mapper.ABCWorkerMapper"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.work_mapper.mapper.ABCWorkerMapper</span></code></a></p>
-<p>Process-per-task mapper.</p>
-<p>This method of work mapper starts new processes for each runner
-segment task that needs to be run. This allows cheap copying of
-shared state using the operating system primitives. On linux this
-would be either ‘fork’ (default) or ‘spawn’. Fork is cheap but
-doesn’t initialize certain process namespace things, whereas spawn
-is much more expensive but properly cleans things up. Fork should
-be sufficient in most cases, however spawn may be needed when you
-have some special contexts in the parent process. This is the case
-with starting CUDA contexts in the main parent process and then
-forking new processes from it. We suggest using fork and avoiding
-making these kinds of contexts in the main process.</p>
-<p>This method avoids using shared memory or sending objects through
-interprocess communication (that has a serialization and
-deserialization cost associated with them) by using OS copying
-mechanism. However, a new process will be created each cycle for
-each walker in the simulation. So if you want a large number of
-walkers you may experience a large overhead. If your walker states
-are very small or a very fast serializer is available you may also
-not benefit from full process address space copies. Instead the
-WorkerMapper may be better suited.</p>
-<p>Constructor for WorkerMapper.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn.</p></li>
-<li><p><strong>segment_func</strong> (<em>callable</em><em>, </em><em>optional</em>) – Set a default segment_func. Typically set at runtime.</p></li>
-<li><p><strong>proc_start_method</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – A string indicating the type of process start method to
-use from python multiprocessing typically ‘fork’, ‘spawn’,
-or ‘forkserver’, or the platform default for None. See
-documentation. Generates a context with the method
-multiprocessing.get_context(proc_start_method) on <cite>init</cite>.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.init">
-<code class="sig-name descname"><span class="pre">init</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskMapper.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.init" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runtime initialization and setting of function to map over walkers.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>num_workers</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The number of worker processes to spawn</p></li>
-<li><p><strong>segment_func</strong> (<em>callable implementing the Runner.run_segment interface</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper._sigterm_shutdown">
-<code class="sig-name descname"><span class="pre">_sigterm_shutdown</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskMapper._sigterm_shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper._sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.walker_task_type">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">walker_task_type</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.walker_task_type" title="Permalink to this definition">¶</a></dt>
-<dd><p>The callable that generates a worker object.</p>
-<p>Typically this is just the type from the class definition of
-the Worker where the constructor is called.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.force_shutdown">
-<code class="sig-name descname"><span class="pre">force_shutdown</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskMapper.force_shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.force_shutdown" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.map">
-<code class="sig-name descname"><span class="pre">map</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#TaskMapper.map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.map" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper._make_task">
-<code class="sig-name descname"><span class="pre">_make_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper._make_task" title="Permalink to this definition">¶</a></dt>
-<dd><p>Generate a task from ‘segment_func’ attribute.</p>
-<p>Similar to partial evaluation (or currying).</p>
-<p>Args will be eventually used as the arguments to the call of
-‘segment_func’ by the worker processes when they receive the
-task from the queue.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>task</strong></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>Task object</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.attributes">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">attributes</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.attributes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.cleanup">
-<code class="sig-name descname"><span class="pre">cleanup</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.cleanup" title="Permalink to this definition">¶</a></dt>
-<dd><p>Runtime post-simulation tasks.</p>
-<p>This is run either at the end of a successful simulation or
-upon an error in the main process of the simulation manager
-call to <cite>run_cycle</cite>.</p>
-<p>The Mapper class performs no actions here and all arguments
-are ignored.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.num_workers">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">num_workers</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.num_workers" title="Permalink to this definition">¶</a></dt>
-<dd><p>The number of worker processes.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.segment_func">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">segment_func</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.segment_func" title="Permalink to this definition">¶</a></dt>
-<dd><p>The function that will be called for new data in the <cite>map</cite> method.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.TaskMapper.worker_segment_times">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">worker_segment_times</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.TaskMapper.worker_segment_times" title="Permalink to this definition">¶</a></dt>
-<dd><p>The run timings for each segment for each walker.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>worker_seg_times</strong> – Dictionary mapping worker indices to a list of times in
-seconds for each segment run.</p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of int : list of float</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-<dl class="py class">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.work_mapper.task_mapper.</span></code><code class="sig-name descname"><span class="pre">WalkerTaskProcess</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mapper_attributes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_args</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">task_kwargs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worker_queue</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">results_list</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">worker_segment_times</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">interrupt_connection</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">multiprocessing.context.Process</span></code></p>
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.NAME_TEMPLATE">
-<code class="sig-name descname"><span class="pre">NAME_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'Walker-{}'</span></em><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.NAME_TEMPLATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._external_sigterm_shutdown">
-<code class="sig-name descname"><span class="pre">_external_sigterm_shutdown</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">signum</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">frame</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess._external_sigterm_shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._external_sigterm_shutdown" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._shutdown">
-<code class="sig-name descname"><span class="pre">_shutdown</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess._shutdown"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._shutdown" title="Permalink to this definition">¶</a></dt>
-<dd><p>The normal shutdown which can be ordered by the work mapper.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.attributes">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">attributes</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.attributes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._run_task">
-<code class="sig-name descname"><span class="pre">_run_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess._run_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._run_task" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.run_task">
-<code class="sig-name descname"><span class="pre">run_task</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">task</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess.run_task"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.run_task" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._Popen">
-<em class="property"><span class="pre">static</span> </em><code class="sig-name descname"><span class="pre">_Popen</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">process_obj</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._Popen" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._bootstrap">
-<code class="sig-name descname"><span class="pre">_bootstrap</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._bootstrap" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._check_closed">
-<code class="sig-name descname"><span class="pre">_check_closed</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._check_closed" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._start_method">
-<code class="sig-name descname"><span class="pre">_start_method</span></code><em class="property"> <span class="pre">=</span> <span class="pre">None</span></em><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._start_method" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.authkey">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">authkey</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.authkey" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.close">
-<code class="sig-name descname"><span class="pre">close</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.close" title="Permalink to this definition">¶</a></dt>
-<dd><p>Close the Process object.</p>
-<p>This method releases resources held by the Process object.  It is
-an error to call this method if the child process is still running.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.daemon">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">daemon</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.daemon" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return whether process is a daemon</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.exitcode">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">exitcode</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.exitcode" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return exit code of process or <cite>None</cite> if it has yet to stop</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.ident">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">ident</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.ident" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.is_alive">
-<code class="sig-name descname"><span class="pre">is_alive</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.is_alive" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return whether process is alive</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.join">
-<code class="sig-name descname"><span class="pre">join</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">timeout</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.join" title="Permalink to this definition">¶</a></dt>
-<dd><p>Wait until child process terminates</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.kill">
-<code class="sig-name descname"><span class="pre">kill</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.kill" title="Permalink to this definition">¶</a></dt>
-<dd><p>Terminate process; sends SIGKILL signal or uses TerminateProcess()</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">name</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.pid">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">pid</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.pid" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return identifier (PID) of process or <cite>None</cite> if it has yet to start</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.run">
-<code class="sig-name descname"><span class="pre">run</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess.run"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.run" title="Permalink to this definition">¶</a></dt>
-<dd><p>Method to be run in sub-process; can be overridden in sub-class</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.sentinel">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">sentinel</span></code><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.sentinel" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a file descriptor (Unix) or handle (Windows) suitable for
-waiting for process termination.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.start">
-<code class="sig-name descname"><span class="pre">start</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.start" title="Permalink to this definition">¶</a></dt>
-<dd><p>Start child process</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess.terminate">
-<code class="sig-name descname"><span class="pre">terminate</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess.terminate" title="Permalink to this definition">¶</a></dt>
-<dd><p>Terminate process; sends SIGTERM signal or uses TerminateProcess()</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.work_mapper.task_mapper.WalkerTaskProcess._run_walker">
-<code class="sig-name descname"><span class="pre">_run_walker</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/work_mapper/task_mapper.html#WalkerTaskProcess._run_walker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.work_mapper.task_mapper.WalkerTaskProcess._run_walker" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-</dd></dl>
-
-</div>
+  <section id="wepy-work-mapper-task-mapper-module">
+<h1>wepy.work_mapper.task_mapper module<a class="headerlink" href="#wepy-work-mapper-task-mapper-module" title="Link to this heading">¶</a></h1>
+</section>
 
 
           </div>
@@ -412,25 +52,17 @@ waiting for process termination.</p>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.work_mapper.mapper.html" title="Previous document">wepy.work_mapper.mapper module</a>
-        </li>
-        <li>
-          <a href="wepy.work_mapper.worker.html" title="Next document">wepy.work_mapper.worker module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -455,19 +87,15 @@ waiting for process termination.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -480,27 +108,19 @@ waiting for process termination.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-  <li><a href="wepy.work_mapper.html">wepy.work_mapper package</a><ul>
-      <li>Previous: <a href="wepy.work_mapper.mapper.html" title="previous chapter">wepy.work_mapper.mapper module</a></li>
-      <li>Next: <a href="wepy.work_mapper.worker.html" title="next chapter">wepy.work_mapper.worker module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -514,11 +134,11 @@ waiting for process termination.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.work_mapper.task_mapper.rst.txt"

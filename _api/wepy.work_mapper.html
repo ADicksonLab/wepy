@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.work_mapper package &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.work_mapper.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.work_mapper.mapper module" href="wepy.work_mapper.mapper.html" />
-    <link rel="prev" title="wepy.util.util module" href="wepy.util.util.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.util.util.html" title="Previous document">wepy.util.util module</a>
-        </li>
-        <li>
-          <a href="wepy.work_mapper.mapper.html" title="Next document">wepy.work_mapper.mapper module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,88 +42,10 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.work_mapper">
-<span id="wepy-work-mapper-package"></span><h1>wepy.work_mapper package<a class="headerlink" href="#module-wepy.work_mapper" title="Permalink to this headline">¶</a></h1>
-<p>Classes used for efficiently performing work at different stages of
-the wepy simulation cycle.</p>
-<p>Wepy simulations have four sequential stages of computation:</p>
-<ol class="arabic simple">
-<li><p>running segments</p></li>
-<li><p>boundary conditions</p></li>
-<li><p>resampling</p></li>
-<li><p>reporting</p></li>
-</ol>
-<p>Stage 1 involves propagating dynamics for each walker in a completely
-independent using the same runner function (i.e. <cite>run_segment</cite>) and
-can always be completely parallelized.</p>
-<p>Steps 2 and 4, with a few more assumptions of independence (which are
-most likely satisfied without overly complex behavior), are probably
-also completely parallelizable over walkers and reporters
-respectively.</p>
-<p>Resampling may also have a degree of parallelizability but will vary
-considerably between resamplers and so cannot be treated outside of
-any individual framework for resamplers and so will not be treated
-generally in this submodule.</p>
-<p>Currently, wepy supports a worker based task queue implementation
-(wepy.work_mapper.mapper.WorkerMapper) for running parallel segments
-in stage 1, which is very useful for utilizing GPU compute sources.
-It is pretty general and utilizes the multiprocessing library for
-starting worker processes. Specific code for running OpenMM GPU
-calculations is contained within the openmm runner module.</p>
-<p>Currently general solutions for parallelizing stage 2 and 3 are not
-provided or supported in the simulation manager (to avoid premature
-optimization) but these are easy targets for improving the efficiency
-of wepy code.</p>
-<p>If you don’t care about parallelizing your segment running (say for
-simple test systems) you can use the reference implementation
-(wepy.work_mapper.mapper.Mapper) which is basically just a wrapper
-around a for-loop.</p>
-<p>This sub-module provides reference implementations and/or abstract
-base classes for a few interfaces.</p>
-<p>The WorkMapper class interface has the following methods:</p>
-<ul class="simple">
-<li><p>init</p></li>
-<li><p>cleanup</p></li>
-<li><p>map</p></li>
-</ul>
-<p>A single attribute for the segment_function that is set at runtime
-with a call to <cite>init</cite>:</p>
-<ul class="simple">
-<li><p>segment_func</p></li>
-</ul>
-<p>And an optional attribute to enable reporting on segment running performance:</p>
-<ul class="simple">
-<li><p>worker_segment_times : dict of int : list of float</p></li>
-</ul>
-<p>Which should be a dictionary mapping a worker index to a list of float
-values of time (in seconds) for each task (i.e. segment of walker
-dynamics) it ran in the last cycle only (not cumulative over
-consecutive cycles).</p>
-<p>The <cite>init</cite> method is called at runtime by the simulation manager at
-the beginning of the simulation and allows for performing such actions
-as opening file handles or starting worker processes (as is the case
-with the WorkerMapper).</p>
-<p>The only necessary key-word argument to this method is ‘segment_func’
-which will be provided by the simulation manager (and is derived at
-runtime from the runner).</p>
-<p>The <cite>cleanup</cite> method likewise is called either at the end of a
-succesful simulation or when an error occurs in the call to
-<cite>run_cycle</cite> in the simulation manager (e.g. to allow killing of live
-processes).</p>
-<p>The <cite>map</cite> function acts similar to the python builtin except it does
-not accept the function to map over the data. This is instead set
-during the call to <cite>init</cite> from the ‘segment_func’ key-word argument.</p>
-<p>The WorkerMapper class and related Worker and Task classes will be
-provided as-is and are not really intended to be superclasses although
-you are free to do so.</p>
-<p>The only interfacing that facilitates their usage is that the
-simulation manager will pass a required keyword argument ‘num_workers’
-to the call to <cite>init</cite>.</p>
-<p>See the simulation manager module to see what fields are passed to the
-mappers. These will likely not be removed in the future, although more
-may be added.</p>
-<div class="section" id="submodules">
-<h2>Submodules<a class="headerlink" href="#submodules" title="Permalink to this headline">¶</a></h2>
+  <section id="wepy-work-mapper-package">
+<h1>wepy.work_mapper package<a class="headerlink" href="#wepy-work-mapper-package" title="Link to this heading">¶</a></h1>
+<section id="submodules">
+<h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="wepy.work_mapper.mapper.html">wepy.work_mapper.mapper module</a></li>
@@ -140,8 +53,8 @@ may be added.</p>
 <li class="toctree-l1"><a class="reference internal" href="wepy.work_mapper.worker.html">wepy.work_mapper.worker module</a></li>
 </ul>
 </div>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -149,25 +62,17 @@ may be added.</p>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.util.util.html" title="Previous document">wepy.util.util module</a>
-        </li>
-        <li>
-          <a href="wepy.work_mapper.mapper.html" title="Next document">wepy.work_mapper.mapper module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -192,19 +97,15 @@ may be added.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -217,25 +118,19 @@ may be added.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-      <li>Previous: <a href="wepy.util.util.html" title="previous chapter">wepy.util.util module</a></li>
-      <li>Next: <a href="wepy.work_mapper.mapper.html" title="next chapter">wepy.work_mapper.mapper module</a></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -249,11 +144,11 @@ may be added.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.work_mapper.rst.txt"

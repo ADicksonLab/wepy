@@ -9,6 +9,10 @@ small importable package was built called
 In this tutorial we will use this package to build a simulation similar
 to the one in this paper: TODO.
 
+.. raw:: org
+
+   #+RST: .. TODO add paper citation
+
 Getting Started
 ---------------
 

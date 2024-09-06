@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Introducing Observables &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=4f057836" />
+    <script src="../../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/tutorials/data_analysis/observable_intro/README.html" />
+    <link rel="icon" href="../../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="Running Multiple Simulations" href="../../multiple_runs/index.html" />
+    <link rel="prev" title="Working with HDF5" href="../hdf5_access/README.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../hdf5_access/README.html" title="Previous document">Working with HDF5</a>
+        </li>
+        <li>
+          <a href="../../multiple_runs/index.html" title="Next document">Running Multiple Simulations</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <section id="introducing-observables">
+<h1>Introducing Observables<a class="headerlink" href="#introducing-observables" title="Link to this heading">¶</a></h1>
+<p>Observables are quantities calculated from simulation data that provide
+insights into the system’s behavior. A common observable is RMSD (Root
+Mean Square Deviation). In this guide, we’ll walk through the process of
+defining and using observables within a simulation.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">mdtraj</span> <span class="k">as</span> <span class="nn">mdj</span>
+
+<span class="c1"># Load the PDB file</span>
+<span class="n">pdb_path</span> <span class="o">=</span> <span class="s1">&#39;path/to/your/file.pdb&#39;</span>
+<span class="n">pdb</span> <span class="o">=</span> <span class="n">mdj</span><span class="o">.</span><span class="n">load_pdb</span><span class="p">(</span><span class="n">pdb_path</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To calculate observables, we often need to select specific residues or
+atoms. Here’s how to select residues using MDTraj.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Select specific residues based on segment names and residue numbers</span>
+<span class="n">active_1_res</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;(segname PROA and (residue 399)) or (segname PROB and (residue 366))&#39;</span><span class="p">)</span>
+<span class="n">active_2_res</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;(segname PROB and (residue 399)) or (segname PROC and (residue 366))&#39;</span><span class="p">)</span>
+<span class="n">active_3_res</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;(segname PROC and (residue 399)) or (segname PROA and (residue 366))&#39;</span><span class="p">)</span>
+
+<span class="n">CARA_active_res</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;segname CARA and (residue 24 25)&#39;</span><span class="p">)</span>
+<span class="n">CARB_active_res</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;segname CARB and (residue 24 25)&#39;</span><span class="p">)</span>
+<span class="n">CARC_active_res</span> <span class="o">=</span> <span class="n">pdb</span><span class="o">.</span><span class="n">top</span><span class="o">.</span><span class="n">select</span><span class="p">(</span><span class="s1">&#39;segname CARC and (residue 24 25)&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>An observable function takes simulation data as input and computes a
+specific property. You can define your own functions based on your
+research needs.</p>
+<p>Here’s an example of how you might define an observable function to
+compute centroid distances:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="k">def</span> <span class="nf">centroid_distance</span><span class="p">(</span><span class="n">fields_d</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="n">centroid_distances</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">])):</span>
+        <span class="n">active_1_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;active_1_res&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">active_2_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;active_2_res&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">active_3_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;active_3_res&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">CARA_active_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;CARA_active_res&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">CARB_active_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;CARB_active_res&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="n">CARC_active_centroid</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">fields_d</span><span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">][</span><span class="n">i</span><span class="p">][</span><span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="s1">&#39;CARC_active_res&#39;</span><span class="p">]],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">centroid_distances</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">active_1_centroid</span> <span class="o">-</span> <span class="n">CARA_active_centroid</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">active_3_centroid</span> <span class="o">-</span> <span class="n">CARB_active_centroid</span><span class="p">),</span>
+            <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">active_2_centroid</span> <span class="o">-</span> <span class="n">CARC_active_centroid</span><span class="p">)</span>
+        <span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">centroid_distances</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Once we have the observable function, we can use it to compute
+properties during the simulation. Wepy provides tools to manage
+simulation data and compute observables.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.hdf5</span> <span class="kn">import</span> <span class="n">WepyHDF5</span>
+
+<span class="c1"># Path to the WEPY results files</span>
+<span class="n">outputs_dir</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;path/to/output1&#39;</span><span class="p">,</span> <span class="s1">&#39;path/to/output2&#39;</span><span class="p">]</span>
+<span class="n">wepy_results</span> <span class="o">=</span> <span class="p">[</span><span class="n">WepyHDF5</span><span class="p">(</span><span class="n">output_dir</span> <span class="o">+</span> <span class="s1">&#39;/wepy.results.h5&#39;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;r+&#39;</span><span class="p">)</span> <span class="k">for</span> <span class="n">output_dir</span> <span class="ow">in</span> <span class="n">outputs_dir</span><span class="p">]</span>
+
+<span class="k">for</span> <span class="n">wepy_result</span> <span class="ow">in</span> <span class="n">wepy_results</span><span class="p">:</span>
+    <span class="k">with</span> <span class="n">wepy_result</span><span class="p">:</span>
+        <span class="n">args</span> <span class="o">=</span> <span class="p">[{</span>
+            <span class="s1">&#39;active_1_res&#39;</span><span class="p">:</span> <span class="n">active_1_res</span><span class="p">,</span>
+            <span class="s1">&#39;active_2_res&#39;</span><span class="p">:</span> <span class="n">active_2_res</span><span class="p">,</span>
+            <span class="s1">&#39;active_3_res&#39;</span><span class="p">:</span> <span class="n">active_3_res</span><span class="p">,</span>
+            <span class="s1">&#39;CARA_active_res&#39;</span><span class="p">:</span> <span class="n">CARA_active_res</span><span class="p">,</span>
+            <span class="s1">&#39;CARB_active_res&#39;</span><span class="p">:</span> <span class="n">CARB_active_res</span><span class="p">,</span>
+            <span class="s1">&#39;CARC_active_res&#39;</span><span class="p">:</span> <span class="n">CARC_active_res</span>
+        <span class="p">}]</span>
+
+        <span class="n">obs</span> <span class="o">=</span> <span class="n">wepy_result</span><span class="o">.</span><span class="n">compute_observable</span><span class="p">(</span>
+            <span class="n">centroid_distance</span><span class="p">,</span>
+            <span class="p">[</span><span class="s1">&#39;positions&#39;</span><span class="p">],</span>  <span class="c1"># Specify the required fields</span>
+            <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">args</span><span class="p">),</span>    <span class="c1"># Pass custom arguments</span>
+            <span class="n">save_to_hdf5</span><span class="o">=</span><span class="s1">&#39;centroid&#39;</span><span class="p">,</span>  <span class="c1"># Save results to the HDF5 file</span>
+            <span class="n">return_results</span><span class="o">=</span><span class="kc">True</span>
+        <span class="p">)</span>
+</pre></div>
+</div>
+<p>Now you have centroid distance data that you can use to analyze the
+system’s behavior. You can also use the data to visualize the system’s
+behavior over time.</p>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../hdf5_access/README.html" title="Previous document">Working with HDF5</a>
+        </li>
+        <li>
+          <a href="../../multiple_runs/index.html" title="Next document">Running Multiple Simulations</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../index.html">
+    <img class="logo" src="../../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Tutorials</a><ul>
+  <li><a href="../index.html">Analyzing Wepy Data</a><ul>
+      <li>Previous: <a href="../hdf5_access/README.html" title="previous chapter">Working with HDF5</a></li>
+      <li>Next: <a href="../../multiple_runs/index.html" title="next chapter">Running Multiple Simulations</a></li>
+  </ul></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../../_sources/_source/tutorials/data_analysis/observable_intro/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

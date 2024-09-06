@@ -104,8 +104,8 @@ Virtual Environments
 
 There are helpers for pinning and (re)generating python virtual
 environments which are helpful in developing and testing this project,
-and not necessarily just for running it as a user. See *Managing
-Dependencies* for details on managing dependencies of the installable
+and not necessarily just for running it as a user. See Managing
+Dependencies for details on managing dependencies of the installable
 project.
 
 If an environment has been already been written and compiled you need
@@ -230,7 +230,7 @@ Managing Dependencies
       a directory with a set of files that are used to reproduce
       development environments the full structure will be discussed
       separately. There can be any number of these but they shouldn't
-      start with a double-underscore '__' which is used for temporary
+      start with a double-underscore '\_\_' which is used for temporary
       utility environments.
    ``requirements.in``
       An optional high-level specification of install dependencies
@@ -626,7 +626,7 @@ Documentation and Website
 #. Building and testing the website
 
    For now we only support deploying the sphinx docs as a website and on
-   github pages (via the ``gh-pages`` branch, see *Website Admin*).
+   github pages (via the ``gh-pages`` branch, see Website Admin).
 
    So to view your undeployed docs just run:
 
@@ -674,8 +674,8 @@ Documentation and Website
 Testing
 ~~~~~~~
 
-This is about testing the actual source tree (see *Testing
-Documentation* for testing the docs).
+This is about testing the actual source tree (see Testing Documentation
+for testing the docs).
 
 #. Testing in the Dev Cycle
 
@@ -831,9 +831,9 @@ Making a release then follows these steps:
    Here then is the checklist of manually edited versions (currently the
    conda packaging stuff is not supported):
 
-   -  [ ] edit ``tasks/config.py``
-   -  [ ] commit
-   -  [ ] run ``inv git.release``
+   -  ☐ edit ``tasks/config.py``
+   -  ☐ commit
+   -  ☐ run ``inv git.release``
 
    Changing the version may happen a few times through the release
    process in order to debug wrinkles in the process so its useful to

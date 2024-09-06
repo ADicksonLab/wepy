@@ -1,0 +1,8 @@
+wepy.\_\_about\_\_ module
+=========================
+
+.. automodule:: wepy.__about__
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.analysis.profiles module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.analysis.profiles.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.analysis.rates module" href="wepy.analysis.rates.html" />
-    <link rel="prev" title="wepy.analysis.parents module" href="wepy.analysis.parents.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.analysis.parents.html" title="Previous document">wepy.analysis.parents module</a>
-        </li>
-        <li>
-          <a href="wepy.analysis.rates.html" title="Next document">wepy.analysis.rates module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,332 +42,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.analysis.profiles">
-<span id="wepy-analysis-profiles-module"></span><h1>wepy.analysis.profiles module<a class="headerlink" href="#module-wepy.analysis.profiles" title="Permalink to this headline">¶</a></h1>
-<p>Analysis routines for generating free energy profiles over wepy
-simulation data.</p>
-<dl class="py function">
-<dt id="wepy.analysis.profiles._percentage_cumulative_partitions">
-<code class="sig-prename descclassname"><span class="pre">wepy.analysis.profiles.</span></code><code class="sig-name descname"><span class="pre">_percentage_cumulative_partitions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.25,</span> <span class="pre">0.5,</span> <span class="pre">0.75,</span> <span class="pre">1.0]</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#_percentage_cumulative_partitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles._percentage_cumulative_partitions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="wepy.analysis.profiles._tranche_cumulative_partitions">
-<code class="sig-prename descclassname"><span class="pre">wepy.analysis.profiles.</span></code><code class="sig-name descname"><span class="pre">_tranche_cumulative_partitions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_tranche</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_partitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#_tranche_cumulative_partitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles._tranche_cumulative_partitions" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py function">
-<dt id="wepy.analysis.profiles.cumulative_partitions">
-<code class="sig-prename descclassname"><span class="pre">wepy.analysis.profiles.</span></code><code class="sig-name descname"><span class="pre">cumulative_partitions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ensemble_values</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_tranche</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_partitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#cumulative_partitions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.cumulative_partitions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the cumulative free energies for an ensemble of
-trajectory weights.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>ensemble_values</strong> (<em>arraylikes of float of shape</em><em> (</em><em>n_cycles</em><em>, </em><em>n_trajs</em><em>)</em>) – Array of scalar values for all of the frames of an ensemble simulation.</p></li>
-<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free energies
-for. This overrides the functionality of the ‘partitions’
-argument. The last tranche will be truncated to the remainder
-after partitioning by tranches.</p></li>
-<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Will evenly partition the time coordinate given the
-dataset. The first partition will carry the
-remainder. Overriden by time_tranche.</p></li>
-<li><p><strong>percentages</strong> (<em>list of float</em><em>, </em><em>optional</em>) – </p></li>
-</ul>
-</dd>
-<dt class="field-even">Yields</dt>
-<dd class="field-even"><p><strong>cumulative_tranche</strong> (<em>arraylike</em>) – A slice along the cycles axis of the ensemble values starting
-at the beginning and including up to the end of the next
-tranche.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="wepy.analysis.profiles.free_energy_profile">
-<code class="sig-prename descclassname"><span class="pre">wepy.analysis.profiles.</span></code><code class="sig-name descname"><span class="pre">free_energy_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">observables</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">30</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">zero_point_energy</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">1e-12</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#free_energy_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.free_energy_profile" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>weights</strong> (<em>arraylikes of float of shape</em><em> (</em><em>n_trajs</em><em>, </em><em>n_cycles</em><em>)</em>) – The weights for all of the frames of an ensemble simulation.</p></li>
-<li><p><strong>observables</strong> (<em>arraylikes of shape</em><em> (</em><em>n_trajs</em><em>, </em><em>n_cycles</em><em>)</em>) – The scalar observables to compute the free energy over.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The number of bins to bin along the observable axis, or the
-actual bin edges, or the spec for the binning method.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>hist_fe</strong> (<em>arraylike</em>) – The free energies of the histogram bins</p></li>
-<li><p><strong>bin_edges</strong> (<em>arraylike</em>) – The edges of the bins of the histogram.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py function">
-<dt id="wepy.analysis.profiles.contigtrees_bin_edges">
-<code class="sig-prename descclassname"><span class="pre">wepy.analysis.profiles.</span></code><code class="sig-name descname"><span class="pre">contigtrees_bin_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contigtrees</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncate_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#contigtrees_bin_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.contigtrees_bin_edges" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the bin edges that best describes the aggregate data for
-multiple contigtrees.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>contigtrees</strong> (<em>list of ContigTree objects</em>) – The contigtrees to draw the data from.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><em>sequence of scalars</em><em> or </em><em>function</em>) – The number of bins to make or the method to use for
-autobinning or the actual specification of bins. See
-<cite>numpy.histogram_bin_edges</cite> for exact meaning and methods.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The trajectory field key for the values to get bins for.</p></li>
-<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – If None include all cycles of a run. Otherwise only consider
-cycles for spans up to (exclusive) the cycle index given.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>bin_edges</strong> – The edges to pass into <cite>numpy.histogram</cite></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>array of dtype float</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.histogram_bin_edges</span></code></dt><dd><p>For the bin edge function</p>
-</dd>
-</dl>
-</div>
-</dd></dl>
-
-<dl class="py class">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.analysis.profiles.</span></code><code class="sig-name descname"><span class="pre">ContigTreeProfiler</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contigtree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncate_cycles</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>A wrapper class around a ContigTree that provides extra methods for
-generating free energy profiles for observables.</p>
-<p>Create a wrapper around a contigtree for the profiler.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>contigtree</strong> (<em>ContigTree object</em>) – The contigtree you want to generate profiles for.</p></li>
-<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – If None include all cycles of a run. Otherwise only consider
-cycles for spans up to (exclusive) the cycle index given.</p></li>
-</ul>
-</dd>
-</dl>
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler._get_ignore_trace">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">_get_ignore_trace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contigtree</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">truncate_cycles</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler._get_ignore_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler._get_ignore_trace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get a trace of the ignore frames if we are truncating on a
-particular cycle index. Is exclusive of the <cite>truncate_cycles</cite>
-value.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>contigtree</strong> (<a class="reference internal" href="wepy.analysis.contig_tree.html#wepy.analysis.contig_tree.ContigTree" title="wepy.analysis.contig_tree.ContigTree"><em>ContigTree</em></a>) – </p></li>
-<li><p><strong>truncate_cycles</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The cycle index to truncate at (exclusive).</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>ignored_trace</strong> – The frames to ignore given the truncation.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>set of (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>, <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)">int</a>)</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.contigtree">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">contigtree</span></code><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.contigtree" title="Permalink to this definition">¶</a></dt>
-<dd><p>The underlying contigtree this wraps.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.fe_profile_trace">
-<code class="sig-name descname"><span class="pre">fe_profile_trace</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trace</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler.fe_profile_trace"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_trace" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the free energy histogram over a trajectory field.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>trace</strong> (<em>list of tuple of ints</em><em> (</em><em>run_idx</em><em>, </em><em>traj_idx</em><em>, </em><em>cycle_idx</em><em>)</em>) – </p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
-for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
-the actual bin edges, or the spec for the binning method,
-or None. If None will generate them with the ‘auto’
-setting for this span.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>fe_profile</strong> – An array of free energies for each bin.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>arraylike of dtype float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.fe_profile_all">
-<code class="sig-name descname"><span class="pre">fe_profile_all</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler.fe_profile_all"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.fe_profile_all" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the free energy histogram over a trajectory field.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
-for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
-the actual bin edges, or the spec for the binning method,
-or None. If None will generate them with the ‘auto’
-setting for this span.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>fe_profile</strong> – An array of free energies for each bin.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>arraylike of dtype float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.fe_profile">
-<code class="sig-name descname"><span class="pre">fe_profile</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler.fe_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.fe_profile" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the free energy histogram over a trajectory field.</p>
-<p>Deprecation warning: This will likely be deprecated and
-renamed to fe_profile_span because it is misleading that a
-profile is span based.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the span to calculate profiles for.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
-for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
-the actual bin edges, or the spec for the binning method,
-or None. If None will generate them with the ‘auto’
-setting for this span.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>fe_profile</strong> – An array of free energies for each bin.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>arraylike of dtype float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.fe_cumulative_profiles">
-<code class="sig-name descname"><span class="pre">fe_cumulative_profiles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">span</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_tranche</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_partitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler.fe_cumulative_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.fe_cumulative_profiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the cumulative free energy histograms for a trajectory
-field.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>span</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – The index of the span to calculate profiles for.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
-for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
-the actual bin edges, or the spec for the binning method,
-or None. If None will generate them with the ‘auto’
-setting for this span.</p></li>
-<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free
-energies for. This overrides the functionality of the
-‘num_partitions’ argument. The last tranche will be truncated
-to the remainder after partitioning by tranches. Overrides
-partitions.</p></li>
-<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Will evenly partition the time coordinate given the
-dataset. The first partition will carry the remainder.
-Overriden by time_tranche.</p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>cumulative_fe_profiles</strong> (<em>list of arraylike of dtype float</em>) – A list of each cumulative free energy profile. Each profile is
-an array of free energies for each bin.</p></li>
-<li><p><strong>profile_num_cycles</strong> (<em>list of int</em>) – The number of cycles in each cumulative fe profile.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.fe_all_cumulative_profiles">
-<code class="sig-name descname"><span class="pre">fe_all_cumulative_profiles</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_tranche</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_partitions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">percentages</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ignore_truncate</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler.fe_all_cumulative_profiles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.fe_all_cumulative_profiles" title="Permalink to this definition">¶</a></dt>
-<dd><p>Calculate the cumulative free energy histograms for a trajectory
-field for all spans in a contigtree.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The key for the trajectory field to calculate the profiles
-for. Must be a rank 0 (or equivalent (1,) rank) field.</p></li>
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><em>sequence of scalars</em><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.9)"><em>None</em></a>) – The number of bins to bin along the observable axis, or
-the actual bin edges, or the spec for the binning method,
-or None. If None will generate them with the ‘auto’
-setting for this span.</p></li>
-<li><p><strong>time_tranche</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Width of time-bins/windows/tranche to compute free
-energies for. This overrides the functionality of the
-‘num_partitions’ argument. The last tranche will be truncated
-to the remainder after partitioning by tranches. Overrides
-partitions.</p></li>
-<li><p><strong>num_partitions</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a>) – Will evenly partition the time coordinate given the
-dataset. The first partition will carry the remainder.
-Overriden by time_tranche.</p></li>
-<li><p><strong>percentages</strong> (<em>list of float</em>) – </p></li>
-<li><p><strong>ignore_truncate</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.9)"><em>bool</em></a>) – Ignore the truncate_cycles value.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><ul class="simple">
-<li><p><strong>cumulative_fe_profiles</strong> (<em>list of arraylike of dtype float</em>) – A list of each cumulative free energy profile. Each profile is
-an array of free energies for each bin.</p></li>
-<li><p><strong>profile_num_cycles</strong> (<em>list of int</em>) – The number of cycles in each cumulative fe profile.</p></li>
-</ul>
-</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.profiles.ContigTreeProfiler.bin_edges">
-<code class="sig-name descname"><span class="pre">bin_edges</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bins</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">field_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/profiles.html#ContigTreeProfiler.bin_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.profiles.ContigTreeProfiler.bin_edges" title="Permalink to this definition">¶</a></dt>
-<dd><p>Compute the bin edges that best describes all of the contigtree
-data for the number of bins.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>bins</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.9)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The number of bins to make or the method to use for
-autobinning.</p></li>
-<li><p><strong>field_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – The trajectory field key for the values to get bins for.</p></li>
-</ul>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>bin_edges</strong> – The edges to pass into <cite>numpy.histogram</cite></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>array of dtype float</p>
-</dd>
-</dl>
-<div class="admonition seealso">
-<p class="admonition-title">See also</p>
-<dl class="simple">
-<dt><code class="xref py py-obj docutils literal notranslate"><span class="pre">numpy.histogram_bin_edges</span></code></dt><dd><p>For the bin edge function</p>
-</dd>
-</dl>
-</div>
-</dd></dl>
-
-</dd></dl>
-
-</div>
+  <section id="wepy-analysis-profiles-module">
+<h1>wepy.analysis.profiles module<a class="headerlink" href="#wepy-analysis-profiles-module" title="Link to this heading">¶</a></h1>
+</section>
 
 
           </div>
@@ -384,25 +52,17 @@ autobinning.</p></li>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.analysis.parents.html" title="Previous document">wepy.analysis.parents module</a>
-        </li>
-        <li>
-          <a href="wepy.analysis.rates.html" title="Next document">wepy.analysis.rates module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -427,19 +87,15 @@ autobinning.</p></li>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -452,27 +108,19 @@ autobinning.</p></li>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-  <li><a href="wepy.analysis.html">wepy.analysis package</a><ul>
-      <li>Previous: <a href="wepy.analysis.parents.html" title="previous chapter">wepy.analysis.parents module</a></li>
-      <li>Next: <a href="wepy.analysis.rates.html" title="next chapter">wepy.analysis.rates module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -486,11 +134,11 @@ autobinning.</p></li>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.analysis.profiles.rst.txt"

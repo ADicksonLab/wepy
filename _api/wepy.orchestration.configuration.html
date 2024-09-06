@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.orchestration.configuration module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.orchestration.configuration.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.orchestration.orchestrator module" href="wepy.orchestration.orchestrator.html" />
-    <link rel="prev" title="wepy.orchestration.cli module" href="wepy.orchestration.cli.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.orchestration.cli.html" title="Previous document">wepy.orchestration.cli module</a>
-        </li>
-        <li>
-          <a href="wepy.orchestration.orchestrator.html" title="Next document">wepy.orchestration.orchestrator module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,135 +42,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.orchestration.configuration">
-<span id="wepy-orchestration-configuration-module"></span><h1>wepy.orchestration.configuration module<a class="headerlink" href="#module-wepy.orchestration.configuration" title="Permalink to this headline">¶</a></h1>
-<dl class="py class">
-<dt id="wepy.orchestration.configuration.Configuration">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.orchestration.configuration.</span></code><code class="sig-name descname"><span class="pre">Configuration</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">config_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">narration</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reporter_classes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">reporter_partial_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_mapper_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">work_mapper_partial_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_class</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">monitor_partial_kwargs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apparatus_opts</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<dl class="py attribute">
-<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_WORKDIR">
-<code class="sig-name descname"><span class="pre">DEFAULT_WORKDIR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'/home/salotz/tree/lab/devel/wepy/sphinx'</span></em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_WORKDIR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_CONFIG_NAME">
-<code class="sig-name descname"><span class="pre">DEFAULT_CONFIG_NAME</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'root'</span></em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_CONFIG_NAME" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_NARRATION">
-<code class="sig-name descname"><span class="pre">DEFAULT_NARRATION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">''</span></em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_NARRATION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_REPORTER_CLASS">
-<code class="sig-name descname"><span class="pre">DEFAULT_REPORTER_CLASS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">''</span></em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_REPORTER_CLASS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.orchestration.configuration.Configuration.REPORTER_CLASS_SEG_TEMPLATE">
-<code class="sig-name descname"><span class="pre">REPORTER_CLASS_SEG_TEMPLATE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'.{}'</span></em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.REPORTER_CLASS_SEG_TEMPLATE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.orchestration.configuration.Configuration.DEFAULT_MODE">
-<code class="sig-name descname"><span class="pre">DEFAULT_MODE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'x'</span></em><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.DEFAULT_MODE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.reporter_classes">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reporter_classes</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reporter_classes" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.reporter_partial_kwargs">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reporter_partial_kwargs</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reporter_partial_kwargs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.config_name">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">config_name</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.config_name" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.work_dir">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">work_dir</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_dir" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.narration">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">narration</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.narration" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.mode">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">mode</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.mode" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.work_mapper_class">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">work_mapper_class</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper_class" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.work_mapper_partial_kwargs">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">work_mapper_partial_kwargs</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper_partial_kwargs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.monitor_class">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">monitor_class</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.monitor_class" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.monitor_partial_kwargs">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">monitor_partial_kwargs</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.monitor_partial_kwargs" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.monitor">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">monitor</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.monitor" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.apparatus_opts">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">apparatus_opts</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.apparatus_opts" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration._gen_reporters">
-<code class="sig-name descname"><span class="pre">_gen_reporters</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration._gen_reporters"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration._gen_reporters" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration._gen_work_mapper">
-<code class="sig-name descname"><span class="pre">_gen_work_mapper</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration._gen_work_mapper"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration._gen_work_mapper" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.reporters">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">reporters</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reporters" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.work_mapper">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">work_mapper</span></code><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.work_mapper" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.orchestration.configuration.Configuration.reparametrize">
-<code class="sig-name descname"><span class="pre">reparametrize</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/configuration.html#Configuration.reparametrize"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.configuration.Configuration.reparametrize" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>**kwargs</strong> – </p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
+  <section id="wepy-orchestration-configuration-module">
+<h1>wepy.orchestration.configuration module<a class="headerlink" href="#wepy-orchestration-configuration-module" title="Link to this heading">¶</a></h1>
+</section>
 
 
           </div>
@@ -187,25 +52,17 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.orchestration.cli.html" title="Previous document">wepy.orchestration.cli module</a>
-        </li>
-        <li>
-          <a href="wepy.orchestration.orchestrator.html" title="Next document">wepy.orchestration.orchestrator module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -230,19 +87,15 @@
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -255,27 +108,19 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-  <li><a href="wepy.orchestration.html">wepy.orchestration package</a><ul>
-      <li>Previous: <a href="wepy.orchestration.cli.html" title="previous chapter">wepy.orchestration.cli module</a></li>
-      <li>Next: <a href="wepy.orchestration.orchestrator.html" title="next chapter">wepy.orchestration.orchestrator module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -289,11 +134,11 @@
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.orchestration.configuration.rst.txt"

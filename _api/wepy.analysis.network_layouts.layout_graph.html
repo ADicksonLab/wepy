@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>wepy.analysis.network_layouts.layout_graph module &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_api/wepy.analysis.network_layouts.layout_graph.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="wepy.analysis.network_layouts.tree module" href="wepy.analysis.network_layouts.tree.html" />
-    <link rel="prev" title="wepy.analysis.network_layouts.layout module" href="wepy.analysis.network_layouts.layout.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.analysis.network_layouts.layout.html" title="Previous document">wepy.analysis.network_layouts.layout module</a>
-        </li>
-        <li>
-          <a href="wepy.analysis.network_layouts.tree.html" title="Next document">wepy.analysis.network_layouts.tree module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,456 +42,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="module-wepy.analysis.network_layouts.layout_graph">
-<span id="wepy-analysis-network-layouts-layout-graph-module"></span><h1>wepy.analysis.network_layouts.layout_graph module<a class="headerlink" href="#module-wepy.analysis.network_layouts.layout_graph" title="Permalink to this headline">¶</a></h1>
-<p>Base class for generating general purpose graphs to external formats.</p>
-<p>The primary use for this will be generating GEXF files for use in
-visualization.</p>
-<div class="section" id="routines">
-<h2>Routines<a class="headerlink" href="#routines" title="Permalink to this headline">¶</a></h2>
-<p>LayoutGraph</p>
-<dl class="py class">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph">
-<em class="property"><span class="pre">class</span> </em><code class="sig-prename descclassname"><span class="pre">wepy.analysis.network_layouts.layout_graph.</span></code><code class="sig-name descname"><span class="pre">LayoutGraph</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">graph</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.9)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
-<p>Base class for networks that will be given layouts for visualization.</p>
-<p>For the graph it wraps it will create a mirror graph which only
-has visualization specific node and edge attributes. This avoids
-namespace clashes between graphs.</p>
-<p>Creates a wrapper for a graph that allows for setting of
-visualization properties and export to external formats without
-modifying the source graph.</p>
-<p>This is done by keeping a mirrored copy of the graph, known as
-the viz_graph, which has all node and edge attributes removed
-but keeps the topology.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>graph</strong> (<em>any networkx graph</em>) – </p>
-</dd>
-</dl>
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_COLOR">
-<code class="sig-name descname"><span class="pre">GRAPHVIZ_COLOR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'color'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_COLOR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_POSITION">
-<code class="sig-name descname"><span class="pre">GRAPHVIZ_POSITION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'pos'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_POSITION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_SHAPE">
-<code class="sig-name descname"><span class="pre">GRAPHVIZ_SHAPE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'shape'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_SHAPE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_SIZE">
-<code class="sig-name descname"><span class="pre">GRAPHVIZ_SIZE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'size'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GRAPHVIZ_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'viz'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_COLOR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'color'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_RED">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_COLOR_RED</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'r'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_RED" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_GREEN">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_COLOR_GREEN</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'g'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_GREEN" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_BLUE">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_COLOR_BLUE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'b'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_BLUE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_ALPHA">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_COLOR_ALPHA</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'a'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_COLOR_ALPHA" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_POSITION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'position'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION_X">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_POSITION_X</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'x'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION_X" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION_Y">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_POSITION_Y</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'y'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION_Y" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION_Z">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_POSITION_Z</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'z'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_POSITION_Z" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_SIZE">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_SIZE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'size'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_SHAPE">
-<code class="sig-name descname"><span class="pre">GEXF_VIZ_SHAPE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'shape'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_VIZ_SHAPE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_EDGE_THICKNESS">
-<code class="sig-name descname"><span class="pre">GEXF_EDGE_THICKNESS</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'thickness'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_EDGE_THICKNESS" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_EDGE_SHAPE">
-<code class="sig-name descname"><span class="pre">GEXF_EDGE_SHAPE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'shape'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.GEXF_EDGE_SHAPE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.COLOR">
-<code class="sig-name descname"><span class="pre">COLOR</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'color'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.COLOR" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.POSITION">
-<code class="sig-name descname"><span class="pre">POSITION</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'pos'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.POSITION" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.SHAPE">
-<code class="sig-name descname"><span class="pre">SHAPE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'shape'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.SHAPE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.SIZE">
-<code class="sig-name descname"><span class="pre">SIZE</span></code><em class="property"> <span class="pre">=</span> <span class="pre">'size'</span></em><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.SIZE" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.graph">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">graph</span></code><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>The source data graph the class is wrapping.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.viz_graph">
-<em class="property"><span class="pre">property</span> </em><code class="sig-name descname"><span class="pre">viz_graph</span></code><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.viz_graph" title="Permalink to this definition">¶</a></dt>
-<dd><p>The mirror graph in which visualization attributes are set.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_attributes">
-<code class="sig-name descname"><span class="pre">get_node_attributes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.get_node_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Gets attributes from the data graph and returns as a dictionary
-which is compatible with the set_node_viz_attributes methods.</p>
-<p>For instance could be used to get a ‘weight’ value and set as the color.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>node_attributes</strong> – Dictionary mapping of data graph nodes to the value
-specified by the attribute key.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of node_id: value</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_viz_attributes">
-<code class="sig-name descname"><span class="pre">set_node_viz_attributes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_attribute_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_viz_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_viz_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets attributes of the viz_graph in a format agnostic way.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Key to set node attribute values to.</p></li>
-<li><p><strong>node_attribute_dict</strong> (<em>dict of node_id: value</em>) – Dictionary mapping node_ids to the value that will be set
-under the attribute key for each node.</p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_positions">
-<code class="sig-name descname"><span class="pre">set_node_positions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_positions_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_positions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set positions of the nodes in the viz graph in a format agnostic way.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_positions_dict</strong> (<em>dict of node_id: position</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_colors">
-<code class="sig-name descname"><span class="pre">set_node_colors</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_colors_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_colors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set colors of the nodes in the viz graph in a format agnostic way.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_colors_dict</strong> (<em>dict of node_id: color</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_sizes">
-<code class="sig-name descname"><span class="pre">set_node_sizes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_sizes_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set sizes of the nodes in the viz graph in a format agnostic way.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_sizes_dict</strong> (<em>dict of node_id: int</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_shapes">
-<code class="sig-name descname"><span class="pre">set_node_shapes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_shapes_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_shapes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Set the shapes of the nodes in the viz graph in a format agnostic way.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_shapes_dict</strong> (<em>dict of node_id: shape_spec</em>) – </p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_viz_attributes">
-<code class="sig-name descname"><span class="pre">get_node_viz_attributes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute_key</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.get_node_viz_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_viz_attributes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the format agnostic attributes of nodes in the viz graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>node_attributes</strong></p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of node_id: value</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_positions">
-<code class="sig-name descname"><span class="pre">get_node_positions</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.get_node_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_positions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the format agnostic positions of the nodes in the viz graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>node_positions</strong></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of node_id: numpy.ndarray of float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_colors">
-<code class="sig-name descname"><span class="pre">get_node_colors</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.get_node_colors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_colors" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the format agnostic colors of the nodes in the viz graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>node_colors</strong></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of node_id: color_spec</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_sizes">
-<code class="sig-name descname"><span class="pre">get_node_sizes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.get_node_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the format agnostic size of the nodes in the viz graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>node_sizes</strong></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of node_id: float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_shapes">
-<code class="sig-name descname"><span class="pre">get_node_shapes</span></code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.get_node_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.get_node_shapes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the format agnostic shapes of the nodes in the viz graph.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns</dt>
-<dd class="field-odd"><p><strong>node_shapes</strong></p>
-</dd>
-<dt class="field-even">Return type</dt>
-<dd class="field-even"><p>dict of node_id: shape_spec</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.RGBA_to_hex">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">RGBA_to_hex</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.RGBA_to_hex"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.RGBA_to_hex" title="Permalink to this definition">¶</a></dt>
-<dd><p>Convert an RGBA color tuple to the hex representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>color_vec</strong> (<em>array_like of int</em>) – Valid RGB values between 0 and 256</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>hex_color</strong> – String of the hex value of the color.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)">str</a></p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_position">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">feature_vector_to_gexf_viz_position</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">coord_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.feature_vector_to_gexf_viz_position"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_position" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts an array_like of positions to the corresponding x, y, z
-representation for GEXF representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>coord_vec</strong> (<em>array_like of float of dim</em><em> (</em><em>3</em><em>,</em><em>)</em>) – </p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>gexf_position_spec</strong> – The node attribute for specifying a position of a node in gexf.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of str: float</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGB">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">feature_vector_to_gexf_viz_color_RGB</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.feature_vector_to_gexf_viz_color_RGB"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGB" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts an array_like of positions to the corresponding RGB
-representation for GEXF representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>color_vec</strong> (<em>array_like of int of dim</em><em> (</em><em>3</em><em>,</em><em>)</em>) – Should be valid RGB values between 0 and 256.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>gexf_color_spec</strong> – The node attribute for specifying a color of a node in gexf.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of str: int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGBA">
-<em class="property"><span class="pre">classmethod</span> </em><code class="sig-name descname"><span class="pre">feature_vector_to_gexf_viz_color_RGBA</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">color_vec</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.feature_vector_to_gexf_viz_color_RGBA"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.feature_vector_to_gexf_viz_color_RGBA" title="Permalink to this definition">¶</a></dt>
-<dd><p>Converts an array_like of positions to the corresponding RGBA
-representation for GEXF representation.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>color_vec</strong> (<em>array_like of int of dim</em><em> (</em><em>4</em><em>,</em><em>)</em>) – Should be valid RGB values between 0 and 256.</p>
-</dd>
-<dt class="field-even">Returns</dt>
-<dd class="field-even"><p><strong>gexf_color_spec</strong> – The node attribute for specifying a color of a node in gexf.</p>
-</dd>
-<dt class="field-odd">Return type</dt>
-<dd class="field-odd"><p>dict of str: int</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_viz">
-<code class="sig-name descname"><span class="pre">set_node_gexf_viz</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">viz_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_gexf_viz"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_viz" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets GEXF formatted visualization attributes for all nodes.</p>
-<p>GEXF has a structure where each node has a special compound
-‘viz’ attribute which can have a number of special attributes
-for shape, position, color, size, etc.</p>
-<p>This method just makes it easy to set one of those attributes
-under all nodes ‘viz’ attribute.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><ul class="simple">
-<li><p><strong>viz_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.9)"><em>str</em></a>) – Valid GEXF ‘viz’ attribute</p></li>
-<li><p><strong>node_dict</strong> (<em>dict of node_id: value</em>) – </p></li>
-</ul>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_positions">
-<code class="sig-name descname"><span class="pre">set_node_gexf_positions</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_positions_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_gexf_positions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_positions" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets GEXF specific positions attribute for visualization to nodes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_positions_dict</strong> (<em>dict of node_id: array_like of float of dim</em><em> (</em><em>3</em><em>,</em><em>)</em>) – Positions for each node.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgb">
-<code class="sig-name descname"><span class="pre">set_node_gexf_colors_rgb</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_colors_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_gexf_colors_rgb"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgb" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets GEXF specific RGB color attribute for visualization to nodes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_rgb_dict</strong> (<em>dict of node_id: array_like of int of dim</em><em> (</em><em>3</em><em>,</em><em>)</em>) – GEXF RGB color spec for each node.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgba">
-<code class="sig-name descname"><span class="pre">set_node_gexf_colors_rgba</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_colors_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_gexf_colors_rgba"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_colors_rgba" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets GEXF specific RGBA color attribute for visualization to nodes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_rgba_dict</strong> (<em>dict of node_id: array_like of int of dim</em><em> (</em><em>4</em><em>,</em><em>)</em>) – GEXF RGBA color spec for each node.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_sizes">
-<code class="sig-name descname"><span class="pre">set_node_gexf_sizes</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_sizes_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_gexf_sizes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_sizes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets GEXF specific node size attribute for visualization to nodes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_sizes_dict</strong> (<em>dict of node_id: float</em>) – GEXF size spec for each node.</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt id="wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_shape">
-<code class="sig-name descname"><span class="pre">set_node_gexf_shape</span></code><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node_shape_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/network_layouts/layout_graph.html#LayoutGraph.set_node_gexf_shape"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.network_layouts.layout_graph.LayoutGraph.set_node_gexf_shape" title="Permalink to this definition">¶</a></dt>
-<dd><p>Sets GEXF specific node shape attribute for visualization to nodes.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters</dt>
-<dd class="field-odd"><p><strong>node_shapes_dict</strong> (<em>dict of node_id: str</em>) – GEXF shape spec for each node.</p>
-</dd>
-</dl>
-</dd></dl>
-
-</dd></dl>
-
-</div>
-</div>
+  <section id="wepy-analysis-network-layouts-layout-graph-module">
+<h1>wepy.analysis.network_layouts.layout_graph module<a class="headerlink" href="#wepy-analysis-network-layouts-layout-graph-module" title="Link to this heading">¶</a></h1>
+</section>
 
 
           </div>
@@ -508,25 +52,17 @@ under all nodes ‘viz’ attribute.</p>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="wepy.analysis.network_layouts.layout.html" title="Previous document">wepy.analysis.network_layouts.layout module</a>
-        </li>
-        <li>
-          <a href="wepy.analysis.network_layouts.tree.html" title="Next document">wepy.analysis.network_layouts.tree module</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -551,19 +87,15 @@ under all nodes ‘viz’ attribute.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../_source/reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_source/glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_source/api.html">API Overview</a></li>
-<li class="toctree-l1 current"><a class="reference internal" href="modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_source/general_info.html">General Information</a></li>
@@ -576,29 +108,19 @@ under all nodes ‘viz’ attribute.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-  <li><a href="modules.html">wepy</a><ul>
-  <li><a href="wepy.html">wepy package</a><ul>
-  <li><a href="wepy.analysis.html">wepy.analysis package</a><ul>
-  <li><a href="wepy.analysis.network_layouts.html">wepy.analysis.network_layouts package</a><ul>
-      <li>Previous: <a href="wepy.analysis.network_layouts.layout.html" title="previous chapter">wepy.analysis.network_layouts.layout module</a></li>
-      <li>Next: <a href="wepy.analysis.network_layouts.tree.html" title="next chapter">wepy.analysis.network_layouts.tree module</a></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
-  </ul></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -612,11 +134,11 @@ under all nodes ‘viz’ attribute.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_api/wepy.analysis.network_layouts.layout_graph.rst.txt"

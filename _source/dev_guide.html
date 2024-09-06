@@ -1,29 +1,30 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>Development Guide &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/dev_guide.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="prev" title="Changelog" href="changelog.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -46,10 +47,10 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="development-guide">
-<h1>Development Guide<a class="headerlink" href="#development-guide" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="overview">
-<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+  <section id="development-guide">
+<h1>Development Guide<a class="headerlink" href="#development-guide" title="Link to this heading">¶</a></h1>
+<section id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Link to this heading">¶</a></h2>
 <p>In this project we use a bunch of extra tools that simplify the drudgery
 of manual maintenance tasks so we can get more coding done. Its also
 probably not how your used to.</p>
@@ -71,44 +72,44 @@ from the source.</p>
 <p>Ideally you won’t have to do much outside of running the <code class="docutils literal notranslate"><span class="pre">invoke</span></code>
 targets (i.e. any command that starts with <code class="docutils literal notranslate"><span class="pre">inv</span></code>).</p>
 <p>To see all of the commands run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv -l
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>-l
 </pre></div>
 </div>
 <p>You should read and understand the <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> documentation so that you
 know how to add your own project-specific targets via <code class="docutils literal notranslate"><span class="pre">invoke</span></code>.</p>
-</div>
-<div class="section" id="getting-set-up">
-<h2>Getting Set Up<a class="headerlink" href="#getting-set-up" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="obtaining-the-source-code">
-<h3>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="getting-set-up">
+<h2>Getting Set Up<a class="headerlink" href="#getting-set-up" title="Link to this heading">¶</a></h2>
+<section id="obtaining-the-source-code">
+<h3>Obtaining the source code<a class="headerlink" href="#obtaining-the-source-code" title="Link to this heading">¶</a></h3>
 <p>For the source code:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git clone <span class="o">{{</span> cookiecutter.dev_url <span class="o">}}</span>
-<span class="nb">cd</span> <span class="o">{{</span> cookiecutter.project_name <span class="o">}}</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>clone<span class="w"> </span><span class="o">{{</span><span class="w"> </span>cookiecutter.dev_url<span class="w"> </span><span class="o">}}</span>
+<span class="nb">cd</span><span class="w"> </span><span class="o">{{</span><span class="w"> </span>cookiecutter.project_name<span class="w"> </span><span class="o">}}</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="tooling">
-<h3>Tooling<a class="headerlink" href="#tooling" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="tooling">
+<h3>Tooling<a class="headerlink" href="#tooling" title="Link to this heading">¶</a></h3>
 <p>The project comes configured for use with <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> (see the <code class="docutils literal notranslate"><span class="pre">.jubeo</span></code>
 directory) but without the tasks imported.</p>
 <p>To get started you will need to install <code class="docutils literal notranslate"><span class="pre">jubeo</span></code> and then run this from
 the project directory:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jubeo init .
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jubeo<span class="w"> </span>init<span class="w"> </span>.
 </pre></div>
 </div>
 <p>This will download the appropriate <code class="docutils literal notranslate"><span class="pre">invoke</span></code> tasks organized into a
 special structure along with the necessary dependency specs to use them.</p>
 <p>To be able to run the tasks you should install these dependencies:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r .jubeo/requirements.in
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>.jubeo/requirements.in
 </pre></div>
 </div>
 <p>If you add to the libraries needed (through plugins discussed later) you
 will need to edit the <code class="docutils literal notranslate"><span class="pre">.jubeo/requirements.txt</span></code> file and recompile the
 <code class="docutils literal notranslate"><span class="pre">.jubeo/requirements.in</span></code> file by either manually running
 <code class="docutils literal notranslate"><span class="pre">pip-compile</span></code> or using the <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">core.pin-tool-deps</span></code> target.</p>
-</div>
-<div class="section" id="configuring">
-<h3>Configuring<a class="headerlink" href="#configuring" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="configuring">
+<h3>Configuring<a class="headerlink" href="#configuring" title="Link to this heading">¶</a></h3>
 <p>We typically manage configuration values in the <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> and
 <code class="docutils literal notranslate"><span class="pre">tasks/sysconfig.py</span></code> files as opposed to global system environment
 variables.</p>
@@ -123,19 +124,19 @@ customize these. To the <code class="docutils literal notranslate"><span class="
 </div>
 <p>Just make sure to update the version string here when you do releases
 (included in the checklist for releases).</p>
-</div>
-<div class="section" id="virtual-environments">
-<h3>Virtual Environments<a class="headerlink" href="#virtual-environments" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="virtual-environments">
+<h3>Virtual Environments<a class="headerlink" href="#virtual-environments" title="Link to this heading">¶</a></h3>
 <p>There are helpers for pinning and (re)generating python virtual
 environments which are helpful in developing and testing this project,
-and not necessarily just for running it as a user. See <em>Managing
-Dependencies</em> for details on managing dependencies of the installable
+and not necessarily just for running it as a user. See Managing
+Dependencies for details on managing dependencies of the installable
 project.</p>
 <p>If an environment has been already been written and compiled you need
 only create it locally and then activate it.</p>
 <p>To create an env called <code class="docutils literal notranslate"><span class="pre">dev</span></code> just run the <code class="docutils literal notranslate"><span class="pre">env</span></code> (<code class="docutils literal notranslate"><span class="pre">env.make</span></code>)
 target from <code class="docutils literal notranslate"><span class="pre">invoke</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env -n dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env<span class="w"> </span>-n<span class="w"> </span>dev
 </pre></div>
 </div>
 <p>If it fails double check that all the dependencies have been compiled.</p>
@@ -151,11 +152,11 @@ projects might use different backends.</p>
 <code class="docutils literal notranslate"><span class="pre">conda</span></code> is also an option.</p>
 <p>For <code class="docutils literal notranslate"><span class="pre">venv</span></code> envs they will be stored in a directory called <code class="docutils literal notranslate"><span class="pre">_venvs</span></code>
 and for conda <code class="docutils literal notranslate"><span class="pre">_conda_envs</span></code> (this is customizable however). Simply:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> _venvs/dev/bin/activate_
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>_venvs/dev/bin/activate_
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate _conda_envs/dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>_conda_envs/dev
 </pre></div>
 </div>
 <p>In any case the environments are not stored with other user-level
@@ -173,30 +174,30 @@ environment can be created by passing the matching name. For instance
 there is an environment that mimics the user’s installation environment
 so that we can test experiences upon install, to make sure we haven’t
 accidentally depended on something in the dev env:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env -n test_install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env<span class="w"> </span>-n<span class="w"> </span>test_install
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="maintenance-tasks">
-<h2>Maintenance Tasks<a class="headerlink" href="#maintenance-tasks" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="managing-dependencies">
-<h3>Managing Dependencies<a class="headerlink" href="#managing-dependencies" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="maintenance-tasks">
+<h2>Maintenance Tasks<a class="headerlink" href="#maintenance-tasks" title="Link to this heading">¶</a></h2>
+<section id="managing-dependencies">
+<h3>Managing Dependencies<a class="headerlink" href="#managing-dependencies" title="Link to this heading">¶</a></h3>
 <ol class="arabic">
 <li><p>Quick Reference</p>
 <p>To initially pin an environment or when you add requirements run this
 target:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env.deps-pin -n dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env.deps-pin<span class="w"> </span>-n<span class="w"> </span>dev
 </pre></div>
 </div>
 <p>To update it (should be accompanied by a reason why):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env.deps-pin-update -n dev
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env.deps-pin-update<span class="w"> </span>-n<span class="w"> </span>dev
 </pre></div>
 </div>
 <p>The best practice here is to make initial pinning and updating a
 single commit so that it can easily be rolled back or patched e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git add envs/*
-git commit -m <span class="s2">&quot;Updates dev environment&quot;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>git<span class="w"> </span>add<span class="w"> </span>envs/*
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;Updates dev environment&quot;</span>
 </pre></div>
 </div>
 </li>
@@ -371,9 +372,9 @@ manually specifiying interpreter paths in the future.</p>
 </ol>
 </li>
 </ol>
-</div>
-<div class="section" id="documentation-and-website">
-<h3>Documentation and Website<a class="headerlink" href="#documentation-and-website" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="documentation-and-website">
+<h3>Documentation and Website<a class="headerlink" href="#documentation-and-website" title="Link to this heading">¶</a></h3>
 <ol class="arabic">
 <li><p>Writing Documentation</p>
 <p>The primary source of the documentation is in the <code class="docutils literal notranslate"><span class="pre">info</span></code> folder and
@@ -409,9 +410,9 @@ doses.</p>
 recommended) you <strong>must</strong> at least write tests which run the code to
 make sure it at least runs.</p>
 <p>When you write code blocks you should use this format:</p>
-<div class="highlight-org notranslate"><div class="highlight"><pre><span></span>#+begin_src python :tangle ex0.py
+<div class="highlight-org notranslate"><div class="highlight"><pre><span></span><span class="ow">#+begin_src python :tangle ex0.py</span>
   print(&quot;Hello!!!&quot;)
-#+end_src
+<span class="ow">#+end_src</span>
 </pre></div>
 </div>
 <p>Notice there is no extra paths to get the tangling right. The tooling
@@ -438,10 +439,10 @@ available in the <code class="docutils literal notranslate"><span class="pre">te
 <code class="docutils literal notranslate"><span class="pre">templates/examples</span></code>, <code class="docutils literal notranslate"><span class="pre">templates/tutorials</span></code>, and environment
 specs <code class="docutils literal notranslate"><span class="pre">templates/envs</span></code>.</p>
 <p>You can either just copy these templates over or use the targets:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.new-example --name<span class="o">=</span><span class="s1">&#39;myexample&#39;</span> --template<span class="o">=</span><span class="s1">&#39;org&#39;</span>
-cp -r -u templates/envs/conda_blank info/examples/myexample/env
-inv docs.new-tutorial  --name<span class="o">=</span><span class="s1">&#39;mytutorial --template=jupyter&#39;</span>
-cp -r -u templates/envs/conda_blank info/examples/mytutorial/env
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>docs.new-example<span class="w"> </span>--name<span class="o">=</span><span class="s1">&#39;myexample&#39;</span><span class="w"> </span>--template<span class="o">=</span><span class="s1">&#39;org&#39;</span>
+cp<span class="w"> </span>-r<span class="w"> </span>-u<span class="w"> </span>templates/envs/conda_blank<span class="w"> </span>info/examples/myexample/env
+inv<span class="w"> </span>docs.new-tutorial<span class="w">  </span>--name<span class="o">=</span><span class="s1">&#39;mytutorial --template=jupyter&#39;</span>
+cp<span class="w"> </span>-r<span class="w"> </span>-u<span class="w"> </span>templates/envs/conda_blank<span class="w"> </span>info/examples/mytutorial/env
 </pre></div>
 </div>
 <p>After you have your directory set up there are some things to keep
@@ -456,18 +457,18 @@ uninteresting pieces of code can be put into the source.</p>
 <p>As you write the code pay attention to your dependencies and
 virtual environment. If you add new dependencies, add them to the
 <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> or <code class="docutils literal notranslate"><span class="pre">env.yaml</span></code> file and compile:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
-inv docs.pin-example -n <span class="s1">&#39;myexample&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$PROJECT_DIR</span>
+inv<span class="w"> </span>docs.pin-example<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;myexample&#39;</span>
 </pre></div>
 </div>
 <p>You can then make the env 2 ways (the latter is intended to be run
 by users who don’t want to be overwhelmed by all the dev options):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> <span class="nv">$PROJECT_DIR</span>
-inv docs.env-example -n <span class="s1">&#39;myexample&#39;</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span><span class="nv">$PROJECT_DIR</span>
+inv<span class="w"> </span>docs.env-example<span class="w"> </span>-n<span class="w"> </span><span class="s1">&#39;myexample&#39;</span>
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env
 </pre></div>
 </div>
 </li>
@@ -476,9 +477,9 @@ inv docs.env-example -n <span class="s1">&#39;myexample&#39;</span>
 tangle targets to be the <code class="docutils literal notranslate"><span class="pre">_tangle_source</span></code> folder:</p>
 <div class="highlight-org notranslate"><div class="highlight"><pre><span></span>Here is some code I am explaining that you will run:
 
-#+begin_src python :tangle _tangle_source/tutorial.py
+<span class="ow">#+begin_src python :tangle _tangle_source/tutorial.py</span>
   print(&quot;Hello!&quot;)
-#+end_src
+<span class="ow">#+end_src</span>
 </pre></div>
 </div>
 <p>As stated in the user’s guide if you don’t follow this rule (or
@@ -486,7 +487,7 @@ any others) then <strong>it is wrong</strong> and an issue should be filed.</p>
 <p>When using input files, please copy them to the <code class="docutils literal notranslate"><span class="pre">input</span></code> dir and
 reference them relative to the example dir. So that when you
 execute a script:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python source/script.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>source/script.py
 </pre></div>
 </div>
 <p>The code for reading a file would look like:</p>
@@ -525,48 +526,48 @@ manually add them to the table of contents section in the
 <li><p>Testing Documentation</p>
 <p>There is a folder just for tests that target the docs
 <code class="docutils literal notranslate"><span class="pre">tests/test_docs</span></code>. You should be able to run them after tangling:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.tangle
-inv docs.test-example
-inv docs.test-tutorial
-inv docs.test-pages
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>docs.tangle
+inv<span class="w"> </span>docs.test-example
+inv<span class="w"> </span>docs.test-tutorial
+inv<span class="w"> </span>docs.test-pages
 </pre></div>
 </div>
 <p>See these targets for more fine-grained tests or to run them using
 <code class="docutils literal notranslate"><span class="pre">nox</span></code> for the python version matrix or just to have a more minimal
 and reproducible test environment.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv -l <span class="p">|</span> grep docs.test
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>-l<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span>docs.test
 </pre></div>
 </div>
 </li>
 <li><p>Building Documentation</p>
 <p>To compile and build the docs just run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.docs-build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.docs-build
 </pre></div>
 </div>
 <p>Which will output them to a temporary build directory
 <code class="docutils literal notranslate"><span class="pre">_build/html</span></code>.</p>
 <p>You can clean this build with:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.clean-docs
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.clean-docs
 </pre></div>
 </div>
 <p>To view how the docs would look as a website you can point your
 browser at the <code class="docutils literal notranslate"><span class="pre">_build/html</span></code> folder or run a python http web server
 with this target:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.docs-serve
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.docs-serve
 </pre></div>
 </div>
 </li>
 <li><p>Building and testing the website</p>
 <p>For now we only support deploying the sphinx docs as a website and on
-github pages (via the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch, see <em>Website Admin</em>).</p>
+github pages (via the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch, see Website Admin).</p>
 <p>So to view your undeployed docs just run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.docs-serve
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.docs-serve
 </pre></div>
 </div>
 <p>And open the local URL.</p>
 <p>Once you are happy with the result, <strong>you must commit all changes and
 have a clean working tree</strong> then you can push to github pages:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.website-deploy
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.website-deploy
 </pre></div>
 </div>
 <p>Basically this checks out the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch merges the changes
@@ -589,26 +590,26 @@ some necessary cleaning up, and copies the built website to the
 necesary folder (which is the toplevel), commits the changes and
 pushes to github, and then returns to your working branch.</p>
 <p>The invoke target is:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv docs.website-deploy
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>docs.website-deploy
 </pre></div>
 </div>
 </li>
 </ol>
-</div>
-<div class="section" id="testing">
-<h3>Testing<a class="headerlink" href="#testing" title="Permalink to this headline">¶</a></h3>
-<p>This is about testing the actual source tree (see <em>Testing
-Documentation</em> for testing the docs).</p>
+</section>
+<section id="testing">
+<h3>Testing<a class="headerlink" href="#testing" title="Link to this heading">¶</a></h3>
+<p>This is about testing the actual source tree (see Testing Documentation
+for testing the docs).</p>
 <ol class="arabic">
 <li><p>Testing in the Dev Cycle</p>
 <p>You can either test in the <code class="docutils literal notranslate"><span class="pre">dev</span></code> (or <code class="docutils literal notranslate"><span class="pre">test</span></code>) environment while
 working:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.tests-all
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.tests-all
 </pre></div>
 </div>
 <p>There are specific commands for each section of tests, primarily:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.tests-integration
-inv py.tests-unit
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.tests-integration
+inv<span class="w"> </span>py.tests-unit
 </pre></div>
 </div>
 <p>If you use the <code class="docutils literal notranslate"><span class="pre">-t</span></code> option you can specify a tag. The tag will be
@@ -621,11 +622,11 @@ isolated environments for the test matrix. See the <code class="docutils literal
 how this is configured.</p>
 <p>You can run the “session” directly since there are other session
 definitions for docs etc.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox -s <span class="nb">test</span>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>nox<span class="w"> </span>-s<span class="w"> </span><span class="nb">test</span>
 </pre></div>
 </div>
 <p>There is also a target for this:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.tests-nox
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.tests-nox
 </pre></div>
 </div>
 </li>
@@ -643,17 +644,17 @@ integration tests) that you can drop into a debugger with and poke
 around in.</p>
 </li>
 </ol>
-</div>
-<div class="section" id="code-quality-metrics">
-<h3>Code Quality Metrics<a class="headerlink" href="#code-quality-metrics" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="code-quality-metrics">
+<h3>Code Quality Metrics<a class="headerlink" href="#code-quality-metrics" title="Link to this heading">¶</a></h3>
 <p>Just run the end target:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv quality
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>quality
 </pre></div>
 </div>
 <p>This will write files to <code class="docutils literal notranslate"><span class="pre">metrics</span></code>.</p>
-</div>
-<div class="section" id="releases">
-<h3>Releases<a class="headerlink" href="#releases" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="releases">
+<h3>Releases<a class="headerlink" href="#releases" title="Link to this heading">¶</a></h3>
 <p>The typical pre-requisites for a release are that:</p>
 <ul class="simple">
 <li><p>the documentation has been updated and tested</p></li>
@@ -686,7 +687,7 @@ it out a little bit with a release-candidate prerelease.</p>
 </li>
 <li><p>Changing the version number</p>
 <p>You can check the current version number with this command:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.version-which
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.version-which
 </pre></div>
 </div>
 <p>The places where an actual version are needed are:</p>
@@ -713,7 +714,7 @@ circumstances.</p>
 <code class="docutils literal notranslate"><span class="pre">invoke</span></code> endpoints.</p>
 <p>So simply edit the <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code> <code class="docutils literal notranslate"><span class="pre">VERSION</span></code> variable and then
 run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>git.release
 </pre></div>
 </div>
 <p>Which will write the git tag in the correct format. <code class="docutils literal notranslate"><span class="pre">versioneer</span></code>
@@ -721,9 +722,9 @@ takes over from there.</p>
 <p>Here then is the checklist of manually edited versions (currently the
 conda packaging stuff is not supported):</p>
 <ul class="simple">
-<li><p>[ ] edit <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code></p></li>
-<li><p>[ ] commit</p></li>
-<li><p>[ ] run <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">git.release</span></code></p></li>
+<li><p>☐ edit <code class="docutils literal notranslate"><span class="pre">tasks/config.py</span></code></p></li>
+<li><p>☐ commit</p></li>
+<li><p>☐ run <code class="docutils literal notranslate"><span class="pre">inv</span> <span class="pre">git.release</span></code></p></li>
 </ul>
 <p>Changing the version may happen a few times through the release
 process in order to debug wrinkles in the process so its useful to
@@ -733,23 +734,23 @@ have this workflow in mind.</p>
 <ol class="arabic">
 <li><p>Testing the build</p>
 <p>To test a build with whatever work you have go ahead and run:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.build
 </pre></div>
 </div>
 <p>And then try to install it from an empty environment:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env -n test_install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env<span class="w"> </span>-n<span class="w"> </span>test_install
 </pre></div>
 </div>
 <p>Activate the environment e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span> _venv/test_install/bin/activate
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">source</span><span class="w"> </span>_venv/test_install/bin/activate
 </pre></div>
 </div>
 <p>or</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda activate _conda_envs/test_install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>conda<span class="w"> </span>activate<span class="w"> </span>_conda_envs/test_install
 </pre></div>
 </div>
 <p>then run it for each build, e.g.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install dist/BUILD.tar.gz
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>dist/BUILD.tar.gz
 </pre></div>
 </div>
 <p>They should all succeed. You should also test the installation
@@ -768,27 +769,27 @@ number, e.g. <code class="docutils literal notranslate"><span class="pre">v1.0.0
 </div>
 <p>Then do the git release (just tags it doesn’t ‘publish’ it) and
 rebuild before doing the next steps:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
-inv py.build
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>git.release
+inv<span class="w"> </span>py.build
 </pre></div>
 </div>
 <p>Once you have built it and nothing is wrong go ahead and publish
 it to the test indexes (if available):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.publish-test
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.publish-test
 </pre></div>
 </div>
 <p>You can test that it works from the index using the same
 <code class="docutils literal notranslate"><span class="pre">test_install</span></code> environment above.</p>
 <p>And install the package from the test repo with no dependencies:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install --index-url https://test.pypi.org/simple/ --no-deps package
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>--index-url<span class="w"> </span>https://test.pypi.org/simple/<span class="w"> </span>--no-deps<span class="w"> </span>package
 </pre></div>
 </div>
 <p>Then you can publish this pre-release build.</p>
 <p>Publishing the results will vary but you can start with publishing
 the package to PyPI and the VCS hosts with the real publish
 target:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.publish
-inv py.publish
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>git.publish
+inv<span class="w"> </span>py.publish
 </pre></div>
 </div>
 </li>
@@ -796,65 +797,65 @@ inv py.publish
 <p>Edit the version number to something clean that won’t be hidden on
 PyPI etc.</p>
 <p>Then:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.release
-inv py.build
-inv py.publish
-inv git.publish
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>git.release
+inv<span class="w"> </span>py.build
+inv<span class="w"> </span>py.publish
+inv<span class="w"> </span>git.publish
 </pre></div>
 </div>
 </li>
 </ol>
 </li>
 </ol>
-</div>
-</div>
-<div class="section" id="initializing-this-repository">
-<h2>Initializing this repository<a class="headerlink" href="#initializing-this-repository" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="initializing-this-repository">
+<h2>Initializing this repository<a class="headerlink" href="#initializing-this-repository" title="Link to this heading">¶</a></h2>
 <p>These are tasks that should only be done once at the inception of the
 project but are described for posterity and completeness.</p>
-<div class="section" id="version-control">
-<h3>Version Control<a class="headerlink" href="#version-control" title="Permalink to this headline">¶</a></h3>
+<section id="version-control">
+<h3>Version Control<a class="headerlink" href="#version-control" title="Link to this heading">¶</a></h3>
 <p>First we need to initialize the version control system (<code class="docutils literal notranslate"><span class="pre">git</span></code>):</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv git.init
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>git.init
 </pre></div>
 </div>
 <p>If you want to go ahead and add the remote repositories for this
 project. We don’t manage this explicitly since <code class="docutils literal notranslate"><span class="pre">git</span></code> is treated mostly
 as first class for these kinds of tasks and is better left to special
 purpose tools which are well integrated and developed.</p>
-</div>
-<div class="section" id="python-packaging">
-<h3>Python Packaging<a class="headerlink" href="#python-packaging" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="python-packaging">
+<h3>Python Packaging<a class="headerlink" href="#python-packaging" title="Link to this heading">¶</a></h3>
 <p>There is a target to initialize python specific packaging things. This
 is because some tools (like <code class="docutils literal notranslate"><span class="pre">versioneer</span></code>) need to be generated after
 project instantiation.</p>
 <p>Make sure you have a clean tree so you can see the changes then:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv py.init
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>py.init
 </pre></div>
 </div>
 <p>then inspect and commit.</p>
-</div>
-<div class="section" id="compiling-dependencies">
-<h3>Compiling Dependencies<a class="headerlink" href="#compiling-dependencies" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="compiling-dependencies">
+<h3>Compiling Dependencies<a class="headerlink" href="#compiling-dependencies" title="Link to this heading">¶</a></h3>
 <p>Then add any extra dependencies you want to the development environment
 <a class="reference external" href="../envs/dev/requirements.in">requirements.in</a> file and then compile
 and pin them:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env.deps-pin -n dev env.deps-pin -n test_install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env.deps-pin<span class="w"> </span>-n<span class="w"> </span>dev<span class="w"> </span>env.deps-pin<span class="w"> </span>-n<span class="w"> </span>test_install
 </pre></div>
 </div>
 <p>Then commit this.</p>
-</div>
-<div class="section" id="creating-environments">
-<h3>Creating Environments<a class="headerlink" href="#creating-environments" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="creating-environments">
+<h3>Creating Environments<a class="headerlink" href="#creating-environments" title="Link to this heading">¶</a></h3>
 <p>Then just create the virtual environment. For portability we use the
 builin <code class="docutils literal notranslate"><span class="pre">venv</span></code> package, but this is customizable.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env
 </pre></div>
 </div>
 <p>Then you can activate it with the instructions printed to the screen.</p>
-</div>
-<div class="section" id="website-admin">
-<h3>Website Admin<a class="headerlink" href="#website-admin" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="website-admin">
+<h3>Website Admin<a class="headerlink" href="#website-admin" title="Link to this heading">¶</a></h3>
 <p>We use Github Pages by default since it is pretty easy. Because we don’t
 want to clutter up the master branch with website build artifacts we use
 the <code class="docutils literal notranslate"><span class="pre">gh-pages</span></code> branch approach.</p>
@@ -862,9 +863,9 @@ the <code class="docutils literal notranslate"><span class="pre">gh-pages</span>
 idempotently take care of setting this up for you.</p>
 <p>However, you will need to create it and push it before you can set this
 in the github settings for the page.</p>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -882,11 +883,11 @@ in the github settings for the page.</p>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -911,19 +912,15 @@ in the github settings for the page.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start/index.html">Quick Start</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1"><a class="reference internal" href="users_guide.html">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
 </ul>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="general_info.html">General Information</a></li>
@@ -940,16 +937,16 @@ in the github settings for the page.</p>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -963,11 +960,11 @@ in the github settings for the page.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_source/dev_guide.rst.txt"

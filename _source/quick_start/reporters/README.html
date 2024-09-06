@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>More on Reporters &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/quick_start/reporters/README.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="Introducing Resamplers" href="../introducing_resamplers/README.html" />
+    <link rel="prev" title="Setting Up the Simulation" href="../setting_up_simulation/README.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../setting_up_simulation/README.html" title="Previous document">Setting Up the Simulation</a>
+        </li>
+        <li>
+          <a href="../introducing_resamplers/README.html" title="Next document">Introducing Resamplers</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <section id="more-on-reporters">
+<h1>More on Reporters<a class="headerlink" href="#more-on-reporters" title="Link to this heading">¶</a></h1>
+<p>In our previous section, we introduced how to create a
+<code class="docutils literal notranslate"><span class="pre">DashboardReporter</span></code>. Although it is a powerful tool for monitoring the
+progress of your simulation, we will need other reporters for capturing
+data and preparing it for analysis. In this section, we will introduce
+two more reporters to our capture simulation data.</p>
+<p>First item on our list is the <code class="docutils literal notranslate"><span class="pre">WepyHDF5Reporter</span></code>. This for generating
+an HDF5 format (<code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code>) data file that contains quantitative
+information about each trajectory (positions, box vectors, velocities,
+etc.) and how these trajectories are related (resampling records,
+warping records). Below we have the basic structure for our <code class="docutils literal notranslate"><span class="pre">WepyHDF5</span></code>
+file. This can be thought of as a file system that has a set of nested
+folders. We will go through how to retrieve data from this file in the
+<a class="reference internal" href="../../../data_analysis_index.html#data-analysis"><span class="std std-ref">Tutorials</span></a> section.</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">runs</span></code>: Group containing all primary data from simulations.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Group for run 0.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">trajectories</span></code>: Group for trajectory data.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">0</span></code>: Group for trajectory 0.</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">positions</span></code>: Dataset for atomic positions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">box_vectors</span></code>: Dataset for box vectors.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">velocities</span></code>: Dataset for atomic velocities.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">weights</span></code>: Dataset for walker weights.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">n</span></code>: Groups for other trajectories.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampling</span></code>: Record group for resampling data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">resampler</span></code>: Record group for resampler data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warping</span></code>: Record group for warping data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">progress</span></code>: Record group for progress data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">boundary_conditions</span></code>: Record group for boundary conditions
+data.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">init_walkers</span></code>: Group for initial walker states.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">decision</span></code>: Record group containing resampling decisions.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">1</span></code>, <code class="docutils literal notranslate"><span class="pre">2</span></code>, …, <code class="docutils literal notranslate"><span class="pre">n</span></code>: Groups for other runs.</p></li>
+</ul>
+</li>
+<li><p><code class="docutils literal notranslate"><span class="pre">topology</span></code>: Dataset containing molecular topology as a JSON string.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">_settings</span></code>: Group for type and configuration information.</p></li>
+</ul>
+<p>Now that we have a grasp on what is in the HDF5 file, let’s include it
+in our simulation. Again, you can either copy and paste this code into
+your <code class="docutils literal notranslate"><span class="pre">wepy_script.py</span></code> file, or use the <code class="docutils literal notranslate"><span class="pre">wepy_script_hdf5.py</span></code> file
+found in <code class="docutils literal notranslate"><span class="pre">examples/quick_start</span></code>.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Import the reporter</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.hdf5</span> <span class="kn">import</span> <span class="n">WepyHDF5Reporter</span>
+
+<span class="o">...</span>
+<span class="c1"># Set up the HDF5 reporter</span>
+<span class="n">hdf5_reporter</span> <span class="o">=</span> <span class="n">WepyHDF5Reporter</span><span class="p">(</span><span class="n">save_fields</span><span class="o">=</span><span class="p">(</span><span class="s1">&#39;positions&#39;</span><span class="p">,</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">),</span>
+                          <span class="n">file_path</span><span class="o">=</span><span class="s1">&#39;wepy.results.h5&#39;</span><span class="p">,</span>
+                          <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+                          <span class="n">topology</span><span class="o">=</span><span class="n">json_top</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>And it is that simple to create an <code class="docutils literal notranslate"><span class="pre">HDF5Reporter</span></code> in Wepy. Important
+thing to notice is the <code class="docutils literal notranslate"><span class="pre">save_fields</span></code> parameter. It is a selection of
+fields from the walker states to be stored. This allows us to omit some
+fields that could be unnecessary, such as the velocities. If <code class="docutils literal notranslate"><span class="pre">None</span></code>,
+all fields will be saved.</p>
+<p>Now that we have created our reporter, all it takes is a simple update
+to the simulation manager. We need to add this reporter to the list of
+reporters that the simulation manager will use. Below is the updated
+code:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span>
+                  <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+                  <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+                  <span class="n">reporters</span><span class="o">=</span><span class="p">[</span><span class="n">dashboard_reporter</span><span class="p">,</span> <span class="n">hdf5_reporter</span><span class="p">]</span>
+                  <span class="p">)</span>
+</pre></div>
+</div>
+<p>Next item on the list is the <code class="docutils literal notranslate"><span class="pre">WalkerPklReporter</span></code>. This is designed to
+periodically save the states of all walkers in a simulation to a pickle
+file for backup purposes. Whenever you want to continue a simulation
+from a certain point, you can use the pickle file to load the state of
+the simulation. Below is the code for creating such a reporter:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.reporter.walker_pkl</span> <span class="kn">import</span> <span class="n">WalkerPklReporter</span>
+
+<span class="o">...</span>
+<span class="n">pkl_reporter</span> <span class="o">=</span> <span class="n">WalkerPklReporter</span><span class="p">(</span><span class="n">save_dir</span> <span class="o">=</span> <span class="s1">&#39;pkls&#39;</span><span class="p">,</span>
+                              <span class="n">freq</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span>
+                              <span class="n">num_backups</span> <span class="o">=</span> <span class="mi">2</span><span class="p">)</span>
+<span class="o">...</span>
+</pre></div>
+</div>
+<p>The <code class="docutils literal notranslate"><span class="pre">save_dir</span></code> parameter is the directory where the pickle files will
+be saved. The <code class="docutils literal notranslate"><span class="pre">freq</span></code> parameter is the frequency at which the reporter
+will save the state of the walkers. <code class="docutils literal notranslate"><span class="pre">num_backups</span></code> is the number of
+backups that the reporter will keep. If the number of backups exceeds
+the specified number, the oldest backup will be deleted. Now we need to
+include this reporter to our simulation manager as well:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="n">sim_manager</span> <span class="o">=</span> <span class="n">Manager</span><span class="p">(</span><span class="n">init_walkers</span><span class="p">,</span>
+              <span class="n">runner</span><span class="o">=</span><span class="n">runner</span><span class="p">,</span>
+              <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+              <span class="n">reporters</span><span class="o">=</span><span class="p">[</span><span class="n">dashboard_reporter</span><span class="p">,</span> <span class="n">hdf5_reporter</span><span class="p">,</span> <span class="n">pkl_reporter</span><span class="p">]</span>
+              <span class="p">)</span>
+</pre></div>
+</div>
+<p>And thats it! We have all three of our reporters to (1) track the
+progress of our simulation, (2) save the simulation data to an HDF5
+file, and (3) save the state of the walkers to a pickle file. Now we can
+run our simulation and check the results.</p>
+<p>After running the simulation you should see a couple files and a folder
+appear in your directory:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">wepy.dash.org</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">wepy.results.h5</span></code></p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">pkls</span></code></p></li>
+</ul>
+<p>Next, we will continue with including a resampler to our simulation.</p>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../setting_up_simulation/README.html" title="Previous document">Setting Up the Simulation</a>
+        </li>
+        <li>
+          <a href="../introducing_resamplers/README.html" title="Next document">Introducing Resamplers</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Quick Start</a><ul>
+      <li>Previous: <a href="../setting_up_simulation/README.html" title="previous chapter">Setting Up the Simulation</a></li>
+      <li>Next: <a href="../introducing_resamplers/README.html" title="next chapter">Introducing Resamplers</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../_sources/_source/quick_start/reporters/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

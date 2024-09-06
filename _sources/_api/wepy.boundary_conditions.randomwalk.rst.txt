@@ -1,0 +1,8 @@
+wepy.boundary\_conditions.randomwalk module
+===========================================
+
+.. automodule:: wepy.boundary_conditions.randomwalk
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :private-members:

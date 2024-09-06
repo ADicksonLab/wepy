@@ -14,4 +14,3 @@ Submodules
    :maxdepth: 1
 
    wepy.reporter.wexplore.dashboard
-   wepy.reporter.wexplore.image

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Using SLURM to Start a Wepy Simulation &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/tutorials/slurm/README.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="FAQ" href="../../troubleshooting.html" />
+    <link rel="prev" title="Merge Multiple Simulation Data" href="../multiple_runs/merge_data/README.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../multiple_runs/merge_data/README.html" title="Previous document">Merge Multiple Simulation Data</a>
+        </li>
+        <li>
+          <a href="../../troubleshooting.html" title="Next document">FAQ</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <section id="using-slurm-to-start-a-wepy-simulation">
+<h1>Using SLURM to Start a Wepy Simulation<a class="headerlink" href="#using-slurm-to-start-a-wepy-simulation" title="Link to this heading">¶</a></h1>
+<p>To start a Wepy simulation using SLURM, you can use the following SLURM
+script template. Customize the script according to your specific
+resource requirements and environment setup.</p>
+<section id="example-slurm-script">
+<h2>Example SLURM Script<a class="headerlink" href="#example-slurm-script" title="Link to this heading">¶</a></h2>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="ch">#!/bin/bash --login</span>
+<span class="c1">########## SBATCH Lines for Resource Request ##########</span>
+
+<span class="c1">#SBATCH --time=TIME_LIMIT            # limit of wall clock time - how long the job will run (e.g., 168:00:00 for 168 hours)</span>
+<span class="c1">#SBATCH -A YOUR_ALLOCATION_ACCOUNT   # replace with your allocation account</span>
+<span class="c1">#SBATCH --nodes=NUMBER_OF_NODES      # the number of nodes requested (e.g., 1)</span>
+<span class="c1">#SBATCH --ntasks=NUMBER_OF_TASKS     # the number of tasks to run (e.g., 1)</span>
+<span class="c1">#SBATCH --cpus-per-task=CPUS_PER_TASK # the number of CPUs (or cores) per task (e.g., 8)</span>
+<span class="c1">#SBATCH --gpus-per-task=GPUS_PER_TASK # request GPUs per task (e.g., v100:4)</span>
+<span class="c1">#SBATCH --mem=MEMORY_PER_NODE        # total memory per node (e.g., 64G)</span>
+<span class="c1">#SBATCH --job-name=JOB_NAME          # give your job a name for easier identification (e.g., wepy_run)</span>
+<span class="c1">#SBATCH --output=%x.out              # standard output file (e.g., wepy_run.out)</span>
+<span class="c1">#SBATCH --error=%x.err               # standard error file (e.g., wepy_run.err)</span>
+
+<span class="c1">########## Command Lines to Run ##########</span>
+
+<span class="c1"># Load necessary modules (customize as needed)</span>
+module<span class="w"> </span>load<span class="w"> </span>Conda/3<span class="w">                  </span><span class="c1"># load the Conda module (modify if needed)</span>
+
+<span class="c1"># Initialize Conda (replace with the path to your Conda installation)</span>
+<span class="nb">eval</span><span class="w"> </span><span class="s2">&quot;</span><span class="k">$(</span>/path/to/conda/bin/conda<span class="w"> </span>shell.bash<span class="w"> </span>hook<span class="k">)</span><span class="s2">&quot;</span><span class="w">  </span><span class="c1"># e.g., /mnt/home/username/anaconda3/bin/conda</span>
+
+<span class="c1"># Activate your Conda environment (replace with your environment name)</span>
+conda<span class="w"> </span>activate<span class="w"> </span>your_environment_name<span class="w"> </span><span class="c1"># e.g., wepy_env</span>
+
+<span class="c1"># Set your home directory for the project (replace with your home directory)</span>
+<span class="nv">HOME_DIR</span><span class="o">=</span><span class="s2">&quot;/path/to/your/home/directory&quot;</span><span class="w">  </span><span class="c1"># e.g., /mnt/home/username/project_dir</span>
+<span class="nv">JOBNAME</span><span class="o">=</span><span class="si">${</span><span class="nv">SLURM_JOB_ID</span><span class="si">}</span>
+
+<span class="c1"># Set your log directory (replace with your log directory)</span>
+<span class="nv">LOG_DIR</span><span class="o">=</span><span class="s2">&quot;</span><span class="nv">$HOME_DIR</span><span class="s2">/logs&quot;</span><span class="w">  </span><span class="c1"># e.g., $HOME_DIR/logs</span>
+
+<span class="c1"># Log the beginning of the run</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s1">&#39;Beginning of the run&#39;</span><span class="w"> </span><span class="m">1</span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOG_DIR</span><span class="s2">/</span><span class="nv">$JOBNAME</span><span class="s2">.log&quot;</span><span class="w"> </span><span class="m">2</span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOG_DIR</span><span class="s2">/</span><span class="nv">$JOBNAME</span><span class="s2">.log&quot;</span>
+
+<span class="c1"># Load CUDA module if necessary (customize as needed)</span>
+module<span class="w"> </span>load<span class="w"> </span>centos7/lib/cuda/12<span class="w">  </span><span class="c1"># modify CUDA version if needed</span>
+
+<span class="c1"># Change to the home directory</span>
+<span class="nb">cd</span><span class="w"> </span><span class="s2">&quot;</span><span class="nv">$HOME_DIR</span><span class="s2">&quot;</span>
+
+<span class="c1"># Log the SLURM_JOB_ID number</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;SLURM_JOB_ID: </span><span class="nv">$SLURM_JOB_ID</span><span class="s2">&quot;</span><span class="w"> </span><span class="m">1</span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOG_DIR</span><span class="s2">/</span><span class="nv">$JOBNAME</span><span class="s2">.log&quot;</span><span class="w"> </span><span class="m">2</span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOG_DIR</span><span class="s2">/</span><span class="nv">$JOBNAME</span><span class="s2">.log&quot;</span>
+
+<span class="c1"># Running the Wepy simulation script (replace with your script name)</span>
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;Running Wepy simulation script&quot;</span><span class="w"> </span><span class="m">1</span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOG_DIR</span><span class="s2">/</span><span class="nv">$JOBNAME</span><span class="s2">.log&quot;</span><span class="w"> </span><span class="m">2</span>&gt;&gt;<span class="w"> </span><span class="s2">&quot;</span><span class="nv">$LOG_DIR</span><span class="s2">/</span><span class="nv">$JOBNAME</span><span class="s2">.log&quot;</span>
+python<span class="w"> </span>wepy_run.py<span class="w">  </span><span class="c1"># replace with your Wepy simulation script name</span>
+</pre></div>
+</div>
+</section>
+<section id="instructions-for-customization">
+<h2>Instructions for Customization<a class="headerlink" href="#instructions-for-customization" title="Link to this heading">¶</a></h2>
+<ol class="arabic simple">
+<li><p><strong>Resource Requests:</strong></p>
+<ul class="simple">
+<li><p>Replace TIME<sub>LIMIT</sub> with the desired wall clock time limit
+(e.g., <code class="docutils literal notranslate"><span class="pre">168:00:00</span></code> for 168 hours).</p></li>
+<li><p>Replace YOUR<sub>ALLOCATIONACCOUNT</sub> with your specific
+allocation account.</p></li>
+<li><p>Replace NUMBER<sub>OFNODES</sub> with the number of nodes you need
+(e.g., <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+<li><p>Replace NUMBER<sub>OFTASKS</sub> with the number of tasks to run
+(e.g., <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+<li><p>Replace CPUS<sub>PERTASK</sub> with the number of CPUs per task
+(e.g., <code class="docutils literal notranslate"><span class="pre">8</span></code>).</p></li>
+<li><p>Replace GPUS<sub>PERTASK</sub> with the type and number of GPUs per
+task (e.g., <code class="docutils literal notranslate"><span class="pre">v100:4</span></code>).</p></li>
+<li><p>Replace MEMORY<sub>PERNODE</sub> with the total memory per node
+(e.g., <code class="docutils literal notranslate"><span class="pre">64G</span></code>).</p></li>
+<li><p>Replace JOB<sub>NAME</sub> with a name for your job (e.g.,
+<code class="docutils literal notranslate"><span class="pre">wepy_run</span></code>).</p></li>
+</ul>
+</li>
+<li><p><strong>Conda Setup:</strong></p>
+<ul class="simple">
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">/path/to/conda/bin/conda</span></code> with the actual path to your
+Conda installation.</p></li>
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">your_environment_name</span></code> with the name of your Conda
+environment.</p></li>
+</ul>
+</li>
+<li><p><strong>Home and Log Directory:</strong></p>
+<ul class="simple">
+<li><p>Set HOME<sub>DIR</sub> to the directory where your project files are
+located.</p></li>
+<li><p>Ensure LOG<sub>DIR</sub> points to where you want the log files to
+be saved.</p></li>
+</ul>
+</li>
+<li><p><strong>CUDA Module:</strong></p>
+<ul class="simple">
+<li><p>Adjust the <code class="docutils literal notranslate"><span class="pre">module</span> <span class="pre">load</span> <span class="pre">centos7/lib/cuda/12</span></code> line depending on
+your cuda path.</p></li>
+</ul>
+</li>
+<li><p><strong>Wepy Simulation Script:</strong></p>
+<ul class="simple">
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">wepy_run.py</span></code> with the name of your Wepy simulation
+script.</p></li>
+</ul>
+</li>
+</ol>
+<p>This template provides flexibility for users to customize the SLURM
+script according to their specific needs while maintaining a general
+structure for running a Wepy simulation.</p>
+</section>
+</section>
+
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+        <li>
+          &larr;
+          <a href="../multiple_runs/merge_data/README.html" title="Previous document">Merge Multiple Simulation Data</a>
+        </li>
+        <li>
+          <a href="../../troubleshooting.html" title="Next document">FAQ</a>
+          &rarr;
+        </li>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Tutorials</a><ul>
+      <li>Previous: <a href="../multiple_runs/merge_data/README.html" title="previous chapter">Merge Multiple Simulation Data</a></li>
+      <li>Next: <a href="../../troubleshooting.html" title="next chapter">FAQ</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+      |
+      <a href="../../../_sources/_source/tutorials/slurm/README.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

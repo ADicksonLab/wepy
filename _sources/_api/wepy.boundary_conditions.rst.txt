@@ -14,5 +14,6 @@ Submodules
    :maxdepth: 1
 
    wepy.boundary_conditions.boundary
+   wepy.boundary_conditions.randomwalk
    wepy.boundary_conditions.receptor
    wepy.boundary_conditions.unbinding

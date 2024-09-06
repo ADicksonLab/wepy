@@ -1,30 +1,29 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
     <title>User’s Guide &#8212; Wepy Documentation</title>
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/alabaster.css" type="text/css" />
-    <link rel="stylesheet" type="text/css" href="../_static/custom.css" />
-    <script id="documentation_options" data-url_root="../" src="../_static/documentation_options.js"></script>
-    <script src="../_static/jquery.js"></script>
-    <script src="../_static/underscore.js"></script>
-    <script src="../_static/doctools.js"></script>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../_static/custom.css?v=4f057836" />
+    <script src="../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
     <link rel="canonical" href="https://adicksonlab.github.io/wepy/_source/users_guide.html" />
-    <link rel="shortcut icon" href="../_static/wepy-icon.ico"/>
+    <link rel="icon" href="../_static/wepy-icon.ico"/>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="FAQ" href="troubleshooting.html" />
-    <link rel="prev" title="Using Orchestrators" href="tutorials/Orchestrator/README.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   
@@ -36,14 +35,6 @@
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="tutorials/Orchestrator/README.html" title="Previous document">Using Orchestrators</a>
-        </li>
-        <li>
-          <a href="troubleshooting.html" title="Next document">FAQ</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
@@ -51,12 +42,12 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="user-s-guide">
-<h1>User’s Guide<a class="headerlink" href="#user-s-guide" title="Permalink to this headline">¶</a></h1>
-<div class="section" id="running-examples-tutorials">
-<h2>Running Examples &amp; Tutorials<a class="headerlink" href="#running-examples-tutorials" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="organization-conventions">
-<h3>Organization &amp; Conventions<a class="headerlink" href="#organization-conventions" title="Permalink to this headline">¶</a></h3>
+  <section id="user-s-guide">
+<h1>User’s Guide<a class="headerlink" href="#user-s-guide" title="Link to this heading">¶</a></h1>
+<section id="running-examples-tutorials">
+<h2>Running Examples &amp; Tutorials<a class="headerlink" href="#running-examples-tutorials" title="Link to this heading">¶</a></h2>
+<section id="organization-conventions">
+<h3>Organization &amp; Conventions<a class="headerlink" href="#organization-conventions" title="Link to this heading">¶</a></h3>
 <p>Examples are organized in the subdirectories in this folder. To allow
 for effective testing of the examples they follow a specific structure.
 If any example does not follow the rules in this document it can (and
@@ -68,8 +59,8 @@ them.</p>
 <p>All scripts are expected to be run from the example directory, e.g. for
 and example called <code class="docutils literal notranslate"><span class="pre">myexample</span></code> you would run a script called
 <code class="docutils literal notranslate"><span class="pre">example.py</span></code> like:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span> info/examples/myexample
-python ./source/myexample.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">cd</span><span class="w"> </span>info/examples/myexample
+python<span class="w"> </span>./source/myexample.py
 </pre></div>
 </div>
 <p>All have a similar structure with these directories before execution:</p>
@@ -86,21 +77,21 @@ be run.</p>
 <p>Each example will also have a <code class="docutils literal notranslate"><span class="pre">tasks.py</span></code> file which gives some useful
 helper commands (i.e. scripts) that can be run by installing the python
 package <code class="docutils literal notranslate"><span class="pre">invoke</span></code>:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install invoke
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>invoke
 </pre></div>
 </div>
 <p>Once its installed you can see the available commands which we call
 “targets”:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv -l
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>-l
 </pre></div>
 </div>
 <p>You can run some initialization by running:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv init
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>init
 </pre></div>
 </div>
-</div>
-<div class="section" id="making-environments-for-running-examples">
-<h3>Making Environments for Running Examples<a class="headerlink" href="#making-environments-for-running-examples" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="making-environments-for-running-examples">
+<h3>Making Environments for Running Examples<a class="headerlink" href="#making-environments-for-running-examples" title="Link to this heading">¶</a></h3>
 <p>Examples and tutorials have a bad reputation for quickly going out of
 date. While we can’t control whether the content of an example is
 relevant or not, we should make them easy to execute far into the
@@ -111,7 +102,7 @@ version numbers as when they were tested. If you can get these versions
 of the software then the example should run.</p>
 <p>The easiest way to build an environment is to just run this if you
 cloned the entire repository:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env
 </pre></div>
 </div>
 <p>Environments can be made either with <code class="docutils literal notranslate"><span class="pre">conda</span></code> or regular old <code class="docutils literal notranslate"><span class="pre">venv</span></code>.
@@ -126,28 +117,28 @@ respectively. If you would like to install dependencies manually read
 the documentation for these tools on how to install dependencies with
 these files. But typically it should be like this inside a <code class="docutils literal notranslate"><span class="pre">conda</span></code> env
 for the pinned versions:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r env/requirements.txt
-conda env update --prefix env --file env/env.pinned.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>env/requirements.txt
+conda<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>--prefix<span class="w"> </span>env<span class="w"> </span>--file<span class="w"> </span>env/env.pinned.yaml
 </pre></div>
 </div>
 <p>The abstract requirements (from which the pinned specs are compiled) are
 in <code class="docutils literal notranslate"><span class="pre">requirements.in</span></code> and <code class="docutils literal notranslate"><span class="pre">env.yaml</span></code> which you can also try if you
 want to get the newest versions of the software. Although we don’t
 guarantee the example will work then.</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip install -r env/requirements.in
-conda env update --prefix env --file env/env.yaml
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>env/requirements.in
+conda<span class="w"> </span>env<span class="w"> </span>update<span class="w"> </span>--prefix<span class="w"> </span>env<span class="w"> </span>--file<span class="w"> </span>env/env.yaml
 </pre></div>
 </div>
-</div>
-<div class="section" id="running-jupyter-notebook-tutorials">
-<h3>Running Jupyter Notebook Tutorials<a class="headerlink" href="#running-jupyter-notebook-tutorials" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="running-jupyter-notebook-tutorials">
+<h3>Running Jupyter Notebook Tutorials<a class="headerlink" href="#running-jupyter-notebook-tutorials" title="Link to this heading">¶</a></h3>
 <p>To get started check the instructions in the user manual first.</p>
 <p>After you have made your environment, you can install some of the
 Jupyter extensions for viewing structures by running the
 <code class="docutils literal notranslate"><span class="pre">post_install</span></code> target with invoke i.e.:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv env
-conda activate ./_env
-inv post-install
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>env
+conda<span class="w"> </span>activate<span class="w"> </span>./_env
+inv<span class="w"> </span>post-install
 jupyter-notebook
 </pre></div>
 </div>
@@ -155,34 +146,34 @@ jupyter-notebook
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>jupyter-notebook
 </pre></div>
 </div>
-</div>
-<div class="section" id="executing-examples">
-<h3>Executing Examples<a class="headerlink" href="#executing-examples" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="executing-examples">
+<h3>Executing Examples<a class="headerlink" href="#executing-examples" title="Link to this heading">¶</a></h3>
 <p>After you have created the virtual environment and tangled any source
 files if necessary you should be able to run the example.</p>
 <p>As described above you should run scripts from the example dir and not
 from the <code class="docutils literal notranslate"><span class="pre">source</span></code> (or <code class="docutils literal notranslate"><span class="pre">_tangle_source</span></code>) dirs since paths are
 typically hardcoded for convenience.</p>
 <p>I.e. run scripts like:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python source/script.py
-python _tangle_source/script.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>source/script.py
+python<span class="w"> </span>_tangle_source/script.py
 ./source/script.sh
 </pre></div>
 </div>
 <p>Also hardcoded is where any file outputs go which should always be the
 <code class="docutils literal notranslate"><span class="pre">_output</span></code> directory.</p>
-</div>
-<div class="section" id="cleaning-up">
-<h3>Cleaning Up<a class="headerlink" href="#cleaning-up" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="cleaning-up">
+<h3>Cleaning Up<a class="headerlink" href="#cleaning-up" title="Link to this heading">¶</a></h3>
 <p>You can run the targets:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv clean clean_env
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>clean<span class="w"> </span>clean_env
 </pre></div>
 </div>
 <p>Or just know that any directory starting with an underscore ‘_’ is
 temporary and may be safely removed.</p>
-</div>
-<div class="section" id="tangling-literate-examples">
-<h3>Tangling Literate Examples<a class="headerlink" href="#tangling-literate-examples" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="tangling-literate-examples">
+<h3>Tangling Literate Examples<a class="headerlink" href="#tangling-literate-examples" title="Link to this heading">¶</a></h3>
 <p>In addition to the <code class="docutils literal notranslate"><span class="pre">source</span></code> directory if the <code class="docutils literal notranslate"><span class="pre">README.org</span></code> has any
 source code in it this should be able to be “tangled” out of it into
 source code files which are executable. These should end up in the
@@ -193,7 +184,7 @@ discrepencies between them. That is there is never the same script (or
 snippets of a script) in both the <code class="docutils literal notranslate"><span class="pre">README.org</span></code> and in the <code class="docutils literal notranslate"><span class="pre">source</span></code>
 directory.</p>
 <p>You can “tangle” the source code by running:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv tangle
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>inv<span class="w"> </span>tangle
 </pre></div>
 </div>
 <p>This expects a local, fairly modern installation of <code class="docutils literal notranslate"><span class="pre">emacs</span></code> to be
@@ -203,10 +194,10 @@ future.</p>
 <div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>../_tangle_source/script.py
 </pre></div>
 </div>
-</div>
-</div>
-<div class="section" id="how-to-approach-learning-and-using-wepy">
-<h2>How to approach learning and using wepy<a class="headerlink" href="#how-to-approach-learning-and-using-wepy" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="how-to-approach-learning-and-using-wepy">
+<h2>How to approach learning and using wepy<a class="headerlink" href="#how-to-approach-learning-and-using-wepy" title="Link to this heading">¶</a></h2>
 <p>The <code class="docutils literal notranslate"><span class="pre">wepy</span></code> project is a framework and library written in python for
 performing <abbr title="weighted ensemble">WE</abbr> simulations.</p>
 <p>That means there is no special language to learn and use other than
@@ -219,8 +210,8 @@ utilize a collection of functionality to help you focus prototype your
 complex algorithms rather than worrying about how to save data etc.</p>
 <p>The first question is what exactly do you need to write to be able to
 run a wepy simulation and how to run it.</p>
-<div class="section" id="the-software-configuration-trap">
-<h3>The software configuration trap<a class="headerlink" href="#the-software-configuration-trap" title="Permalink to this headline">¶</a></h3>
+<section id="the-software-configuration-trap">
+<h3>The software configuration trap<a class="headerlink" href="#the-software-configuration-trap" title="Link to this heading">¶</a></h3>
 <p>Some people may not understand (or agree with) the approach to the
 design of <code class="docutils literal notranslate"><span class="pre">wepy</span></code> as it diverges from many packages in the field. So we
 will provide a summary of the issues leading to the deliberately made
@@ -275,7 +266,7 @@ python <code class="docutils literal notranslate"><span class="pre">subprocess</
 perhaps a wrapper package ready to be imported.</p>
 <p>To run wepy you simply write a file that runs a simulation and then run
 it on the command line:</p>
-<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python run_wepy.py
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span>python<span class="w"> </span>run_wepy.py
 </pre></div>
 </div>
 <p>The use of pure python files for configuring may seem complicated to
@@ -339,9 +330,9 @@ term solution to storage.</p>
 depth.</p>
 </li>
 </ol>
-</div>
-<div class="section" id="framework-or-library">
-<h3>Framework or library?<a class="headerlink" href="#framework-or-library" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="framework-or-library">
+<h3>Framework or library?<a class="headerlink" href="#framework-or-library" title="Link to this heading">¶</a></h3>
 <p>At first a pedantic distinction, but understanding which parts of wepy
 are the “framework” and which parts are the “library” (and which parts
 are both) should eliminate some confusion (and hopefully lead to a
@@ -451,13 +442,13 @@ manager:</p>
 </ul>
 <p>Some examples of off-the-shelf components are:</p>
 <ul class="simple">
-<li><p><a class="reference internal" href="../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner" title="wepy.runners.openmm.OpenMMRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.runners.openmm.html#wepy.runners.openmm.OpenMMRunner" title="wepy.runners.openmm.OpenMMRunner"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.resampling.resamplers.revo.html#wepy.resampling.resamplers.revo.REVOResampler" title="wepy.resampling.resamplers.revo.REVOResampler"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.revo.REVOResampler</span></code></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.resampling.distances.receptor.html#wepy.resampling.distances.receptor.UnbindingDistance" title="wepy.resampling.distances.receptor.UnbindingDistance"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.UnbindingDistance</span></code></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.boundary_conditions.receptor.html#wepy.boundary_conditions.receptor.UnbindingBC" title="wepy.boundary_conditions.receptor.UnbindingBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.UnbindingBC</span></code></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.reporter.hdf5.html#wepy.reporter.hdf5.WepyHDF5Reporter" title="wepy.reporter.hdf5.WepyHDF5Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5.WepyHDF5Reporter</span></code></a></p></li>
-<li><p><a class="reference internal" href="../_api/wepy.reporter.dashboard.html#wepy.reporter.dashboard.DashboardReporter" title="wepy.reporter.dashboard.DashboardReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.DashboardReporter</span></code></a></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.runners.openmm.OpenMMRunner</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.resamplers.revo.REVOResampler</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.resampling.distances.receptor.UnbindingDistance</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.boundary_conditions.receptor.UnbindingBC</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.hdf5.WepyHDF5Reporter</span></code></p></li>
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">wepy.reporter.dashboard.DashboardReporter</span></code></p></li>
 </ul>
 <p>These only need to be imported and constructed, e.g.:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.runners.openmm</span> <span class="kn">import</span> <span class="n">OpenMMRunner</span>
@@ -499,7 +490,7 @@ attribute.</p>
 <p>First there is the definition of the class <code class="docutils literal notranslate"><span class="pre">ReceptorDistance</span></code>:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">wepy.resampling.distances.distance</span> <span class="kn">import</span> <span class="n">Distance</span>
 <span class="k">class</span> <span class="nc">ReceptorDistance</span><span class="p">(</span><span class="n">Distance</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Common abstract class for receptor-ligand molecular systems.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Common abstract class for receptor-ligand molecular systems.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="nf">_unaligned_image</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">state</span><span class="p">):</span>
         <span class="n">box_lengths</span><span class="p">,</span> <span class="n">box_angles</span> <span class="o">=</span> <span class="n">box_vectors_to_lengths_angles</span><span class="p">(</span><span class="n">state</span><span class="p">[</span><span class="s1">&#39;box_vectors&#39;</span><span class="p">])</span>
@@ -525,10 +516,10 @@ attribute.</p>
 <p>We see that ReceptorDistance is inheriting from the <code class="docutils literal notranslate"><span class="pre">Distance</span></code>
 class, which is defined as such:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span> <span class="nc">Distance</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Abstract Base class for Distance classes.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract Base class for Distance classes.&quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Constructor for Distance class.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor for Distance class.&quot;&quot;&quot;</span>
         <span class="k">pass</span>
 
     <span class="o">...</span>
@@ -629,9 +620,9 @@ overriden, and can make interfacing more seamless.</p>
 constructing the main components.</p>
 </li>
 </ol>
-</div>
-<div class="section" id="what-kind-of-wepy-user-are-you">
-<h3>What kind of wepy user are you?<a class="headerlink" href="#what-kind-of-wepy-user-are-you" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="what-kind-of-wepy-user-are-you">
+<h3>What kind of wepy user are you?<a class="headerlink" href="#what-kind-of-wepy-user-are-you" title="Link to this heading">¶</a></h3>
 <p>Understanding what you want to accomplish with wepy can help you
 understand which parts to pay attention to and which to ignore.</p>
 <p>I’ve outlined some possible goals a user might have with wepy in order
@@ -672,7 +663,7 @@ difficult part of the process. Once you have working MD simulations
 you will only need create a distance metric that characterizes the
 type of behavior you want to enhance in your simulations, if there is
 not already one available in a wepy or
-<a class="reference internal" href="introduction.html#resources"><span class="std std-ref">contributed library</span></a> .</p>
+<span class="xref std std-ref">contributed library</span> .</p>
 </li>
 <li><p>Running wepy on a large scale</p>
 <p>If you have been succesful at running <code class="docutils literal notranslate"><span class="pre">wepy</span></code> but find yourself:</p>
@@ -726,12 +717,12 @@ contributed modules to the wepy core library if you want to fold in
 the maintenance of those modules to core.</p>
 </li>
 </ol>
-</div>
-</div>
-<div class="section" id="overview-of-frameworks">
-<h2>Overview of frameworks<a class="headerlink" href="#overview-of-frameworks" title="Permalink to this headline">¶</a></h2>
-<div class="section" id="simulation-manager">
-<h3>Simulation manager<a class="headerlink" href="#simulation-manager" title="Permalink to this headline">¶</a></h3>
+</section>
+</section>
+<section id="overview-of-frameworks">
+<h2>Overview of frameworks<a class="headerlink" href="#overview-of-frameworks" title="Link to this heading">¶</a></h2>
+<section id="simulation-manager">
+<h3>Simulation manager<a class="headerlink" href="#simulation-manager" title="Link to this heading">¶</a></h3>
 <p>The simulation manager framework can be configured with the following
 components:</p>
 <ul class="simple">
@@ -927,7 +918,7 @@ if it doesn’t directly inherit from the actual <code class="docutils literal n
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">dict</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return all key-value pairs as a dictionary.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return all key-value pairs as a dictionary.&quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
 </pre></div>
 </div>
@@ -1354,14 +1345,14 @@ pill” is placed on the work queue for each worker which is a signal
 to shut down.</p>
 </li>
 </ol>
-</div>
-<div class="section" id="resampling-framework">
-<h3>Resampling Framework<a class="headerlink" href="#resampling-framework" title="Permalink to this headline">¶</a></h3>
+</section>
+<section id="resampling-framework">
+<h3>Resampling Framework<a class="headerlink" href="#resampling-framework" title="Link to this heading">¶</a></h3>
 <p>See the sub-package documentation: <code class="docutils literal notranslate"><span class="pre">wepy/resampling/__init__.py</span></code></p>
-</div>
-</div>
-<div class="section" id="simulation-data-persistence-wepyhdf5-and-analysis">
-<h2>Simulation Data Persistence (WepyHDF5) and Analysis<a class="headerlink" href="#simulation-data-persistence-wepyhdf5-and-analysis" title="Permalink to this headline">¶</a></h2>
+</section>
+</section>
+<section id="simulation-data-persistence-wepyhdf5-and-analysis">
+<h2>Simulation Data Persistence (WepyHDF5) and Analysis<a class="headerlink" href="#simulation-data-persistence-wepyhdf5-and-analysis" title="Link to this heading">¶</a></h2>
 <p>We have discussed the components that are necessary to run a simulation
 using the simulation manager and the interfaces these components must
 implement.</p>
@@ -1571,9 +1562,9 @@ rates. The <code class="docutils literal notranslate"><span class="pre">wepy.ana
 profiles and probability distributions for both the entire simulation
 and as a series so you can easily see the convergence of a simulation
 with relation to a given projection.</p>
-</div>
-<div class="section" id="json-topology-and-converting-to-other-file-formats">
-<h2>JSON Topology and Converting to Other File Formats<a class="headerlink" href="#json-topology-and-converting-to-other-file-formats" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="json-topology-and-converting-to-other-file-formats">
+<h2>JSON Topology and Converting to Other File Formats<a class="headerlink" href="#json-topology-and-converting-to-other-file-formats" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">wepy</span></code> is not a molecular data file reader/writer of which there are
 great many of. This topic can cause considerable headaches if not done
 properly. For writing to file formats such as PDB, DCD, XTC, and all the
@@ -1630,8 +1621,8 @@ tables for either: atoms, residues, or chains; e.g.
 topology from a subset of atoms from the original <code class="docutils literal notranslate"><span class="pre">json_top_subset</span></code>.
 This is extremely useful for generating files for subsets of your entire
 MD system and excluding things like waters.</p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -1639,25 +1630,17 @@ MD system and excluding things like waters.</p>
                 &nbsp;
   <nav id="rellinks">
     <ul>
-        <li>
-          &larr;
-          <a href="tutorials/Orchestrator/README.html" title="Previous document">Using Orchestrators</a>
-        </li>
-        <li>
-          <a href="troubleshooting.html" title="Next document">FAQ</a>
-          &rarr;
-        </li>
     </ul>
   </nav>
               </div>
           
         </div>
       </div>
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../index.html">
-    <img class="logo" src="../_static/wepy.svg" alt="Logo"/>
+    <img class="logo" src="../_static/wepy.svg" alt="Logo" />
     
     <h1 class="logo logo-name">wepy</h1>
     
@@ -1682,19 +1665,15 @@ MD system and excluding things like waters.</p>
 
 <h3>Navigation</h3>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="quick_start.html">Quick Start</a></li>
 <li class="toctree-l1"><a class="reference internal" href="introduction.html">Introduction &amp; Features</a></li>
-<li class="toctree-l1"><a class="reference internal" href="introduction.html#bibliography">Bibliography</a></li>
+<li class="toctree-l1"><a class="reference internal" href="installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="quick_start/index.html">Quick Start</a></li>
 </ul>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="tutorials/index.html">Tutorials</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">User’s Guide</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">FAQ</a></li>
-<li class="toctree-l1"><a class="reference internal" href="reference.html">Reference</a></li>
+<li class="toctree-l1"><a class="reference internal" href="reference.html">HDF5 Reporter Data Structure</a></li>
 <li class="toctree-l1"><a class="reference internal" href="glossary.html">Glossary</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Overview</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../_api/modules.html">Full API</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="general_info.html">General Information</a></li>
@@ -1707,21 +1686,19 @@ MD system and excluding things like waters.</p>
 <h3>Related Topics</h3>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="tutorials/Orchestrator/README.html" title="previous chapter">Using Orchestrators</a></li>
-      <li>Next: <a href="troubleshooting.html" title="next chapter">FAQ</a></li>
   </ul></li>
 </ul>
 </div>
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../search.html" method="get">
-      <input type="text" name="q" aria-labelledby="searchlabel" />
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
 
 
 
@@ -1735,11 +1712,11 @@ MD system and excluding things like waters.</p>
       <div class="clearer"></div>
     </div>
     <div class="footer">
-      &copy;2018, Samuel D. Lotz.
+      &#169;2024, Michigan State University.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 3.5.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
       
       |
       <a href="../_sources/_source/users_guide.rst.txt"

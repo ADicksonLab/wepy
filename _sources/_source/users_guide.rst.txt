@@ -160,7 +160,7 @@ You can run the targets:
 
    inv clean clean_env
 
-Or just know that any directory starting with an underscore '_' is
+Or just know that any directory starting with an underscore '\_' is
 temporary and may be safely removed.
 
 Tangling Literate Examples
@@ -229,6 +229,10 @@ the features of the program start to expand and the complexity of
 configuration files grow until the developers have accidentally created
 an entire programming language, which invariably is very clumsy to
 program. Moreover, this language is a completely isolated ecosystem.
+
+.. raw:: org
+
+   #+RST: .. TODO add a figure of the cycle of despair
 
 ``wepy`` was designed to avoid this issue and from the start and
 embraces a well-designed and highly popular programming language with a
@@ -724,6 +728,10 @@ In order:
    understand WE as it is quite different from normal, linear MD
    simulations.
 
+   .. raw:: org
+
+      #+RST: .. TODO add link to examples for papers
+
 #. Evaluating WE for your system
 
    If you are interested in a WE algorithm (WExplore, REVO, etc.)
@@ -740,6 +748,14 @@ In order:
    not already one available in a wepy or
    :ref:`contributed library <resources>` .
 
+   .. raw:: org
+
+      #+RST: .. TODO add link to section on writing a distance metric
+
+   .. raw:: org
+
+      #+RST: .. TODO add link to the section outlining basics of OO
+
 #. Running wepy on a large scale
 
    If you have been succesful at running ``wepy`` but find yourself:
@@ -755,6 +771,14 @@ In order:
    **orchestration** features of wepy and data aggregation methods in
    the ``WepyHDF5``.
 
+   .. raw:: org
+
+      #+RST: .. TODO add link to orchestration docs
+
+   .. raw:: org
+
+      #+RST: .. TODO add link to HDF5 aggregation and ContigTree stuff
+
 #. Advanced or custom simulation requirements
 
    If you need to:
@@ -768,10 +792,18 @@ In order:
    All of this can (ideally) be done without having modify the core
    ``wepy`` code base.
 
+   .. raw:: org
+
+      #+RST: .. TODO add link to contributed projects.
+
    First check if there is a similar contributed project that you could
    use, or contribute to yourself. Otherwise you are free to implement
    your component however you please; as a standalone importable module
    or directly in your run script.
+
+   .. raw:: org
+
+      #+RST: .. TODO add link to component documentation
 
    If you think think the feature is general-purpose enough to request
    the devs to implement it you can make a feature request on the issue
@@ -784,6 +816,10 @@ In order:
    is necessary for implementing the feature you can make a feature
    request, although we may end up just pointing you to an existing
    mechanism.
+
+   .. raw:: org
+
+      #+RST: .. TODO add links to issue trackers
 
    If you want other people to know about your creation we can add it to
    the contributed packages list if it is a proper module. If it is a
@@ -799,6 +835,10 @@ In order:
    We are also open to the eventual inclusion of popular and mature
    contributed modules to the wepy core library if you want to fold in
    the maintenance of those modules to core.
+
+   .. raw:: org
+
+      #+RST: .. TODO link to follow the set up and testing instructions for developing
 
 Overview of frameworks
 ----------------------
@@ -942,6 +982,10 @@ The execution of ``run_cycle`` is as follows:
 #. ``boundary_conditions.warp_walkers(walkers, cycle_idx)`` (if present)
 #. ``resampler.resample(walkers)``
 #. ``reporter.report(**report)`` for all reporters
+
+.. raw:: org
+
+   #+RST: .. TODO flow chart of running a cycle
 
 At a high level there are two categories of components: **apparatus**
 and **configuration**.
@@ -1324,6 +1368,10 @@ be needing the configuration.
    this point as this is better described in a somewhat formal context.
    For more information see the resources in the introduction.
 
+   .. raw:: org
+
+      #+RST: .. TODO add links to resampler and WE theory here
+
    In terms of what a resampler component looks like and does can be
    quite distinct from some of the theoretical formulations. This
    freedom is the key to the flexibility of using ``wepy`` for
@@ -1365,6 +1413,10 @@ be needing the configuration.
    If you are just using a resampler off of the shelf just know that
    these are saved in the ``WepyHDF5`` format and the various analysis
    tools will take care of all the mundane details of utilizing them.
+
+   .. raw:: org
+
+      #+RST: .. TODO link to the class docstring for Resampler ABC
 
 #. Reporters
 
@@ -1547,6 +1599,10 @@ Resampling Framework
 
 See the sub-package documentation: ``wepy/resampling/__init__.py``
 
+.. raw:: org
+
+   #+RST: .. TODO link to the resampling sub-package docstring
+
 Simulation Data Persistence (WepyHDF5) and Analysis
 ---------------------------------------------------
 
@@ -1592,6 +1648,10 @@ structure, while the ``WepyHDF5`` class specifies and implements a
 that has the same structure as one that would be constructed or read by
 the ``WepyHDF5`` class. An more in depth (but not formal) description of
 this "schema" is given in the module API documentation.
+
+.. raw:: org
+
+   #+RST: .. TODO link to WepyHDF5 module documentation
 
 Briefly though, the file is primarily organized by the concept of a run.
 Each "run" contains all the data and metadata for a single ``wepy``
@@ -1706,6 +1766,10 @@ The contig and contig tree are the conceptually complete unit of a
 
 See the tutorials on how to make use of them.
 
+.. raw:: org
+
+   #+RST: .. TODO link the contigtree tutorials
+
 The next data "view" is the ``wepy.analysis.network.MacroStateNetwork``.
 Outside of resampling type enhanced sampling algorithms simulations are
 very linear and so you always had one canonical way to go through the
@@ -1764,6 +1828,10 @@ each walker that crosses a boundary. The ``ParentForest`` provides a
 ``networkx`` directed graph of the tree which makes it amenable to the
 algorithms available there. The ``parents.ancestors`` gives a complete
 lineage from any walker.
+
+.. raw:: org
+
+   #+RST: .. TODO link to examples
 
 In addition to these basic views onto the underlying HDF5 dataset there
 are also a few analysis routines for calculating rates and free energy
