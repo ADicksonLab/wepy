@@ -114,21 +114,21 @@ python<span class="w"> </span>wepy_run.py<span class="w">  </span><span class="c
 <ol class="arabic simple">
 <li><p><strong>Resource Requests:</strong></p>
 <ul class="simple">
-<li><p>Replace TIME<sub>LIMIT</sub> with the desired wall clock time limit
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">TIME_LIMIT</span></code> with the desired wall clock time limit
 (e.g., <code class="docutils literal notranslate"><span class="pre">168:00:00</span></code> for 168 hours).</p></li>
-<li><p>Replace YOUR<sub>ALLOCATIONACCOUNT</sub> with your specific
-allocation account.</p></li>
-<li><p>Replace NUMBER<sub>OFNODES</sub> with the number of nodes you need
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">YOUR_ALLOCATION_ACCOUNT</span></code> with your specific allocation
+account.</p></li>
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">NUMBER_OF_NODES</span></code> with the number of nodes you need
 (e.g., <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
-<li><p>Replace NUMBER<sub>OFTASKS</sub> with the number of tasks to run
-(e.g., <code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
-<li><p>Replace CPUS<sub>PERTASK</sub> with the number of CPUs per task
-(e.g., <code class="docutils literal notranslate"><span class="pre">8</span></code>).</p></li>
-<li><p>Replace GPUS<sub>PERTASK</sub> with the type and number of GPUs per
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">NUMBER_OF_TASKS</span></code> with the number of tasks to run (e.g.,
+<code class="docutils literal notranslate"><span class="pre">1</span></code>).</p></li>
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">CPUS_PER_TASK</span></code> with the number of CPUs per task (e.g.,
+<code class="docutils literal notranslate"><span class="pre">8</span></code>).</p></li>
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">GPUS_PER_TASK</span></code> with the type and number of GPUs per
 task (e.g., <code class="docutils literal notranslate"><span class="pre">v100:4</span></code>).</p></li>
-<li><p>Replace MEMORY<sub>PERNODE</sub> with the total memory per node
-(e.g., <code class="docutils literal notranslate"><span class="pre">64G</span></code>).</p></li>
-<li><p>Replace JOB<sub>NAME</sub> with a name for your job (e.g.,
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">MEMORY_PER_NODE</span></code> with the total memory per node (e.g.,
+<code class="docutils literal notranslate"><span class="pre">64G</span></code>).</p></li>
+<li><p>Replace <code class="docutils literal notranslate"><span class="pre">JOB_NAME</span></code> with a name for your job (e.g.,
 <code class="docutils literal notranslate"><span class="pre">wepy_run</span></code>).</p></li>
 </ul>
 </li>
@@ -142,10 +142,10 @@ environment.</p></li>
 </li>
 <li><p><strong>Home and Log Directory:</strong></p>
 <ul class="simple">
-<li><p>Set HOME<sub>DIR</sub> to the directory where your project files are
+<li><p>Set <code class="docutils literal notranslate"><span class="pre">HOME_DIR</span></code> to the directory where your project files are
 located.</p></li>
-<li><p>Ensure LOG<sub>DIR</sub> points to where you want the log files to
-be saved.</p></li>
+<li><p>Ensure <code class="docutils literal notranslate"><span class="pre">LOG_DIR</span></code> points to where you want the log files to be
+saved.</p></li>
 </ul>
 </li>
 <li><p><strong>CUDA Module:</strong></p>

@@ -63,21 +63,21 @@ Instructions for Customization
 
 #. **Resource Requests:**
 
-   -  Replace TIME\ :sub:`LIMIT` with the desired wall clock time limit
+   -  Replace ``TIME_LIMIT`` with the desired wall clock time limit
       (e.g., ``168:00:00`` for 168 hours).
-   -  Replace YOUR\ :sub:`ALLOCATIONACCOUNT` with your specific
-      allocation account.
-   -  Replace NUMBER\ :sub:`OFNODES` with the number of nodes you need
+   -  Replace ``YOUR_ALLOCATION_ACCOUNT`` with your specific allocation
+      account.
+   -  Replace ``NUMBER_OF_NODES`` with the number of nodes you need
       (e.g., ``1``).
-   -  Replace NUMBER\ :sub:`OFTASKS` with the number of tasks to run
-      (e.g., ``1``).
-   -  Replace CPUS\ :sub:`PERTASK` with the number of CPUs per task
-      (e.g., ``8``).
-   -  Replace GPUS\ :sub:`PERTASK` with the type and number of GPUs per
+   -  Replace ``NUMBER_OF_TASKS`` with the number of tasks to run (e.g.,
+      ``1``).
+   -  Replace ``CPUS_PER_TASK`` with the number of CPUs per task (e.g.,
+      ``8``).
+   -  Replace ``GPUS_PER_TASK`` with the type and number of GPUs per
       task (e.g., ``v100:4``).
-   -  Replace MEMORY\ :sub:`PERNODE` with the total memory per node
-      (e.g., ``64G``).
-   -  Replace JOB\ :sub:`NAME` with a name for your job (e.g.,
+   -  Replace ``MEMORY_PER_NODE`` with the total memory per node (e.g.,
+      ``64G``).
+   -  Replace ``JOB_NAME`` with a name for your job (e.g.,
       ``wepy_run``).
 
 #. **Conda Setup:**
@@ -89,10 +89,10 @@ Instructions for Customization
 
 #. **Home and Log Directory:**
 
-   -  Set HOME\ :sub:`DIR` to the directory where your project files are
+   -  Set ``HOME_DIR`` to the directory where your project files are
       located.
-   -  Ensure LOG\ :sub:`DIR` points to where you want the log files to
-      be saved.
+   -  Ensure ``LOG_DIR`` points to where you want the log files to be
+      saved.
 
 #. **CUDA Module:**
 
