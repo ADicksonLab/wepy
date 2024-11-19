@@ -139,7 +139,7 @@ def construct_restraining_potential(particle_indices, K):
     
 class NaCLPair(TestSystem):
 
-    """Create a non-periodic rectilinear grid of Lennard-Jones particles in a harmonic restraining potential.
+    """Create a non-periodic rectilinear grid of NaCl pair in a harmonic restraining potential.
 
     Parameters
     ----------
@@ -157,19 +157,6 @@ class NaCLPair(TestSystem):
     switch_width : openmm.unit.Quantity, optional, default=None
         If None, the cutoff is a hard cutoff.  If switch_width is specified,
         use a switching function with this width.
-
-    Examples
-    --------
-
-    Create Lennard-Jones cluster.
-
-    >>> cluster = LennardJonesCluster()
-    >>> system, positions = cluster.system, cluster.positions
-
-    Create default 3x3x3 Lennard-Jones cluster in a harmonic restraining potential.
-
-    >>> cluster = LennardJonesCluster(nx=10, ny=10, nz=10)
-    >>> system, positions = cluster.system, cluster.positions
     """
 
     def __init__(self, nx=3, ny=3, nz=3, K=1.0 * unit.kilojoules_per_mole / unit.nanometer**2, cutoff=None, switch_width=None, **kwargs):
