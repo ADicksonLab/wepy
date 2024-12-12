@@ -80,7 +80,7 @@ GET_STATE_KWARG_DEFAULTS = (
     ("getForces", True),
     ("getEnergy", True),
     ("getParameters", True),
-    ("getParameterDerivatives", True),
+    ("getParameterDerivatives", False),
     ("enforcePeriodicBox", True),
 )
 """Mapping of key word arguments to the simulation.context.getState
@@ -203,13 +203,14 @@ class OpenMMRunner(Runner):
     """Runner for OpenMM simulations."""
 
     def __init__(
-        self,
-        system,
-        topology,
-        integrator,
-        platform=None,
-        platform_kwargs=None,
-        enforce_box=False,
+            self,
+            system,
+            topology,
+            integrator,
+            platform=None,
+            platform_kwargs=None,
+            enforce_box=False,
+            get_param_derivs=False,
     ):
         """Constructor for OpenMMRunner.
 
@@ -240,6 +241,11 @@ class OpenMMRunner(Runner):
         enforce_box : bool
             Calls 'context.getState' with 'enforcePeriodicBox' if True.
              (Default value = False)
+
+        get_param_derivs : bool
+            Calls 'context.getState' with 'getParameterDerivatives' if True.
+             (Default value = False)
+
 
         Warnings
         --------
@@ -274,7 +280,7 @@ class OpenMMRunner(Runner):
         # we save the different components. However, if we are to make
         # this runner picklable we have to convert the SWIG objects to
         # a picklable form
-        self.system = system
+False        self.system = system
         self.integrator = integrator
 
         # these are not SWIG objects
@@ -287,6 +293,7 @@ class OpenMMRunner(Runner):
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
         self.getState_kwargs["enforcePeriodicBox"] = self.enforce_box
+        self.getState_kwargs["getParameterDerivatives"] = self.get_param_derivs
 
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
