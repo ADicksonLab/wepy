@@ -280,7 +280,7 @@ class OpenMMRunner(Runner):
         # we save the different components. However, if we are to make
         # this runner picklable we have to convert the SWIG objects to
         # a picklable form
-False        self.system = system
+        self.system = system
         self.integrator = integrator
 
         # these are not SWIG objects
