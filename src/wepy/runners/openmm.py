@@ -209,6 +209,7 @@ class OpenMMRunner(Runner):
         integrator,
         platform=None,
         platform_kwargs=None,
+        enforce_box=False,
         get_state_kwargs=None
     ):
         """Constructor for OpenMMRunner.
@@ -237,14 +238,19 @@ class OpenMMRunner(Runner):
             platform.setPropertyDefaultValue as the default for this
             runner.
 
+        enforce_box : bool
+            Calls 'context.getState' with 'enforcePeriodicBox' if True.
+             (Default value = False)
+
         get_state_kwargs : dict of str : bool, optional
             key-values to set for getting the state from the OpenMM context.
             keys not included will use the values in GET_STATE_KWARG_DEFAULTS.
+            Will override the enforce_box flag.
             
         Warnings
         --------
 
-        Regarding the get_state_kwargs['enforce_box'] option.
+        Regarding the enforce_box option.
 
         When retrieving states from an OpenMM simulation Context, you
         have the option to enforce periodic boundary conditions in the
@@ -290,7 +296,11 @@ class OpenMMRunner(Runner):
         if get_state_kwargs is not None:
             for k in get_state_kwargs:
                 self.getState_kwargs[k] = get_state_kwargs[k]
-        
+
+            # override enforce_box option if specified in get_state_kwargs
+            if 'enforce_box' in get_state_kwargs:
+                self.enforce_box = get_state_kwargs['enforce_box']
+                
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
