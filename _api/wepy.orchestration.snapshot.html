@@ -42,8 +42,80 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-orchestration-snapshot-module">
-<h1>wepy.orchestration.snapshot module<a class="headerlink" href="#wepy-orchestration-snapshot-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.orchestration.snapshot">
+<span id="wepy-orchestration-snapshot-module"></span><h1>wepy.orchestration.snapshot module<a class="headerlink" href="#module-wepy.orchestration.snapshot" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.SimApparatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.orchestration.snapshot.</span></span><span class="sig-name descname"><span class="pre">SimApparatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">filters</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/snapshot.html#SimApparatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.snapshot.SimApparatus" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>The simulation apparatus are the components needed for running a
+simulation without the initial conditions for starting the simulation.</p>
+<p>A runner is strictly necessary but a resampler and boundary
+conditions are not.</p>
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.SimApparatus.filters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filters</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.SimApparatus.filters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.orchestration.snapshot.</span></span><span class="sig-name descname"><span class="pre">WepySimApparatus</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">runner</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/snapshot.html#WepySimApparatus"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.orchestration.snapshot.SimApparatus" title="wepy.orchestration.snapshot.SimApparatus"><code class="xref py py-class docutils literal notranslate"><span class="pre">SimApparatus</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.RUNNER_IDX">
+<span class="sig-name descname"><span class="pre">RUNNER_IDX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.RUNNER_IDX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.BC_IDX">
+<span class="sig-name descname"><span class="pre">BC_IDX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">1</span></em><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.BC_IDX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.RESAMPLER_IDX">
+<span class="sig-name descname"><span class="pre">RESAMPLER_IDX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">2</span></em><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.RESAMPLER_IDX" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.runner">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">runner</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.runner" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.boundary_conditions">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">boundary_conditions</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.boundary_conditions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.resampler">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">resampler</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.resampler" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.WepySimApparatus.filters">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">filters</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.WepySimApparatus.filters" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.SimSnapshot">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.orchestration.snapshot.</span></span><span class="sig-name descname"><span class="pre">SimSnapshot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">apparatus</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/orchestration/snapshot.html#SimSnapshot"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.orchestration.snapshot.SimSnapshot" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.SimSnapshot.walkers">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">walkers</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.SimSnapshot.walkers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.orchestration.snapshot.SimSnapshot.apparatus">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">apparatus</span></span><a class="headerlink" href="#wepy.orchestration.snapshot.SimSnapshot.apparatus" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 

@@ -39,7 +39,7 @@ required packages.
    import openmm as omm
    import openmm.unit as unit
 
-   from wepy.util.test_system_builder import NaClPair
+   from wepy_tools.systems.openmm.nacl_pair import NaClPair
    from wepy.util.mdtraj import mdtraj_to_json_topology
 
    from wepy.resampling.resamplers.resampler import NoResampler

@@ -42,8 +42,39 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-reporter-wexplore-dashboard-module">
-<h1>wepy.reporter.wexplore.dashboard module<a class="headerlink" href="#wepy-reporter-wexplore-dashboard-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.reporter.wexplore.dashboard">
+<span id="wepy-reporter-wexplore-dashboard-module"></span><h1>wepy.reporter.wexplore.dashboard module<a class="headerlink" href="#module-wepy.reporter.wexplore.dashboard" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.reporter.wexplore.dashboard.WExploreDashboardSection">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.reporter.wexplore.dashboard.</span></span><span class="sig-name descname"><span class="pre">WExploreDashboardSection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_n_regions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_region_sizes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/wexplore/dashboard.html#WExploreDashboardSection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.wexplore.dashboard.WExploreDashboardSection" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.reporter.dashboard.html#wepy.reporter.dashboard.ResamplerDashboardSection" title="wepy.reporter.dashboard.ResamplerDashboardSection"><code class="xref py py-class docutils literal notranslate"><span class="pre">ResamplerDashboardSection</span></code></a></p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.wexplore.dashboard.WExploreDashboardSection.RESAMPLER_SECTION_TEMPLATE">
+<span class="sig-name descname"><span class="pre">RESAMPLER_SECTION_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'\n\nResampling</span> <span class="pre">Algorithm:</span> <span class="pre">{{</span> <span class="pre">name</span> <span class="pre">}}\n\nParameters:\n-</span> <span class="pre">Max</span> <span class="pre">Number</span> <span class="pre">of</span> <span class="pre">Regions:</span> <span class="pre">{{</span> <span class="pre">max_n_regions</span> <span class="pre">}}\n-</span> <span class="pre">Max</span> <span class="pre">Region</span> <span class="pre">Sizes:</span> <span class="pre">{{</span> <span class="pre">max_region_sizes</span> <span class="pre">}}\n\nNumber</span> <span class="pre">of</span> <span class="pre">Regions</span> <span class="pre">per</span> <span class="pre">level:\n\n{{</span> <span class="pre">regions_per_level</span> <span class="pre">}}\n\n**</span> <span class="pre">Walker</span> <span class="pre">Assignments\n\n{{</span> <span class="pre">walker_table</span> <span class="pre">}}\n\n**</span> <span class="pre">Region</span> <span class="pre">Hierarchy\n\nDefined</span> <span class="pre">Regions</span> <span class="pre">with</span> <span class="pre">the</span> <span class="pre">number</span> <span class="pre">of</span> <span class="pre">child</span> <span class="pre">regions</span> <span class="pre">per</span> <span class="pre">parent</span> <span class="pre">region:\n\n{{</span> <span class="pre">region_hierarchy</span> <span class="pre">}}\n\n**</span> <span class="pre">Leaf</span> <span class="pre">Region</span> <span class="pre">Table\n\n{{</span> <span class="pre">leaf_region_table</span> <span class="pre">}}\n\n**</span> <span class="pre">WExplore</span> <span class="pre">Log\n\n{{</span> <span class="pre">wexplore_log</span> <span class="pre">}}\n\n'</span></em><a class="headerlink" href="#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.RESAMPLER_SECTION_TEMPLATE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.wexplore.dashboard.WExploreDashboardSection._leaf_regions_to_all_regions">
+<span class="sig-name descname"><span class="pre">_leaf_regions_to_all_regions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">region_ids</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/wexplore/dashboard.html#WExploreDashboardSection._leaf_regions_to_all_regions"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.wexplore.dashboard.WExploreDashboardSection._leaf_regions_to_all_regions" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_resampler_section">
+<span class="sig-name descname"><span class="pre">gen_resampler_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_resampler_section" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.wexplore.dashboard.WExploreDashboardSection.update_values">
+<span class="sig-name descname"><span class="pre">update_values</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/wexplore/dashboard.html#WExploreDashboardSection.update_values"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.update_values" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_fields">
+<span class="sig-name descname"><span class="pre">gen_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/wexplore/dashboard.html#WExploreDashboardSection.gen_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.wexplore.dashboard.WExploreDashboardSection.gen_fields" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 
 

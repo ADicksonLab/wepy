@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wepy.runners.randomwalk &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/runners/randomwalk.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.runners.randomwalk</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;The random walk dynamics runner.</span>
+
+<span class="sd">In this system, the state of the walkers is defined as an</span>
+<span class="sd">N-dimensional vector of non-negative values. The walkers start at</span>
+<span class="sd">position zero (in N-dimensional space) and randomly move a step either</span>
+<span class="sd">forward or backward with the given probabilities. This is done in each</span>
+<span class="sd">dimension at each dynamic step. All moves that result in a negative</span>
+<span class="sd">position are rejected.</span>
+
+<span class="sd">One potentioanl use of the random walk system is to test the</span>
+<span class="sd">performance of differnt resamplers as seen in these papers:</span>
+
+<span class="sd">&quot;WExplore: Hierarchical Exploration of High-Dimensional Spaces</span>
+<span class="sd">Using the Weighted Ensemble Algorithm&quot; and</span>
+<span class="sd">&quot;REVO: Resampling of Ensembles by Variation Optimization&quot;.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">random</span> <span class="k">as</span> <span class="nn">rand</span>
+
+<span class="c1"># Third Party Library</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">pint</span> <span class="kn">import</span> <span class="n">UnitRegistry</span>
+
+<span class="c1"># First Party Library</span>
+<span class="kn">from</span> <span class="nn">wepy.runners.runner</span> <span class="kn">import</span> <span class="n">Runner</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span><span class="p">,</span> <span class="n">WalkerState</span>
+
+<span class="n">units</span> <span class="o">=</span> <span class="n">UnitRegistry</span><span class="p">()</span>
+
+<span class="c1"># the names of the units. We pass them through pint just to validate</span>
+<span class="c1"># them</span>
+<span class="n">UNIT_NAMES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="p">(</span><span class="s2">&quot;positions_unit&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">(</span><span class="s2">&quot;microsecond&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">units</span><span class="p">)),</span>
+    <span class="p">(</span><span class="s2">&quot;time_unit&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">units</span><span class="p">(</span><span class="s2">&quot;picosecond&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">units</span><span class="p">)),</span>
+<span class="p">)</span>
+
+<span class="sd">&quot;&quot;&quot;Mapping of units identifiers to the corresponding pint units.&quot;&quot;&quot;</span>
+
+
+<div class="viewcode-block" id="RandomWalkRunner">
+<a class="viewcode-back" href="../../../_api/wepy.runners.randomwalk.html#wepy.runners.randomwalk.RandomWalkRunner">[docs]</a>
+<span class="k">class</span> <span class="nc">RandomWalkRunner</span><span class="p">(</span><span class="n">Runner</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;RandomWalk runner for random walk simulations.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">probability</span><span class="o">=</span><span class="mf">0.25</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor for RandomWalkRunner.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        probabilty : float</span>
+<span class="sd">            &quot;Probability&quot; is defined here as the forward-move</span>
+<span class="sd">             probability only. The backward-move probability is</span>
+<span class="sd">             1-probability.(Default = 0.25)</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_probability</span> <span class="o">=</span> <span class="n">probability</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">probability</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The probability of forward-move in an N-dimensional space&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_probability</span>
+
+<div class="viewcode-block" id="RandomWalkRunner._walk">
+<a class="viewcode-back" href="../../../_api/wepy.runners.randomwalk.html#wepy.runners.randomwalk.RandomWalkRunner._walk">[docs]</a>
+    <span class="k">def</span> <span class="nf">_walk</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">positions</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Run dynamics for the RandomWalk system for one step.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        positions : arraylike of shape (1, dimension)</span>
+<span class="sd">            Current position of the walker.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_positions : arraylike of shape (1, dimension)</span>
+<span class="sd">            The positions of the walker after one dynamic step.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make the deep copy of current posiotion</span>
+        <span class="n">new_positions</span> <span class="o">=</span> <span class="n">positions</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+
+        <span class="c1"># get the dimension of the random walk space</span>
+        <span class="n">dimension</span> <span class="o">=</span> <span class="n">new_positions</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+        <span class="c1"># iterates over each dimension</span>
+        <span class="k">for</span> <span class="n">dim_idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">dimension</span><span class="p">):</span>
+            <span class="c1"># Generates an uniform random number to choose between</span>
+            <span class="c1"># moving forward or backward.</span>
+            <span class="n">rand_num</span> <span class="o">=</span> <span class="n">rand</span><span class="o">.</span><span class="n">uniform</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+
+            <span class="c1"># make a forward movement</span>
+            <span class="k">if</span> <span class="n">rand_num</span> <span class="o">&lt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">probability</span><span class="p">:</span>
+                <span class="n">new_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">dim_idx</span><span class="p">]</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="c1"># make a backward movement</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">dim_idx</span><span class="p">]</span> <span class="o">-=</span> <span class="mi">1</span>
+
+            <span class="c1"># implement the boundary condition for movement, movements</span>
+            <span class="c1"># to -1 are rejected</span>
+            <span class="k">if</span> <span class="n">new_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">dim_idx</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">:</span>
+                <span class="n">new_positions</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">dim_idx</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+
+        <span class="k">return</span> <span class="n">new_positions</span></div>
+
+
+<div class="viewcode-block" id="RandomWalkRunner.run_segment">
+<a class="viewcode-back" href="../../../_api/wepy.runners.randomwalk.html#wepy.runners.randomwalk.RandomWalkRunner.run_segment">[docs]</a>
+    <span class="k">def</span> <span class="nf">run_segment</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">,</span> <span class="n">segment_length</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Runs a random walk simulation for the given number of steps.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+<span class="sd">            The walker for which dynamics will be propagated.</span>
+
+
+<span class="sd">        segment_length : int</span>
+<span class="sd">            The numerical value that specifies how much dynamical steps</span>
+<span class="sd">            are to be run.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_walker : object implementing the Walker interface</span>
+<span class="sd">            Walker after dynamics was run, only the state should be modified.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># Gets the current posiotion of RandomWalk Walker</span>
+        <span class="n">positions</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span>
+
+        <span class="c1"># Make movements for the segment_length steps</span>
+        <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">segment_length</span><span class="p">):</span>
+            <span class="c1"># calls walk function for one step movement</span>
+            <span class="n">new_positions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_walk</span><span class="p">(</span><span class="n">positions</span><span class="p">)</span>
+            <span class="n">positions</span> <span class="o">=</span> <span class="n">new_positions</span>
+
+        <span class="c1"># makes new state form new positions</span>
+        <span class="n">new_state</span> <span class="o">=</span> <span class="n">WalkerState</span><span class="p">(</span><span class="n">positions</span><span class="o">=</span><span class="n">new_positions</span><span class="p">,</span> <span class="n">time</span><span class="o">=</span><span class="mf">0.0</span><span class="p">)</span>
+
+        <span class="c1"># creates new_walker from new state and current weight</span>
+        <span class="n">new_walker</span> <span class="o">=</span> <span class="n">Walker</span><span class="p">(</span><span class="n">new_state</span><span class="p">,</span> <span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_walker</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

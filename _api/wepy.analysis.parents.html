@@ -42,8 +42,410 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-analysis-parents-module">
-<h1>wepy.analysis.parents module<a class="headerlink" href="#wepy-analysis-parents-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.analysis.parents">
+<span id="wepy-analysis-parents-module"></span><h1>wepy.analysis.parents module<a class="headerlink" href="#module-wepy.analysis.parents" title="Link to this heading">¶</a></h1>
+<p>Routines for converting resampling data to parental lineages.</p>
+<p>The core mechanism of weighted ensemble (WE) is to resample cohorts of
+parallel simulations. Principally this means ‘cloning’ and ‘merging’
+different walkers which gives rise to branching ‘family’ tree
+structures.</p>
+<p>The routines in this module are concerned with utilizing raw
+resampling records data from a resampler and extracting these lineages
+in useful easy to query structures.</p>
+<p>Cloning and merging is performed on a cohort of walkers at every
+cycle. A walker has both a state and weight. The state is related to
+the dynamical state such as the positions, velocities, etc. that
+describe the state of a simulation. The weight corresponds to the
+probability normalized with the other walkers of the cohort.</p>
+<p>An n-clone constitutes copying a state n times to n walkers with w/n
+weights where w is the weight of the cloned walker. The cloned walker
+is said to be the parent of the new child walkers.</p>
+<p>An k-merge constitutes combining k walkers into a single walker with a
+weight that is the sum of all k walkers. The state of this walker is
+chosen by sampling from the discrete distribution of the k
+walkers. The walker that has it’s state chosen to persist is referred
+to as the ‘kept’ walker and the other walkers are said to be
+‘squashed’, as they are compressed into a single walker, preserving
+their weight but not their state. Squashed walkers are leaves of the
+tree and leave no children. The kept walker and walkers for which no
+cloning or merging was performed will have a single child.</p>
+<section id="routines">
+<h2>Routines<a class="headerlink" href="#routines" title="Link to this heading">¶</a></h2>
+<dl class="simple">
+<dt>resampling_panel<span class="classifier">Compiles an unordered collection of resampling records</span></dt><dd><p>into a structured array of records.</p>
+</dd>
+<dt>parent_panel<span class="classifier">Using a parental relationship reduce the records in a</span></dt><dd><p>resampling panel to a structured array of parent indices.</p>
+</dd>
+<dt>net_parent_table<span class="classifier">Reduce the full parent panel (with multiple steps</span></dt><dd><p>per cycle) to the net results of resampling per cycle.</p>
+</dd>
+<dt>parent_table_discontinuties<span class="classifier">Using an interpretation of warping</span></dt><dd><p>records assigns a special value in a parent table for
+discontinuous warping events.</p>
+</dd>
+<dt>ancestors<span class="classifier">Generate the lineage trace of a given walker back through</span></dt><dd><p>history. This is used to get logically contiguous trajectories from
+walker slot trajectories (not necessarily contiguous in storage).</p>
+</dd>
+<dt>sliding_window<span class="classifier">Generate non-redundant sliding window traces over the</span></dt><dd><p>parent forest (tree) imposed over a parent table.</p>
+</dd>
+<dt>ParentForest<span class="classifier">Class that imposes the forest (tree) structure over the</span></dt><dd><p>parent table. Valid for a single contig in the contig tree (forest).</p>
+</dd>
+</dl>
+</section>
+<dl class="py data">
+<dt class="sig sig-object py" id="wepy.analysis.parents.DISCONTINUITY_VALUE">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">DISCONTINUITY_VALUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1</span></em><a class="headerlink" href="#wepy.analysis.parents.DISCONTINUITY_VALUE" title="Link to this definition">¶</a></dt>
+<dd><p>Special value used to determine if a parent-child relationship has
+discontinuous dynamical continuity. Functions in this module uses this
+to set this value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.resampling_panel">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">resampling_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resampling_records</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_sorted</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#resampling_panel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.resampling_panel" title="Link to this definition">¶</a></dt>
+<dd><p>Converts an unordered collection of resampling records into a
+structured array (lists) corresponding to cycles and resampling
+steps within cycles.</p>
+<p>It is like doing a pivot on the step indices into an extra
+dimension. Hence it can be thought of as a list of tables indexed
+by the cycle, hence the name panel.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>resampling_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>nametuple records</em>) – A list of resampling records.</p></li>
+<li><p><strong>is_sorted</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – If this is True it will be assumed that the resampling_records
+are presorted, otherwise they will be sorted.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>resampling_panel</strong> – The panel (list of tables) of resampling records in order
+(cycle, step, walker)</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of namedtuple records</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.parent_panel">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">parent_panel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">decision_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_panel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#parent_panel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.parent_panel" title="Link to this definition">¶</a></dt>
+<dd><p>Using the parental interpretation of resampling records given by
+the decision_class, convert resampling records in a resampling
+panel to parent indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>decision_class</strong> (<em>class implementing Decision interface</em>) – The class that interprets resampling records for parental relationships.</p></li>
+<li><p><strong>resampling_panel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>namedtuple records</em>) – Panel of resampling records.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>parent_panel</strong> – A structured list of the same for as the resampling panel,
+with parent indices swapped for resampling records.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.net_parent_table">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">net_parent_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_panel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#net_parent_table"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.net_parent_table" title="Link to this definition">¶</a></dt>
+<dd><p>Reduces a full parent panel to get parent indices on a cycle basis.</p>
+<p>The full parent panel has parent indices for every step in each
+cycle. This computes the net parent relationships for each cycle,
+thus reducing the list of tables (panel) to a single table. A
+table need not have the same length rows, i.e. a ragged array,
+since there can be different numbers of walkers each cycle.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>parent_panel</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The full panel of parent relationships.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>parent_table</strong> – Net parent relationships for each cycle.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.parent_table_discontinuities">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">parent_table_discontinuities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">boundary_condition_class</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warping_records</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#parent_table_discontinuities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.parent_table_discontinuities" title="Link to this definition">¶</a></dt>
+<dd><p>Given a parent table and warping records returns a new parent table
+with the discontinuous warping events for parents set to a special
+value (-1).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>boundary_condition_class</strong> (<em>class implementing BoundaryCondition interface</em>) – The boundary condition class that interprets warping
+records for if they are discontinuous or not.</p></li>
+<li><p><strong>parent_table</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>warping_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>namedtuple records</em>) – The unordered collection of warping events from the simulation.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>parent_table</strong> – Same shape as input parent_table but with discontinuous
+relationships inserted as -1.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.parent_cycle_discontinuities">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">parent_cycle_discontinuities</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_idxs</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">discontinuities</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#parent_cycle_discontinuities"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.parent_cycle_discontinuities" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ancestors">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">ancestors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">walker_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ancestor_cycle</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ancestors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ancestors" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the lineage of ancestors as walker indices leading up to
+the given walker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_table</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Cycle of walker to query.</p></li>
+<li><p><strong>walker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Walker index in to query along with cycle_idx.</p></li>
+<li><p><strong>ancestor_cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Index of cycle in history to go back to. Must be less than cycle_idx.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>ancestor_trace</strong> – Contig walker trace of the ancestors leading up to the queried walker.
+The contig is sequence of cycles in the parent table.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of tuples of ints (traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.analysis.parents.sliding_window">
+<span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">sliding_window</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parent_table</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_length</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#sliding_window"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.sliding_window" title="Link to this definition">¶</a></dt>
+<dd><p>Return contig walker traces of sliding windows of given length over
+the parent forest imposed over the contig given by the parent table.</p>
+<p>Windows are given in no particular order and are nonredundant for
+trees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>parent_table</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Parent table defining parent relationships and contig.</p></li>
+<li><p><strong>window_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Length of window to use. Must be greater than 1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>windows</strong> – List of contig walker traces.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of tuples of ints (traj_idx, cycle_idx)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.analysis.parents.</span></span><span class="sig-name descname"><span class="pre">ParentForest</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">contig</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_table</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>A tree abstraction to a contig representing the family trees of walkers.</p>
+<p>Uses a directed graph (networkx.DiGraph) to represent parent-child
+relationships; i.e. for edge (A, B) node A is a parent of node B.</p>
+<p>Constructs a parent forest from either a Contig object or parent table.</p>
+<p>Either a contig or parent_table must be given but not both.</p>
+<p>The underlying data structure used is a parent table. However,
+if a contig is given a reference to it will be kept.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>contig</strong> (<em>Conting object</em><em>, </em><em>optional conditional on parent_table</em>)</p></li>
+<li><p><strong>parent_table</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional conditional on contig</em>) – Must not contain the discontinuity values. If you want to
+include metadata on discontinuities use the contig input
+which is preferrable.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#ValueError" title="(in Python v3.13)"><strong>ValueError</strong></a> – If neither parent_table nor contig is given, or if both are given.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.WEIGHT">
+<span class="sig-name descname"><span class="pre">WEIGHT</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'weight'</span></em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.WEIGHT" title="Link to this definition">¶</a></dt>
+<dd><p>Key for weight node attribute.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.FREE_ENERGY">
+<span class="sig-name descname"><span class="pre">FREE_ENERGY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'free_energy'</span></em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.FREE_ENERGY" title="Link to this definition">¶</a></dt>
+<dd><p>Key for free energy node attribute.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.ROOT_CYCLE_IDX">
+<span class="sig-name descname"><span class="pre">ROOT_CYCLE_IDX</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1</span></em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.ROOT_CYCLE_IDX" title="Link to this definition">¶</a></dt>
+<dd><p>Special value for the root nodes cycle indices which the initial
+conditions of the simulation</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.DISCONTINUITY_VALUE">
+<span class="sig-name descname"><span class="pre">DISCONTINUITY_VALUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">-1</span></em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.DISCONTINUITY_VALUE" title="Link to this definition">¶</a></dt>
+<dd><p>Special value used to determine if a parent-child relationship has
+discontinuous dynamical continuity. This class tests for this
+value in the parent table.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.CONTINUITY_VALUE">
+<span class="sig-name descname"><span class="pre">CONTINUITY_VALUE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wepy.analysis.parents.ParentForest.CONTINUITY_VALUE" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest._make_child_parent_edges">
+<span class="sig-name descname"><span class="pre">_make_child_parent_edges</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parent_idxs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest._make_child_parent_edges"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest._make_child_parent_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Generate edge_ids and edge attributes for an array of parent indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>step_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Index of step, just sets the value to put into the node_ids</p></li>
+<li><p><strong>parent_idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – For element i in this list, the value j is the index of
+the child in slot i in step_idx+1. Thus j must be
+between 0 and len(parent_idxs)-1.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>edges</strong> (<em>list of 2-tuple of node_id</em>)</p></li>
+<li><p><strong>edge_attributes</strong> (<em>list of dict</em>)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.contig">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">contig</span></span><a class="headerlink" href="#wepy.analysis.parents.ParentForest.contig" title="Link to this definition">¶</a></dt>
+<dd><p>Underlying contig if given during construction.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.parent_table">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parent_table</span></span><a class="headerlink" href="#wepy.analysis.parents.ParentForest.parent_table" title="Link to this definition">¶</a></dt>
+<dd><p>Underlying parent table data structure.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.graph">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">graph</span></span><a class="headerlink" href="#wepy.analysis.parents.ParentForest.graph" title="Link to this definition">¶</a></dt>
+<dd><p>Underlying networkx.DiGraph object.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.roots">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">roots</span></span><a class="headerlink" href="#wepy.analysis.parents.ParentForest.roots" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the roots of all the trees in this forest.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.trees">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">trees</span></span><a class="headerlink" href="#wepy.analysis.parents.ParentForest.trees" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of the subtrees from each root in this forest. In no particular order</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.n_steps">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">n_steps</span></span><a class="headerlink" href="#wepy.analysis.parents.ParentForest.n_steps" title="Link to this definition">¶</a></dt>
+<dd><p>Number of steps of resampling in the parent forest.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.step">
+<span class="sig-name descname"><span class="pre">step</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.step"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.step" title="Link to this definition">¶</a></dt>
+<dd><p>Get the nodes at the step (level of the tree).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>nodes</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.steps">
+<span class="sig-name descname"><span class="pre">steps</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.steps"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.steps" title="Link to this definition">¶</a></dt>
+<dd><p>Returns the nodes ordered by the step and walker indices.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>node_steps</strong></p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.walker">
+<span class="sig-name descname"><span class="pre">walker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker_idx</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.walker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.walker" title="Link to this definition">¶</a></dt>
+<dd><p>Get the nodes for this walker for the whole tree.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>walker_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>nodes</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of node_id</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.set_node_attributes">
+<span class="sig-name descname"><span class="pre">set_node_attributes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_attribute_dict</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.set_node_attributes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.set_node_attributes" title="Link to this definition">¶</a></dt>
+<dd><p>Set attributes for all nodes for a single key.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Key to set for a node attribute.</p></li>
+<li><p><strong>node_attribute_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>node_id: value</em>) – Dictionary mapping nodes to the values that will be set
+for the attribute_key.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.analysis.parents.ParentForest.set_attrs_by_array">
+<span class="sig-name descname"><span class="pre">set_attrs_by_array</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attribute_key</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/analysis/parents.html#ParentForest.set_attrs_by_array"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.analysis.parents.ParentForest.set_attrs_by_array" title="Link to this definition">¶</a></dt>
+<dd><p>Set node attributes on a stepwise basis using structural indices.</p>
+<p>Expects a array/list that is n_steps long and has the
+appropriate number of values for the number of walkers at each
+step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>attribute_key</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – Key to set for a node attribute.</p></li>
+<li><p><strong>values</strong> (<em>array_like</em><em> of </em><em>dim</em><em> (</em><em>n_steps</em><em>, </em><em>n_walkers</em><em>) or </em><em>list of</em>) – list of values.
+Either an array_like if there is a constant number of
+walkers or a list of lists of the values.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

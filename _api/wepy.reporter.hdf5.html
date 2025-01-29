@@ -42,8 +42,387 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-reporter-hdf5-module">
-<h1>wepy.reporter.hdf5 module<a class="headerlink" href="#wepy-reporter-hdf5-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.reporter.hdf5">
+<span id="wepy-reporter-hdf5-module"></span><h1>wepy.reporter.hdf5 module<a class="headerlink" href="#module-wepy.reporter.hdf5" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.reporter.hdf5.</span></span><span class="sig-name descname"><span class="pre">WepyHDF5Reporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">topology</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">units</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_shapes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">feature_dtypes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_dims</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">main_rep_idxs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">all_atoms_rep_freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alt_reps</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampler</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">boundary_conditions</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decision_enum_dict</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampler_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warping_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc_fields</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampler_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warping_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_records</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">swmr_mode</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.reporter.reporter.html#wepy.reporter.reporter.FileReporter" title="wepy.reporter.reporter.FileReporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">FileReporter</span></code></a></p>
+<p>Reporter for generating an HDF5 format (WepyHDF5) data file from
+simulations.</p>
+<p>This is the most important reporter as it is the principle output
+format for storing weighted ensemble simulation data.</p>
+<p>Files generated with this reporter can be opened using the
+wepy.hdf5.WepyHDF5 class.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference internal" href="wepy.hdf5.html#wepy.hdf5.WepyHDF5" title="wepy.hdf5.WepyHDF5"><code class="xref py py-obj docutils literal notranslate"><span class="pre">wepy.hdf5.WepyHDF5</span></code></a></p>
+</div>
+<p>Constructor for the WepyHDF5Reporter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>save_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>default: None</em>) – A selection of fields from the walker states to be
+stored. Allows for the ignoring of some states. If None all
+fields from states will attempted to be saved.</p></li>
+<li><p><strong>topology</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – JSON string representing topology of system being simulated.</p></li>
+<li><p><strong>units</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str: str</em><em>, </em><em>optional</em>) – Mapping of trajectory field names to string specs
+for units.</p></li>
+<li><p><strong>sparse_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – List of trajectory fields that should be initialized as sparse.</p></li>
+<li><p><strong>feature_shapes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str: shape_spec</em><em>, </em><em>optional</em>) – Mapping of trajectory fields to their shape spec for initialization.</p></li>
+<li><p><strong>feature_dtypes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str: dtype_spec</em><em>, </em><em>optional</em>) – Mapping of trajectory fields to their shape spec for initialization.</p></li>
+<li><p><strong>n_dims</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>default: 3</em>) – Set the number of spatial dimensions for the default
+positions trajectory field.</p></li>
+<li><p><strong>alt_reps</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str: tuple</em><em> of </em><em>(</em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>)</em><em>, </em><em>optional</em>) – Specifies that there will be ‘alt_reps’ of positions each
+named by the keys of this mapping and containing the
+indices in each value list as the first value of the tuple
+and the second value being the frequency at which this
+field gets saved. Setting <cite>all_atoms_rep_freq</cite> is the
+equivalent of setting an entry {‘all_atoms’ : ([…],
+<cite>all_atoms_rep_freq</cite>)}.</p></li>
+<li><p><strong>main_rep_idxs</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The indices of atom positions to save as the main ‘positions’
+trajectory field. Defaults to all atoms.</p></li>
+<li><p><strong>all_atoms_rep_freq</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em>, </em><em>optional</em>) – The frequency at which to set an ‘alt_rep’ for all of the
+atoms in a simulation. Will be set as the field
+‘alt_rep/all_atoms’.</p></li>
+<li><p><strong>resampler</strong> (<em>Resampler object</em><em>, </em><em>optional but recommended</em>) – The resampler being used for the simulation. Is used as a
+convenient container for a variety of constants needed for
+specifying data for the resampling records. If this is not
+given then these of the Other Parameters below must be
+specified manually: resampling_fields, decision_enum_dict,
+resampler_fields, resampling_records, resampler_records.</p></li>
+<li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em><em>, </em><em>optional but recommended</em>) – The boundary conditions being used for the simulation. Is
+used as a convenient container for a variety of constants
+needed for specifying data for the warping and progress
+records. If this is not given then these of the Other
+Parameters below must be specified manually:
+warping_fields, progress_fields, bc_fields,
+warping_records, bc_records, progress_records</p></li>
+<li><p><strong>swmr_mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)"><em>bool</em></a>) – Whether to write to open the HDF5 in single-writer
+multi-reader (SWMR) mode.</p></li>
+<li><p><strong>resampling_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The names of the fields for resampling records</p></li>
+<li><p><strong>decision_enum_dict</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : int</em>) – Mapping of the names of resampling decision enum to their
+integer values.</p></li>
+<li><p><strong>resampler_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The names of the fields for the resampler records</p></li>
+<li><p><strong>warping_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The names of the fields for the warping records</p></li>
+<li><p><strong>progress_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The names of the fields for the progress records</p></li>
+<li><p><strong>bc_fields</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The names of the fields for the bounadry condition records.</p></li>
+<li><p><strong>resampling_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Names of the resampling_fields that will be used in
+table-like views.</p></li>
+<li><p><strong>resampler_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Names of the resampler_fields that will be used in
+table-like views.</p></li>
+<li><p><strong>warping_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Names of the warping_fields that will be used in
+table-like views.</p></li>
+<li><p><strong>bc_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Names of the bc_fields that will be used in table-like
+views.</p></li>
+<li><p><strong>progress_records</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a><em>, </em><em>optional</em>) – Names of the progress_fields that will be used in
+table-like views.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.ALL_ATOMS_REP_KEY">
+<span class="sig-name descname"><span class="pre">ALL_ATOMS_REP_KEY</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'all_atoms'</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.ALL_ATOMS_REP_KEY" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.FILE_ORDER">
+<span class="sig-name descname"><span class="pre">FILE_ORDER</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('wepy_hdf5_path',)</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.FILE_ORDER" title="Link to this definition">¶</a></dt>
+<dd><p>Specify an ordering of file paths. Should be customized.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.SUGGESTED_EXTENSIONS">
+<span class="sig-name descname"><span class="pre">SUGGESTED_EXTENSIONS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('wepy.h5',)</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.SUGGESTED_EXTENSIONS" title="Link to this definition">¶</a></dt>
+<dd><p>Suggested extensions for file paths for use with the automatic
+reparametrization feature. Should be customized.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.DEFAULT_MODE">
+<span class="sig-name descname"><span class="pre">DEFAULT_MODE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'x'</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.DEFAULT_MODE" title="Link to this definition">¶</a></dt>
+<dd><p>The default mode to set for opening files if none is specified
+(create if doesn’t exist, fail if it does.)</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.DEFAULT_SUGGESTED_EXTENSION">
+<span class="sig-name descname"><span class="pre">DEFAULT_SUGGESTED_EXTENSION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'report'</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.DEFAULT_SUGGESTED_EXTENSION" title="Link to this definition">¶</a></dt>
+<dd><p>The default file extension used for files during dynamic
+reparametrization, if none is specified</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.MODES">
+<span class="sig-name descname"><span class="pre">MODES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('x',</span> <span class="pre">'w',</span> <span class="pre">'w-',</span> <span class="pre">'r',</span> <span class="pre">'r+')</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.MODES" title="Link to this definition">¶</a></dt>
+<dd><p>Valid modes accepted for files.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.SUGGESTED_FILENAME_TEMPLATE">
+<span class="sig-name descname"><span class="pre">SUGGESTED_FILENAME_TEMPLATE</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'{config}{narration}{reporter_class}.{ext}'</span></em><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.SUGGESTED_FILENAME_TEMPLATE" title="Link to this definition">¶</a></dt>
+<dd><p>Template to use for dynamic reparametrization of file path names.</p>
+<p>The fields in the template are:</p>
+<p>config : indicator of the runtime configuration used</p>
+<p>narration : freeform description of the instance</p>
+<dl class="simple">
+<dt>reporter_class<span class="classifier">the name of the class that produced the</span></dt><dd><p>output. When no specific name is given for a file report generated
+from a reporter this is used to disambiguate, along with the
+extension.</p>
+</dd>
+</dl>
+<p>ext : The file extension, for multiple files produced from one
+reporter this should be sufficient to disambiguate the files.</p>
+<p>The ‘config’ and ‘narration’ should be the same across all
+reporters in the same simulation manager, and the ‘narration’ is
+considered optional.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter._validate_mode">
+<span class="sig-name descname"><span class="pre">_validate_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter._validate_mode" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the mode spec is a valid one.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>valid</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.file_path">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">file_path</span></span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.file_path" title="Link to this definition">¶</a></dt>
+<dd><p>For single file path reporters the file path to that file spec.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.file_paths">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">file_paths</span></span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.file_paths" title="Link to this definition">¶</a></dt>
+<dd><p>The file paths for this reporter, in order.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.mode">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">mode</span></span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.mode" title="Link to this definition">¶</a></dt>
+<dd><p>For single file path reporters the mode of that file.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.modes">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">modes</span></span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.modes" title="Link to this definition">¶</a></dt>
+<dd><p>The modes for the files, in order.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.reparametrize">
+<span class="sig-name descname"><span class="pre">reparametrize</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_paths</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">modes</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.reparametrize" title="Link to this definition">¶</a></dt>
+<dd><p>Set the file paths and modes for all files in the reporter.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_paths</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – New file paths for each file, in order.</p></li>
+<li><p><strong>modes</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – New modes for each file, in order.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.set_mode">
+<span class="sig-name descname"><span class="pre">set_mode</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mode</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.set_mode" title="Link to this definition">¶</a></dt>
+<dd><p>Set the mode for a single indexed file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Index in the listing of files.</p></li>
+<li><p><strong>mode</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The new mode spec.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.set_path">
+<span class="sig-name descname"><span class="pre">set_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.set_path" title="Link to this definition">¶</a></dt>
+<dd><p>Set the path for a single indexed file.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>file_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – Index in the listing of files.</p></li>
+<li><p><strong>path</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#str" title="(in Python v3.13)"><em>str</em></a>) – The new path to set for this file</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">continue_run</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">init_walkers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.init" title="Link to this definition">¶</a></dt>
+<dd><p>Initialization routines for the reporter at simulation runtime.</p>
+<p>Initialize I/O connections including file descriptors,
+database connections, timers, stdout/stderr etc.</p>
+<p>Void method for reporter base class.</p>
+<p>Reporters can expect to have the following key word arguments
+passed to them during a simulation by the sim_manager in this
+call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – The initial walkers for the simulation.</p></li>
+<li><p><strong>runner</strong> (<em>Runner object</em>) – The runner that will be used in the simulation.</p></li>
+<li><p><strong>resampler</strong> (<em>Resampler object</em>) – The resampler that will be used in the simulation.</p></li>
+<li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em>) – The boundary conditions taht will be used in the simulation.</p></li>
+<li><p><strong>work_mapper</strong> (<em>WorkMapper object</em>) – The work mapper that will be used in the simulation.</p></li>
+<li><p><strong>reporters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Reporter objects</em>) – The list of reporters that are in the simulation.</p></li>
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The index of the run that is being continued within this
+same file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter.cleanup"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Teardown routines for the reporter at the end of the simulation.</p>
+<p>Use to cleanly and safely close I/O connections or other
+cleanup I/O.</p>
+<p>Use to close file descriptors, database connections etc.</p>
+<p>Reporters can expect to have the following key word arguments
+passed to them during a simulation by the sim_manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>runner</strong> (<em>Runner object</em>) – The runner at the end of the simulation</p></li>
+<li><p><strong>work_mapper</strong> (<em>WorkeMapper object</em>) – The work mapper at the end of the simulation</p></li>
+<li><p><strong>resampler</strong> (<em>Resampler object</em>) – The resampler at the end of the simulation</p></li>
+<li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em>) – The boundary conditions at the end of the simulation</p></li>
+<li><p><strong>reporters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Reporter objects</em>) – The list of reporters at the end of the simulation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_walkers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warp_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampler_data</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter.report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter.report" title="Link to this definition">¶</a></dt>
+<dd><p>Given data concerning the main simulation components state, perform
+I/O operations to persist that data.</p>
+<p>Void method for reporter base class.</p>
+<p>Reporters can expect to have the following key word arguments
+passed to them during a simulation by the sim_manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>new_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – List of walkers that were produced from running their
+dynamics by the runner.</p></li>
+<li><p><strong>warp_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of dict-like records for each warping event from the
+last cycle.</p></li>
+<li><p><strong>bc_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of dict-like records specifying the changes to the
+state of the boundary conditions in the last cycle.</p></li>
+<li><p><strong>progress_data</strong> (<em>dict str : list</em>) – A record indicating the progress values for each walker in
+the last cycle.</p></li>
+<li><p><strong>resampling_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of records specifying the resampling to occur at this
+cycle.</p></li>
+<li><p><strong>resampler_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of records specifying the changes to the state of the
+resampler in the last cycle.</p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
+<li><p><strong>worker_segment_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>int : list</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Mapping worker index to the times they took for each
+segment they processed.</p></li>
+<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
+<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
+<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
+<li><p><strong>resampled_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – List of walkers that were produced from the new_walkers
+from applying resampling and boundary conditions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter._report_warping">
+<span class="sig-name descname"><span class="pre">_report_warping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warping_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter._report_warping"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter._report_warping" title="Link to this definition">¶</a></dt>
+<dd><p>Method to write warping specific information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>warp_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of dict-like records for each warping event from the
+last cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter._report_bc">
+<span class="sig-name descname"><span class="pre">_report_bc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bc_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter._report_bc"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter._report_bc" title="Link to this definition">¶</a></dt>
+<dd><p>Method to write boundary condition update specific information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>bc_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of dict-like records specifying the changes to the
+state of the boundary conditions in the last cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter._report_resampler">
+<span class="sig-name descname"><span class="pre">_report_resampler</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampler_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter._report_resampler"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter._report_resampler" title="Link to this definition">¶</a></dt>
+<dd><p>Method to write resampler update specific information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>resampler_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of records specifying the changes to the state of the
+resampler in the last cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter._report_resampling">
+<span class="sig-name descname"><span class="pre">_report_resampling</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">resampling_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter._report_resampling"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter._report_resampling" title="Link to this definition">¶</a></dt>
+<dd><p>Method to write resampling specific information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>resampling_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of records specifying the resampling to occur at this
+cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.hdf5.WepyHDF5Reporter._report_progress">
+<span class="sig-name descname"><span class="pre">_report_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_data</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/hdf5.html#WepyHDF5Reporter._report_progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.hdf5.WepyHDF5Reporter._report_progress" title="Link to this definition">¶</a></dt>
+<dd><p>Method to write progress specific information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>progress_data</strong> (<em>dict str : list</em>) – A record indicating the progress values for each walker in
+the last cycle.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

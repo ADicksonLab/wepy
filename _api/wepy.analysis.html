@@ -42,8 +42,45 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-analysis-package">
-<h1>wepy.analysis package<a class="headerlink" href="#wepy-analysis-package" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.analysis">
+<span id="wepy-analysis-package"></span><h1>wepy.analysis package<a class="headerlink" href="#module-wepy.analysis" title="Link to this heading">¶</a></h1>
+<p>Analysis tools for wepy datasets.</p>
+<p>Analysis of weighted ensemble (WE) datasets are complicated by their
+nonlinear branching structure, and thus in its raw form cannot be
+analyzed by the tools available for linear trajectories. See the
+documentation (TODO: link) for a more in depth explanation of the
+general structure of weighted ensemble data.</p>
+<p>These analysis modules do not aim to redo any particular analysis
+calculation but rather to aid in accessing, summarizing, and
+manipulating branched simulation data.</p>
+<p>The starting point for this is the <cite>ContigTree</cite> class in the
+<cite>contig_tree</cite> module. This is a general purpose container that
+combines the data specifying the branching structure with the
+underlying linear data structures. It is necessary for branched data
+but can also be used for collections of linear data as well.</p>
+<p>The main anlaysis routines we attempt to facilitate are:</p>
+<ol class="arabic simple">
+<li><p>Generating probability histograms over calculated
+observables. (TODO)</p></li>
+<li><p>Generating contiguous trajectories of walkers that have reached
+target boundary conditions (TODO).</p></li>
+<li><p>Visualizing the cloning and merging history of simulations
+(i.e. resampling trees) using the <cite>parents</cite> module and
+<cite>network_layouts</cite>.</p></li>
+<li><p>Generating ‘state networks’ from frame labels and computing
+transition matrices with variable lag times using the <cite>network</cite> and
+<cite>transitions</cite> modules.</p></li>
+</ol>
+<p>To calculate observables on the dataset you need to work directly with
+the data storage API in the <cite>wepy.hdf5.WepyHDF5</cite> module using the
+<cite>compute_observable</cite> method.</p>
+<div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="https://docs.python.org/3/library/constants.html#None" title="(in Python v3.13)"><code class="xref py py-obj docutils literal notranslate"><span class="pre">None</span></code></a></p>
+</div>
+<p class="rubric">Notes</p>
+<p class="rubric">References</p>
+<p class="rubric">Examples</p>
 <section id="subpackages">
 <h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">¶</a></h2>
 <div class="toctree-wrapper compound">

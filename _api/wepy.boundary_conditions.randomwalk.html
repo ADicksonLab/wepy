@@ -42,8 +42,502 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-boundary-conditions-randomwalk-module">
-<h1>wepy.boundary_conditions.randomwalk module<a class="headerlink" href="#wepy-boundary-conditions-randomwalk-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.boundary_conditions.randomwalk">
+<span id="wepy-boundary-conditions-randomwalk-module"></span><h1>wepy.boundary_conditions.randomwalk module<a class="headerlink" href="#module-wepy.boundary_conditions.randomwalk" title="Link to this heading">¶</a></h1>
+<p>Boundary conditions for random walk.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.boundary_conditions.randomwalk.</span></span><span class="sig-name descname"><span class="pre">RandomWalkBC</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_states</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">initial_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/randomwalk.html#RandomWalkBC"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC" title="wepy.boundary_conditions.boundary.WarpBC"><code class="xref py py-class docutils literal notranslate"><span class="pre">WarpBC</span></code></a></p>
+<p>Boundary condition for a random walk simulation with warping
+controlled by the sum of walker positions crossing a threshold.</p>
+<p>Implements the WarpBC superclass.</p>
+<p>This boundary condition will warp walkers to a number of initial
+states whenever a walker crosses the threshold distance from the
+origin.</p>
+<p>Constructor for RandomWalkBC.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>threshold</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The threshold distance for recording a warping event.</p></li>
+<li><p><strong>initial_states</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>objects implementing the State interface</em>) – The list of possible states that warped walkers will assume.</p></li>
+<li><p><strong>initial_weights</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em>, </em><em>optional</em>) – List of normalized probabilities of the initial_states
+provided. If not given, uniform probabilities will be
+used.</p></li>
+<li><p><strong>ligand_idxs</strong> (<em>arraylike</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The indices of the atom positions in the state considered
+the ligand.</p></li>
+<li><p><strong>binding_site_idxs</strong> (<em>arraylike</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The indices of the atom positions in the state considered
+the binding site.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Raises<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/exceptions.html#AssertionError" title="(in Python v3.13)"><strong>AssertionError</strong></a> – If any of the following kwargs are not given:
+    threshold, initial_states.</p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_FIELDS">
+<span class="sig-name descname"><span class="pre">BC_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('threshold_distance',)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Boundary condition (BC) records are typically used to report on
+changes to the state of the BC object.</p>
+<p class="rubric">Notes</p>
+<p>These fields are not critical to the proper functioning of the
+rest of the wepy framework and can be modified freely.</p>
+<p>However, reporters specific to this boundary condition probably
+will make use of these records.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_SHAPES">
+<span class="sig-name descname"><span class="pre">BC_SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((1,),)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_SHAPES" title="Link to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_DTYPES">
+<span class="sig-name descname"><span class="pre">BC_DTYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'int'&gt;,)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_DTYPES" title="Link to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_FIELDS">
+<span class="sig-name descname"><span class="pre">WARPING_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('walker_idx',</span> <span class="pre">'target_idx',</span> <span class="pre">'weight')</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Warping records are typically used to report whenever a walker
+satisfied the boundary conditions and was warped and had its
+state changed.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Be careful when modifying these fields as they may be integrated
+with other wepy framework features. Namely recognition of
+discontinuous warping events for making contiguous trajectories
+from cloning and merging lineages.</p>
+<p>The behavior of whether or not a warping event is discontinuous is
+given by a <cite>BoundaryCondition</cite> class’s <cite>warping_discontinuity</cite>
+which likely depends on the existence of particular fields.</p>
+</div>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_SHAPES">
+<span class="sig-name descname"><span class="pre">WARPING_SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((1,),</span> <span class="pre">(1,),</span> <span class="pre">(1,))</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_SHAPES" title="Link to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_DTYPES">
+<span class="sig-name descname"><span class="pre">WARPING_DTYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'float'&gt;)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_DTYPES" title="Link to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_RECORD_FIELDS">
+<span class="sig-name descname"><span class="pre">WARPING_RECORD_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('walker_idx',</span> <span class="pre">'target_idx',</span> <span class="pre">'weight')</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.WARPING_RECORD_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_FIELDS">
+<span class="sig-name descname"><span class="pre">PROGRESS_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('distance',)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>String names of fields produced in this record group.</p>
+<p>Progress records are typically used to report on measures of
+walkers at each cycle.</p>
+<p class="rubric">Notes</p>
+<p>These fields are not critical to the proper functioning of the
+rest of the wepy framework and can be modified freely.</p>
+<p>However, reporters specific to this boundary condition probably
+will make use of these records.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_SHAPES">
+<span class="sig-name descname"><span class="pre">PROGRESS_SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(Ellipsis,)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_SHAPES" title="Link to this definition">¶</a></dt>
+<dd><p>Numpy-style shapes of all fields produced in records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A tuple of ints that specify the shape of the field element
+array.</p></li>
+<li><p>Ellipsis, indicating that the field is variable length and
+limited to being a rank one array (e.g. (3,) or (1,)).</p></li>
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+<p>Note that the shapes must be tuple and not simple integers for rank-1
+arrays.</p>
+<p>Option B will result in the special h5py datatype ‘vlen’ and
+should not be used for large datasets for efficiency reasons.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_DTYPES">
+<span class="sig-name descname"><span class="pre">PROGRESS_DTYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'int'&gt;,)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_DTYPES" title="Link to this definition">¶</a></dt>
+<dd><p>Specifies the numpy dtypes to be used for records.</p>
+<p>There should be the same number of elements as there are in the
+corresponding ‘FIELDS’ class constant.</p>
+<p>Each entry should either be:</p>
+<ol class="upperalpha simple">
+<li><p>A <cite>numpy.dtype</cite> object.</p></li>
+</ol>
+<ol class="upperalpha simple" start="4">
+<li><p>None, indicating that the first instance of this field will not
+be known until runtime. Any field that is returned by a record
+producing method will automatically interpreted as None if not
+specified here.</p></li>
+</ol>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_RECORD_FIELDS">
+<span class="sig-name descname"><span class="pre">PROGRESS_RECORD_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('distance',)</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.PROGRESS_RECORD_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.threshold">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">threshold</span></span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.threshold" title="Link to this definition">¶</a></dt>
+<dd><p>The cutoff RMSD for considering a walker bound.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC._progress">
+<span class="sig-name descname"><span class="pre">_progress</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/boundary_conditions/randomwalk.html#RandomWalkBC._progress"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC._progress" title="Link to this definition">¶</a></dt>
+<dd><p>Calculate if the walker has bound and provide progress record.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>walker</strong> (<em>object implementing the Walker interface</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>is_bound</strong> (<em>bool</em>) – Whether the walker is unbound (warped) or not</p></li>
+<li><p><strong>progress_data</strong> (<em>dict of str : value</em>) – Dictionary of the progress record group fields
+for this walker alone.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_RECORD_FIELDS">
+<span class="sig-name descname"><span class="pre">BC_RECORD_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">()</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.BC_RECORD_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>Optional, names of fields to be selected for truncated
+representation of the record group.</p>
+<p>These entries should be strings that are previously contained in
+the ‘FIELDS’ class constant.</p>
+<p>While strictly no constraints on to which fields can be added here
+you should only choose those fields whose features could fit into
+a plaintext csv or similar format.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.DISCONTINUITY_TARGET_IDXS">
+<span class="sig-name descname"><span class="pre">DISCONTINUITY_TARGET_IDXS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">Ellipsis</span></em><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.DISCONTINUITY_TARGET_IDXS" title="Link to this definition">¶</a></dt>
+<dd><p>Specifies which ‘target_idxs’ values are considered discontinuous targets.</p>
+<p>Values are either integer indices, Ellipsis (indicating all
+possible values are discontinuous), or None indicating no possible
+value is discontinuous.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC._update_bc">
+<span class="sig-name descname"><span class="pre">_update_bc</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">new_walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warp_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC._update_bc" title="Link to this definition">¶</a></dt>
+<dd><p>Perform an update to the boundary conditions.</p>
+<p>No updates to the bc are ever done in this null
+implementation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>new_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>walkers</em>) – The walkers after warping.</p></li>
+<li><p><strong>warp_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>)</p></li>
+<li><p><strong>progress_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a>)</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>bc_data</strong> – The dictionary-style records for BC update events</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC._warp">
+<span class="sig-name descname"><span class="pre">_warp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC._warp" title="Link to this definition">¶</a></dt>
+<dd><p>Perform the warping of a walker.</p>
+<p>Chooses an initial state to replace the walker’s state with
+according to it’s given weight.</p>
+<p>Returns a walker of the same type and weight.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>walker</strong> (<em>object implementing the Walker interface</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>warped_walker</strong> (<em>object implementing the Walker interface</em>) – The walker with the state after the warping. Weight should
+be the same.</p></li>
+<li><p><strong>warping_data</strong> (<em>dict of str : value</em>) – The dictionary-style ‘WARPING’ record for this
+event. Excluding the walker index which is done in the main
+<cite>warp_walkers</cite> method.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_field_dtypes">
+<span class="sig-name descname"><span class="pre">bc_field_dtypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_field_dtypes" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_field_names">
+<span class="sig-name descname"><span class="pre">bc_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_field_shapes">
+<span class="sig-name descname"><span class="pre">bc_field_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_field_shapes" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_fields">
+<span class="sig-name descname"><span class="pre">bc_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_fields" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_record_field_names">
+<span class="sig-name descname"><span class="pre">bc_record_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.bc_record_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.initial_states">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_states</span></span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.initial_states" title="Link to this definition">¶</a></dt>
+<dd><p>The possible initial states warped walkers may assume.</p>
+</dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.initial_weights">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">initial_weights</span></span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.initial_weights" title="Link to this definition">¶</a></dt>
+<dd><p>The probabilities of each initial state being chosen during a warping.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_field_dtypes">
+<span class="sig-name descname"><span class="pre">progress_field_dtypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_field_dtypes" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_field_names">
+<span class="sig-name descname"><span class="pre">progress_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_field_shapes">
+<span class="sig-name descname"><span class="pre">progress_field_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_field_shapes" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_fields">
+<span class="sig-name descname"><span class="pre">progress_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_fields" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_record_field_names">
+<span class="sig-name descname"><span class="pre">progress_record_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.progress_record_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warp_walkers">
+<span class="sig-name descname"><span class="pre">warp_walkers</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cycle</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warp_walkers" title="Link to this definition">¶</a></dt>
+<dd><p>Test the progress of all the walkers, warp if required, and update
+the boundary conditions.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>objects implementing the Walker interface</em>)</p></li>
+<li><p><strong>cycle</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The index of the cycle.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>new_walkers</strong> (<em>list of objects implementing the Walker interface</em>) – The new set of walkers that may have been warped.</p></li>
+<li><p><strong>warp_data</strong> (<em>list of dict of str : value</em>) – The dictionary-style records for WARPING update events</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>bc_data<span class="classifier">list of dict of str</span><span class="classifier">value</span></dt><dd><p>The dictionary-style records for BC update events</p>
+</dd>
+<dt>progress_data<span class="classifier">dict of str</span><span class="classifier">arraylike</span></dt><dd><p>The dictionary-style records for PROGRESS update events</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_discontinuity">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">warping_discontinuity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">warping_record</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_discontinuity" title="Link to this definition">¶</a></dt>
+<dd><p>Tests whether a warping record generated by this class is
+discontinuous or not.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>warping_record</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)"><em>tuple</em></a>) – The WARPING type record.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>is_discontinuous</strong> – True if a discontinuous warp False if continuous.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#bool" title="(in Python v3.13)">bool</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_field_dtypes">
+<span class="sig-name descname"><span class="pre">warping_field_dtypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_field_dtypes" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level DTYPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_field_names">
+<span class="sig-name descname"><span class="pre">warping_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level FIELDS constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_field_shapes">
+<span class="sig-name descname"><span class="pre">warping_field_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_field_shapes" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level SHAPES constant for this record group.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_fields">
+<span class="sig-name descname"><span class="pre">warping_fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_fields" title="Link to this definition">¶</a></dt>
+<dd><p>Returns a list of zipped field specs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>record_specs</strong> – A list of the specs for each field, a spec is a tuple of
+type (field_name, shape_spec, dtype_spec)</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#tuple" title="(in Python v3.13)">tuple</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_record_field_names">
+<span class="sig-name descname"><span class="pre">warping_record_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.boundary_conditions.randomwalk.RandomWalkBC.warping_record_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Access the class level RECORD_FIELDS constant for this record group.</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

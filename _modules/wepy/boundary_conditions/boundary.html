@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wepy.boundary_conditions.boundary &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/boundary_conditions/boundary.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.boundary_conditions.boundary</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Abstract base class and null boundary condition class for</span>
+<span class="sd">conveniently making compliant boundary condition classes for use in</span>
+<span class="sd">wepy.</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+<span class="kn">from</span> <span class="nn">copy</span> <span class="kn">import</span> <span class="n">deepcopy</span>
+
+<span class="c1"># Third Party Library</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="c1"># First Party Library</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">Walker</span>
+
+
+<div class="viewcode-block" id="BoundaryConditions">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions">[docs]</a>
+<span class="k">class</span> <span class="nc">BoundaryConditions</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Abstract base class for conveniently making compliant boundary condition classes.</span>
+
+<span class="sd">    Includes empty record group definitions and useful getters for those.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String names of fields produced in this record group.</span>
+
+<span class="sd">    Boundary condition (BC) records are typically used to report on</span>
+<span class="sd">    changes to the state of the BC object.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    These fields are not critical to the proper functioning of the</span>
+<span class="sd">    rest of the wepy framework and can be modified freely.</span>
+
+<span class="sd">    However, reporters specific to this boundary condition probably</span>
+<span class="sd">    will make use of these records.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Numpy-style shapes of all fields produced in records.</span>
+
+<span class="sd">    There should be the same number of elements as there are in the</span>
+<span class="sd">    corresponding &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    Each entry should either be:</span>
+
+<span class="sd">    A. A tuple of ints that specify the shape of the field element</span>
+<span class="sd">       array.</span>
+
+<span class="sd">    B. Ellipsis, indicating that the field is variable length and</span>
+<span class="sd">       limited to being a rank one array (e.g. (3,) or (1,)).</span>
+
+<span class="sd">    C. None, indicating that the first instance of this field will not</span>
+<span class="sd">       be known until runtime. Any field that is returned by a record</span>
+<span class="sd">       producing method will automatically interpreted as None if not</span>
+<span class="sd">       specified here.</span>
+
+<span class="sd">    Note that the shapes must be tuple and not simple integers for rank-1</span>
+<span class="sd">    arrays.</span>
+
+<span class="sd">    Option B will result in the special h5py datatype &#39;vlen&#39; and</span>
+<span class="sd">    should not be used for large datasets for efficiency reasons.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies the numpy dtypes to be used for records.</span>
+
+<span class="sd">    There should be the same number of elements as there are in the</span>
+<span class="sd">    corresponding &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    Each entry should either be:</span>
+
+<span class="sd">    A. A `numpy.dtype` object.</span>
+
+<span class="sd">    D. None, indicating that the first instance of this field will not</span>
+<span class="sd">       be known until runtime. Any field that is returned by a record</span>
+<span class="sd">       producing method will automatically interpreted as None if not</span>
+<span class="sd">       specified here.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">BC_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional, names of fields to be selected for truncated</span>
+<span class="sd">    representation of the record group.</span>
+
+<span class="sd">    These entries should be strings that are previously contained in</span>
+<span class="sd">    the &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    While strictly no constraints on to which fields can be added here</span>
+<span class="sd">    you should only choose those fields whose features could fit into</span>
+<span class="sd">    a plaintext csv or similar format.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># warping (sporadic)</span>
+    <span class="n">WARPING_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;walker_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;target_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String names of fields produced in this record group.</span>
+
+<span class="sd">    Warping records are typically used to report whenever a walker</span>
+<span class="sd">    satisfied the boundary conditions and was warped and had its</span>
+<span class="sd">    state changed.</span>
+
+<span class="sd">    Warnings</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    Be careful when modifying these fields as they may be integrated</span>
+<span class="sd">    with other wepy framework features. Namely recognition of</span>
+<span class="sd">    discontinuous warping events for making contiguous trajectories</span>
+<span class="sd">    from cloning and merging lineages.</span>
+
+<span class="sd">    The behavior of whether or not a warping event is discontinuous is</span>
+<span class="sd">    given by a `BoundaryCondition` class&#39;s `warping_discontinuity`</span>
+<span class="sd">    which likely depends on the existence of particular fields.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">WARPING_SHAPES</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,),</span> <span class="p">(</span><span class="mi">1</span><span class="p">,))</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Numpy-style shapes of all fields produced in records.</span>
+
+<span class="sd">    There should be the same number of elements as there are in the</span>
+<span class="sd">    corresponding &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    Each entry should either be:</span>
+
+<span class="sd">    A. A tuple of ints that specify the shape of the field element</span>
+<span class="sd">       array.</span>
+
+<span class="sd">    B. Ellipsis, indicating that the field is variable length and</span>
+<span class="sd">       limited to being a rank one array (e.g. (3,) or (1,)).</span>
+
+<span class="sd">    C. None, indicating that the first instance of this field will not</span>
+<span class="sd">       be known until runtime. Any field that is returned by a record</span>
+<span class="sd">       producing method will automatically interpreted as None if not</span>
+<span class="sd">       specified here.</span>
+
+<span class="sd">    Note that the shapes must be tuple and not simple integers for rank-1</span>
+<span class="sd">    arrays.</span>
+
+<span class="sd">    Option B will result in the special h5py datatype &#39;vlen&#39; and</span>
+<span class="sd">    should not be used for large datasets for efficiency reasons.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">WARPING_DTYPES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies the numpy dtypes to be used for records.</span>
+
+<span class="sd">    There should be the same number of elements as there are in the</span>
+<span class="sd">    corresponding &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    Each entry should either be:</span>
+
+<span class="sd">    A. A `numpy.dtype` object.</span>
+
+<span class="sd">    D. None, indicating that the first instance of this field will not</span>
+<span class="sd">       be known until runtime. Any field that is returned by a record</span>
+<span class="sd">       producing method will automatically interpreted as None if not</span>
+<span class="sd">       specified here.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">WARPING_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;walker_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;target_idx&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional, names of fields to be selected for truncated</span>
+<span class="sd">    representation of the record group.</span>
+
+<span class="sd">    These entries should be strings that are previously contained in</span>
+<span class="sd">    the &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    While strictly no constraints on to which fields can be added here</span>
+<span class="sd">    you should only choose those fields whose features could fit into</span>
+<span class="sd">    a plaintext csv or similar format.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># progress towards the boundary conditions (continual)</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;String names of fields produced in this record group.</span>
+
+<span class="sd">    Progress records are typically used to report on measures of</span>
+<span class="sd">    walkers at each cycle.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+
+<span class="sd">    These fields are not critical to the proper functioning of the</span>
+<span class="sd">    rest of the wepy framework and can be modified freely.</span>
+
+<span class="sd">    However, reporters specific to this boundary condition probably</span>
+<span class="sd">    will make use of these records.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Numpy-style shapes of all fields produced in records.</span>
+
+<span class="sd">    There should be the same number of elements as there are in the</span>
+<span class="sd">    corresponding &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    Each entry should either be:</span>
+
+<span class="sd">    A. A tuple of ints that specify the shape of the field element</span>
+<span class="sd">       array.</span>
+
+<span class="sd">    B. Ellipsis, indicating that the field is variable length and</span>
+<span class="sd">       limited to being a rank one array (e.g. (3,) or (1,)).</span>
+
+<span class="sd">    C. None, indicating that the first instance of this field will not</span>
+<span class="sd">       be known until runtime. Any field that is returned by a record</span>
+<span class="sd">       producing method will automatically interpreted as None if not</span>
+<span class="sd">       specified here.</span>
+
+<span class="sd">    Note that the shapes must be tuple and not simple integers for rank-1</span>
+<span class="sd">    arrays.</span>
+
+<span class="sd">    Option B will result in the special h5py datatype &#39;vlen&#39; and</span>
+<span class="sd">    should not be used for large datasets for efficiency reasons.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies the numpy dtypes to be used for records.</span>
+
+<span class="sd">    There should be the same number of elements as there are in the</span>
+<span class="sd">    corresponding &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    Each entry should either be:</span>
+
+<span class="sd">    A. A `numpy.dtype` object.</span>
+
+<span class="sd">    D. None, indicating that the first instance of this field will not</span>
+<span class="sd">       be known until runtime. Any field that is returned by a record</span>
+<span class="sd">       producing method will automatically interpreted as None if not</span>
+<span class="sd">       specified here.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Optional, names of fields to be selected for truncated</span>
+<span class="sd">    representation of the record group.</span>
+
+<span class="sd">    These entries should be strings that are previously contained in</span>
+<span class="sd">    the &#39;FIELDS&#39; class constant.</span>
+
+<span class="sd">    While strictly no constraints on to which fields can be added here</span>
+<span class="sd">    you should only choose those fields whose features could fit into</span>
+<span class="sd">    a plaintext csv or similar format.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Null constructor accepts and ignores any key word arguments.&quot;&quot;&quot;</span>
+
+        <span class="k">pass</span>
+
+<div class="viewcode-block" id="BoundaryConditions.bc_field_names">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">bc_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_FIELDS</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.bc_field_shapes">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_shapes">[docs]</a>
+    <span class="k">def</span> <span class="nf">bc_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_SHAPES</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.bc_field_dtypes">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_field_dtypes">[docs]</a>
+    <span class="k">def</span> <span class="nf">bc_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_DTYPES</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.bc_fields">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">bc_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        record_specs : list of tuple</span>
+<span class="sd">            A list of the specs for each field, a spec is a tuple of</span>
+<span class="sd">            type (field_name, shape_spec, dtype_spec)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">bc_field_names</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_field_shapes</span><span class="p">(),</span> <span class="bp">self</span><span class="o">.</span><span class="n">bc_field_dtypes</span><span class="p">())</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.bc_record_field_names">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.bc_record_field_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">bc_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">BC_RECORD_FIELDS</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warping_field_names">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">warping_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_FIELDS</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warping_field_shapes">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_shapes">[docs]</a>
+    <span class="k">def</span> <span class="nf">warping_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_SHAPES</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warping_field_dtypes">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_field_dtypes">[docs]</a>
+    <span class="k">def</span> <span class="nf">warping_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_DTYPES</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warping_fields">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">warping_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        record_specs : list of tuple</span>
+<span class="sd">            A list of the specs for each field, a spec is a tuple of</span>
+<span class="sd">            type (field_name, shape_spec, dtype_spec)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warping_field_names</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warping_field_shapes</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">warping_field_dtypes</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warping_record_field_names">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_record_field_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">warping_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">WARPING_RECORD_FIELDS</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.progress_field_names">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">progress_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level FIELDS constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_FIELDS</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.progress_field_shapes">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_shapes">[docs]</a>
+    <span class="k">def</span> <span class="nf">progress_field_shapes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level SHAPES constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_SHAPES</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.progress_field_dtypes">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_field_dtypes">[docs]</a>
+    <span class="k">def</span> <span class="nf">progress_field_dtypes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level DTYPES constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_DTYPES</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.progress_fields">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">progress_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns a list of zipped field specs.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        record_specs : list of tuple</span>
+<span class="sd">            A list of the specs for each field, a spec is a tuple of</span>
+<span class="sd">            type (field_name, shape_spec, dtype_spec)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">list</span><span class="p">(</span>
+            <span class="nb">zip</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">progress_field_names</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">progress_field_shapes</span><span class="p">(),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">progress_field_dtypes</span><span class="p">(),</span>
+            <span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.progress_record_field_names">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.progress_record_field_names">[docs]</a>
+    <span class="k">def</span> <span class="nf">progress_record_field_names</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Access the class level RECORD_FIELDS constant for this record group.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">PROGRESS_RECORD_FIELDS</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warp_walkers">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warp_walkers">[docs]</a>
+    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply boundary condition logic to walkers.</span>
+
+<span class="sd">        If walkers satisfy the boundary conditions then they will be</span>
+<span class="sd">        &#39;warped&#39; and have a corresponding state change take</span>
+<span class="sd">        place. Each event recorded is returned as a single</span>
+<span class="sd">        dictionary-style record in &#39;warp_data&#39; list. These records</span>
+<span class="sd">        correspond to the &#39;WARPING&#39; record group.</span>
+
+<span class="sd">        Additional data calculated on walkers may be returned in the</span>
+<span class="sd">        single &#39;progress_data&#39; dictionary-style record, which</span>
+<span class="sd">        corresponds to the &#39;PROGRESS&#39; record group.</span>
+
+<span class="sd">        Any changes to the internal state of the boundary condition</span>
+<span class="sd">        object (e.g. modification of parameters) should be recorded in</span>
+<span class="sd">        at least one dictionary-style record in the &#39;bc_data&#39;</span>
+<span class="sd">        list. This corresponds to the &#39;BC&#39; record group.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walkers : list of walkers</span>
+<span class="sd">            A list of objects implementing the Walker interface</span>
+
+<span class="sd">        cycle : int</span>
+<span class="sd">            The index of the cycle this is for. Used to generate proper records.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            A list of objects implementing the Walker interface, that have had</span>
+<span class="sd">            boundary condition logic applied.</span>
+
+<span class="sd">        warp_data : list of dict of str : value</span>
+<span class="sd">            A list of dictionary style records for each warping event that occured.</span>
+
+<span class="sd">        bc_data : list of dict of str : value</span>
+<span class="sd">            A list of dictionary style records for each boundary condition state change</span>
+<span class="sd">            event record that occured.</span>
+
+<span class="sd">        progress_data : dict of str : list of value</span>
+<span class="sd">           Dictionary style progress records. The values should be lists</span>
+<span class="sd">           corresponding to each walker.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="BoundaryConditions.warping_discontinuity">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.BoundaryConditions.warping_discontinuity">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Given a warping record returns either True for a discontiuity</span>
+<span class="sd">        occured or False if a discontinuity did not occur.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        warping_record : tuple</span>
+<span class="sd">            A tuple record of type &#39;WARPING&#39;</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        is_discontinuous : bool</span>
+<span class="sd">            True if discontinuous warping record False if continuous.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="NoBC">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC">[docs]</a>
+<span class="k">class</span> <span class="nc">NoBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Boundary conditions class that does nothing.</span>
+
+<span class="sd">    You may use this class as a stub in order to have an boundary</span>
+<span class="sd">    condition class. However, this is not necessary since boundary</span>
+<span class="sd">    conditions are optional in the sim_manager anyhow.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<div class="viewcode-block" id="NoBC.warp_walkers">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC.warp_walkers">[docs]</a>
+    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Apply boundary condition logic to walkers, of which there is none.</span>
+
+<span class="sd">        Simply returns all walkers provided with empty records data</span>
+<span class="sd">        since there is nothing to do.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walkers : list of walkers</span>
+<span class="sd">            A list of objects implementing the Walker interface</span>
+
+<span class="sd">        cycle : int</span>
+<span class="sd">            The index of the cycle this is for. Used to generate proper records.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            A list of objects implementing the Walker interface, that have had</span>
+<span class="sd">            boundary condition logic applied.</span>
+
+<span class="sd">        warp_data : list of dict of str : value</span>
+<span class="sd">            A list of dictionary style records for each warping event that occured.</span>
+
+<span class="sd">        bc_data : list of dict of str : value</span>
+<span class="sd">            A list of dictionary style records for each boundary condition state change</span>
+<span class="sd">            event record that occured.</span>
+
+<span class="sd">        progress_data : dict of str : list of value</span>
+<span class="sd">           Dictionary style progress records. The values should be lists</span>
+<span class="sd">           corresponding to each walker.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="p">{}</span>
+
+        <span class="k">return</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span></div>
+
+
+<div class="viewcode-block" id="NoBC.warping_discontinuity">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.NoBC.warping_discontinuity">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
+        <span class="c1"># documented in superclass</span>
+
+        <span class="c1"># always return false</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="WarpBC">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC">[docs]</a>
+<span class="k">class</span> <span class="nc">WarpBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for boundary conditions with warping.&quot;&quot;&quot;</span>
+
+    <span class="c1"># records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">BC_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="c1"># warping fields are directly inherited</span>
+
+    <span class="c1"># progress towards the boundary conditions (continual)</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="p">()</span>
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">()</span>
+
+    <span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="o">=</span> <span class="bp">Ellipsis</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Specifies which &#39;target_idxs&#39; values are considered discontinuous targets.</span>
+
+<span class="sd">    Values are either integer indices, Ellipsis (indicating all</span>
+<span class="sd">    possible values are discontinuous), or None indicating no possible</span>
+<span class="sd">    value is discontinuous.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">initial_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Base constructor for WarpBC.</span>
+
+<span class="sd">        This should be called immediately in the subclass `__init__`</span>
+<span class="sd">        method.</span>
+
+<span class="sd">        If the initial weights for each initial state are not given</span>
+<span class="sd">        uniform weights are assigned to them.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+<span class="sd">        initial_states : list of objects implementing the State interface</span>
+<span class="sd">            The list of possible states that warped walkers will assume.</span>
+
+<span class="sd">        initial_weights : list of float, optional</span>
+<span class="sd">            List of normalized probabilities of the initial_states</span>
+<span class="sd">            provided. If not given, uniform probabilities will be</span>
+<span class="sd">            used.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If any of the following kwargs are not given:</span>
+<span class="sd">            initial_states.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># make sure necessary inputs are given</span>
+        <span class="k">assert</span> <span class="n">initial_states</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give a set of initial states&quot;</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">_initial_states</span> <span class="o">=</span> <span class="n">initial_states</span>
+
+        <span class="c1"># we want to choose initial states conditional on their</span>
+        <span class="c1"># initial probability if specified. If not specified assume</span>
+        <span class="c1"># assume uniform probabilities.</span>
+        <span class="k">if</span> <span class="n">initial_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_weights</span> <span class="o">=</span> <span class="p">[</span><span class="mi">1</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">initial_states</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">initial_states</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_initial_weights</span> <span class="o">=</span> <span class="n">initial_weights</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initial_states</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The possible initial states warped walkers may assume.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_states</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">initial_weights</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The probabilities of each initial state being chosen during a warping.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_initial_weights</span>
+
+<div class="viewcode-block" id="WarpBC._progress">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC._progress">[docs]</a>
+    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The method that must be implemented in non-abstract subclasses.</span>
+
+<span class="sd">        Should decide if a walker should be warped or not and what its</span>
+<span class="sd">        progress is regardless.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        to_warp : bool</span>
+<span class="sd">           Whether the walker should be warped or not.</span>
+
+<span class="sd">        progress_data : dict of str : value</span>
+<span class="sd">           Dictionary of the progress record group fields</span>
+<span class="sd">           for this walker alone.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span></div>
+
+
+<div class="viewcode-block" id="WarpBC._warp">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC._warp">[docs]</a>
+    <span class="k">def</span> <span class="nf">_warp</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform the warping of a walker.</span>
+
+<span class="sd">        Chooses an initial state to replace the walker&#39;s state with</span>
+<span class="sd">        according to it&#39;s given weight.</span>
+
+<span class="sd">        Returns a walker of the same type and weight.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        warped_walker : object implementing the Walker interface</span>
+<span class="sd">            The walker with the state after the warping. Weight should</span>
+<span class="sd">            be the same.</span>
+
+<span class="sd">        warping_data : dict of str : value</span>
+<span class="sd">           The dictionary-style &#39;WARPING&#39; record for this</span>
+<span class="sd">           event. Excluding the walker index which is done in the main</span>
+<span class="sd">           `warp_walkers` method.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># choose a state randomly from the set of initial states</span>
+        <span class="n">target_idx</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+            <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_states</span><span class="p">)),</span>
+            <span class="mi">1</span><span class="p">,</span>
+            <span class="n">p</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_weights</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">initial_weights</span><span class="p">),</span>
+        <span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="n">warped_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">initial_states</span><span class="p">[</span><span class="n">target_idx</span><span class="p">]</span>
+
+        <span class="c1"># set the initial state into a new walker object with the same weight</span>
+        <span class="n">warped_walker</span> <span class="o">=</span> <span class="nb">type</span><span class="p">(</span><span class="n">walker</span><span class="p">)(</span><span class="n">state</span><span class="o">=</span><span class="n">warped_state</span><span class="p">,</span> <span class="n">weight</span><span class="o">=</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+        <span class="c1"># the data for the warp</span>
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;target_idx&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">target_idx</span><span class="p">]),</span>
+            <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">]),</span>
+        <span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">warped_walker</span><span class="p">,</span> <span class="n">warp_data</span></div>
+
+
+<div class="viewcode-block" id="WarpBC._update_bc">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC._update_bc">[docs]</a>
+    <span class="k">def</span> <span class="nf">_update_bc</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Perform an update to the boundary conditions.</span>
+
+<span class="sd">        No updates to the bc are ever done in this null</span>
+<span class="sd">        implementation.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        new_walkers : list of walkers</span>
+<span class="sd">            The walkers after warping.</span>
+
+<span class="sd">        warp_data : list of dict</span>
+
+<span class="sd">        progress_data : dict</span>
+
+<span class="sd">        cycle : int</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        bc_data : list of dict</span>
+<span class="sd">            The dictionary-style records for BC update events</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># do nothing by default</span>
+        <span class="k">return</span> <span class="p">[]</span></div>
+
+
+<div class="viewcode-block" id="WarpBC.warp_walkers">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC.warp_walkers">[docs]</a>
+    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Test the progress of all the walkers, warp if required, and update</span>
+<span class="sd">        the boundary conditions.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+
+<span class="sd">        walkers : list of objects implementing the Walker interface</span>
+
+<span class="sd">        cycle : int</span>
+<span class="sd">            The index of the cycle.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        new_walkers : list of objects implementing the Walker interface</span>
+<span class="sd">            The new set of walkers that may have been warped.</span>
+
+<span class="sd">        warp_data : list of dict of str : value</span>
+<span class="sd">            The dictionary-style records for WARPING update events</span>
+
+
+<span class="sd">        bc_data : list of dict of str : value</span>
+<span class="sd">            The dictionary-style records for BC update events</span>
+
+<span class="sd">        progress_data : dict of str : arraylike</span>
+<span class="sd">            The dictionary-style records for PROGRESS update events</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">new_walkers</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># sporadic, zero or many records per call</span>
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="p">[]</span>
+
+        <span class="c1"># continual, one record per call</span>
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+
+        <span class="c1"># calculate progress data</span>
+        <span class="n">all_progress_data</span> <span class="o">=</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_progress</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walkers</span><span class="p">):</span>
+            <span class="c1"># unpack progress data</span>
+            <span class="n">to_warp</span><span class="p">,</span> <span class="n">walker_progress_data</span> <span class="o">=</span> <span class="n">all_progress_data</span><span class="p">[</span><span class="n">walker_idx</span><span class="p">]</span>
+
+            <span class="c1"># add that to the progress data record</span>
+            <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">walker_progress_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="n">progress_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+
+            <span class="c1"># if the walker is meets the requirements for warping warp</span>
+            <span class="c1"># it</span>
+            <span class="k">if</span> <span class="n">to_warp</span><span class="p">:</span>
+                <span class="c1"># warp the walker</span>
+                <span class="n">warped_walker</span><span class="p">,</span> <span class="n">walker_warp_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_warp</span><span class="p">(</span><span class="n">walker</span><span class="p">)</span>
+
+                <span class="c1"># add the walker idx to the walker warp record</span>
+                <span class="n">walker_warp_data</span><span class="p">[</span><span class="s2">&quot;walker_idx&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker_idx</span><span class="p">])</span>
+
+                <span class="c1"># save warped_walker in the list of new walkers to return</span>
+                <span class="n">new_walkers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warped_walker</span><span class="p">)</span>
+
+                <span class="c1"># save the instruction record of the walker</span>
+                <span class="n">warp_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker_warp_data</span><span class="p">)</span>
+
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;WARP EVENT observed at </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">cycle</span><span class="p">))</span>
+                <span class="n">logger</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
+                    <span class="s2">&quot;Warped Walker Weight = </span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">walker_warp_data</span><span class="p">[</span><span class="s2">&quot;weight&quot;</span><span class="p">])</span>
+                <span class="p">)</span>
+
+            <span class="c1"># no warping so just return the original walker</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">new_walkers</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">walker</span><span class="p">)</span>
+
+        <span class="c1"># consolidate the progress data to an array of a single</span>
+        <span class="c1"># feature vectors for the cycle</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">progress_data</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">progress_data</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+
+        <span class="c1"># if the boundary conditions need to be updated given the</span>
+        <span class="c1"># cycle and state from warping perform that now and return any</span>
+        <span class="c1"># record data for that</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_update_bc</span><span class="p">(</span><span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">progress_data</span><span class="p">,</span> <span class="n">cycle</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span></div>
+
+
+<div class="viewcode-block" id="WarpBC.warping_discontinuity">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.WarpBC.warping_discontinuity">[docs]</a>
+    <span class="nd">@classmethod</span>
+    <span class="k">def</span> <span class="nf">warping_discontinuity</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">warping_record</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Tests whether a warping record generated by this class is</span>
+<span class="sd">        discontinuous or not.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+
+<span class="sd">        warping_record : tuple</span>
+<span class="sd">            The WARPING type record.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+
+<span class="sd">        is_discontinuous : bool</span>
+<span class="sd">            True if a discontinuous warp False if continuous.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="c1"># if it is Ellipsis then all possible values are discontinuous</span>
+        <span class="k">if</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># if it is None then all possible values are continuous</span>
+        <span class="k">elif</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># otherwise it will have a tuple of indices for the</span>
+        <span class="c1"># target_idxs that are discontinuous targets</span>
+        <span class="k">elif</span> <span class="n">warping_record</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">DISCONTINUITY_TARGET_IDXS</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="c1"># otherwise it wasn&#39;t a discontinuous target</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span></div>
+</div>
+
+
+
+<div class="viewcode-block" id="RandomBC">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.RandomBC">[docs]</a>
+<span class="k">class</span> <span class="nc">RandomBC</span><span class="p">(</span><span class="n">BoundaryConditions</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Boundary conditions that randomly warps both continuously and</span>
+<span class="sd">    discontinuously.</span>
+
+<span class="sd">    Can be used with any system as it won&#39;t actually mutate states.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ping&quot;</span><span class="p">,)</span>
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="p">((</span><span class="mi">1</span><span class="p">,),)</span>
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">int</span><span class="p">,)</span>
+
+    <span class="n">BC_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;ping&quot;</span><span class="p">,)</span>
+
+    <span class="c1"># warping fields are directly inherited</span>
+
+    <span class="c1"># progress towards the boundary conditions (continual)</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,)</span>
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,)</span>
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="p">(</span><span class="nb">float</span><span class="p">,)</span>
+
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,)</span>
+
+    <span class="n">DISCONTINUITY_TARGET_IDXS</span> <span class="o">=</span> <span class="p">(</span><span class="mi">0</span><span class="p">,)</span>
+
+<div class="viewcode-block" id="RandomBC.warp_walkers">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.boundary.html#wepy.boundary_conditions.boundary.RandomBC.warp_walkers">[docs]</a>
+    <span class="k">def</span> <span class="nf">warp_walkers</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walkers</span><span class="p">,</span> <span class="n">cycle</span><span class="p">):</span>
+        <span class="c1">## warping walkers</span>
+
+        <span class="c1"># just return the same walkers</span>
+        <span class="n">new_walkers</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="n">walkers</span><span class="p">)</span>
+
+        <span class="c1">## warping data</span>
+
+        <span class="n">warp_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># generate warping data: 50% of the time generate a warping</span>
+        <span class="c1"># event, 25% is discontinuous (target 0), and 25% is</span>
+        <span class="c1"># continuous (target 1)</span>
+        <span class="k">for</span> <span class="n">walker_idx</span><span class="p">,</span> <span class="n">walker</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">walkers</span><span class="p">):</span>
+            <span class="c1"># warping event?</span>
+            <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">:</span>
+                <span class="c1"># discontinuous?</span>
+                <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">:</span>
+                    <span class="n">warp_record</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;walker_idx&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker_idx</span><span class="p">]),</span>
+                        <span class="s2">&quot;target_idx&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">]),</span>
+                        <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">]),</span>
+                    <span class="p">}</span>
+
+                    <span class="n">warp_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warp_record</span><span class="p">)</span>
+
+                <span class="c1"># continuous</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">warp_record</span> <span class="o">=</span> <span class="p">{</span>
+                        <span class="s2">&quot;walker_idx&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker_idx</span><span class="p">]),</span>
+                        <span class="s2">&quot;target_idx&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">]),</span>
+                        <span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span><span class="p">]),</span>
+                    <span class="p">}</span>
+
+                    <span class="n">warp_data</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">warp_record</span><span class="p">)</span>
+
+        <span class="c1">## BC data</span>
+        <span class="n">bc_data</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="c1"># choose whether to generate a bc record</span>
+        <span class="k">if</span> <span class="n">random</span><span class="o">.</span><span class="n">random</span><span class="p">()</span> <span class="o">&gt;=</span> <span class="mf">0.5</span><span class="p">:</span>
+            <span class="n">bc_data</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;ping&quot;</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">])})</span>
+
+        <span class="c1">## Progress data</span>
+
+        <span class="c1"># just set the walker progress to be its weight so there is a</span>
+        <span class="c1"># number there</span>
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;weight&quot;</span><span class="p">:</span> <span class="p">[</span><span class="n">walker</span><span class="o">.</span><span class="n">weight</span> <span class="k">for</span> <span class="n">walker</span> <span class="ow">in</span> <span class="n">walkers</span><span class="p">]}</span>
+
+        <span class="k">return</span> <span class="n">new_walkers</span><span class="p">,</span> <span class="n">warp_data</span><span class="p">,</span> <span class="n">bc_data</span><span class="p">,</span> <span class="n">progress_data</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

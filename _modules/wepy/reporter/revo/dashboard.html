@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wepy.reporter.revo.dashboard &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/custom.css?v=4f057836" />
+    <script src="../../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/reporter/revo/dashboard.html" />
+    <link rel="icon" href="../../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.reporter.revo.dashboard</h1><div class="highlight"><pre>
+<span></span><span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">os.path</span> <span class="k">as</span> <span class="nn">osp</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="c1"># Third Party Library</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="c1"># First Party Library</span>
+<span class="kn">from</span> <span class="nn">wepy.reporter.dashboard</span> <span class="kn">import</span> <span class="n">ResamplerDashboardSection</span>
+<span class="kn">from</span> <span class="nn">wepy.resampling.decisions.clone_merge</span> <span class="kn">import</span> <span class="n">MultiCloneMergeDecision</span>
+
+
+<div class="viewcode-block" id="REVODashboardSection">
+<a class="viewcode-back" href="../../../../_api/wepy.reporter.revo.dashboard.html#wepy.reporter.revo.dashboard.REVODashboardSection">[docs]</a>
+<span class="k">class</span> <span class="nc">REVODashboardSection</span><span class="p">(</span><span class="n">ResamplerDashboardSection</span><span class="p">):</span>
+    <span class="n">RESAMPLER_SECTION_TEMPLATE</span> <span class="o">=</span> <span class="s2">&quot;&quot;&quot;</span>
+
+<span class="s2">Resampling Algorithm: {{ name }}</span>
+
+<span class="s2">Distance Exponent: {{ dist_exponent }}</span>
+<span class="s2">Characteristic Distance: {{ char_dist }}</span>
+<span class="s2">Merge Distance: {{ merge_dist }}</span>
+
+<span class="s2">** Resampling</span>
+<span class="s2">Cycle index: {{ cycle_idx }}</span>
+<span class="s2">The percentage of cloned walkers: {{ percentage_cloned_walkers }} %</span>
+<span class="s2">The percentage of merged walkers: {{ percentage_merged_walkers }} %</span>
+
+<span class="s2">** Statistics</span>
+<span class="s2">Average All to All Distance: {{ avg_distance }}</span>
+<span class="s2">Minimum All to All Distance: {{ min_distance }}</span>
+<span class="s2">Maximum All to All Distance: {{ max_distance }}</span>
+<span class="s2">Variation value = {{ variation }}</span>
+<span class="s2">&quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">resampler</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">dist_exponent</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">merge_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">lpmin</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">char_dist</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">seed</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="n">decision</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+        <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="s2">&quot;name&quot;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">:</span>
+            <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;REVOResampler&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">resampler</span><span class="o">=</span><span class="n">resampler</span><span class="p">,</span>
+            <span class="n">dist_exponent</span><span class="o">=</span><span class="n">dist_exponent</span><span class="p">,</span>
+            <span class="n">merge_dist</span><span class="o">=</span><span class="n">merge_dist</span><span class="p">,</span>
+            <span class="n">lpmin</span><span class="o">=</span><span class="n">lpmin</span><span class="p">,</span>
+            <span class="n">char_dist</span><span class="o">=</span><span class="n">char_dist</span><span class="p">,</span>
+            <span class="n">seed</span><span class="o">=</span><span class="n">seed</span><span class="p">,</span>
+            <span class="n">decision</span><span class="o">=</span><span class="n">decision</span><span class="p">,</span>
+        <span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">resampler</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dist_exponent</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">dist_exponent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">merge_dist</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">merge_dist</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lpmin</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">lpmin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">char_dist</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">char_dist</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">seed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decision</span> <span class="o">=</span> <span class="n">resampler</span><span class="o">.</span><span class="n">DECISION</span>
+
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">dist_exponent</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;if no resampler given must give parameters: dist_exponent&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">merge_dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;if no resampler given must give parameters: merge_dist&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">lpmin</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;if no resampler given must give parameters: lpmin&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">char_dist</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;if no resampler given must give parameters: char_dist&quot;</span>
+            <span class="k">assert</span> <span class="n">seed</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;if no resampler given must give parameters: seed&quot;</span>
+            <span class="k">assert</span> <span class="p">(</span>
+                <span class="n">decision</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+            <span class="p">),</span> <span class="s2">&quot;if no resampler given must give parameters: decision&quot;</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">dist_exponent</span> <span class="o">=</span> <span class="n">dist_exponent</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">merge_dist</span> <span class="o">=</span> <span class="n">merge_dist</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">lpmin</span> <span class="o">=</span> <span class="n">lpmin</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">char_dist</span> <span class="o">=</span> <span class="n">char_dist</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">seed</span> <span class="o">=</span> <span class="n">seed</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">decision</span> <span class="o">=</span> <span class="n">decision</span>
+
+        <span class="c1"># updatables</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentage_cloned_walkers</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentage_merged_walkers</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="c1"># REVO</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">variation_values</span> <span class="o">=</span> <span class="kc">None</span>
+
+<div class="viewcode-block" id="REVODashboardSection.update_values">
+<a class="viewcode-back" href="../../../../_api/wepy.reporter.revo.dashboard.html#wepy.reporter.revo.dashboard.REVODashboardSection.update_values">[docs]</a>
+    <span class="k">def</span> <span class="nf">update_values</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">num_clones</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_merges</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="n">num_walkers</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;resampling_data&quot;</span><span class="p">])</span>
+        <span class="k">for</span> <span class="n">walker_record</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;resampling_data&quot;</span><span class="p">]:</span>
+            <span class="k">if</span> <span class="n">walker_record</span><span class="p">[</span><span class="s2">&quot;decision_id&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">CLONE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="n">num_clones</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="k">elif</span> <span class="n">walker_record</span><span class="p">[</span><span class="s2">&quot;decision_id&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="bp">self</span><span class="o">.</span><span class="n">decision</span><span class="o">.</span><span class="n">ENUM</span><span class="o">.</span><span class="n">KEEP_MERGE</span><span class="o">.</span><span class="n">value</span><span class="p">:</span>
+                <span class="n">num_merges</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentage_cloned_walkers</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_clones</span> <span class="o">/</span> <span class="n">num_walkers</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">percentage_merged_walkers</span> <span class="o">=</span> <span class="p">(</span><span class="n">num_merges</span> <span class="o">/</span> <span class="n">num_walkers</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+        <span class="c1"># Get the statistics</span>
+        <span class="k">for</span> <span class="n">resampler_record</span> <span class="ow">in</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;resampler_data&quot;</span><span class="p">]:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">variation_value</span> <span class="o">=</span> <span class="n">resampler_record</span><span class="p">[</span><span class="s2">&quot;variation&quot;</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span>
+            <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">resampler_record</span><span class="p">[</span><span class="s2">&quot;distance_matrix&quot;</span><span class="p">]</span>
+
+        <span class="c1"># get the upper triangle values of the distance_matrix</span>
+        <span class="n">distance_matrix</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">triu</span><span class="p">(</span><span class="n">distance_matrix</span><span class="p">)</span>
+        <span class="n">distance_values</span> <span class="o">=</span> <span class="n">distance_matrix</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="n">distance_matrix</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">avg_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">average</span><span class="p">(</span><span class="n">distance_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">distance_values</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">distance_values</span><span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">cycle_idx</span> <span class="o">=</span> <span class="n">kwargs</span><span class="p">[</span><span class="s2">&quot;cycle_idx&quot;</span><span class="p">]</span></div>
+
+
+<div class="viewcode-block" id="REVODashboardSection.gen_fields">
+<a class="viewcode-back" href="../../../../_api/wepy.reporter.revo.dashboard.html#wepy.reporter.revo.dashboard.REVODashboardSection.gen_fields">[docs]</a>
+    <span class="k">def</span> <span class="nf">gen_fields</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">fields</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">gen_fields</span><span class="p">(</span><span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="n">new_fields</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s2">&quot;dist_exponent&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dist_exponent</span><span class="p">,</span>
+            <span class="s2">&quot;char_dist&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">char_dist</span><span class="p">,</span>
+            <span class="s2">&quot;merge_dist&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">merge_dist</span><span class="p">,</span>
+            <span class="s2">&quot;cycle_idx&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">cycle_idx</span><span class="p">,</span>
+            <span class="s2">&quot;percentage_cloned_walkers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">percentage_cloned_walkers</span><span class="p">,</span>
+            <span class="s2">&quot;percentage_merged_walkers&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">percentage_merged_walkers</span><span class="p">,</span>
+            <span class="s2">&quot;avg_distance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">avg_distance</span><span class="p">,</span>
+            <span class="s2">&quot;min_distance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">min_distance</span><span class="p">,</span>
+            <span class="s2">&quot;max_distance&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_distance</span><span class="p">,</span>
+            <span class="s2">&quot;variation&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">variation_value</span><span class="p">,</span>
+        <span class="p">}</span>
+
+        <span class="n">fields</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">new_fields</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">fields</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../../index.html">
+    <img class="logo" src="../../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

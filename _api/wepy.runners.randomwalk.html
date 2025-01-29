@@ -42,8 +42,117 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-runners-randomwalk-module">
-<h1>wepy.runners.randomwalk module<a class="headerlink" href="#wepy-runners-randomwalk-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.runners.randomwalk">
+<span id="wepy-runners-randomwalk-module"></span><h1>wepy.runners.randomwalk module<a class="headerlink" href="#module-wepy.runners.randomwalk" title="Link to this heading">¶</a></h1>
+<p>The random walk dynamics runner.</p>
+<p>In this system, the state of the walkers is defined as an
+N-dimensional vector of non-negative values. The walkers start at
+position zero (in N-dimensional space) and randomly move a step either
+forward or backward with the given probabilities. This is done in each
+dimension at each dynamic step. All moves that result in a negative
+position are rejected.</p>
+<p>One potentioanl use of the random walk system is to test the
+performance of differnt resamplers as seen in these papers:</p>
+<p>“WExplore: Hierarchical Exploration of High-Dimensional Spaces
+Using the Weighted Ensemble Algorithm” and
+“REVO: Resampling of Ensembles by Variation Optimization”.</p>
+<dl class="py data">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.UNIT_NAMES">
+<span class="sig-prename descclassname"><span class="pre">wepy.runners.randomwalk.</span></span><span class="sig-name descname"><span class="pre">UNIT_NAMES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(('positions_unit',</span> <span class="pre">'microsecond'),</span> <span class="pre">('time_unit',</span> <span class="pre">'picosecond'))</span></em><a class="headerlink" href="#wepy.runners.randomwalk.UNIT_NAMES" title="Link to this definition">¶</a></dt>
+<dd><p>Mapping of units identifiers to the corresponding pint units.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.RandomWalkRunner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.runners.randomwalk.</span></span><span class="sig-name descname"><span class="pre">RandomWalkRunner</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">probability</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.25</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/randomwalk.html#RandomWalkRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.randomwalk.RandomWalkRunner" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.runners.runner.html#wepy.runners.runner.Runner" title="wepy.runners.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">Runner</span></code></a></p>
+<p>RandomWalk runner for random walk simulations.</p>
+<p>Constructor for RandomWalkRunner.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>probabilty</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – <dl class="simple">
+<dt>“Probability” is defined here as the forward-move</dt><dd><p>probability only. The backward-move probability is
+1-probability.(Default = 0.25)</p>
+</dd>
+</dl>
+</p>
+</dd>
+</dl>
+<dl class="py property">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.RandomWalkRunner.probability">
+<em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">probability</span></span><a class="headerlink" href="#wepy.runners.randomwalk.RandomWalkRunner.probability" title="Link to this definition">¶</a></dt>
+<dd><p>The probability of forward-move in an N-dimensional space</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.RandomWalkRunner._walk">
+<span class="sig-name descname"><span class="pre">_walk</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">positions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/randomwalk.html#RandomWalkRunner._walk"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.randomwalk.RandomWalkRunner._walk" title="Link to this definition">¶</a></dt>
+<dd><p>Run dynamics for the RandomWalk system for one step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>positions</strong> (<em>arraylike</em><em> of </em><em>shape</em><em> (</em><em>1</em><em>, </em><em>dimension</em><em>)</em>) – Current position of the walker.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>new_positions</strong> – The positions of the walker after one dynamic step.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>arraylike of shape (1, dimension)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.RandomWalkRunner.post_cycle">
+<span class="sig-name descname"><span class="pre">post_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.randomwalk.RandomWalkRunner.post_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Perform post-cycle behavior. run_segment will be called for each
+walker so this allows you to perform changes of state on a
+per-cycle basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>key-word arguments</em>) – Key-value pairs to be interpreted by each runner implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.RandomWalkRunner.pre_cycle">
+<span class="sig-name descname"><span class="pre">pre_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.randomwalk.RandomWalkRunner.pre_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Perform pre-cycle behavior. run_segment will be called for each
+walker so this allows you to perform changes of state on a
+per-cycle basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>key-word arguments</em>) – Key-value pairs to be interpreted by each runner implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.randomwalk.RandomWalkRunner.run_segment">
+<span class="sig-name descname"><span class="pre">run_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_length</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/randomwalk.html#RandomWalkRunner.run_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.randomwalk.RandomWalkRunner.run_segment" title="Link to this definition">¶</a></dt>
+<dd><p>Runs a random walk simulation for the given number of steps.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>walker</strong> (<em>object implementing the Walker interface</em>) – The walker for which dynamics will be propagated.</p>
+</dd>
+</dl>
+<dl class="simple">
+<dt>segment_length<span class="classifier">int</span></dt><dd><p>The numerical value that specifies how much dynamical steps
+are to be run.</p>
+</dd>
+</dl>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>new_walker</strong> – Walker after dynamics was run, only the state should be modified.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

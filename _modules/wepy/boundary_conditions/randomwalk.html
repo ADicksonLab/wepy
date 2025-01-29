@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wepy.boundary_conditions.randomwalk &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/boundary_conditions/randomwalk.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.boundary_conditions.randomwalk</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Boundary conditions for random walk.</span>
+<span class="sd">&quot;&quot;&quot;</span>
+
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">itertools</span> <span class="k">as</span> <span class="nn">it</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+
+<span class="n">logger</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="vm">__name__</span><span class="p">)</span>
+<span class="c1"># Standard Library</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="c1"># Third Party Library</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">geomm.centering</span> <span class="kn">import</span> <span class="n">center_around</span>
+<span class="kn">from</span> <span class="nn">geomm.distance</span> <span class="kn">import</span> <span class="n">minimum_distance</span>
+<span class="kn">from</span> <span class="nn">geomm.grouping</span> <span class="kn">import</span> <span class="n">group_pair</span>
+<span class="kn">from</span> <span class="nn">geomm.rmsd</span> <span class="kn">import</span> <span class="n">calc_rmsd</span>
+<span class="kn">from</span> <span class="nn">geomm.superimpose</span> <span class="kn">import</span> <span class="n">superimpose</span>
+
+<span class="c1"># First Party Library</span>
+<span class="kn">from</span> <span class="nn">wepy.boundary_conditions.boundary</span> <span class="kn">import</span> <span class="n">WarpBC</span>
+<span class="kn">from</span> <span class="nn">wepy.util.util</span> <span class="kn">import</span> <span class="n">box_vectors_to_lengths_angles</span>
+<span class="kn">from</span> <span class="nn">wepy.walker</span> <span class="kn">import</span> <span class="n">WalkerState</span>
+
+
+<div class="viewcode-block" id="RandomWalkBC">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.randomwalk.html#wepy.boundary_conditions.randomwalk.RandomWalkBC">[docs]</a>
+<span class="k">class</span> <span class="nc">RandomWalkBC</span><span class="p">(</span><span class="n">WarpBC</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Boundary condition for a random walk simulation with warping</span>
+<span class="sd">    controlled by the sum of walker positions crossing a threshold.</span>
+
+<span class="sd">    Implements the WarpBC superclass.</span>
+
+<span class="sd">    This boundary condition will warp walkers to a number of initial</span>
+<span class="sd">    states whenever a walker crosses the threshold distance from the</span>
+<span class="sd">    origin.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Records of boundary condition changes (sporadic)</span>
+    <span class="n">BC_FIELDS</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">BC_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;threshold_distance&quot;</span><span class="p">,)</span>
+
+    <span class="n">BC_SHAPES</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">BC_SHAPES</span> <span class="o">+</span> <span class="p">((</span><span class="mi">1</span><span class="p">,),)</span>
+    <span class="n">BC_DTYPES</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">BC_DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="nb">int</span><span class="p">,)</span>
+
+    <span class="c1"># warping (sporadic)</span>
+    <span class="n">WARPING_FIELDS</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">WARPING_FIELDS</span> <span class="o">+</span> <span class="p">()</span>
+    <span class="n">WARPING_SHAPES</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">WARPING_SHAPES</span> <span class="o">+</span> <span class="p">()</span>
+    <span class="n">WARPING_DTYPES</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">WARPING_DTYPES</span> <span class="o">+</span> <span class="p">()</span>
+
+    <span class="n">WARPING_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">WARPING_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">()</span>
+
+    <span class="c1"># progress towards the boundary conditions (continual)</span>
+    <span class="n">PROGRESS_FIELDS</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">PROGRESS_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">,)</span>
+    <span class="n">PROGRESS_SHAPES</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">PROGRESS_SHAPES</span> <span class="o">+</span> <span class="p">(</span><span class="bp">Ellipsis</span><span class="p">,)</span>
+    <span class="n">PROGRESS_DTYPES</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">PROGRESS_DTYPES</span> <span class="o">+</span> <span class="p">(</span><span class="nb">int</span><span class="p">,)</span>
+
+    <span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">=</span> <span class="n">WarpBC</span><span class="o">.</span><span class="n">PROGRESS_RECORD_FIELDS</span> <span class="o">+</span> <span class="p">(</span><span class="s2">&quot;distance&quot;</span><span class="p">,)</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">threshold</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_states</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Constructor for RandomWalkBC.</span>
+
+<span class="sd">        Arguments</span>
+<span class="sd">        ---------</span>
+
+<span class="sd">        threshold : int</span>
+<span class="sd">            The threshold distance for recording a warping event.</span>
+
+<span class="sd">        initial_states : list of objects implementing the State interface</span>
+<span class="sd">            The list of possible states that warped walkers will assume.</span>
+
+<span class="sd">        initial_weights : list of float, optional</span>
+<span class="sd">            List of normalized probabilities of the initial_states</span>
+<span class="sd">            provided. If not given, uniform probabilities will be</span>
+<span class="sd">            used.</span>
+
+<span class="sd">        ligand_idxs : arraylike of int</span>
+<span class="sd">            The indices of the atom positions in the state considered</span>
+<span class="sd">            the ligand.</span>
+
+<span class="sd">        binding_site_idxs : arraylike of int</span>
+<span class="sd">            The indices of the atom positions in the state considered</span>
+<span class="sd">            the binding site.</span>
+
+<span class="sd">        Raises</span>
+<span class="sd">        ------</span>
+<span class="sd">        AssertionError</span>
+<span class="sd">            If any of the following kwargs are not given:</span>
+<span class="sd">            threshold, initial_states.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">initial_states</span><span class="o">=</span><span class="n">initial_states</span><span class="p">,</span> <span class="n">initial_weights</span><span class="o">=</span><span class="n">initial_weights</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span>
+        <span class="p">)</span>
+
+        <span class="c1"># test inputs</span>
+        <span class="k">assert</span> <span class="n">threshold</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;Must give a threshold distance&quot;</span>
+
+        <span class="c1"># save attributes</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span> <span class="o">=</span> <span class="n">threshold</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">threshold</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;The cutoff RMSD for considering a walker bound.&quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span>
+
+<div class="viewcode-block" id="RandomWalkBC._progress">
+<a class="viewcode-back" href="../../../_api/wepy.boundary_conditions.randomwalk.html#wepy.boundary_conditions.randomwalk.RandomWalkBC._progress">[docs]</a>
+    <span class="k">def</span> <span class="nf">_progress</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">walker</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Calculate if the walker has bound and provide progress record.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        walker : object implementing the Walker interface</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        is_bound : bool</span>
+<span class="sd">           Whether the walker is unbound (warped) or not</span>
+
+<span class="sd">        progress_data : dict of str : value</span>
+<span class="sd">           Dictionary of the progress record group fields</span>
+<span class="sd">           for this walker alone.</span>
+
+<span class="sd">        &quot;&quot;&quot;</span>
+
+        <span class="n">pos</span> <span class="o">=</span> <span class="n">walker</span><span class="o">.</span><span class="n">state</span><span class="p">[</span><span class="s2">&quot;positions&quot;</span><span class="p">]</span>
+
+        <span class="n">distance</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">pos</span><span class="p">)</span>
+
+        <span class="c1"># test to see if the threshold was crossed</span>
+        <span class="n">crossed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">distance</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_threshold</span><span class="p">:</span>
+            <span class="n">crossed</span> <span class="o">=</span> <span class="kc">True</span>
+
+        <span class="n">progress_data</span> <span class="o">=</span> <span class="p">{</span><span class="s2">&quot;distance&quot;</span><span class="p">:</span> <span class="n">distance</span><span class="p">}</span>
+
+        <span class="k">return</span> <span class="n">crossed</span><span class="p">,</span> <span class="n">progress_data</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

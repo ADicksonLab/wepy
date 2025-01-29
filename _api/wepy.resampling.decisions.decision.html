@@ -42,8 +42,470 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-resampling-decisions-decision-module">
-<h1>wepy.resampling.decisions.decision module<a class="headerlink" href="#wepy-resampling-decisions-decision-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.resampling.decisions.decision">
+<span id="wepy-resampling-decisions-decision-module"></span><h1>wepy.resampling.decisions.decision module<a class="headerlink" href="#module-wepy.resampling.decisions.decision" title="Link to this heading">¶</a></h1>
+<p>Abstract base class for Decision classes.</p>
+<p>See the NoDecision class and others in this module for examples.</p>
+<p>To create your own subclass of the Decision class you must customize
+the following class constants:</p>
+<ul class="simple">
+<li><p>ENUM</p></li>
+<li><p>FIELDS</p></li>
+<li><p>SHAPES</p></li>
+<li><p>DTYPE</p></li>
+<li><p>RECORD_FIELDS</p></li>
+</ul>
+<p>The ‘ENUM’ field should be a python ‘Enum’ class created by
+subclassing and customizing ‘Enum’ in the normal pythonic way. The
+elements of the ‘Enum’ are the actual decision choices, and their
+numeric value is used for serialization.</p>
+<p>The ‘FIELDS’ constant is a specification of the number of fields that
+a decision record will have. All decision records should contain the
+‘decision_id’ field which is the choice of decision. This class
+implements that and should be used as shown in the examples.</p>
+<p>In order that fields be serializable to different formats, we also
+require that they be a numpy array datatype.</p>
+<p>To support this we require the data shapes and data types for each
+field. Elements of SHAPES and DTYPES should be of a format
+recognizable by the numpy array constructor.</p>
+<p>To this we allow the additional option of specifying SHAPES as the
+python built-in name Ellipsis (AKA ‘…’). This will specify the shape
+as a variable length 1-dimensional array.</p>
+<p>The RECORD_FIELDS is used as a way to specify fields which are
+amenable to placement in simplified summary tables, i.e. simple
+non-compound values.</p>
+<p>The only method that needs to be implemented in the Decision is
+‘action’.</p>
+<p>This function actually implements the algorithm for taking actions on
+the decisions and instructions and is called from the resampler to
+perform them on the collection of walkers.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.resampling.decisions.decision.</span></span><span class="sig-name descname"><span class="pre">Decision</span></span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Represents and provides methods for a set of decision values.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.ENUM">
+<span class="sig-name descname"><span class="pre">ENUM</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.ENUM" title="Link to this definition">¶</a></dt>
+<dd><p>The enumeration of the decision types. Maps them to integers.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.DEFAULT_DECISION">
+<span class="sig-name descname"><span class="pre">DEFAULT_DECISION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.DEFAULT_DECISION" title="Link to this definition">¶</a></dt>
+<dd><p>The default decision to choose.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.FIELDS">
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('decision_id',)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>The names of the fields that go into the decision record.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.SHAPES">
+<span class="sig-name descname"><span class="pre">SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((1,),)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.SHAPES" title="Link to this definition">¶</a></dt>
+<dd><p>Field data shapes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.DTYPES">
+<span class="sig-name descname"><span class="pre">DTYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'int'&gt;,)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.DTYPES" title="Link to this definition">¶</a></dt>
+<dd><p>Field data types.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.RECORD_FIELDS">
+<span class="sig-name descname"><span class="pre">RECORD_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('decision_id',)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.RECORD_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>The fields that could be used in a reduced table-like representation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.ANCESTOR_DECISION_IDS">
+<span class="sig-name descname"><span class="pre">ANCESTOR_DECISION_IDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.ANCESTOR_DECISION_IDS" title="Link to this definition">¶</a></dt>
+<dd><p>Specify the enum values where their walker state sample value is
+passed on in the next generation, i.e. after performing the action.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.default_decision">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_decision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.default_decision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.default_decision" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.field_names">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.field_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Names of the decision record fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.field_shapes">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.field_shapes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.field_shapes" title="Link to this definition">¶</a></dt>
+<dd><p>Field data shapes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.field_dtypes">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_dtypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.field_dtypes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.field_dtypes" title="Link to this definition">¶</a></dt>
+<dd><p>Field data types.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.fields">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.fields" title="Link to this definition">¶</a></dt>
+<dd><p>Specs for each field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fields</strong> – Field specs each spec is of the form (name, shape, dtype).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.record_field_names">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">record_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.record_field_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.record_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>The fields that could be used in a reduced table-like representation.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.enum_dict_by_name">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_dict_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_dict_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_dict_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Get the decision enumeration as a dict mapping name to integer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.enum_dict_by_value">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_dict_by_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_dict_by_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_dict_by_value" title="Link to this definition">¶</a></dt>
+<dd><p>Get the decision enumeration as a dict mapping integer to name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.enum_by_value">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_by_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_by_value"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_by_value" title="Link to this definition">¶</a></dt>
+<dd><p>Get the enum name for an enum_value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enum_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>enum_name</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>enum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.enum_by_name">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_name</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.enum_by_name"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.enum_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Get the enum name for an enum_value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enum_name</strong> (<em>enum</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>enum_value</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.record">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.record"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.record" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a record for the enum_value and the other fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enum_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>rec</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a> of str: value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.action">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.action" title="Link to this definition">¶</a></dt>
+<dd><p>Perform the instructions for a set of resampling records on
+walkers.</p>
+<p>The decisions are a collection of decision records which
+contain the decision value and the instruction values for a
+particular walker within its cohort (sample set).</p>
+<p>The collection is organized as a list of lists. The outer list
+corresponds to the steps of resampling within a cycle.</p>
+<p>The inner list is a list of decision records for a specific
+step of resampling, where the index of the decision record is
+the walker index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – The walkers you want to perform the decision instructions on.</p></li>
+<li><p><strong>decisions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>decision records</em>) – The decisions for each resampling step and their
+instructions to apply to the walkers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>resampled_walkers</strong> – The resampled walkers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of Walker objects</p>
+</dd>
+</dl>
+<p>:raises NotImplementedError : abstract method:</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.Decision.parents">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#Decision.parents"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.Decision.parents" title="Link to this definition">¶</a></dt>
+<dd><p>Given a step of resampling records (for a single resampling step)
+returns the parents of the children of this step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>decision records</em>) – The decision records for a step of resampling for each walker.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>walker_step_parents</strong> – For each element, the index of it in the list corresponds
+to the child index and the value of the element is the
+index of it’s parent before the decision action.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NothingDecisionEnum">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.resampling.decisions.decision.</span></span><span class="sig-name descname"><span class="pre">NothingDecisionEnum</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#NothingDecisionEnum"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.NothingDecisionEnum" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/enum.html#enum.Enum" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></a></p>
+<p>Enumeration of the decision values for doing nothing.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NothingDecisionEnum.NOTHING">
+<span class="sig-name descname"><span class="pre">NOTHING</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NothingDecisionEnum.NOTHING" title="Link to this definition">¶</a></dt>
+<dd><p>Do nothing with the walker.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.resampling.decisions.decision.</span></span><span class="sig-name descname"><span class="pre">NoDecision</span></span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#NoDecision"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.resampling.decisions.decision.Decision" title="wepy.resampling.decisions.decision.Decision"><code class="xref py py-class docutils literal notranslate"><span class="pre">Decision</span></code></a></p>
+<p>Decision for a resampling process that does no resampling.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.ENUM">
+<span class="sig-name descname"><span class="pre">ENUM</span></span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.ENUM" title="Link to this definition">¶</a></dt>
+<dd><p>alias of <a class="reference internal" href="#wepy.resampling.decisions.decision.NothingDecisionEnum" title="wepy.resampling.decisions.decision.NothingDecisionEnum"><code class="xref py py-class docutils literal notranslate"><span class="pre">NothingDecisionEnum</span></code></a></p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.default_decision">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">default_decision</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.default_decision" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.enum_by_name">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_by_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.enum_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Get the enum name for an enum_value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enum_name</strong> (<em>enum</em>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>enum_value</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.enum_by_value">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_by_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_value</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.enum_by_value" title="Link to this definition">¶</a></dt>
+<dd><p>Get the enum name for an enum_value.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enum_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>enum_name</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>enum</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.enum_dict_by_name">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_dict_by_name</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.enum_dict_by_name" title="Link to this definition">¶</a></dt>
+<dd><p>Get the decision enumeration as a dict mapping name to integer.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.enum_dict_by_value">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">enum_dict_by_value</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.enum_dict_by_value" title="Link to this definition">¶</a></dt>
+<dd><p>Get the decision enumeration as a dict mapping integer to name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.field_dtypes">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_dtypes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.field_dtypes" title="Link to this definition">¶</a></dt>
+<dd><p>Field data types.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.field_names">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.field_names" title="Link to this definition">¶</a></dt>
+<dd><p>Names of the decision record fields.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.field_shapes">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_shapes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.field_shapes" title="Link to this definition">¶</a></dt>
+<dd><p>Field data shapes.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.fields">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">fields</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.fields" title="Link to this definition">¶</a></dt>
+<dd><p>Specs for each field.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>fields</strong> – Field specs each spec is of the form (name, shape, dtype).</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of tuples</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.parents">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">parents</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">step</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.parents" title="Link to this definition">¶</a></dt>
+<dd><p>Given a step of resampling records (for a single resampling step)
+returns the parents of the children of this step.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>step</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>decision records</em>) – The decision records for a step of resampling for each walker.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>walker_step_parents</strong> – For each element, the index of it in the list corresponds
+to the child index and the value of the element is the
+index of it’s parent before the decision action.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of <a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)">int</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.record">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">record</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">enum_value</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">fields</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.record" title="Link to this definition">¶</a></dt>
+<dd><p>Generate a record for the enum_value and the other fields.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>enum_value</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>rec</strong></p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)">dict</a> of str: value</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.record_field_names">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">record_field_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.record_field_names" title="Link to this definition">¶</a></dt>
+<dd><p>The fields that could be used in a reduced table-like representation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.DEFAULT_DECISION">
+<span class="sig-name descname"><span class="pre">DEFAULT_DECISION</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">0</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.DEFAULT_DECISION" title="Link to this definition">¶</a></dt>
+<dd><p>The default decision to choose.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.FIELDS">
+<span class="sig-name descname"><span class="pre">FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('decision_id',</span> <span class="pre">'target_idxs')</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>The names of the fields that go into the decision record.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.SHAPES">
+<span class="sig-name descname"><span class="pre">SHAPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">((1,),</span> <span class="pre">Ellipsis)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.SHAPES" title="Link to this definition">¶</a></dt>
+<dd><p>Field data shapes.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.DTYPES">
+<span class="sig-name descname"><span class="pre">DTYPES</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(&lt;class</span> <span class="pre">'int'&gt;,</span> <span class="pre">&lt;class</span> <span class="pre">'int'&gt;)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.DTYPES" title="Link to this definition">¶</a></dt>
+<dd><p>Field data types.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.RECORD_FIELDS">
+<span class="sig-name descname"><span class="pre">RECORD_FIELDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">('decision_id',</span> <span class="pre">'target_idxs')</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.RECORD_FIELDS" title="Link to this definition">¶</a></dt>
+<dd><p>The fields that could be used in a reduced table-like representation.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.ANCESTOR_DECISION_IDS">
+<span class="sig-name descname"><span class="pre">ANCESTOR_DECISION_IDS</span></span><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">(0,)</span></em><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.ANCESTOR_DECISION_IDS" title="Link to this definition">¶</a></dt>
+<dd><p>Specify the enum values where their walker state sample value is
+passed on in the next generation, i.e. after performing the action.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.decisions.decision.NoDecision.action">
+<em class="property"><span class="pre">classmethod</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">action</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walkers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">decisions</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/decisions/decision.html#NoDecision.action"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.decisions.decision.NoDecision.action" title="Link to this definition">¶</a></dt>
+<dd><p>Perform the instructions for a set of resampling records on
+walkers.</p>
+<p>The decisions are a collection of decision records which
+contain the decision value and the instruction values for a
+particular walker within its cohort (sample set).</p>
+<p>The collection is organized as a list of lists. The outer list
+corresponds to the steps of resampling within a cycle.</p>
+<p>The inner list is a list of decision records for a specific
+step of resampling, where the index of the decision record is
+the walker index.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – The walkers you want to perform the decision instructions on.</p></li>
+<li><p><strong>decisions</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>decision records</em>) – The decisions for each resampling step and their
+instructions to apply to the walkers.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>resampled_walkers</strong> – The resampled walkers.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)">list</a> of Walker objects</p>
+</dd>
+</dl>
+<p>:raises NotImplementedError : abstract method:</p>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

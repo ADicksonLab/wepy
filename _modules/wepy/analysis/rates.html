@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>wepy.analysis.rates &#8212; Wepy Documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=77553476" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=c058f7c8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=b1d2a1f0" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/custom.css?v=4f057836" />
+    <script src="../../../_static/documentation_options.js?v=fc837d61"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script crossorigin="anonymous" integrity="sha256-Ae2Vz/4ePdIu6ZyI/5ZGsYnb+m0JlOmKPjt6XZ9JJkA=" src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="canonical" href="https://adicksonlab.github.io/wepy/_modules/wepy/analysis/rates.html" />
+    <link rel="icon" href="../../../_static/wepy-icon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+              <div class="related top">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for wepy.analysis.rates</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Compute rates for warping events.&quot;&quot;&quot;</span>
+
+<span class="c1"># Standard Library</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+
+<div class="viewcode-block" id="calc_warp_rate">
+<a class="viewcode-back" href="../../../_api/wepy.analysis.rates.html#wepy.analysis.rates.calc_warp_rate">[docs]</a>
+<span class="k">def</span> <span class="nf">calc_warp_rate</span><span class="p">(</span><span class="n">warping_records</span><span class="p">,</span> <span class="n">total_sampling_time</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the warping rates for each target in these records.</span>
+
+<span class="sd">    Takes a set of warping records which are named tuples that have</span>
+<span class="sd">    the fields set in the Abstract Base Class for boundary conditions</span>
+<span class="sd">    (wepy.boundary_conditions.boundary.Boundary).</span>
+
+<span class="sd">    Namely these are: weight, target_idx, cycle_idx</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    warping_records : list of namedtuples implementing the warping interface</span>
+<span class="sd">        The list of warping records for which events will be used to</span>
+<span class="sd">        calculate the rates.</span>
+
+<span class="sd">    total_sampling_time : float</span>
+<span class="sd">        The total amount of sampling time that was run to generate</span>
+<span class="sd">        these warping records.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    target_weights_rates : dict of int : tuple of (float, float, float)</span>
+<span class="sd">        A dictionary where each key is for a target present in the</span>
+<span class="sd">        warping records and each value is a tuple giving the total</span>
+<span class="sd">        accumulated weight in that target boundary, the total flux of</span>
+<span class="sd">        probability across the boundary (rate), and the total sampling</span>
+<span class="sd">        time it was calculated with,respectively.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    wepy.boundary_conditions.boundary.Boundary : for specs on fields</span>
+<span class="sd">                                                 necessary for warping_records</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># we wish we could return a tuple of (0., np.inf) for no records</span>
+    <span class="c1"># but we don&#39;t know the target indices so there isn&#39;t really a way</span>
+    <span class="c1"># to do this without defaults which will only wreak havoc I am</span>
+    <span class="c1"># sure. So this must be dealt with outside of this function.</span>
+
+    <span class="c1"># get the weights from the records, the fields for the records are</span>
+    <span class="c1"># defined in the base class for boundary conditions</span>
+
+    <span class="c1"># we separate them based on the target</span>
+    <span class="n">target_warp_weights</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="nb">list</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">warping_records</span><span class="p">:</span>
+        <span class="c1"># get the weight</span>
+        <span class="n">target_warp_weights</span><span class="p">[</span><span class="n">rec</span><span class="o">.</span><span class="n">target_idx</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rec</span><span class="o">.</span><span class="n">weight</span><span class="p">)</span>
+
+    <span class="c1"># sum each target weights up, and compute the weights</span>
+    <span class="n">target_results</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">target_key</span><span class="p">,</span> <span class="n">weights</span> <span class="ow">in</span> <span class="n">target_warp_weights</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">total_weight</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">total_weight</span> <span class="o">/</span> <span class="n">total_sampling_time</span>
+
+        <span class="n">target_results</span><span class="p">[</span><span class="n">target_key</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">total_weight</span><span class="p">,</span> <span class="n">rate</span><span class="p">,</span> <span class="n">total_sampling_time</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">target_results</span></div>
+
+
+
+<div class="viewcode-block" id="contig_warp_rates">
+<a class="viewcode-back" href="../../../_api/wepy.analysis.rates.html#wepy.analysis.rates.contig_warp_rates">[docs]</a>
+<span class="k">def</span> <span class="nf">contig_warp_rates</span><span class="p">(</span><span class="n">contig</span><span class="p">,</span> <span class="n">cycle_time</span><span class="p">,</span> <span class="n">time_points</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Calculate the warping rates for a contig.</span>
+
+<span class="sd">    Automatically figures out the total sampling time for two options</span>
+<span class="sd">    which is set by the &#39;time_points&#39; kwarg.</span>
+
+<span class="sd">    If &#39;time_points&#39; is None then a rate will only be computed for the</span>
+<span class="sd">    end of the simulation.</span>
+
+<span class="sd">    If &#39;time_points&#39; is Ellipsis then a rate will be computed for each</span>
+<span class="sd">    cycle in the entire run.</span>
+
+<span class="sd">    Will work with runs that used boundary conditions deriving from</span>
+<span class="sd">    and preserving the warping record fields from the abstract base</span>
+<span class="sd">    class (wepy.boundary_conditions.boundary.Boundary).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+
+<span class="sd">    contig : analysis.contig_tree.Contig</span>
+<span class="sd">        Underlying WepyHDF5 must be open for reading.</span>
+
+<span class="sd">    cycle_time : float</span>
+<span class="sd">        The sampling time for each cycle.</span>
+
+<span class="sd">    time_points : None or Ellipsis</span>
+<span class="sd">        Determines how many and which time points are computed for the</span>
+<span class="sd">        rates of each run. None, only the end; Ellipsis, all cycles.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+
+<span class="sd">    run_target_weights_rates : list of dict of int : tuple of (float, float, float)</span>
+
+<span class="sd">        List where each value of a run is a list of outputs from</span>
+<span class="sd">        calc_warping_rate. The number and meaning of the elements of</span>
+<span class="sd">        the list depend on the value of the &#39;time_points&#39; kwarg.</span>
+
+<span class="sd">    See Also</span>
+<span class="sd">    --------</span>
+
+<span class="sd">    wepy.analysis.rates.calc_warp_rate</span>
+
+<span class="sd">    wepy.boundary_conditions.boundary.Boundary : for specs on fields</span>
+<span class="sd">                                                 necessary for warping_records</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># if time_points is None that means just get the rate for the</span>
+    <span class="c1"># whole run or Ellipsis to evaluate it for all cycles.</span>
+    <span class="k">if</span> <span class="n">time_points</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_cycle_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">contig</span><span class="o">.</span><span class="n">num_cycles</span><span class="p">]</span>
+        <span class="n">cycle_idxs</span> <span class="o">=</span> <span class="p">[</span><span class="n">contig</span><span class="o">.</span><span class="n">num_cycles</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">elif</span> <span class="n">time_points</span> <span class="ow">is</span> <span class="bp">Ellipsis</span><span class="p">:</span>
+        <span class="n">n_cycle_points</span> <span class="o">=</span> <span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">contig</span><span class="o">.</span><span class="n">num_cycles</span><span class="p">)]</span>
+        <span class="n">cycle_idxs</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">contig</span><span class="o">.</span><span class="n">num_cycles</span><span class="p">))</span>
+
+    <span class="c1"># get a vector for the number of walkers for each cycle_idx</span>
+    <span class="n">n_walkers</span> <span class="o">=</span> <span class="p">[</span><span class="n">contig</span><span class="o">.</span><span class="n">num_walkers</span><span class="p">(</span><span class="n">cycle_idx</span><span class="p">)</span> <span class="k">for</span> <span class="n">cycle_idx</span> <span class="ow">in</span> <span class="n">cycle_idxs</span><span class="p">]</span>
+
+    <span class="c1"># calculate the total sampling time for each point which is the</span>
+    <span class="c1"># cycle_index times the real sampling time for each walker in the</span>
+    <span class="c1"># ensemble times the number of walkers</span>
+    <span class="n">total_sampling_times</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">n_cycle</span> <span class="o">*</span> <span class="n">cycle_time</span> <span class="o">*</span> <span class="n">n_walkers</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">n_cycle</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">n_cycle_points</span><span class="p">)</span>
+    <span class="p">]</span>
+
+    <span class="n">all_recs</span> <span class="o">=</span> <span class="n">contig</span><span class="o">.</span><span class="n">warping_records</span><span class="p">()</span>
+
+    <span class="n">contig_rates</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">cycle_idx</span><span class="p">,</span> <span class="n">total_sampling_time</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cycle_idxs</span><span class="p">,</span> <span class="n">total_sampling_times</span><span class="p">):</span>
+        <span class="n">recs</span> <span class="o">=</span> <span class="p">[</span><span class="n">rec</span> <span class="k">for</span> <span class="n">rec</span> <span class="ow">in</span> <span class="n">all_recs</span> <span class="k">if</span> <span class="n">rec</span><span class="o">.</span><span class="n">cycle_idx</span> <span class="o">&lt;=</span> <span class="n">cycle_idx</span><span class="p">]</span>
+        <span class="n">rate</span> <span class="o">=</span> <span class="n">calc_warp_rate</span><span class="p">(</span><span class="n">recs</span><span class="p">,</span> <span class="n">total_sampling_time</span><span class="p">)</span>
+        <span class="n">contig_rates</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">rate</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">contig_rates</span></div>
+
+</pre></div>
+
+          </div>
+              <div class="related bottom">
+                &nbsp;
+  <nav id="rellinks">
+    <ul>
+    </ul>
+  </nav>
+              </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/wepy.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">wepy</h1>
+    
+  </a>
+</p>
+
+
+
+<p class="blurb">Wepy Documentation</p>
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=ADicksonLab&repo=wepy&type=watch&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/introduction.html">Introduction &amp; Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/installation.html">Installation Guide</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/quick_start/index.html">Quick Start</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/tutorials/index.html">Tutorials</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/troubleshooting.html">FAQ</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/reference.html">HDF5 Reporter Data Structure</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/glossary.html">Glossary</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/general_info.html">General Information</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/news.html">News and Updates</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../_source/dev_guide.html">Development Guide</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2024, Michigan State University.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 8.0.2</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

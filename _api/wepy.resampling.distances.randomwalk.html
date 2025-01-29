@@ -42,8 +42,83 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-resampling-distances-randomwalk-module">
-<h1>wepy.resampling.distances.randomwalk module<a class="headerlink" href="#wepy-resampling-distances-randomwalk-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.resampling.distances.randomwalk">
+<span id="wepy-resampling-distances-randomwalk-module"></span><h1>wepy.resampling.distances.randomwalk module<a class="headerlink" href="#module-wepy.resampling.distances.randomwalk" title="Link to this heading">¶</a></h1>
+<p>This module here is part of the RandomWalk object that implements
+the distance metric for the RandomWalk walk system. This distance
+metric is a scaled version of the Manhattan Norm.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.resampling.distances.randomwalk.RandomWalkDistance">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.resampling.distances.randomwalk.</span></span><span class="sig-name descname"><span class="pre">RandomWalkDistance</span></span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.resampling.distances.distance.html#wepy.resampling.distances.distance.Distance" title="wepy.resampling.distances.distance.Distance"><code class="xref py py-class docutils literal notranslate"><span class="pre">Distance</span></code></a></p>
+<p>A class to implement the RandomWalkDistance metric for measuring
+differences between walker states. This is a normalized Manhattan
+distance measured between the difference in positions of the walkers.</p>
+<p>Construct a RandomWalkDistance metric.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.distances.randomwalk.RandomWalkDistance.image">
+<span class="sig-name descname"><span class="pre">image</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image" title="Link to this definition">¶</a></dt>
+<dd><p>Transform a state into a random walk image.</p>
+<p>A random walk image is just the position of a walker in the
+N-dimensional space.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>state</strong> (<em>object implementing WalkerState</em>) – A walker state object with positions in a numpy array
+of shape (N), where N is the the dimension of the random
+walk system.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>randomwalk_image</strong> – The positions of a walker in the N-dimensional space.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>array of floats of shape (N)</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance">
+<span class="sig-name descname"><span class="pre">image_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">image_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">image_b</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/resampling/distances/randomwalk.html#RandomWalkDistance.image_distance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.image_distance" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the distance between the image of the two walkers.</p>
+<blockquote>
+<div><dl class="simple">
+<dt>image_a<span class="classifier">array of float of shape (1, N)</span></dt><dd><p>Position of the first walker’s state.</p>
+</dd>
+<dt>image_b:  array of float of shape (1, N)</dt><dd><p>Position of the second walker’s state.</p>
+</dd>
+</dl>
+</div></blockquote>
+<dl class="simple">
+<dt>Returns</dt><dd><dl class="simple">
+<dt>distance: float</dt><dd><p>The normalized Manhattan distance.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.resampling.distances.randomwalk.RandomWalkDistance.distance">
+<span class="sig-name descname"><span class="pre">distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_a</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">state_b</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.resampling.distances.randomwalk.RandomWalkDistance.distance" title="Link to this definition">¶</a></dt>
+<dd><p>Compute the distance between two states.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>state_a</strong> (<em>object implementing WalkerState</em>)</p></li>
+<li><p><strong>state_b</strong> (<em>object implementing WalkerState</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>distance</strong> – The distance between the two walker states</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)">float</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

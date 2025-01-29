@@ -42,8 +42,107 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-reporter-walker-pkl-module">
-<h1>wepy.reporter.walker_pkl module<a class="headerlink" href="#wepy-reporter-walker-pkl-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.reporter.walker_pkl">
+<span id="wepy-reporter-walker-pkl-module"></span><h1>wepy.reporter.walker_pkl module<a class="headerlink" href="#module-wepy.reporter.walker_pkl" title="Link to this heading">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.reporter.walker_pkl.WalkerPklReporter">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.reporter.walker_pkl.</span></span><span class="sig-name descname"><span class="pre">WalkerPklReporter</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">save_dir</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'./'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">freq</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_backups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker_pkl.html#WalkerPklReporter"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.walker_pkl.WalkerPklReporter" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="wepy.reporter.reporter.html#wepy.reporter.reporter.Reporter" title="wepy.reporter.reporter.Reporter"><code class="xref py py-class docutils literal notranslate"><span class="pre">Reporter</span></code></a></p>
+<p>Construct a reporter.</p>
+<p>Void constructor for the Reporter base class.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>**kwargs</strong> (<em>key-value pairs</em>) – Ignored kwargs, but accepts them from subclass calls for
+compatibility.</p>
+</dd>
+</dl>
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.walker_pkl.WalkerPklReporter.init">
+<span class="sig-name descname"><span class="pre">init</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker_pkl.html#WalkerPklReporter.init"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.walker_pkl.WalkerPklReporter.init" title="Link to this definition">¶</a></dt>
+<dd><p>Initialization routines for the reporter at simulation runtime.</p>
+<p>Initialize I/O connections including file descriptors,
+database connections, timers, stdout/stderr etc.</p>
+<p>Void method for reporter base class.</p>
+<p>Reporters can expect to have the following key word arguments
+passed to them during a simulation by the sim_manager in this
+call.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>init_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – The initial walkers for the simulation.</p></li>
+<li><p><strong>runner</strong> (<em>Runner object</em>) – The runner that will be used in the simulation.</p></li>
+<li><p><strong>resampler</strong> (<em>Resampler object</em>) – The resampler that will be used in the simulation.</p></li>
+<li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em>) – The boundary conditions taht will be used in the simulation.</p></li>
+<li><p><strong>work_mapper</strong> (<em>WorkMapper object</em>) – The work mapper that will be used in the simulation.</p></li>
+<li><p><strong>reporters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Reporter objects</em>) – The list of reporters that are in the simulation.</p></li>
+<li><p><strong>continue_run</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The index of the run that is being continued within this
+same file.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.walker_pkl.WalkerPklReporter.report">
+<span class="sig-name descname"><span class="pre">report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cycle_idx</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_walkers</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/reporter/walker_pkl.html#WalkerPklReporter.report"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.reporter.walker_pkl.WalkerPklReporter.report" title="Link to this definition">¶</a></dt>
+<dd><p>Given data concerning the main simulation components state, perform
+I/O operations to persist that data.</p>
+<p>Void method for reporter base class.</p>
+<p>Reporters can expect to have the following key word arguments
+passed to them during a simulation by the sim_manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>cycle_idx</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>)</p></li>
+<li><p><strong>new_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – List of walkers that were produced from running their
+dynamics by the runner.</p></li>
+<li><p><strong>warp_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of dict-like records for each warping event from the
+last cycle.</p></li>
+<li><p><strong>bc_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of dict-like records specifying the changes to the
+state of the boundary conditions in the last cycle.</p></li>
+<li><p><strong>progress_data</strong> (<em>dict str : list</em>) – A record indicating the progress values for each walker in
+the last cycle.</p></li>
+<li><p><strong>resampling_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of records specifying the resampling to occur at this
+cycle.</p></li>
+<li><p><strong>resampler_data</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>str : value</em>) – List of records specifying the changes to the state of the
+resampler in the last cycle.</p></li>
+<li><p><strong>n_segment_steps</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a>) – The number of dynamics steps that were completed in the last cycle</p></li>
+<li><p><strong>worker_segment_times</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#dict" title="(in Python v3.13)"><em>dict</em></a><em> of </em><em>int : list</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Mapping worker index to the times they took for each
+segment they processed.</p></li>
+<li><p><strong>cycle_runner_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Total time runner took in last cycle.</p></li>
+<li><p><strong>cycle_bc_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Total time boundary conditions took in last cycle.</p></li>
+<li><p><strong>cycle_resampling_time</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – Total time resampler took in last cycle.</p></li>
+<li><p><strong>resampled_walkers</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Walker objects</em>) – List of walkers that were produced from the new_walkers
+from applying resampling and boundary conditions.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.reporter.walker_pkl.WalkerPklReporter.cleanup">
+<span class="sig-name descname"><span class="pre">cleanup</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.reporter.walker_pkl.WalkerPklReporter.cleanup" title="Link to this definition">¶</a></dt>
+<dd><p>Teardown routines for the reporter at the end of the simulation.</p>
+<p>Use to cleanly and safely close I/O connections or other
+cleanup I/O.</p>
+<p>Use to close file descriptors, database connections etc.</p>
+<p>Reporters can expect to have the following key word arguments
+passed to them during a simulation by the sim_manager.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>runner</strong> (<em>Runner object</em>) – The runner at the end of the simulation</p></li>
+<li><p><strong>work_mapper</strong> (<em>WorkeMapper object</em>) – The work mapper at the end of the simulation</p></li>
+<li><p><strong>resampler</strong> (<em>Resampler object</em>) – The resampler at the end of the simulation</p></li>
+<li><p><strong>boundary_conditions</strong> (<em>BoundaryConditions object</em>) – The boundary conditions at the end of the simulation</p></li>
+<li><p><strong>reporters</strong> (<a class="reference external" href="https://docs.python.org/3/library/stdtypes.html#list" title="(in Python v3.13)"><em>list</em></a><em> of </em><em>Reporter objects</em>) – The list of reporters at the end of the simulation</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 

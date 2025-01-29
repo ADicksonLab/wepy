@@ -42,8 +42,97 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-util-util-module">
-<h1>wepy.util.util module<a class="headerlink" href="#wepy-util-util-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.util.util">
+<span id="wepy-util-util-module"></span><h1>wepy.util.util module<a class="headerlink" href="#module-wepy.util.util" title="Link to this heading">¶</a></h1>
+<p>Miscellaneous functions needed by wepy.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.util.util.set_loglevel">
+<span class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></span><span class="sig-name descname"><span class="pre">set_loglevel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">loglevel</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#set_loglevel"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.set_loglevel" title="Link to this definition">¶</a></dt>
+<dd><p>
+:param loglevel:</p>
+<p></p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.util.util.traj_box_vectors_to_lengths_angles">
+<span class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></span><span class="sig-name descname"><span class="pre">traj_box_vectors_to_lengths_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">traj_box_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#traj_box_vectors_to_lengths_angles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.traj_box_vectors_to_lengths_angles" title="Link to this definition">¶</a></dt>
+<dd><p>Convert box vectors for multiple ‘frames’ (a ‘trajectory’) to box lengths and angles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>traj_box_vectors</strong> (<em>arraylike</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em> of </em><em>shape</em><em> (</em><em>n_frames</em><em>, </em><em>n_dims</em><em>, </em><em>n_dims</em><em>)</em>) – Box vector matrices (x, y, z) for a trajectory of frames.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>traj_box_lengths</strong> (<em>arraylike of float of shape (n_frames, n_dims)</em>) – The lengths of the box for each frame</p></li>
+<li><p><strong>traj_box_angles</strong> (<em>arraylike of float of shape (n_frames, n_dims)</em>) – The angles of the box vectors to normal for each frame in degrees.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.util.util.box_vectors_to_lengths_angles">
+<span class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></span><span class="sig-name descname"><span class="pre">box_vectors_to_lengths_angles</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">box_vectors</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#box_vectors_to_lengths_angles"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.box_vectors_to_lengths_angles" title="Link to this definition">¶</a></dt>
+<dd><p>Convert box vectors for a single ‘frame’ to lengths and angles.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>box_vectors</strong> (<em>arraylike</em><em> of </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a><em> of </em><em>shape</em><em> (</em><em>n_dims</em><em>, </em><em>n_dims</em><em>)</em>) – Box vector matrices (x, y, z) for a single frame.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>box_lengths</strong> (<em>arraylike of float of shape (n_dims,)</em>) – The lengths of the box</p></li>
+<li><p><strong>box_angles</strong> (<em>arraylike of float of shape (n_dims,)</em>) – The angles of the box vectors to normal in degrees.</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.util.util.lengths_and_angles_to_box_vectors">
+<span class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></span><span class="sig-name descname"><span class="pre">lengths_and_angles_to_box_vectors</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">a_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">b_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">c_length</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">alpha</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">beta</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">gamma</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#lengths_and_angles_to_box_vectors"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.lengths_and_angles_to_box_vectors" title="Link to this definition">¶</a></dt>
+<dd><p>Convert from the lengths/angles of the unit cell to the box
+vectors (Bravais vectors). The angles should be in degrees.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>a_length</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – length of Bravais unit vector <strong>a</strong></p></li>
+<li><p><strong>b_length</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – length of Bravais unit vector <strong>b</strong></p></li>
+<li><p><strong>c_length</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – length of Bravais unit vector <strong>c</strong></p></li>
+<li><p><strong>alpha</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – angle between vectors <strong>b</strong> and <strong>c</strong>, in degrees.</p></li>
+<li><p><strong>beta</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – angle between vectors <strong>c</strong> and <strong>a</strong>, in degrees.</p></li>
+<li><p><strong>gamma</strong> (<em>scalar</em><em> or </em><em>np.ndarray</em>) – angle between vectors <strong>a</strong> and <strong>b</strong>, in degrees.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>a</strong> (<em>np.ndarray</em>) – If the inputs are scalar, the vectors will one dimesninoal (length 3).
+If the inputs are one dimension, shape=(n_frames, ), then the output
+will be (n_frames, 3)</p></li>
+<li><p><strong>b</strong> (<em>np.ndarray</em>) – If the inputs are scalar, the vectors will one dimesninoal (length 3).
+If the inputs are one dimension, shape=(n_frames, ), then the output
+will be (n_frames, 3)</p></li>
+<li><p><strong>c</strong> (<em>np.ndarray</em>) – If the inputs are scalar, the vectors will one dimesninoal (length 3).
+If the inputs are one dimension, shape=(n_frames, ), then the output
+will be (n_frames, 3)</p></li>
+</ul>
+</p>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<p class="rubric">Notes</p>
+<p>This code is adapted from gyroid, which is licensed under the BSD
+<a class="reference external" href="http://pythonhosted.org/gyroid/_modules/gyroid/unitcell.html">http://pythonhosted.org/gyroid/_modules/gyroid/unitcell.html</a>
+&gt;&gt;&gt; import numpy as np
+&gt;&gt;&gt; result = lengths_and_angles_to_box_vectors(1, 1, 1, 90.0, 90.0, 90.0)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="wepy.util.util.concat_traj_fields">
+<span class="sig-prename descclassname"><span class="pre">wepy.util.util.</span></span><span class="sig-name descname"><span class="pre">concat_traj_fields</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">trajs_fields</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/util/util.html#concat_traj_fields"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.util.util.concat_traj_fields" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </section>
 
 

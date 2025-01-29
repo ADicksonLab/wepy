@@ -42,8 +42,127 @@
 
           <div class="body" role="main">
             
-  <section id="wepy-runners-runner-module">
-<h1>wepy.runners.runner module<a class="headerlink" href="#wepy-runners-runner-module" title="Link to this heading">¶</a></h1>
+  <section id="module-wepy.runners.runner">
+<span id="wepy-runners-runner-module"></span><h1>wepy.runners.runner module<a class="headerlink" href="#module-wepy.runners.runner" title="Link to this heading">¶</a></h1>
+<p>Abstract Base classes implementing the Runner interface.</p>
+<section id="runner-interface">
+<h2>Runner Interface<a class="headerlink" href="#runner-interface" title="Link to this heading">¶</a></h2>
+<p>All a runner needs to implement is the ‘run_segment’ method which
+should accept a walker and a spec for the length of the segment to run
+(e.g. number of dynamics steps).</p>
+<p>Additionally, any number of optional key word arguments should be given.</p>
+<p>As a matter of convention, classes accessory to a runner (such as
+State, Walker, Worker, etc.) should also be put in the same module as
+the runner.</p>
+<p>See the openmm.py module for an example.</p>
+</section>
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.runners.runner.Runner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.runners.runner.</span></span><span class="sig-name descname"><span class="pre">Runner</span></span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference external" href="https://docs.python.org/3/library/functions.html#object" title="(in Python v3.13)"><code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></a></p>
+<p>Abstract base class for the Runner interface.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.runner.Runner.pre_cycle">
+<span class="sig-name descname"><span class="pre">pre_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.pre_cycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner.pre_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Perform pre-cycle behavior. run_segment will be called for each
+walker so this allows you to perform changes of state on a
+per-cycle basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>key-word arguments</em>) – Key-value pairs to be interpreted by each runner implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.runner.Runner.post_cycle">
+<span class="sig-name descname"><span class="pre">post_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.post_cycle"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner.post_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Perform post-cycle behavior. run_segment will be called for each
+walker so this allows you to perform changes of state on a
+per-cycle basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>key-word arguments</em>) – Key-value pairs to be interpreted by each runner implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.runner.Runner.run_segment">
+<span class="sig-name descname"><span class="pre">run_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_length</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#Runner.run_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.Runner.run_segment" title="Link to this definition">¶</a></dt>
+<dd><p>Run dynamics for the walker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walker</strong> (<em>object implementing the Walker interface</em>) – The walker for which dynamics will be propagated.</p></li>
+<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The numerical value that specifies how much dynamics are to be run.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>new_walker</strong> – Walker after dynamics was run, only the state should be modified.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="wepy.runners.runner.NoRunner">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">wepy.runners.runner.</span></span><span class="sig-name descname"><span class="pre">NoRunner</span></span><a class="reference internal" href="../_modules/wepy/runners/runner.html#NoRunner"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.NoRunner" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#wepy.runners.runner.Runner" title="wepy.runners.runner.Runner"><code class="xref py py-class docutils literal notranslate"><span class="pre">Runner</span></code></a></p>
+<p>Stub Runner that just returns the walkers back with the same state.</p>
+<p>May be useful for testing.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.runner.NoRunner.run_segment">
+<span class="sig-name descname"><span class="pre">run_segment</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">walker</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">segment_length</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/wepy/runners/runner.html#NoRunner.run_segment"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#wepy.runners.runner.NoRunner.run_segment" title="Link to this definition">¶</a></dt>
+<dd><p>Run dynamics for the walker.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>walker</strong> (<em>object implementing the Walker interface</em>) – The walker for which dynamics will be propagated.</p></li>
+<li><p><strong>segment_length</strong> (<a class="reference external" href="https://docs.python.org/3/library/functions.html#int" title="(in Python v3.13)"><em>int</em></a><em> or </em><a class="reference external" href="https://docs.python.org/3/library/functions.html#float" title="(in Python v3.13)"><em>float</em></a>) – The numerical value that specifies how much dynamics are to be run.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><strong>new_walker</strong> – Walker after dynamics was run, only the state should be modified.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>object implementing the Walker interface</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.runner.NoRunner.post_cycle">
+<span class="sig-name descname"><span class="pre">post_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.runner.NoRunner.post_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Perform post-cycle behavior. run_segment will be called for each
+walker so this allows you to perform changes of state on a
+per-cycle basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>key-word arguments</em>) – Key-value pairs to be interpreted by each runner implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="wepy.runners.runner.NoRunner.pre_cycle">
+<span class="sig-name descname"><span class="pre">pre_cycle</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#wepy.runners.runner.NoRunner.pre_cycle" title="Link to this definition">¶</a></dt>
+<dd><p>Perform pre-cycle behavior. run_segment will be called for each
+walker so this allows you to perform changes of state on a
+per-cycle basis.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>kwargs</strong> (<em>key-word arguments</em>) – Key-value pairs to be interpreted by each runner implementation.</p>
+</dd>
+</dl>
+</dd></dl>
+
+</dd></dl>
+
 </section>
 
 
