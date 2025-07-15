@@ -256,10 +256,10 @@ class RegionTree(nx.DiGraph):
         self._max_num_walkers = False
         self._min_num_walkers = False
 
-        assert (
-            merge_method in self.MERGE_METHODS
-        ), "the merge method given, '{}', must be one of the methods available {}".format(
-            merge_method, self.MERGE_METHODS
+        assert merge_method in self.MERGE_METHODS, (
+            "the merge method given, '{}', must be one of the methods available {}".format(
+                merge_method, self.MERGE_METHODS
+            )
         )
 
         self._merge_method = merge_method
@@ -564,7 +564,7 @@ class RegionTree(nx.DiGraph):
             image_dists = []
             for level_node in level_nodes:
                 # get the image
-                image_idx = self.node[level_node]["image_idx"]
+                image_idx = self.nodes[level_node]["image_idx"]
                 image = self.images[image_idx]
 
                 # if this distance is already calculated don't
@@ -618,12 +618,12 @@ class RegionTree(nx.DiGraph):
 
         # set all the node attributes to their defaults
         for node_id in self.nodes:
-            self.node[node_id]["n_walkers"] = 0
-            self.node[node_id]["walker_idxs"] = []
+            self.nodes[node_id]["n_walkers"] = 0
+            self.nodes[node_id]["walker_idxs"] = []
 
-            self.node[node_id]["n_squashable"] = 0
-            self.node[node_id]["n_possible_clones"] = 0
-            self.node[node_id]["balance"] = 0
+            self.nodes[node_id]["n_squashable"] = 0
+            self.nodes[node_id]["n_possible_clones"] = 0
+            self.nodes[node_id]["balance"] = 0
 
     def place_walkers(self, walkers):
         """
@@ -693,8 +693,8 @@ class RegionTree(nx.DiGraph):
             for level in range(len(assignment) + 1):
                 node_id = assignment[:level]
 
-                self.node[node_id]["n_walkers"] += 1
-                self.node[node_id]["walker_idxs"].append(walker_idx)
+                self.nodes[node_id]["n_walkers"] += 1
+                self.nodes[node_id]["walker_idxs"].append(walker_idx)
 
         # We also want to find out some details about the ability of
         # the leaf nodes to clone and merge walkers. This is useful
@@ -702,7 +702,7 @@ class RegionTree(nx.DiGraph):
         # figured out for the leaf nodes we want to aggregate these
         # numbers for the higher level regions
         for node_id in self.leaf_nodes():
-            leaf_walker_idxs = self.node[node_id]["walker_idxs"]
+            leaf_walker_idxs = self.nodes[node_id]["walker_idxs"]
             leaf_weights = [self.walker_weights[i] for i in leaf_walker_idxs]
 
             # first figure out how many walkers are squashable (AKA
@@ -718,20 +718,20 @@ class RegionTree(nx.DiGraph):
             n_possible_clones = sum(walker_max_n_clones)
 
             # actually set them as attributes for the node
-            self.node[node_id]["n_squashable"] = n_squashable
-            self.node[node_id]["n_possible_clones"] = n_possible_clones
+            self.nodes[node_id]["n_squashable"] = n_squashable
+            self.nodes[node_id]["n_possible_clones"] = n_possible_clones
 
             # also add this amount to all of the nodes above it
 
             # n_squashable
             for level in reversed(range(self.n_levels)):
                 branch_node_id = node_id[:level]
-                self.node[branch_node_id]["n_squashable"] += n_squashable
+                self.nodes[branch_node_id]["n_squashable"] += n_squashable
 
             # n_posssible_clones
             for level in reversed(range(self.n_levels)):
                 branch_node_id = node_id[:level]
-                self.node[branch_node_id]["n_possible_clones"] += n_possible_clones
+                self.nodes[branch_node_id]["n_possible_clones"] += n_possible_clones
 
         return new_branches
 
@@ -866,7 +866,7 @@ class RegionTree(nx.DiGraph):
 
         # we get the current number of shares for each child
         orig_children_shares = {
-            child_id: len(self.node[child_id]["walker_idxs"])
+            child_id: len(self.nodes[child_id]["walker_idxs"])
             for child_id in children_node_ids
         }
 
@@ -875,13 +875,13 @@ class RegionTree(nx.DiGraph):
 
         # the donatable (squashable) walkers to start with
         children_donatable_shares = {
-            child_id: self.node[child_id]["n_squashable"]
+            child_id: self.nodes[child_id]["n_squashable"]
             for child_id in children_node_ids
         }
 
         # the donatable (squashable) walkers to start with
         children_receivable_shares = {
-            child_id: self.node[child_id]["n_possible_clones"]
+            child_id: self.nodes[child_id]["n_possible_clones"]
             for child_id in children_node_ids
         }
 
@@ -932,7 +932,7 @@ class RegionTree(nx.DiGraph):
         # point, but now that the net change in the balances for the
         # children have been generated we set them into their nodes
         for child_node_id, child_net_balance in net_balances.items():
-            self.node[child_node_id]["balance"] = child_net_balance
+            self.nodes[child_node_id]["balance"] = child_net_balance
 
     def _dispense_parental_shares(
         self,
@@ -1542,13 +1542,13 @@ class RegionTree(nx.DiGraph):
         walker_idxs = list(range(len(merge_groups)))
 
         # the balance of this leaf
-        leaf_balance = self.node[leaf]["balance"]
+        leaf_balance = self.nodes[leaf]["balance"]
 
         # there should not be any taken walkers in this leaf since a
         # leaf should only have this method run for it once during
         # decision making, so the mergeable walkers are just all the
         # walkers in this leaf
-        leaf_walker_idxs = self.node[leaf]["walker_idxs"]
+        leaf_walker_idxs = self.nodes[leaf]["walker_idxs"]
         leaf_walker_weights = [
             self.walker_weights[walker_idx] for walker_idx in leaf_walker_idxs
         ]
@@ -1696,11 +1696,11 @@ class RegionTree(nx.DiGraph):
 
         # if this leaf node was assigned a debt we need to merge
         # walkers
-        leaf_balance = self.node[leaf]["balance"]
-        leaf_walker_idxs = self.node[leaf]["walker_idxs"]
+        leaf_balance = self.nodes[leaf]["balance"]
+        leaf_walker_idxs = self.nodes[leaf]["walker_idxs"]
         leaf_walker_weights = {
             walker_idx: self.walker_weights[walker_idx]
-            for walker_idx in self.node[leaf]["walker_idxs"]
+            for walker_idx in self.nodes[leaf]["walker_idxs"]
         }
 
         # calculate the maximum possible number of clones each free walker
@@ -1844,7 +1844,7 @@ class RegionTree(nx.DiGraph):
 
         # get all the leaf balances
         leaf_nodes = self.leaf_nodes()
-        leaf_balances = [self.node[leaf]["balance"] for leaf in leaf_nodes]
+        leaf_balances = [self.nodes[leaf]["balance"] for leaf in leaf_nodes]
 
         # get the negative and positive balanced leaves
         neg_leaves = [
@@ -2053,13 +2053,13 @@ class RegionTree(nx.DiGraph):
         """
 
         # set the delta walkers to the balance of the root node
-        self.node[self.ROOT_NODE]["balance"] = delta_walkers
+        self.nodes[self.ROOT_NODE]["balance"] = delta_walkers
 
         # do a breadth first traversal and balance at each level
         for parent, children in nx.bfs_successors(self, self.ROOT_NODE):
             # pass on the balance of this parent to the children from the
             # parents, distribute walkers between
-            parental_balance = self.node[parent]["balance"]
+            parental_balance = self.nodes[parent]["balance"]
 
             # this will both propagate the balance set for the root
             # walker down the tree and balance between the children
@@ -2067,7 +2067,7 @@ class RegionTree(nx.DiGraph):
 
         # check that the sum of the balances of the leaf nodes
         # balances to delta_walkers
-        leaf_balances = [self.node[leaf]["balance"] for leaf in self.leaf_nodes()]
+        leaf_balances = [self.nodes[leaf]["balance"] for leaf in self.leaf_nodes()]
         if sum(leaf_balances) != delta_walkers:
             raise RegionTreeError(
                 "The balances of the leaf nodes ({}) do not balance to delta_walkers ({})".format(
@@ -2328,7 +2328,7 @@ class WExploreResampler(CloneMergeResampler):
         pmin=1e-12,
         pmax=0.1,
         max_n_regions=(10, 10, 10, 10),
-        **kwargs
+        **kwargs,
     ):
         """Constructor for the WExploreResampler.
 
@@ -2364,7 +2364,7 @@ class WExploreResampler(CloneMergeResampler):
             pmax=pmax,
             min_num_walkers=Ellipsis,
             max_num_walkers=Ellipsis,
-            **kwargs
+            **kwargs,
         )
 
         assert distance is not None, "Distance object must be given."

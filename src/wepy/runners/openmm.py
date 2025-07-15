@@ -23,12 +23,12 @@ allow passing of the device index to OpenMM for which GPU device to
 use.
 
 """
+
 # Standard Library
 import logging
 
 logger = logging.getLogger(__name__)
 # Standard Library
-import random as rand
 import time
 from copy import copy
 from warnings import warn
@@ -210,7 +210,7 @@ class OpenMMRunner(Runner):
         platform=None,
         platform_kwargs=None,
         enforce_box=False,
-        get_state_kwargs=None
+        get_state_kwargs=None,
     ):
         """Constructor for OpenMMRunner.
 
@@ -246,7 +246,7 @@ class OpenMMRunner(Runner):
             key-values to set for getting the state from the OpenMM context.
             keys not included will use the values in GET_STATE_KWARG_DEFAULTS.
             Will override the enforce_box flag.
-            
+
         Warnings
         --------
 
@@ -289,8 +289,7 @@ class OpenMMRunner(Runner):
         self.platform_kwargs = platform_kwargs
 
         self.enforce_box = enforce_box
-        self.get_parameter_derivs = get_parameter_derivs
-        
+
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
         if get_state_kwargs is not None:
@@ -298,9 +297,9 @@ class OpenMMRunner(Runner):
                 self.getState_kwargs[k] = get_state_kwargs[k]
 
             # override enforce_box option if specified in get_state_kwargs
-            if 'enforce_box' in get_state_kwargs:
-                self.enforce_box = get_state_kwargs['enforce_box']
-                
+            if "enforce_box" in get_state_kwargs:
+                self.enforce_box = get_state_kwargs["enforce_box"]
+
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
