@@ -56,7 +56,7 @@ class ResTreeReporter(ProgressiveFileReporter):
         progress_key=None,
         max_progress_value=None,
         colormap_name="plasma",
-        **kwargs
+        **kwargs,
     ):
         """Constructor for the ResTreeReporter.
 
@@ -321,7 +321,7 @@ class ResTreeReporter(ProgressiveFileReporter):
         warp_data=None,
         progress_data=None,
         resampling_data=None,
-        **kwargs
+        **kwargs,
     ):
         """Generate the resampling tree GEXF file.
 

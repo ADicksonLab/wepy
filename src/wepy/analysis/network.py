@@ -151,13 +151,13 @@ class BaseMacroStateNetwork:
 
         self._graph = nx.DiGraph()
 
-        assert not (
-            assg_field_key is None and assignments is None
-        ), "either assg_field_key or assignments must be given"
+        assert not (assg_field_key is None and assignments is None), (
+            "either assg_field_key or assignments must be given"
+        )
 
-        assert (
-            assg_field_key is not None or assignments is not None
-        ), "one of assg_field_key or assignments must be given"
+        assert assg_field_key is not None or assignments is not None, (
+            "one of assg_field_key or assignments must be given"
+        )
 
         self._base_contig_tree = contig_tree.base_contigtree
 
@@ -352,9 +352,11 @@ class BaseMacroStateNetwork:
         for run_idx, run in enumerate(assignments):
             for traj_idx, traj in enumerate(run):
                 for frame_idx, assignment in enumerate(traj):
-                    self._node_assignments[assignment].append(
-                        (run_idx, traj_idx, frame_idx)
-                    )
+                    self._node_assignments[assignment].append((
+                        run_idx,
+                        traj_idx,
+                        frame_idx,
+                    ))
 
     def _init_transition_counts(
         self,
@@ -793,9 +795,9 @@ class BaseMacroStateNetwork:
             exclude_node_fields = list(set(exclude_node_fields))
 
         # exclude the layouts, we will set the viz manually for the layout
-        exclude_node_fields.extend(
-            ["_layouts/{}".format(layout_name) for layout_name in self.layouts]
-        )
+        exclude_node_fields.extend([
+            "_layouts/{}".format(layout_name) for layout_name in self.layouts
+        ])
 
         for node in gexf_graph:
             # remove requested fields

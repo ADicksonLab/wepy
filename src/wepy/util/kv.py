@@ -28,7 +28,6 @@
 
 # Software copied and modified heavily from this source
 
-
 # Standard Library
 import logging
 
@@ -165,9 +164,9 @@ def gen_uri(db_url, mode_spec):
     # otherwise do the whole thing
     else:
         # build the query substring
-        query = SQLITE3_QUERY_JOIN_CHAR.join(
-            ["{}={}".format(key, value) for key, value in queries.items()]
-        )
+        query = SQLITE3_QUERY_JOIN_CHAR.join([
+            "{}={}".format(key, value) for key, value in queries.items()
+        ])
 
         # build the URI string
         db_uri = SQLITE3_QUERY_URI_TEMPLATE.format(
@@ -318,9 +317,9 @@ class KV(MutableMapping):
         # translation
 
         if self.value_types is not None:
-            assert isinstance(
-                value, self.value_types
-            ), "Value must be a value supported by this kv"
+            assert isinstance(value, self.value_types), (
+                "Value must be a value supported by this kv"
+            )
 
         self.lockless_set(key, value)
 
@@ -330,8 +329,9 @@ class KV(MutableMapping):
         # no deletions in append only mode
         if self.append_only:
             raise sqlite3.IntegrityError(
-                "DB is opened in append only mode, "
-                "and {} has already been set".format(key)
+                "DB is opened in append only mode, and {} has already been set".format(
+                    key
+                )
             )
 
         # delete it if it exists
@@ -410,8 +410,9 @@ class KV(MutableMapping):
         # no deletions in append only mode
         if self.append_only:
             raise sqlite3.IntegrityError(
-                "DB is opened in append only mode, "
-                "and {} has already been set".format(key)
+                "DB is opened in append only mode, and {} has already been set".format(
+                    key
+                )
             )
 
         elif key in self:

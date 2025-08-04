@@ -138,7 +138,7 @@ class REVOResampler(CloneMergeResampler):
         dist_exponent=4,
         seed=None,
         num_proc=1,
-        **kwargs
+        **kwargs,
     ):
         """Constructor for the REVO Resampler.
 
@@ -198,7 +198,7 @@ class REVOResampler(CloneMergeResampler):
             pmax=pmax,
             min_num_walkers=Ellipsis,
             max_num_walkers=Ellipsis,
-            **kwargs
+            **kwargs,
         )
 
         assert merge_dist is not None, "Merge distance must be given."
@@ -291,12 +291,10 @@ class REVOResampler(CloneMergeResampler):
         num_walkers = len(walker_weights)
 
         # set the novelty values
-        walker_novelties = np.array(
-            [
-                self._novelty(walker_weights[i], num_walker_copies[i])
-                for i in range(num_walkers)
-            ]
-        )
+        walker_novelties = np.array([
+            self._novelty(walker_weights[i], num_walker_copies[i])
+            for i in range(num_walkers)
+        ])
 
         # the value to be optimized
         variation = 0

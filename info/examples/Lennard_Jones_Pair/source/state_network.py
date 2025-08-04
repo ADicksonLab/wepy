@@ -9,13 +9,13 @@ from wepy.analysis.transitions import run_transition_probability_matrix
 from wepy.analysis.network import MacroStateNetwork
 from wepy.analysis.contig_tree import ContigTree
 
-output_dir = Path('_output')
-sim_dir = output_dir / 'we'
+output_dir = Path("_output")
+sim_dir = output_dir / "we"
 
 # Load wepy hdf5 file into python script
-wepy_h5 = WepyHDF5(sim_dir / 'results.wepy.h5', mode = 'r+')
+wepy_h5 = WepyHDF5(sim_dir / "results.wepy.h5", mode="r+")
 run_idx = 0
-assg_key = 'rand_assg_idx'
+assg_key = "rand_assg_idx"
 n_classifications = 4
 random_seed = 1
 
@@ -23,18 +23,20 @@ np.random.seed(random_seed)
 
 # make random assignments
 
+
 # observable function
 def rand_assg(fields_d, *args, **kwargs):
-    assignments = np.random.randint(0, n_classifications,
-                                            size=fields_d['weights'].shape)
+    assignments = np.random.randint(
+        0, n_classifications, size=fields_d["weights"].shape
+    )
     return assignments
 
-with wepy_h5:
 
+with wepy_h5:
     # compute this random assignment "observable"
     wepy_h5.compute_observable(
         rand_assg,
-        ['weights'],
+        ["weights"],
         (),
         save_to_hdf5=assg_key,
         return_results=False,
@@ -54,9 +56,9 @@ contig_tree = ContigTree(
 # set some sort of lag time to compute transition probabilities
 # with
 
-random_macrostates = MacroStateNetwork(contig_tree,
-                                       assg_field_key="observables/{}".format(assg_key),
-                                       transition_lag_time=3)
+random_macrostates = MacroStateNetwork(
+    contig_tree, assg_field_key="observables/{}".format(assg_key), transition_lag_time=3
+)
 
 node_id = random_macrostates.node_ids[0]
 
@@ -70,7 +72,7 @@ random_macrostates.set_macrostate_weights()
 
 # this sets them as macrostate (node) attributes
 print("node {} weight:".format(node_id))
-print(random_macrostates.get_node_attribute(node_id, 'Weight'))
+print(random_macrostates.get_node_attribute(node_id, "Weight"))
 
 # we can also get a transition probability matrix from this
 print(random_macrostates.probmat)

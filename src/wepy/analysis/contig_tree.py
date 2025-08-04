@@ -8,7 +8,6 @@ ContigTree
 Contig
 """
 
-
 # Standard Library
 import itertools as it
 import warnings
@@ -178,23 +177,19 @@ class BaseContigTree:
         if continuations is Ellipsis:
             # add continuations involving both ends of the continuation
 
-            self._continuations.update(
-                [
-                    (a, b)
-                    for a, b in wepy_h5.continuations
-                    if a in self._run_idxs and b in self._run_idxs
-                ]
-            )
+            self._continuations.update([
+                (a, b)
+                for a, b in wepy_h5.continuations
+                if a in self._run_idxs and b in self._run_idxs
+            ])
 
         # if a subset of continuations was given use only those
         elif continuations is not None:
-            self._continuations.update(
-                [
-                    (a, b)
-                    for a, b in continuations
-                    if a in self._run_idxs and b in self._run_idxs
-                ]
-            )
+            self._continuations.update([
+                (a, b)
+                for a, b in continuations
+                if a in self._run_idxs and b in self._run_idxs
+            ])
 
         # using the wepy_h5 create a tree of the cycles
         self._create_tree(wepy_h5)
@@ -1562,9 +1557,9 @@ class Contig(ContigTree):
 
         # check that the result is a single contig
         spanning_contig_traces = self.spanning_contig_traces()
-        assert (
-            len(spanning_contig_traces) == 1
-        ), "continuations given do not form a single contig"
+        assert len(spanning_contig_traces) == 1, (
+            "continuations given do not form a single contig"
+        )
 
         # if so we add some useful attributes valid for only a
         # standalone contig

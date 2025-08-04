@@ -1,6 +1,7 @@
 """Reporter that produces a text file that gives high level
 information on the progress of a simulation.
 """
+
 # Standard Library
 import itertools as it
 import logging
@@ -458,9 +459,9 @@ Cumulative Boundary Crossed Weight: {{ total_crossed_weight }}
             self.bc_discontinuities = copy(bc.DISCONTINUITY_TARGET_IDXS)
 
         else:
-            assert (
-                discontinuities is not None
-            ), "If the bc is not given must give parameter: discontinuities"
+            assert discontinuities is not None, (
+                "If the bc is not given must give parameter: discontinuities"
+            )
             self.bc_discontinuities = discontinuities
 
         self.warp_records = []

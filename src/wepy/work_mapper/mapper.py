@@ -3,6 +3,7 @@ ready worker style mapper for mapping runner dynamics to walkers for
 wepy simulation cycles.
 
 """
+
 # Standard Library
 import logging
 
@@ -398,7 +399,7 @@ class WorkerMapper(ABCWorkerMapper):
         worker_type=None,
         worker_attributes=None,
         segment_func=None,
-        **kwargs
+        **kwargs,
     ):
         """Constructor for WorkerMapper.
 
@@ -502,7 +503,7 @@ class WorkerMapper(ABCWorkerMapper):
                 self._exception_queue,
                 child_conn,
                 mapper_attributes=self._attributes,
-                **self._worker_attributes
+                **self._worker_attributes,
             )
             self._workers.append(worker)
 
@@ -606,13 +607,11 @@ class WorkerMapper(ABCWorkerMapper):
         if any(alive_workers):
             logger.critical(
                 "Terminating main process with running workers {}".format(
-                    ",".join(
-                        [
-                            str(worker_idx)
-                            for worker_idx in range(len(self._workers))
-                            if alive_workers[worker_idx]
-                        ]
-                    )
+                    ",".join([
+                        str(worker_idx)
+                        for worker_idx in range(len(self._workers))
+                        if alive_workers[worker_idx]
+                    ])
                 )
             )
 
@@ -779,7 +778,7 @@ class Worker(mp.Process):
         interrupt_connection,
         mapper_attributes=None,
         log_level="INFO",
-        **kwargs
+        **kwargs,
     ):
         """Constructor for the Worker class.
 

@@ -66,12 +66,12 @@ def test_H5_resampling():
         n_cycles = we.num_run_cycles(0)
         wr_list = we.warping_records([0])
         n_walkers = we.num_walkers(0, 0)
-        all_pos = np.array(
-            [we.h5[f"runs/0/trajectories/{i}/positions"] for i in range(n_walkers)]
-        )
-        all_wts = np.array(
-            [we.h5[f"runs/0/trajectories/{i}/weights"] for i in range(n_walkers)]
-        )
+        all_pos = np.array([
+            we.h5[f"runs/0/trajectories/{i}/positions"] for i in range(n_walkers)
+        ])
+        all_wts = np.array([
+            we.h5[f"runs/0/trajectories/{i}/weights"] for i in range(n_walkers)
+        ])
 
         rrs = we.resampling_records([0])
     #
@@ -135,9 +135,9 @@ def test_H5_contig():
     with we:
         n_cycles = we.num_run_cycles(0)
         n_walkers = we.num_walkers(0, 0)
-        all_pos = np.array(
-            [we.h5[f"runs/0/trajectories/{i}/positions"] for i in range(n_walkers)]
-        )
+        all_pos = np.array([
+            we.h5[f"runs/0/trajectories/{i}/positions"] for i in range(n_walkers)
+        ])
         ct = ContigTree(
             we,
             boundary_condition_class=RandomWalkBC,

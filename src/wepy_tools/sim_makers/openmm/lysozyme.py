@@ -38,11 +38,9 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
-    DEFAULT_BC_PARAMS.update(
-        {
-            "UnbindingBC": UNBINDING_BC_DEFAULTS,
-        }
-    )
+    DEFAULT_BC_PARAMS.update({
+        "UnbindingBC": UNBINDING_BC_DEFAULTS,
+    })
 
     BOX_SIDE_LENGTH = 20 * unit.nanometer
 
@@ -63,12 +61,10 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     }
 
     DEFAULT_RESAMPLER_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_RESAMPLER_PARAMS
-    DEFAULT_RESAMPLER_PARAMS.update(
-        {
-            "WExploreResampler": WEXPLORE_DEFAULTS,
-            "REVOResampler": REVO_DEFAULTS,
-        }
-    )
+    DEFAULT_RESAMPLER_PARAMS.update({
+        "WExploreResampler": WEXPLORE_DEFAULTS,
+        "REVOResampler": REVO_DEFAULTS,
+    })
 
     def __init__(self, bs_cutoff=0.8 * unit.nanometer):
         # must set this here since we need it to generate the state,
@@ -202,15 +198,13 @@ class LysozymeImplicitOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
 
     def make_bc(self, bc_class, bc_params):
         if bc_class == UnbindingBC:
-            bc_params.update(
-                {
-                    "distance": self.distance,
-                    "initial_state": self.init_state,
-                    "topology": self.json_top(),
-                    "ligand_idxs": self.ligand_idxs(),
-                    "receptor_idxs": self.receptor_idxs(),
-                }
-            )
+            bc_params.update({
+                "distance": self.distance,
+                "initial_state": self.init_state,
+                "topology": self.json_top(),
+                "ligand_idxs": self.ligand_idxs(),
+                "receptor_idxs": self.receptor_idxs(),
+            })
 
         bc = bc_class(**bc_params)
 

@@ -253,9 +253,9 @@ class TaskMapper(ABCWorkerMapper):
                     elif type(result) == tuple:
                         logger.debug("Received a results tuple")
 
-                        assert (
-                            len(result) == 2
-                        ), "Result tuples should be only be (ID, pickle)"
+                        assert len(result) == 2, (
+                            "Result tuples should be only be (ID, pickle)"
+                        )
 
                         result_id, payload = result
 

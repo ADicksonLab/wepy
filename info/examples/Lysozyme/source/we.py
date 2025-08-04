@@ -1,12 +1,10 @@
-import logging
-logger = logging.getLogger(__name__)
 if __name__ == "__main__":
-
     import os
     import shutil
     import sys
     import logging
-logger = logging.getLogger(__name__)
+
+    logger = logging.getLogger(__name__)
     from pathlib import Path
 
     from multiprocessing_logging import install_mp_handler
@@ -30,29 +28,30 @@ logger = logging.getLogger(__name__)
         print("Number of steps: {}".format(n_steps))
         print("Number of cycles: {}".format(n_cycles))
 
-
-    output_dir = Path('_output')
+    output_dir = Path("_output")
 
     # make the results directory if not already made
     try:
-        shutil.rmtree(output_dir / 'we')
+        shutil.rmtree(output_dir / "we")
     except FileNotFoundError:
         pass
 
-    os.makedirs(output_dir / 'we', exist_ok=True)
+    os.makedirs(output_dir / "we", exist_ok=True)
 
     sim_maker = LysozymeImplicitOpenMMSimMaker()
 
     apparatus = sim_maker.make_apparatus(
-        integrator='LangevinIntegrator',
+        integrator="LangevinIntegrator",
         resampler=resampler,
-        bc='UnbindingBC',
+        bc="UnbindingBC",
         platform=platform,
     )
-    config = sim_maker.make_configuration(apparatus,
-                                          work_mapper_spec='TaskMapper',
-                                          platform=platform,
-                                          work_dir=str(output_dir / 'we'))
+    config = sim_maker.make_configuration(
+        apparatus,
+        work_mapper_spec="TaskMapper",
+        platform=platform,
+        work_dir=str(output_dir / "we"),
+    )
 
     sim_manager = sim_maker.make_sim_manager(n_walkers, apparatus, config)
 

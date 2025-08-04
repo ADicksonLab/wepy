@@ -127,9 +127,9 @@ class Configuration:
         ### Monitor options
 
         # get the names of the reporters in the order they are
-        reporter_order = tuple(
-            [str(reporter_class.__name__) for reporter_class in self._reporter_classes]
-        )
+        reporter_order = tuple([
+            str(reporter_class.__name__) for reporter_class in self._reporter_classes
+        ])
 
         # init the kwargs for the monitor
         if monitor_partial_kwargs is None:
@@ -235,12 +235,10 @@ class Configuration:
 
         # the number of filenames
         all_exts = list(
-            it.chain(
-                *[
-                    [ext for ext in rep.SUGGESTED_EXTENSIONS]
-                    for rep in self.reporter_classes
-                ]
-            )
+            it.chain(*[
+                [ext for ext in rep.SUGGESTED_EXTENSIONS]
+                for rep in self.reporter_classes
+            ])
         )
         n_exts = len(all_exts)
 

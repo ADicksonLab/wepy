@@ -349,9 +349,9 @@ class ResamplingTreeLayout:
             new_node_positions[node_idx] = eff_positions[n_groups + i]
 
         # sanity check that we covered them all
-        assert all(
-            [True if pos is not None else False for pos in new_node_positions]
-        ), "not all positions recovered from the effective nodes"
+        assert all([
+            True if pos is not None else False for pos in new_node_positions
+        ]), "not all positions recovered from the effective nodes"
 
         return new_node_positions
 
@@ -544,9 +544,9 @@ class ResamplingTreeLayout:
             step_y = last_y + last_max_radius + self.step_spacing + this_max_radius
 
             # then generate the coordinates
-            node_positions[generation_idx] = np.array(
-                [np.array([x, step_y, 0.0]) for x in curr_gen_positions]
-            )
+            node_positions[generation_idx] = np.array([
+                np.array([x, step_y, 0.0]) for x in curr_gen_positions
+            ])
 
             # set the last gen positions
             last_gen_positions = curr_gen_positions

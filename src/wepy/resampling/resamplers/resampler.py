@@ -284,7 +284,7 @@ class Resampler:
         min_num_walkers=Ellipsis,
         max_num_walkers=Ellipsis,
         debug_mode=False,
-        **kwargs
+        **kwargs,
     ):
         """Constructor for Resampler class
 

@@ -80,9 +80,9 @@ Cutoff Distance: {{ cutoff_distance }}
         if bc is not None:
             self.cutoff_distance = bc.cutoff_distance
         else:
-            assert (
-                cutoff_distance is not None
-            ), "If no bc is given must give parameters: cutoff_distance"
+            assert cutoff_distance is not None, (
+                "If no bc is given must give parameters: cutoff_distance"
+            )
             self.cutoff_distance = cutoff_distance
 
     def gen_fields(self, **kwargs):
@@ -113,9 +113,9 @@ Cutoff RMSD: {{ cutoff_rmsd }}
         if bc is not None:
             self.cutoff_rmsd = bc.cutoff_rmsd
         else:
-            assert (
-                cutoff_rmsd is not None
-            ), "If no bc is given must give parameters: cutoff_rmsd"
+            assert cutoff_rmsd is not None, (
+                "If no bc is given must give parameters: cutoff_rmsd"
+            )
             self.cutoff_rmsd = cutoff_rmsd
 
     def gen_fields(self, **kwargs):

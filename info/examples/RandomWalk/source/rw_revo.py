@@ -1,6 +1,7 @@
 """This is a exmaple of random walke simultion using the REVO
 resampler.
 """
+
 import sys
 import os
 import os.path as osp
@@ -35,23 +36,23 @@ DIST_EXPONENT = 4
 # the merge distance value
 MERGE_DIST = 2.5
 # field in the HDF5
-SAVE_FIELDS = ('positions')
+SAVE_FIELDS = "positions"
 # Name of units of fields in the HDF5
 UNITS = UNIT_NAMES
-PROBABILITY=0.25
-WEIGHTS=ON
+PROBABILITY = 0.25
+WEIGHTS = ON
 
 
-outputs_dir = Path('_output')
+outputs_dir = Path("_output")
 
 if not osp.exists(outputs_dir):
     os.makedirs(outputs_dir)
 
 # sets the input paths
-hdf5_filename = 'rw_results.wepy.h5'
-reporter_filename = 'randomwalk_revo.org'
+hdf5_filename = "rw_results.wepy.h5"
+reporter_filename = "randomwalk_revo.org"
 
-hdf5_path= outputs_dir / hdf5_filename
+hdf5_path = outputs_dir / hdf5_filename
 reporter_path = outputs_dir / reporter_filename
 
 
@@ -81,21 +82,21 @@ def get_char_distance(dimension, num_walkers):
     init_state = WalkerState(positions=positions, time=0.0)
 
     # set up  the distance function
-    rw_distance = RandomWalkDistance();
-
+    rw_distance = RandomWalkDistance()
     # set up the  REVO Resampler with the parameters
-    resampler = REVOResampler(distance=rw_distance,
-                              pmin=PMIN, pmax=PMAX,
-                              init_state=init_state,
-                              char_dist=1,
-                              merge_dist=MERGE_DIST
-                              )
+    resampler = REVOResampler(
+        distance=rw_distance,
+        pmin=PMIN,
+        pmax=PMAX,
+        init_state=init_state,
+        char_dist=1,
+        merge_dist=MERGE_DIST,
+    )
 
     # create list of init_walkers
-    initial_weight = 1/num_walkers
+    initial_weight = 1 / num_walkers
 
-    init_walkers = [Walker(init_state, initial_weight)
-                    for i in range(num_walkers)]
+    init_walkers = [Walker(init_state, initial_weight) for i in range(num_walkers)]
 
     # set up raunner for system
     runner = RandomWalkRunner(probability=PROBABILITY)
@@ -103,36 +104,29 @@ def get_char_distance(dimension, num_walkers):
     n_steps = 10
     mapper = Mapper()
     # running the simulation
-    sim_manager = Manager(init_walkers,
-                          runner=runner,
-                          resampler=resampler,
-                          work_mapper=mapper)
-
+    sim_manager = Manager(
+        init_walkers, runner=runner, resampler=resampler, work_mapper=mapper
+    )
 
     print("Running simulation")
-    #runs for one cycle
+    # runs for one cycle
     sim_manager.init(num_walkers)
 
     new_walkers = sim_manager.run_segment(init_walkers, n_steps, 0)
 
     dist_matrix, _ = resampler._all_to_all_distance(new_walkers)
 
-
     return np.average(dist_matrix)
 
 
-
-if __name__=="__main__":
-
-    if sys.argv[1] == "--help" or sys.argv[1] == '-h':
+if __name__ == "__main__":
+    if sys.argv[1] == "--help" or sys.argv[1] == "-h":
         print("arguments: n_cycles, n_walkers, dimension")
     else:
-
         n_runs = int(sys.argv[1])
         n_cycles = int(sys.argv[2])
         n_walkers = int(sys.argv[3])
         dimension = int(sys.argv[4])
-
 
     dimension = 5
 
@@ -142,27 +136,27 @@ if __name__=="__main__":
     init_state = WalkerState(positions=position_coords, time=0.0)
 
     # set up  the distance function
-    distance = RandomWalkDistance();
-
-
+    distance = RandomWalkDistance()
     char_dist = get_char_distance(dimension, n_walkers)
     # set up the Revo Resampler with the parameters
-    resampler = REVOResampler(distance=distance,
-                              pmin=PMIN,
-                              pmax=PMAX,
-                              dist_exponent=DIST_EXPONENT,
-                              init_state=init_state,
-                              char_dist=char_dist,
-                              merge_dist=MERGE_DIST,
-                              weights=WEIGHTS)
-
+    resampler = REVOResampler(
+        distance=distance,
+        pmin=PMIN,
+        pmax=PMAX,
+        dist_exponent=DIST_EXPONENT,
+        init_state=init_state,
+        char_dist=char_dist,
+        merge_dist=MERGE_DIST,
+        weights=WEIGHTS,
+    )
 
     # set up a RandomWalkProfilier
-    rw_profiler = RandomwalkProfiler(resampler,
-                                     dimension,
-                                     hdf5_filename=str(hdf5_path),
-                                     reporter_filename=str(reporter_path))
+    rw_profiler = RandomwalkProfiler(
+        resampler,
+        dimension,
+        hdf5_filename=str(hdf5_path),
+        reporter_filename=str(reporter_path),
+    )
 
     # runs the simulations and gets the result
-    rw_profiler.run(num_runs=n_runs, num_cycles=n_cycles,
-                    num_walkers=n_walkers)
+    rw_profiler.run(num_runs=n_runs, num_cycles=n_cycles, num_walkers=n_walkers)

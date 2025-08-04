@@ -6,8 +6,8 @@ import openmm
 import openmm.unit as unit
 import openmm.app as omma
 
-class NaClPair(TestSystem):
 
+class NaClPair(TestSystem):
     """Create a non-periodic rectilinear grid of NaCl pair in a harmonic restraining potential.
 
     Parameters
@@ -67,10 +67,9 @@ class NaClPair(TestSystem):
     SCALE_STEP_SIZE_Y = 1.0
     SCALE_STEP_SIZE_Z = 1.0
 
-
     def __init__(self, nx=3, ny=3, nz=3, **kwargs):
         super().__init__(**kwargs)
-        
+
         self.nx = nx
         self.ny = ny
         self.nz = nz
@@ -105,16 +104,16 @@ class NaClPair(TestSystem):
                         q = self.Q_Na
                         sigma = self.SIGMA_Na
                         epsilon = self.EPSILON_Na
-                        element = omma.Element.getBySymbol('Na')
-                        atom_name = 'Na'
+                        element = omma.Element.getBySymbol("Na")
+                        atom_name = "Na"
                     else:
                         mass = self.MASS_Cl
                         q = self.Q_Cl
                         sigma = self.SIGMA_Cl
                         epsilon = self.EPSILON_Cl
-                        element = omma.Element.getBySymbol('Cl')
-                        atom_name = 'Cl'
-                    
+                        element = omma.Element.getBySymbol("Cl")
+                        atom_name = "Cl"
+
                     system.addParticle(mass)
                     nb.addParticle(q, sigma, epsilon)
                     x = sigma * self.SCALE_STEP_SIZE_X * (ii - self.nx / 2.0)
@@ -136,6 +135,10 @@ class NaClPair(TestSystem):
         self.topology = topology
 
         # Add a restraining potential centered at the origin.
-        system.addForce(self.construct_restraining_potential(particle_indices=range(self.natoms), K=self.K))
+        system.addForce(
+            self.construct_restraining_potential(
+                particle_indices=range(self.natoms), K=self.K
+            )
+        )
 
         self.system, self.positions = system, positions

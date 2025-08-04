@@ -495,9 +495,9 @@ def combine_orch_wepy_hdf5s(new_orch, new_hdf5_path, run_ids=None):
             # map the hash id to the new run idx created. There should
             # only be one run in an HDF5 if we are following the
             # orchestration workflow.
-            assert (
-                len(new_run_idxs) < 2
-            ), "Cannot be more than 1 run per HDF5 file in orchestration workflow"
+            assert len(new_run_idxs) < 2, (
+                "Cannot be more than 1 run per HDF5 file in orchestration workflow"
+            )
 
             run_mapping[run_id] = new_run_idxs[0]
 

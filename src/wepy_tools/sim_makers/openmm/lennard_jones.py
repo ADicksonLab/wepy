@@ -46,23 +46,19 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
-    DEFAULT_BC_PARAMS.update(
-        {
-            "UnbindingBC": UNBINDING_BC_DEFAULTS,
-        }
-    )
+    DEFAULT_BC_PARAMS.update({
+        "UnbindingBC": UNBINDING_BC_DEFAULTS,
+    })
 
     def make_bc(self, bc_class, bc_params):
         if bc_class == UnbindingBC:
-            bc_params.update(
-                {
-                    "distance": self.distance,
-                    "initial_state": self.init_state,
-                    "topology": self.json_top(),
-                    "ligand_idxs": self.LIGAND_IDXS,
-                    "receptor_idxs": self.RECEPTOR_IDXS,
-                }
-            )
+            bc_params.update({
+                "distance": self.distance,
+                "initial_state": self.init_state,
+                "topology": self.json_top(),
+                "ligand_idxs": self.LIGAND_IDXS,
+                "receptor_idxs": self.RECEPTOR_IDXS,
+            })
 
         bc = bc_class(**bc_params)
 

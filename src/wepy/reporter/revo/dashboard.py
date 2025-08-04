@@ -46,7 +46,7 @@ Variation value = {{ variation }}
         char_dist=None,
         seed=None,
         decision=None,
-        **kwargs
+        **kwargs,
     ):
         if "name" not in kwargs:
             kwargs["name"] = "REVOResampler"
@@ -70,22 +70,22 @@ Variation value = {{ variation }}
             self.decision = resampler.DECISION
 
         else:
-            assert (
-                dist_exponent is not None
-            ), "if no resampler given must give parameters: dist_exponent"
-            assert (
-                merge_dist is not None
-            ), "if no resampler given must give parameters: merge_dist"
-            assert (
-                lpmin is not None
-            ), "if no resampler given must give parameters: lpmin"
-            assert (
-                char_dist is not None
-            ), "if no resampler given must give parameters: char_dist"
+            assert dist_exponent is not None, (
+                "if no resampler given must give parameters: dist_exponent"
+            )
+            assert merge_dist is not None, (
+                "if no resampler given must give parameters: merge_dist"
+            )
+            assert lpmin is not None, (
+                "if no resampler given must give parameters: lpmin"
+            )
+            assert char_dist is not None, (
+                "if no resampler given must give parameters: char_dist"
+            )
             assert seed is not None, "if no resampler given must give parameters: seed"
-            assert (
-                decision is not None
-            ), "if no resampler given must give parameters: decision"
+            assert decision is not None, (
+                "if no resampler given must give parameters: decision"
+            )
 
             self.dist_exponent = dist_exponent
             self.merge_dist = merge_dist

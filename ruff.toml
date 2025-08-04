@@ -1,0 +1,70 @@
+line-length = 88
+
+preview = true
+
+[lint]
+select = [
+  "E", # error
+  "F", # pyflakes
+  "B", # flake8-bugbear
+  "S", # flake8-bandit
+  # NOTE: see the other ignores for the profile we want
+  "D", # pydocstyle
+  # Some more experimental codes
+  "YTT", # flake8-2020: version comparisons
+  "ASYNC", # flake8-async
+  "BLE", # flake8-blind-exception
+  "FBT", # flake8-boolean-trap
+  "A", # flake8-builtins
+  "COM818", # flake8-commas
+  "DTZ", # flake8-datetimez
+  "T10", # flake8-debugger
+]
+
+ignore = [
+    # allow extra whitespace
+    "E203",
+    # allow long lines
+    "E501",
+    # allow multiple '#' chars for comment "headings" of different
+    # levels
+    "E266",
+    "S404",
+
+    # Docstring style: Google with some tweaks
+  "D203",
+  "D204",
+  "D213",
+  "D215",
+  "D400",
+  "D401",
+  "D404",
+  "D406",
+  "D407",
+  "D408",
+  "D409",
+  "D413",
+
+  ## Customizations
+  # Don't enforce no trailing line after a docstring
+  "D202",
+]
+
+[lint.per-file-ignores]
+
+# special cases for test files without needing to have excludes
+# scattered around
+"test_*.py" = [
+    # allow assert
+    "S101",
+    # allow `assert False` for missing tests
+    "B011",
+    # ignore "pythonic" comparisons to booleans, for clarity in
+    # writing tests e.g. `assert thing is False`
+    "E712",
+    # its okay to have subprocess in tests
+    "S603",
+    "S404",
+    # don't be strict about unused assigned variables
+    "F841",
+]

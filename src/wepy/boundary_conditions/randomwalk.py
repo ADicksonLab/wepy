@@ -1,5 +1,4 @@
-"""Boundary conditions for random walk.
-"""
+"""Boundary conditions for random walk."""
 
 # Standard Library
 import itertools as it

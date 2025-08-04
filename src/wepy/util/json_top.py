@@ -313,9 +313,9 @@ def json_top_subset(json_str, atom_idxs):
     # then translate the atom indices in the bonds
     new_bonds = []
     for bond_atom_idxs in top["bonds"]:
-        if all(
-            [True if a_idx in old_to_new_atoms else False for a_idx in bond_atom_idxs]
-        ):
+        if all([
+            True if a_idx in old_to_new_atoms else False for a_idx in bond_atom_idxs
+        ]):
             new_bond_atom_idxs = [
                 old_to_new_atoms[a_idx]
                 for a_idx in bond_atom_idxs

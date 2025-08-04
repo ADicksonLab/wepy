@@ -197,14 +197,14 @@ class Decision(object):
 
         """
 
-        assert (
-            enum_value in cls.enum_dict_by_value()
-        ), "value is not a valid Enumerated value"
+        assert enum_value in cls.enum_dict_by_value(), (
+            "value is not a valid Enumerated value"
+        )
 
         for field_key in fields.keys():
-            assert (
-                field_key in cls.FIELDS
-            ), "The field {} is not a field for that decision".format(field_key)
+            assert field_key in cls.FIELDS, (
+                "The field {} is not a field for that decision".format(field_key)
+            )
             assert field_key != "decision_id", "'decision_id' cannot be an extra field"
 
         rec = {"decision_id": enum_value}

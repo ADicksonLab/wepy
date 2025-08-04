@@ -113,6 +113,7 @@ inundated with too many tasks (chunk sizes too small, say of only 1
 frame).
 
 """
+
 # Standard Library
 import time
 from collections import defaultdict
@@ -165,9 +166,9 @@ def traj_fields_chunk_items(
     with wepy_h5:
         # choose the run idxs
         if run_idxs is not Ellipsis:
-            assert all(
-                [run_idx in wepy_h5.run_idxs for run_idx in run_idxs]
-            ), "run_idx not in runs"
+            assert all([run_idx in wepy_h5.run_idxs for run_idx in run_idxs]), (
+                "run_idx not in runs"
+            )
         else:
             run_idxs = wepy_h5.run_idxs
 
@@ -299,9 +300,10 @@ def chunk_concat_funcgen(*concat_funcs):
             cum_chunk_spec["fields"] = new_chunk_spec["fields"]
 
         # concatenate the frame indices in this chunk
-        new_chunk["frame_idxs"] = np.concatenate(
-            [cum_chunk_spec["frame_idxs"], new_chunk_spec["frame_idxs"]]
-        )
+        new_chunk["frame_idxs"] = np.concatenate([
+            cum_chunk_spec["frame_idxs"],
+            new_chunk_spec["frame_idxs"],
+        ])
 
         # for each extra concat function feed it the two chunk specs
         for concat_func in concat_funcs:
@@ -317,9 +319,10 @@ def chunk_array_concat_funcgen(field):
     def func(cum_chunk_spec, new_chunk_spec):
         # only add it if it has been initialized in the cum_chunk
         if field in cum_chunk_spec:
-            cum_chunk_spec[field] = np.concatenate(
-                [cum_chunk_spec[field], new_chunk_spec[field]]
-            )
+            cum_chunk_spec[field] = np.concatenate([
+                cum_chunk_spec[field],
+                new_chunk_spec[field],
+            ])
 
         # otherwise set just the new chunk
         else:
@@ -335,9 +338,10 @@ def chunk_traj_fields_concat(cum_chunk_spec, new_chunk_spec):
     specs with a traj_fields payload"""
 
     # concatenate the traj fields
-    cum_chunk_spec["traj_fields"] = concat_traj_fields(
-        [cum_chunk_spec["traj_fields"], new_chunk_spec["traj_fields"]]
-    )
+    cum_chunk_spec["traj_fields"] = concat_traj_fields([
+        cum_chunk_spec["traj_fields"],
+        new_chunk_spec["traj_fields"],
+    ])
 
     return cum_chunk_spec
 

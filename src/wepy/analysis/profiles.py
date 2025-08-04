@@ -2,6 +2,7 @@
 simulation data.
 
 """
+
 # Standard Library
 import gc
 import itertools as it
@@ -170,9 +171,9 @@ def free_energy_profile(
 
     """
 
-    assert (
-        weights.shape == observables.shape
-    ), "Weights and observables must correspond in shape"
+    assert weights.shape == observables.shape, (
+        "Weights and observables must correspond in shape"
+    )
 
     hist_weights, bin_edges = np.histogram(
         observables,
@@ -345,12 +346,10 @@ class ContigTreeProfiler(object):
         for span_idx, span_trace in contigtree.span_traces.items():
             for run_idx, cycle_idx in span_trace:
                 if cycle_idx >= truncate_cycles:
-                    ignore_trace.add(
-                        (
-                            run_idx,
-                            cycle_idx,
-                        )
-                    )
+                    ignore_trace.add((
+                        run_idx,
+                        cycle_idx,
+                    ))
 
         return ignore_trace
 
@@ -546,12 +545,10 @@ class ContigTreeProfiler(object):
                 ]
 
             # reshape to match
-            weights = weights.reshape(
-                (
-                    weights.shape[0],
-                    weights.shape[1],
-                )
-            )
+            weights = weights.reshape((
+                weights.shape[0],
+                weights.shape[1],
+            ))
 
             all_weights.append(weights)
             all_values.append(values)
@@ -895,9 +892,9 @@ class ContigTreeProfiler(object):
 
             # trace of all of the frames in the contigtree
             all_trace = list(
-                it.chain(
-                    *[span_trace for span_trace in self.contigtree.span_traces.values()]
-                )
+                it.chain(*[
+                    span_trace for span_trace in self.contigtree.span_traces.values()
+                ])
             )
 
             # filter it for the ignored fields if applicable
@@ -986,9 +983,10 @@ class ContigTreeProfiler(object):
                 contig_values = contig.contig_fields([field_key])[field_key]
 
             # reshape to match
-            contig_weights = contig_weights.reshape(
-                (contig_weights.shape[0], contig_weights.shape[1])
-            )
+            contig_weights = contig_weights.reshape((
+                contig_weights.shape[0],
+                contig_weights.shape[1],
+            ))
 
             # make the cumulative generators for each
             contig_weights_partition_gen = cumulative_partitions(
@@ -1063,12 +1061,10 @@ class ContigTreeProfiler(object):
 
         """
 
-        all_values = np.concatenate(
-            [
-                fields[field_key]
-                for fields in self.contigtree.wepy_h5.iter_trajs_fields([field_key])
-            ]
-        )
+        all_values = np.concatenate([
+            fields[field_key]
+            for fields in self.contigtree.wepy_h5.iter_trajs_fields([field_key])
+        ])
 
         bin_edges = np.histogram_bin_edges(all_values, bins=bins)
 

@@ -27,9 +27,9 @@ Total Sampling Time: {{ total_sampling_time }}
         super().__init__(runner=runner, step_time=step_time, **kwargs)
 
         if runner is None:
-            assert (
-                step_time is not None
-            ), "If no complete runner is given must give parameters: step_time"
+            assert step_time is not None, (
+                "If no complete runner is given must give parameters: step_time"
+            )
 
             # assume it has units
             self.step_time = step_time

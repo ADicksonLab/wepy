@@ -81,9 +81,9 @@ class Reporter(object):
 
         """
         method_name = "init"
-        assert not hasattr(
-            super(), method_name
-        ), "Superclass with method {} is masked".format(method_name)
+        assert not hasattr(super(), method_name), (
+            "Superclass with method {} is masked".format(method_name)
+        )
 
     def report(self, **kwargs):
         """Given data concerning the main simulation components state, perform
@@ -146,9 +146,9 @@ class Reporter(object):
         """
 
         method_name = "report"
-        assert not hasattr(
-            super(), method_name
-        ), "Superclass with method {} is masked".format(method_name)
+        assert not hasattr(super(), method_name), (
+            "Superclass with method {} is masked".format(method_name)
+        )
 
     def cleanup(self, **kwargs):
         """Teardown routines for the reporter at the end of the simulation.
@@ -181,9 +181,9 @@ class Reporter(object):
 
         """
         method_name = "cleanup"
-        assert not hasattr(
-            super(), method_name
-        ), "Superclass with method {} is masked".format(method_name)
+        assert not hasattr(super(), method_name), (
+            "Superclass with method {} is masked".format(method_name)
+        )
 
 
 class FileReporter(Reporter):
@@ -293,9 +293,9 @@ class FileReporter(Reporter):
 
         # file paths
 
-        assert not (
-            (file_paths is not None) and (file_path is not None)
-        ), "only file_paths or file_path kwargs can be specified"
+        assert not ((file_paths is not None) and (file_path is not None)), (
+            "only file_paths or file_path kwargs can be specified"
+        )
 
         # if only one file path is given then we handle it as multiple
         if file_path is not None:
@@ -350,13 +350,13 @@ class FileReporter(Reporter):
         # have been given
         else:
             # make sure it is in kwargs and valid
-            assert (
-                file_paths is not None
-            ), "if no explicit file path is given the 'file_paths' must have a value"
+            assert file_paths is not None, (
+                "if no explicit file path is given the 'file_paths' must have a value"
+            )
 
-            assert len(file_paths) == len(
-                self.FILE_ORDER
-            ), "you must give file_paths {} paths".format(len(self.FILE_ORDER))
+            assert len(file_paths) == len(self.FILE_ORDER), (
+                "you must give file_paths {} paths".format(len(self.FILE_ORDER))
+            )
 
         # using the file_path paths we got above we set them as
         # attributes in this object
@@ -368,9 +368,9 @@ class FileReporter(Reporter):
 
         # modes
 
-        assert not (
-            (modes is not None) and (mode is not None)
-        ), "only modes or mode kwargs can be specified"
+        assert not ((modes is not None) and (mode is not None)), (
+            "only modes or mode kwargs can be specified"
+        )
 
         # if modes is None we make modes, from defaults if we have to
         if modes is None:

@@ -1,4 +1,4 @@
-"""Classes for workers and tasks for use with WorkerMapper. """
+"""Classes for workers and tasks for use with WorkerMapper."""
 
 # Standard Library
 import logging

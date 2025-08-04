@@ -21,6 +21,7 @@ So use the 'image' to do precomputations on raw walker states and use
 the 'image_distance' to compute distances using only those images.
 
 """
+
 # Standard Library
 import logging
 
@@ -118,6 +119,7 @@ class XYEuclideanDistance(Distance):
     def image_distance(self, image_a, image_b):
         return np.sqrt((image_a[0] - image_b[0]) ** 2 + (image_a[1] - image_b[1]) ** 2)
 
+
 class AtomPairDistance(Distance):
     """Constructs a vector of atomic distances for each state.
     Distance is the root mean squared distance between the vectors.
@@ -142,28 +144,33 @@ class AtomPairDistance(Distance):
         while edited:
             edited = False
             for i in range(3):
-                if disp[i] > box_lengths[i]/2:
+                if disp[i] > box_lengths[i] / 2:
                     disp[i] -= box_lengths[i]
                     edited = True
-                elif disp[i] < -box_lengths[i]/2:
+                elif disp[i] < -box_lengths[i] / 2:
                     disp[i] += box_lengths[i]
                     edited = True
         return disp
-        
-    def image(self, state):
 
+    def image(self, state):
         if self.periodic:
             # get the box lengths from the vectors
-            box_lengths, box_angles = box_vectors_to_lengths_angles(state["box_vectors"])
+            box_lengths, box_angles = box_vectors_to_lengths_angles(
+                state["box_vectors"]
+            )
 
         dist_list = np.zeros((len(self.pair_list)))
-        for i,p in enumerate(self.pair_list):
+        for i, p in enumerate(self.pair_list):
             disp_vector = state["positions"][p[0]] - state["positions"][p[1]]
             if self.periodic:
-                dist_list[i] = np.sqrt(np.sum(np.square(self._adjust_disp_vector(disp_vector,box_lengths))))
+                dist_list[i] = np.sqrt(
+                    np.sum(
+                        np.square(self._adjust_disp_vector(disp_vector, box_lengths))
+                    )
+                )
             else:
                 dist_list[i] = np.sqrt(np.sum(np.square(disp_vector)))
-        
+
         return dist_list
 
     def image_distance(self, image_a, image_b):

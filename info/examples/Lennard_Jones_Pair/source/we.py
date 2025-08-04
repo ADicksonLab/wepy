@@ -60,13 +60,13 @@ from scipy.spatial.distance import euclidean
 # kernels. Options are: Reference, CPU, OpenCL, CUDA.
 
 # we use the Reference platform because this is just a test
-PLATFORM = 'Reference'
+PLATFORM = "Reference"
 
 # Langevin Integrator
-TEMPERATURE= 300.0*unit.kelvin
-FRICTION_COEFFICIENT = 1/unit.picosecond
+TEMPERATURE = 300.0 * unit.kelvin
+FRICTION_COEFFICIENT = 1 / unit.picosecond
 # step size of time integrations
-STEP_SIZE = 0.002*unit.picoseconds
+STEP_SIZE = 0.002 * unit.picoseconds
 
 # Resampler parameters
 
@@ -81,7 +81,7 @@ MAX_N_REGIONS = (10, 10, 10, 10)
 # the maximum size of regions, new regions will be created if a walker
 # is beyond this distance from each voronoi image unless there is an
 # already maximal number of regions
-MAX_REGION_SIZES = (1, 0.5, .35, .25) # nanometers
+MAX_REGION_SIZES = (1, 0.5, 0.35, 0.25)  # nanometers
 
 # boundary condition parameters
 
@@ -89,21 +89,21 @@ MAX_REGION_SIZES = (1, 0.5, .35, .25) # nanometers
 # other atom of the protein, if the shortest such atom-atom distance
 # is larger than this the ligand will be considered unbound and
 # restarted in the initial state
-CUTOFF_DISTANCE = 1.0 # nm
+CUTOFF_DISTANCE = 1.0  # nm
 
 # reporting parameters
 
 # these are the properties of the states (i.e. from OpenMM) which will
 # be saved into the HDF5
-SAVE_FIELDS = ('positions', 'box_vectors', 'velocities')
+SAVE_FIELDS = ("positions", "box_vectors", "velocities")
 
 ## INPUTS/OUTPUTS
 
 # the inputs directory
-inputs_dir = osp.realpath('input')
+inputs_dir = osp.realpath("input")
 
 # the outputs path
-outputs_dir = osp.realpath('_output/we')
+outputs_dir = osp.realpath("_output/we")
 
 # make the outputs dir if it doesn't exist
 os.makedirs(outputs_dir, exist_ok=True)
@@ -112,8 +112,8 @@ os.makedirs(outputs_dir, exist_ok=True)
 json_top_filename = "pair.top.json"
 
 # outputs
-hdf5_filename = 'results.wepy.h5'
-dashboard_filename = 'wepy.dash.org'
+hdf5_filename = "results.wepy.h5"
+dashboard_filename = "wepy.dash.org"
 
 # normalize the output paths
 hdf5_path = osp.join(outputs_dir, hdf5_filename)
@@ -140,16 +140,16 @@ init_state = OpenMMState(init_sim_state)
 # initialize the runner
 runner = OpenMMRunner(test_sys.system, test_sys.topology, integrator, platform=PLATFORM)
 
+
 ## Distance Metric
 # we define a simple distance metric for this system, assuming the
 # positions are in a 'positions' field
 class PairDistance(Distance):
-
     def __init__(self, metric=euclidean):
         self.metric = metric
 
     def image(self, state):
-        return state['positions']
+        return state["positions"]
 
     def image_distance(self, image_a, image_b):
         dist_a = self.metric(image_a[0], image_a[1])
@@ -163,11 +163,14 @@ class PairDistance(Distance):
 distance = PairDistance()
 
 ## Resampler
-resampler = WExploreResampler(distance=distance,
-                               init_state=init_state,
-                               max_region_sizes=MAX_REGION_SIZES,
-                               max_n_regions=MAX_N_REGIONS,
-                               pmin=PMIN, pmax=PMAX)
+resampler = WExploreResampler(
+    distance=distance,
+    init_state=init_state,
+    max_region_sizes=MAX_REGION_SIZES,
+    max_n_regions=MAX_N_REGIONS,
+    pmin=PMIN,
+    pmax=PMAX,
+)
 
 ## Boundary Conditions
 
@@ -176,11 +179,13 @@ mdtraj_topology = mdj.Topology.from_openmm(test_sys.topology)
 json_str_top = mdtraj_to_json_topology(mdtraj_topology)
 
 # initialize the unbinding boundary conditions
-ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
-                  initial_state=init_state,
-                  topology=json_str_top,
-                  ligand_idxs=np.array(test_sys.ligand_indices),
-                  receptor_idxs=np.array(test_sys.receptor_indices))
+ubc = UnbindingBC(
+    cutoff_distance=CUTOFF_DISTANCE,
+    initial_state=init_state,
+    topology=json_str_top,
+    ligand_idxs=np.array(test_sys.ligand_indices),
+    receptor_idxs=np.array(test_sys.receptor_indices),
+)
 
 ## Reporters
 
@@ -188,21 +193,23 @@ ubc = UnbindingBC(cutoff_distance=CUTOFF_DISTANCE,
 units = dict(UNIT_NAMES)
 
 # open it in truncate mode first, then switch after first run
-hdf5_reporter = WepyHDF5Reporter(file_path=hdf5_path, mode='w',
-                                 save_fields=SAVE_FIELDS,
-                                 resampler=resampler,
-                                 boundary_conditions=ubc,
-                                 topology=json_str_top,
-                                 units=units)
+hdf5_reporter = WepyHDF5Reporter(
+    file_path=hdf5_path,
+    mode="w",
+    save_fields=SAVE_FIELDS,
+    resampler=resampler,
+    boundary_conditions=ubc,
+    topology=json_str_top,
+    units=units,
+)
 
 wexplore_dash = WExploreDashboardSection(resampler=resampler)
-openmm_dash = OpenMMRunnerDashboardSection(runner=runner,
-                                           step_time=STEP_SIZE)
+openmm_dash = OpenMMRunnerDashboardSection(runner=runner, step_time=STEP_SIZE)
 ubc_dash = ReceptorBCDashboardSection(bc=ubc)
 
 dashboard_reporter = DashboardReporter(
     file_path=dashboard_path,
-    mode='w',
+    mode="w",
     resampler_dash=wexplore_dash,
     runner_dash=openmm_dash,
     bc_dash=ubc_dash,
@@ -216,12 +223,10 @@ reporters = [hdf5_reporter, dashboard_reporter]
 mapper = Mapper()
 
 
-
 ## Run the simulation
 
 
 if __name__ == "__main__":
-
     if sys.argv[1] == "-h" or sys.argv[1] == "--help":
         print("arguments: n_cycles, n_steps, n_walkers")
     else:
@@ -234,15 +239,19 @@ if __name__ == "__main__":
 
         # create the initial walkers
         init_weight = 1.0 / n_walkers
-        init_walkers = [Walker(OpenMMState(init_sim_state), init_weight) for i in range(n_walkers)]
+        init_walkers = [
+            Walker(OpenMMState(init_sim_state), init_weight) for i in range(n_walkers)
+        ]
 
         # initialize the simulation manager
-        sim_manager = Manager(init_walkers,
-                              runner=runner,
-                              resampler=resampler,
-                              boundary_conditions=ubc,
-                              work_mapper=mapper,
-                              reporters=reporters)
+        sim_manager = Manager(
+            init_walkers,
+            runner=runner,
+            resampler=resampler,
+            boundary_conditions=ubc,
+            work_mapper=mapper,
+            reporters=reporters,
+        )
 
         # make a number of steps for each cycle. In principle it could be
         # different each cycle

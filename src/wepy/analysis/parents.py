@@ -56,7 +56,6 @@ ParentForest : Class that imposes the forest (tree) structure over the
     parent table. Valid for a single contig in the contig tree (forest).
 """
 
-
 # Standard Library
 import itertools as it
 from copy import copy
@@ -522,9 +521,9 @@ class ParentForest:
 
         # otherwise use the one given
         else:
-            assert not self.DISCONTINUITY_VALUE in it.chain(
-                *parent_table
-            ), "Discontinuity values in parent table are not allowed."
+            assert not self.DISCONTINUITY_VALUE in it.chain(*parent_table), (
+                "Discontinuity values in parent table are not allowed."
+            )
 
             self._parent_table = parent_table
 

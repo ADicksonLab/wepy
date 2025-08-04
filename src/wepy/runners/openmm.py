@@ -273,9 +273,9 @@ class OpenMMRunner(Runner):
 
         """
 
-        assert isinstance(
-            platform, str
-        ), f"platform should be a string, not {type(platform)}"
+        assert isinstance(platform, str), (
+            f"platform should be a string, not {type(platform)}"
+        )
 
         # we save the different components. However, if we are to make
         # this runner picklable we have to convert the SWIG objects to
@@ -424,9 +424,9 @@ class OpenMMRunner(Runner):
         # set the kwargs that will be passed to getState
         tmp_getState_kwargs = getState_kwargs
 
-        logger.info("Default 'getState_kwargs' in runner: " f"{self.getState_kwargs}")
+        logger.info(f"Default 'getState_kwargs' in runner: {self.getState_kwargs}")
 
-        logger.info("'getState_kwargs' passed to 'run_segment' : " f"{getState_kwargs}")
+        logger.info(f"'getState_kwargs' passed to 'run_segment' : {getState_kwargs}")
 
         # start with the object value
         getState_kwargs = copy(self.getState_kwargs)
@@ -449,28 +449,27 @@ class OpenMMRunner(Runner):
 
         ## Platform
 
-        logger.info("Default 'platform' in runner: " f"{self.platform_name}")
+        logger.info(f"Default 'platform' in runner: {self.platform_name}")
 
-        logger.info("pre_cycle set 'platform' in runner: " f"{self._cycle_platform}")
+        logger.info(f"pre_cycle set 'platform' in runner: {self._cycle_platform}")
 
-        logger.info("'platform' passed to 'run_segment' : " f"{platform}")
+        logger.info(f"'platform' passed to 'run_segment' : {platform}")
 
-        logger.info("Default 'platform_kwargs' in runner: " f"{self.platform_kwargs}")
+        logger.info(f"Default 'platform_kwargs' in runner: {self.platform_kwargs}")
 
         logger.info(
-            "pre_cycle set 'platform_kwargs' in runner: "
-            f"{self._cycle_platform_kwargs}"
+            f"pre_cycle set 'platform_kwargs' in runner: {self._cycle_platform_kwargs}"
         )
 
-        logger.info("'platform_kwargs' passed to 'run_segment' : " f"{platform_kwargs}")
+        logger.info(f"'platform_kwargs' passed to 'run_segment' : {platform_kwargs}")
 
         platform_name, platform_kwargs = self._resolve_platform(
             platform, platform_kwargs
         )
 
-        logger.info("Resolved 'platform' : " f"{platform_name}")
+        logger.info(f"Resolved 'platform' : {platform_name}")
 
-        logger.info("Resolved 'platform_kwargs' : " f"{platform_kwargs}")
+        logger.info(f"Resolved 'platform_kwargs' : {platform_kwargs}")
 
         # create simulation object
 
@@ -658,9 +657,7 @@ class OpenMMState(WalkerState):
                 warn(
                     "Key {} in kwargs is already taken by this class, renaming to {}".format(
                         self.OTHER_KEY_TEMPLATE
-                    ).format(
-                        key
-                    )
+                    ).format(key)
                 )
 
                 # make a new key
@@ -871,9 +868,9 @@ class OpenMMState(WalkerState):
         if kinetic_energy is None:
             return None
         else:
-            return np.array(
-                [self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)]
-            )
+            return np.array([
+                self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)
+            ])
 
     # Potential Energy
     @property
@@ -904,9 +901,9 @@ class OpenMMState(WalkerState):
         if potential_energy is None:
             return None
         else:
-            return np.array(
-                [self.potential_energy.value_in_unit(self.potential_energy_unit)]
-            )
+            return np.array([
+                self.potential_energy.value_in_unit(self.potential_energy_unit)
+            ])
 
     # Time
     @property
@@ -1319,9 +1316,9 @@ class OpenMMWalker(Walker):
     def __init__(self, state, weight):
         # documented in superclass
 
-        assert isinstance(
-            state, OpenMMState
-        ), "state must be an instance of class OpenMMState not {}".format(type(state))
+        assert isinstance(state, OpenMMState), (
+            "state must be an instance of class OpenMMState not {}".format(type(state))
+        )
 
         super().__init__(state, weight)
 

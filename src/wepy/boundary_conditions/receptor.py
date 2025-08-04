@@ -80,7 +80,7 @@ class ReceptorBC(WarpBC):
         initial_weights=None,
         ligand_idxs=None,
         receptor_idxs=None,
-        **kwargs
+        **kwargs,
     ):
         """Base constructor for ReceptorBC.
 
@@ -205,7 +205,7 @@ class RebindingBC(ReceptorBC):
         initial_weights=None,
         ligand_idxs=None,
         binding_site_idxs=None,
-        **kwargs
+        **kwargs,
     ):
         """Constructor for RebindingBC.
 
@@ -391,7 +391,7 @@ class UnbindingBC(ReceptorBC):
         ligand_idxs=None,
         receptor_idxs=None,
         periodic=True,
-        **kwargs
+        **kwargs,
     ):
         """Constructor for UnbindingBC class.
 
@@ -442,7 +442,7 @@ class UnbindingBC(ReceptorBC):
             initial_states=[initial_state],
             ligand_idxs=ligand_idxs,
             receptor_idxs=receptor_idxs,
-            **kwargs
+            **kwargs,
         )
 
         # test input

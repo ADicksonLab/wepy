@@ -141,9 +141,9 @@ class WalkerReporter(ProgressiveFileReporter):
 
         # slice off the main_rep indices because that is all we want
         # to write for these
-        main_rep_positions = np.array(
-            [walker.state["positions"][self.main_rep_idxs] for walker in new_walkers]
-        )
+        main_rep_positions = np.array([
+            walker.state["positions"][self.main_rep_idxs] for walker in new_walkers
+        ])
 
         # convert the box vectors
         unitcell_lengths, unitcell_angles = traj_box_vectors_to_lengths_angles(

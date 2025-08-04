@@ -35,7 +35,7 @@ class CloneMergeResampler(Resampler):
         pmax=0.1,
         min_num_walkers=Ellipsis,
         max_num_walkers=Ellipsis,
-        **kwargs
+        **kwargs,
     ):
         """Constructor for CloneMegerResampler class.
 
@@ -217,9 +217,9 @@ class CloneMergeResampler(Resampler):
 
                 # if there are any free slots, then we use those first
                 if len(free_slots) > 0:
-                    clone_targets.extend(
-                        [free_slots.pop() for clone in range(num_clones)]
-                    )
+                    clone_targets.extend([
+                        free_slots.pop() for clone in range(num_clones)
+                    ])
 
                 # if there are more slots needed then we will have to
                 # create them
