@@ -6,7 +6,7 @@ logger = logging.getLogger(__name__)
 # Standard Library
 import math
 import random as rand
-from collections import defaultdict, namedtuple
+from collections import defaultdict
 from copy import copy, deepcopy
 
 # Third Party Library
@@ -14,7 +14,6 @@ import networkx as nx
 import numpy as np
 
 # First Party Library
-from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 from wepy.resampling.resamplers.clone_merge import CloneMergeResampler
 from wepy.resampling.resamplers.resampler import ResamplerError
 
@@ -256,10 +255,10 @@ class RegionTree(nx.DiGraph):
         self._max_num_walkers = False
         self._min_num_walkers = False
 
-        assert merge_method in self.MERGE_METHODS, (
-            "the merge method given, '{}', must be one of the methods available {}".format(
-                merge_method, self.MERGE_METHODS
-            )
+        assert (
+            merge_method in self.MERGE_METHODS
+        ), "the merge method given, '{}', must be one of the methods available {}".format(
+            merge_method, self.MERGE_METHODS
         )
 
         self._merge_method = merge_method
@@ -669,12 +668,15 @@ class RegionTree(nx.DiGraph):
                     assignment = self.branch_tree(parent_id, image)
 
                     # save it to keep track of new branches as they occur
-                    new_branches.append({
-                        "distance": np.array([distance]),
-                        "branching_level": np.array([level]),
-                        "new_leaf_id": np.array(assignment),
-                        "image": image,
-                    })
+                    new_branches.append(
+                        {
+                            "distance": np.array([distance]),
+                            "branching_level": np.array([level]),
+                            "new_leaf_id": np.array(assignment),
+                            # NOTE: Skip image for now. It is producing errors
+                            # "image": image,
+                        }
+                    )
 
                     # we have made a new branch so we don't need to
                     # continue this loop
@@ -1290,9 +1292,9 @@ class RegionTree(nx.DiGraph):
             # find the largest difference comparing (a,b) and (b,a),
             # this will give the donor, acceptor pair
             permutations = [(a, b), (b, a)]
-            perm_idx = np.argmax([
-                children_shares[i] - children_shares[j] for i, j in permutations
-            ])
+            perm_idx = np.argmax(
+                [children_shares[i] - children_shares[j] for i, j in permutations]
+            )
 
             donor_acceptor_pair = permutations[perm_idx]
 
@@ -1455,15 +1457,17 @@ class RegionTree(nx.DiGraph):
 
         # check that both a donor and acceptor were identified and
         # that values for there shares were given
-        assert all([
-            True if val is not None else False
-            for val in [
-                donor_n_shares,
-                acceptor_n_shares,
-                donor_child_node_id,
-                acceptor_child_node_id,
+        assert all(
+            [
+                True if val is not None else False
+                for val in [
+                    donor_n_shares,
+                    acceptor_n_shares,
+                    donor_child_node_id,
+                    acceptor_child_node_id,
+                ]
             ]
-        ]), "A donor or acceptor was not found"
+        ), "A donor or acceptor was not found"
 
         # if the acceptor's number of shares is not less then the
         # donor then there is not possible donation
@@ -1957,9 +1961,9 @@ class RegionTree(nx.DiGraph):
                 keep_merge_walker_idxs.append(walker_idx)
 
                 # add up the weights of the squashed walkers
-                squashed_weight = sum([
-                    self.walker_weights[i] for i in squash_walker_idxs
-                ])
+                squashed_weight = sum(
+                    [self.walker_weights[i] for i in squash_walker_idxs]
+                )
                 # add them to the weight for the keep walker
                 walker_weight = self._walker_weights[walker_idx] + squashed_weight
 
@@ -2005,9 +2009,9 @@ class RegionTree(nx.DiGraph):
                     overweight_producer_idxs.append(keep_merge_walker_idx)
 
             raise ResamplerError(
-                "Merge specs produce overweight walkers for merge groups {}".format([
-                    str(i) for i in overweight_producer_idxs
-                ])
+                "Merge specs produce overweight walkers for merge groups {}".format(
+                    [str(i) for i in overweight_producer_idxs]
+                )
             )
 
         # check that all of the weights are less than or equal to the pmin
@@ -2027,9 +2031,9 @@ class RegionTree(nx.DiGraph):
                     underweight_producer_idxs.append(clone_parent_walker_idx)
 
             raise ResamplerError(
-                "Clone specs produce underweight walkers for clone walkers {}".format([
-                    str(i) for i in underweight_producer_idxs
-                ])
+                "Clone specs produce underweight walkers for clone walkers {}".format(
+                    [str(i) for i in underweight_producer_idxs]
+                )
             )
 
     def balance_tree(self, delta_walkers=0):
@@ -2299,13 +2303,11 @@ class WExploreResampler(CloneMergeResampler):
         (1,),
         (1,),
         Ellipsis,
-        Ellipsis,
     )
     RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + (
         int,
         float,
         int,
-        None,
     )
 
     # fields that can be used for a table like representation
@@ -2549,10 +2551,12 @@ class WExploreResampler(CloneMergeResampler):
             )
 
         # check that all squashes are going to a merge slot
-        if not all([
-            False if squash_slot_idx not in keep_merge_slot_idxs else True
-            for squash_slot_idx in set(squash_slot_idxs)
-        ]):
+        if not all(
+            [
+                False if squash_slot_idx not in keep_merge_slot_idxs else True
+                for squash_slot_idx in set(squash_slot_idxs)
+            ]
+        ):
             raise ResamplerError("Not all squashes are assigned to keep_merge slots")
 
     def _resample_init(self, walkers=None):
