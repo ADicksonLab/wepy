@@ -59,28 +59,28 @@ resource requirements and environment setup.
 ** Instructions for Customization
 
 1. *Resource Requests:*
-   - Replace TIME_LIMIT with the desired wall clock time limit (e.g.,
+   - Replace ~TIME_LIMIT~ with the desired wall clock time limit (e.g.,
      ~168:00:00~ for 168 hours).
-   - Replace YOUR_ALLOCATION_ACCOUNT with your specific allocation
+   - Replace ~YOUR_ALLOCATION_ACCOUNT~ with your specific allocation
      account.
-   - Replace NUMBER_OF_NODES with the number of nodes you need (e.g.,
+   - Replace ~NUMBER_OF_NODES~ with the number of nodes you need (e.g.,
      ~1~).
-   - Replace NUMBER_OF_TASKS with the number of tasks to run (e.g.,
+   - Replace ~NUMBER_OF_TASKS~ with the number of tasks to run (e.g.,
      ~1~).
-   - Replace CPUS_PER_TASK with the number of CPUs per task (e.g., ~8~).
-   - Replace GPUS_PER_TASK with the type and number of GPUs per task
+   - Replace ~CPUS_PER_TASK~ with the number of CPUs per task (e.g., ~8~).
+   - Replace ~GPUS_PER_TASK~ with the type and number of GPUs per task
      (e.g., ~v100:4~).
-   - Replace MEMORY_PER_NODE with the total memory per node (e.g.,
+   - Replace ~MEMORY_PER_NODE~ with the total memory per node (e.g.,
      ~64G~).
-   - Replace JOB_NAME with a name for your job (e.g., ~wepy_run~).
+   - Replace ~JOB_NAME~ with a name for your job (e.g., ~wepy_run~).
 2. *Conda Setup:*
    - Replace ~/path/to/conda/bin/conda~ with the actual path to your
      Conda installation.
    - Replace ~your_environment_name~ with the name of your Conda
      environment.
 3. *Home and Log Directory:*
-   - Set HOME_DIR to the directory where your project files are located.
-   - Ensure LOG_DIR points to where you want the log files to be saved.
+   - Set ~HOME_DIR~ to the directory where your project files are located.
+   - Ensure ~LOG_DIR~ points to where you want the log files to be saved.
 4. *CUDA Module:*
    - Adjust the ~module load centos7/lib/cuda/12~ line depending on your
      cuda path.

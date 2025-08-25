@@ -246,11 +246,10 @@ class OpenMMRunner(Runner):
             Calls 'context.getState' with 'getParameterDerivatives' if True.
              (Default value = False)
 
-
         Warnings
         --------
 
-        Regarding the 'enforce_box' option.
+        Regarding the enforce_box option.
 
         When retrieving states from an OpenMM simulation Context, you
         have the option to enforce periodic boundary conditions in the
@@ -289,6 +288,7 @@ class OpenMMRunner(Runner):
         self.platform_kwargs = platform_kwargs
 
         self.enforce_box = enforce_box
+
         self.get_param_derivs = get_param_derivs
 
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
@@ -1184,10 +1184,10 @@ class OpenMMState(WalkerState):
         }
 
         params = self.parameters_features()
-        param_derivs = self.parameter_derivatives_features()
-
         if params is not None:
             feature_d.update(params)
+
+        param_derivs = self.parameter_derivatives_features()
         if param_derivs is not None:
             feature_d.update(param_derivs)
 
