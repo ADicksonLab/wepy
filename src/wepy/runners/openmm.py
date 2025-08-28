@@ -203,14 +203,14 @@ class OpenMMRunner(Runner):
     """Runner for OpenMM simulations."""
 
     def __init__(
-        self,
-        system,
-        topology,
-        integrator,
-        platform=None,
-        platform_kwargs=None,
-        enforce_box=False,
-        get_state_kwargs=None
+            self,
+            system,
+            topology,
+            integrator,
+            platform=None,
+            platform_kwargs=None,
+            enforce_box=False,
+            get_param_derivs=False,
     ):
         """Constructor for OpenMMRunner.
 
@@ -242,11 +242,10 @@ class OpenMMRunner(Runner):
             Calls 'context.getState' with 'enforcePeriodicBox' if True.
              (Default value = False)
 
-        get_state_kwargs : dict of str : bool, optional
-            key-values to set for getting the state from the OpenMM context.
-            keys not included will use the values in GET_STATE_KWARG_DEFAULTS.
-            Will override the enforce_box flag.
-            
+        get_param_derivs : bool
+            Calls 'context.getState' with 'getParameterDerivatives' if True.
+             (Default value = False)
+
         Warnings
         --------
 
@@ -289,18 +288,14 @@ class OpenMMRunner(Runner):
         self.platform_kwargs = platform_kwargs
 
         self.enforce_box = enforce_box
-        self.get_parameter_derivs = get_parameter_derivs
-        
+
+        self.get_param_derivs = get_param_derivs
+
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
-        if get_state_kwargs is not None:
-            for k in get_state_kwargs:
-                self.getState_kwargs[k] = get_state_kwargs[k]
+        self.getState_kwargs["enforcePeriodicBox"] = self.enforce_box
+        self.getState_kwargs["getParameterDerivatives"] = self.get_param_derivs
 
-            # override enforce_box option if specified in get_state_kwargs
-            if 'enforce_box' in get_state_kwargs:
-                self.enforce_box = get_state_kwargs['enforce_box']
-                
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
