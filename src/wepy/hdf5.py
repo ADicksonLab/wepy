@@ -799,11 +799,12 @@ class WepyHDF5(object):
         self._filename = filename
         self._swmr_mode = swmr_mode
 
+        self.closed = None
+        
         if expert_mode is True:
             self._h5 = None
             self._wepy_mode = None
             self._h5py_mode = None
-            self.closed = None
 
             # terminate the constructor here
             return None
