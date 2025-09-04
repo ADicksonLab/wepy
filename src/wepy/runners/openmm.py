@@ -300,8 +300,6 @@ class OpenMMRunner(Runner):
             if 'enforce_box' in get_state_kwargs:
                 self.enforce_box = get_state_kwargs['enforce_box']
                 
-        self.get_parameter_derivs = self.getState_kwargs["getParameterDerivatives"]
-
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
 
