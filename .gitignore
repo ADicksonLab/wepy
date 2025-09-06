@@ -287,3 +287,5 @@ tags
 .vim
 
 # End of https://www.gitignore.io/api/vim
+uv.lock
+_output
