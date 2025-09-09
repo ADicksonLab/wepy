@@ -327,7 +327,7 @@ class TestLJSimIntegration:
             runner=runner,
             boundary_conditions=boundary_condition,
             resampler=resampler,
-            work_mapper=work_mapper,
+            worker_mapper=work_mapper,
             reporters=reporters,
         )
 

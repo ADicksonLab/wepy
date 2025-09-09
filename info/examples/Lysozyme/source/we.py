@@ -14,8 +14,13 @@ if __name__ == "__main__":
     logging.getLogger(__name__).setLevel(logging.DEBUG)
     install_mp_handler()
 
-    if sys.argv[1] == "-h" or sys.argv[1] == "--help":
-        print("arguments: n_cycles, n_steps, n_walkers, n_workers, platform, resampler")
+    if len(sys.argv) != 7 or sys.argv[1] == "-h" or sys.argv[1] == "--help":
+        print("Usage:")
+        print("------")
+        print("")
+        print(
+            "  arguments: n_cycles, n_steps, n_walkers, n_workers, platform, resampler"
+        )
         exit()
     else:
         n_cycles = int(sys.argv[1])

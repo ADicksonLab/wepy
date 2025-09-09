@@ -43,22 +43,26 @@ to be determined adaptively (e.g. according to some time limit).
 """
 
 # Standard Library
+from typing import Final, Any
 import logging
 
 logger = logging.getLogger(__name__)
 # Standard Library
-import sys
 import time
 from copy import deepcopy
 
-# Third Party Library
-import numpy as np
-
 # First Party Library
+from wepy.walker import Walker
 from wepy.work_mapper.mapper import Mapper
+from wepy.runners.runner import Runner
+from wepy.resampling.resamplers.resampler import Resampler
+from wepy.reporter.reporter import Reporter
+from wepy.work_mapper.mapper import WorkerMapper
+from wepy.boundary_conditions.boundary import BoundaryConditions
+from wepy_tools.monitoring.prometheus import SimMonitor
 
 
-class Manager(object):
+class Manager:
     """The class that coordinates wepy simulations.
 
     The Manager class is the lynchpin of wepy simulations and is where
@@ -90,7 +94,7 @@ class Manager(object):
 
     """
 
-    REPORT_ITEM_KEYS = (
+    REPORT_ITEM_KEYS: Final = (
         "cycle_idx",
         "n_segment_steps",
         "new_walkers",
@@ -112,13 +116,13 @@ class Manager(object):
 
     def __init__(
         self,
-        init_walkers,
-        runner=None,
-        work_mapper=None,
-        resampler=None,
-        boundary_conditions=None,
-        reporters=None,
-        sim_monitor=None,
+        init_walkers: list[Walker],
+        runner: Runner | None = None,
+        worker_mapper: WorkerMapper | None = None,
+        resampler: Resampler | None = None,
+        boundary_conditions: BoundaryConditions | None = None,
+        reporters: Reporter | None = None,
+        sim_monitor: SimMonitor | None = None,
     ):
         """Constructor for Manager.
 
@@ -131,7 +135,7 @@ class Manager(object):
         runner : object implementing the Runner interface
             The runner to be used for propagating sampling segments of walkers.
 
-        work_mapper : object implementing the WorkMapper interface
+        worker_mapper : object implementing the WorkerMapper interface
             The object that will be used to perform a set of runner
             segments in a cycle.
 
@@ -182,10 +186,10 @@ class Manager(object):
         else:
             self.reporters = reporters
 
-        if work_mapper is None:
+        if worker_mapper is None:
             self.work_mapper = Mapper()
         else:
-            self.work_mapper = work_mapper
+            self.work_mapper = worker_mapper
 
         ## Monitor
         self.monitor = sim_monitor
@@ -195,7 +199,12 @@ class Manager(object):
         # break it and no one cares about this anyhow
         self._last_report = None
 
-    def run_segment(self, walkers, segment_length, cycle_idx):
+    def run_segment(
+        self,
+        walkers: list[Walker],
+        segment_length: int,
+        cycle_idx: int,
+    ) -> list[Walker]:
         """Run a time segment for all walkers using the available workers.
 
         Maps the work for running each segment for each walker using
@@ -205,16 +214,20 @@ class Manager(object):
 
         Parameters
         ----------
-        walkers : list of walkers
+        walkers : list[Walker]
+            List of walkers
+
         segment_length : int
             Number of steps to run in each segment.
+
+        cycle_idx : int
+            Cycle index
 
         Returns
         -------
 
-        new_walkers : list of walkers
+        new_walkers : list[Walker]
            The walkers after the segment of sampling simulation.
-
         """
 
         num_walkers = len(walkers)
@@ -246,11 +259,11 @@ class Manager(object):
 
     def run_cycle(
         self,
-        walkers,
-        n_segment_steps,
-        cycle_idx,
+        walkers: list[Walker],
+        n_segment_steps: int,
+        cycle_idx: int,
         runner_opts=None,
-    ):
+    ) -> tuple[list[Walker], list[Any]]:
         """Run a full cycle of weighted ensemble simulation using each
         component.
 
@@ -340,8 +353,10 @@ class Manager(object):
         if runner_opts is None:
             runner_opts = {}
 
-        # run the runner pre-cycle hook
+        if self.runner is None:
+            raise RuntimeError(f"'runner' is None")
 
+        # run the runner pre-cycle hook
         start = time.time()
 
         self.runner.pre_cycle(
@@ -430,7 +445,6 @@ class Manager(object):
         # make a dictionary of all the results that will be reported
         seg_times = {}
         sampling_time = None
-        overhead_time = None
 
         if hasattr(self.work_mapper, "worker_segment_times"):
             seg_times = deepcopy(self.work_mapper.worker_segment_times)
@@ -482,9 +496,9 @@ class Manager(object):
 
         # check that all of the keys that are specified for this sim
         # manager are present
-        assert all([
-            True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS
-        ])
+        assert all(
+            [True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS]
+        )
 
         logger.info("Starting reporting")
         # report results to the reporters

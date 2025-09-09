@@ -9,7 +9,7 @@ Contig
 """
 
 # Standard Library
-import itertools as it
+from typing import Final
 import warnings
 from collections import deque
 from copy import copy
@@ -29,10 +29,13 @@ except ModuleNotFoundError:
 from geomm.free_energy import free_energy as calc_free_energy
 
 # First Party Library
+from wepy.hdf5 import WepyHDF5
+from wepy.resampling.decisions.decision import Decision
+from wepy.boundary_conditions.boundary import BoundaryConditions
+
 from wepy.analysis.network_layouts.layout_graph import LayoutGraph
 from wepy.analysis.network_layouts.tree import ResamplingTreeLayout
 from wepy.analysis.parents import (
-    DISCONTINUITY_VALUE,
     ParentForest,
     ancestors,
     net_parent_table,
@@ -41,24 +44,19 @@ from wepy.analysis.parents import (
     sliding_window,
 )
 
-# optional dependencies
-try:
-    # Third Party Library
-    import pandas as pd
-except ModuleNotFoundError:
-    warn("pandas is not installed and that functionality will not work", RuntimeWarning)
+import pandas as pd
 
 
 # the groups of run records
-RESAMPLING = "resampling"
+RESAMPLING: Final = "resampling"
 """Record key for resampling records."""
-RESAMPLER = "resampler"
+RESAMPLER: Final = "resampler"
 """Record key for resampler records."""
-WARPING = "warping"
+WARPING: Final = "warping"
 """Record key for warping records."""
-PROGRESS = "progress"
+PROGRESS: Final = "progress"
 """Record key for progress records."""
-BC = "boundary_conditions"
+BC: Final = "boundary_conditions"
 """Record key for boundary condition records."""
 
 
@@ -69,20 +67,20 @@ class BaseContigTree:
 
     """
 
-    RESAMPLING_PANEL_KEY = "resampling_steps"
+    RESAMPLING_PANEL_KEY: Final = "resampling_steps"
     """Key for resampling panel node attributes in the tree graph."""
-    PARENTS_KEY = "parent_idxs"
+    PARENTS_KEY: Final = "parent_idxs"
     """Key for parent indices node attributes in the tree graph."""
-    DISCONTINUITY_KEY = "discontinuities"
+    DISCONTINUITY_KEY: Final = "discontinuities"
     """Key for discontinuity node attributes in the tree graph."""
 
     def __init__(
         self,
-        wepy_h5,
-        continuations=Ellipsis,
-        runs=Ellipsis,
-        boundary_condition_class=None,
-        decision_class=None,
+        wepy_h5: WepyHDF5,
+        continuations: ellipsis | list[tuple[int, int]] = Ellipsis,
+        runs: ellipsis | list[int] = Ellipsis,
+        boundary_condition_class: BoundaryConditions | None = None,
+        decision_class: Decision | None = None,
     ):
         """The only required argument is an WepyHDF5 object from which to draw
         data.
@@ -177,19 +175,23 @@ class BaseContigTree:
         if continuations is Ellipsis:
             # add continuations involving both ends of the continuation
 
-            self._continuations.update([
-                (a, b)
-                for a, b in wepy_h5.continuations
-                if a in self._run_idxs and b in self._run_idxs
-            ])
+            self._continuations.update(
+                [
+                    (a, b)
+                    for a, b in wepy_h5.continuations
+                    if a in self._run_idxs and b in self._run_idxs
+                ]
+            )
 
         # if a subset of continuations was given use only those
         elif continuations is not None:
-            self._continuations.update([
-                (a, b)
-                for a, b in continuations
-                if a in self._run_idxs and b in self._run_idxs
-            ])
+            self._continuations.update(
+                [
+                    (a, b)
+                    for a, b in continuations
+                    if a in self._run_idxs and b in self._run_idxs
+                ]
+            )
 
         # using the wepy_h5 create a tree of the cycles
         self._create_tree(wepy_h5)
@@ -219,17 +221,17 @@ class BaseContigTree:
             wepy_h5.close()
 
     @property
-    def graph(self):
+    def graph(self) -> nx.DiGraph:
         """The underlying networkx.DiGraph object."""
         return self._graph
 
     @property
-    def decision_class(self):
+    def decision_class(self) -> Decision | None:
         """The decision class used to determine parental lineages."""
         return self._decision_class
 
     @property
-    def boundary_condition_class(self):
+    def boundary_condition_class(self) -> BoundaryConditions | None:
         """The boundary condition class is used to determine discontinuities in lineages."""
         return self._boundary_condition_class
 
@@ -237,6 +239,11 @@ class BaseContigTree:
     def span_traces(self):
         """Dictionary mapping the spand indices to their run traces."""
         return self._spans
+
+    def make_contig(self, span_trace):
+        raise NotImplementedError(
+            f"'make_contig' is not implemented in '{self.__class__.__name__}'"
+        )
 
     def span_contig(self, span_idx):
         """Generates a contig object for the specified spanning contig."""
@@ -1557,9 +1564,9 @@ class Contig(ContigTree):
 
         # check that the result is a single contig
         spanning_contig_traces = self.spanning_contig_traces()
-        assert len(spanning_contig_traces) == 1, (
-            "continuations given do not form a single contig"
-        )
+        assert (
+            len(spanning_contig_traces) == 1
+        ), "continuations given do not form a single contig"
 
         # if so we add some useful attributes valid for only a
         # standalone contig

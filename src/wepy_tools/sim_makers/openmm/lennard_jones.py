@@ -7,7 +7,7 @@ from scipy.spatial.distance import euclidean
 from wepy.boundary_conditions.receptor import UnbindingBC
 from wepy.resampling.distances.distance import Distance
 from wepy.runners.openmm import GET_STATE_KWARG_DEFAULTS
-from wepy_tools.sim_makers.openmm import OpenMMToolsTestSysSimMaker
+from .sim_maker import OpenMMToolsTestSysSimMaker
 
 
 ## Distance Metric
@@ -27,11 +27,6 @@ class PairDistance(Distance):
         return np.abs(dist_a - dist_b)
 
 
-# class PairUnbinding(BoundaryCondition):
-
-#     pass
-
-
 class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     TEST_SYS = LennardJonesPair
 
@@ -46,19 +41,23 @@ class LennardJonesPairOpenMMSimMaker(OpenMMToolsTestSysSimMaker):
     }
 
     DEFAULT_BC_PARAMS = OpenMMToolsTestSysSimMaker.DEFAULT_BC_PARAMS
-    DEFAULT_BC_PARAMS.update({
-        "UnbindingBC": UNBINDING_BC_DEFAULTS,
-    })
+    DEFAULT_BC_PARAMS.update(
+        {
+            "UnbindingBC": UNBINDING_BC_DEFAULTS,
+        }
+    )
 
     def make_bc(self, bc_class, bc_params):
         if bc_class == UnbindingBC:
-            bc_params.update({
-                "distance": self.distance,
-                "initial_state": self.init_state,
-                "topology": self.json_top(),
-                "ligand_idxs": self.LIGAND_IDXS,
-                "receptor_idxs": self.RECEPTOR_IDXS,
-            })
+            bc_params.update(
+                {
+                    "distance": self.distance,
+                    "initial_state": self.init_state,
+                    "topology": self.json_top(),
+                    "ligand_idxs": self.LIGAND_IDXS,
+                    "receptor_idxs": self.RECEPTOR_IDXS,
+                }
+            )
 
         bc = bc_class(**bc_params)
 

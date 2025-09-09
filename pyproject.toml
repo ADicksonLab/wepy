@@ -5,8 +5,9 @@ build-backend = "hatchling.build"
 [project]
 name = "wepy"
 description = "Weighted Ensemble Framework"
-readme = {"file" = "README.org", "content-type" = "text/plain"}
+readme = { "file" = "README.org", "content-type" = "text/plain" }
 license = "MIT"
+requires-python = ">=3.11"
 
 authors = [
   { name = "Samuel Lotz", email = "salotz@salotz.info" },
@@ -20,29 +21,30 @@ dynamic = ["version"]
 classifiers = [
   "Topic :: Utilities",
   "License :: OSI Approved :: MIT License",
-  "Programming Language :: Python :: 3"
+  "Programming Language :: Python :: 3",
 ]
 
 dependencies = [
-    "numpy",
-    "h5py>=3",
-    "networkx",
-    "pandas",
-    "dill",
-    "click",
-    "scipy",
-    "geomm",
-    "tabulate",
-    "jinja2",
-    "pint",
-    "multiprocessing_logging",
+  "numpy",
+  "h5py>=3",
+  "networkx",
+  "pandas",
+  "dill",
+  "click",
+  "scipy",
+  "geomm",
+  "tabulate",
+  "jinja2",
+  "pint",
+  "multiprocessing_logging",
+  "openmm[cuda12]",
 ]
 
 [project.optional-dependencies]
 
 md = [
-   "mdtraj",
-   "openmm_systems==0.0.0",
+  "mdtraj",
+  "openmm_systems==0.0.0",
 ]
 
 distributed = [

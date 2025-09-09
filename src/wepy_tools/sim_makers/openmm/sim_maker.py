@@ -1,17 +1,16 @@
 """Module for generating wepy systems"""
 
 # Standard Library
-from copy import copy, deepcopy
+from copy import deepcopy
 
 # Third Party Library
 import mdtraj as mdj
 import numpy as np
 import openmm as omm
-import openmm.app as omma
-import simtk.unit as unit
+import openmm.unit as unit
 
 # integrators
-from simtk.openmm import LangevinIntegrator
+from openmm import LangevinIntegrator
 
 # First Party Library
 # boundary conditions
@@ -49,21 +48,17 @@ from wepy.runners.openmm import (
     OpenMMGPUWalkerTaskProcess,
     OpenMMGPUWorker,
     OpenMMRunner,
-    OpenMMState,
     gen_walker_state,
 )
 from wepy.util.json_top import (
     json_top_atom_df,
-    json_top_residue_df,
-    json_top_residue_fields,
-    json_top_subset,
 )
 from wepy.util.mdtraj import mdtraj_to_json_topology
 from wepy.walker import Walker
 
 # mappers
 from wepy.work_mapper.mapper import Mapper
-from wepy.work_mapper.task_mapper import TaskMapper, WalkerTaskProcess
+from wepy.work_mapper.task_mapper import TaskMapper
 from wepy.work_mapper.worker import Worker, WorkerMapper
 
 # workers
@@ -236,6 +231,11 @@ class OpenMMSimMaker:
         bc_params=None,
     ):
         ## RUNNER
+
+        if platform not in OpenMMSimMaker.DEFAULT_PLATFORM_PARAMS.keys():
+            raise ValueError(
+                f"Platform '{platform}' not supported (supported: '{str(OpenMMSimMaker.DEFAULT_PLATFORM_PARAMS.keys())})"
+            )
 
         # choose which integrator to use
         integrator_class = [i for i in self.INTEGRATORS if i.__name__ == integrator][0]
@@ -535,6 +535,11 @@ class OpenMMSimMaker:
                 "neither work_mapper_class or work_mapper_spec were not given"
             )
 
+        if platform not in OpenMMSimMaker.DEFAULT_PLATFORM_PARAMS.keys():
+            raise ValueError(
+                f"Platform '{platform}' not supported (supported: '{str(OpenMMSimMaker.DEFAULT_PLATFORM_PARAMS.keys())})"
+            )
+
         mapper_name = work_mapper_class.__name__
 
         # use either the default params or the user params
@@ -546,6 +551,8 @@ class OpenMMSimMaker:
         work_mapper_params.update(
             self.choose_work_mapper_platform_params(platform, mapper_name)
         )
+        work_mapper_params["platform"] = platform
+        work_mapper_params["device_ids"] = [0]
 
         # REPORTERS
 

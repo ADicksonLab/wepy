@@ -40,7 +40,7 @@ try:
     # Third Party Library
     import openmm as omm
     import openmm.app as omma
-    import simtk.unit as unit
+    import openmm.unit as unit
 except ModuleNotFoundError:
     raise ModuleNotFoundError(
         "OpenMM has not been installed, which this runner requires."
@@ -273,9 +273,9 @@ class OpenMMRunner(Runner):
 
         """
 
-        assert isinstance(platform, str), (
-            f"platform should be a string, not {type(platform)}"
-        )
+        assert isinstance(
+            platform, str
+        ), f"platform should be a string, not {type(platform)}"
 
         # we save the different components. However, if we are to make
         # this runner picklable we have to convert the SWIG objects to
@@ -657,7 +657,9 @@ class OpenMMState(WalkerState):
                 warn(
                     "Key {} in kwargs is already taken by this class, renaming to {}".format(
                         self.OTHER_KEY_TEMPLATE
-                    ).format(key)
+                    ).format(
+                        key
+                    )
                 )
 
                 # make a new key
@@ -868,9 +870,9 @@ class OpenMMState(WalkerState):
         if kinetic_energy is None:
             return None
         else:
-            return np.array([
-                self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)
-            ])
+            return np.array(
+                [self.kinetic_energy.value_in_unit(self.kinetic_energy_unit)]
+            )
 
     # Potential Energy
     @property
@@ -901,9 +903,9 @@ class OpenMMState(WalkerState):
         if potential_energy is None:
             return None
         else:
-            return np.array([
-                self.potential_energy.value_in_unit(self.potential_energy_unit)
-            ])
+            return np.array(
+                [self.potential_energy.value_in_unit(self.potential_energy_unit)]
+            )
 
     # Time
     @property
@@ -1316,9 +1318,9 @@ class OpenMMWalker(Walker):
     def __init__(self, state, weight):
         # documented in superclass
 
-        assert isinstance(state, OpenMMState), (
-            "state must be an instance of class OpenMMState not {}".format(type(state))
-        )
+        assert isinstance(
+            state, OpenMMState
+        ), "state must be an instance of class OpenMMState not {}".format(type(state))
 
         super().__init__(state, weight)
 
@@ -1396,6 +1398,7 @@ class OpenMMCPUWalkerTaskProcess(WalkerTaskProcess):
     NAME_TEMPLATE = "OpenMM_CPU_Walker_Task-{}"
 
     def run_task(self, task):
+        print("CPU Walker Task ---->", self.mapper_attributes, task, task.func)
         if "num_threads" in self.mapper_attributes:
             num_threads = self.mapper_attributes["num_threads"]
 
@@ -1418,6 +1421,7 @@ class OpenMMGPUWalkerTaskProcess(WalkerTaskProcess):
     def run_task(self, task):
         logger.info(f"Starting to run a task as worker {self._worker_idx}")
 
+        print("GPU Walker Task ---->", self.mapper_attributes)
         # get the platform
         platform = self.mapper_attributes["platform"]
 

@@ -205,7 +205,7 @@ class Mapper(ABCMapper):
         return self._worker_segment_times
 
 
-class Task(object):
+class Task:
     """Class that composes a function and arguments."""
 
     def __init__(self, func, *args, **kwargs):
@@ -607,11 +607,13 @@ class WorkerMapper(ABCWorkerMapper):
         if any(alive_workers):
             logger.critical(
                 "Terminating main process with running workers {}".format(
-                    ",".join([
-                        str(worker_idx)
-                        for worker_idx in range(len(self._workers))
-                        if alive_workers[worker_idx]
-                    ])
+                    ",".join(
+                        [
+                            str(worker_idx)
+                            for worker_idx in range(len(self._workers))
+                            if alive_workers[worker_idx]
+                        ]
+                    )
                 )
             )
 

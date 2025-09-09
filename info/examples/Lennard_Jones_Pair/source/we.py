@@ -26,9 +26,8 @@ import os.path as osp
 
 import numpy as np
 
-import openmm.app as omma
 import openmm as omm
-import simtk.unit as unit
+import openmm.unit as unit
 
 from openmm_systems.test_systems import LennardJonesPair
 import mdtraj as mdj
@@ -249,7 +248,7 @@ if __name__ == "__main__":
             runner=runner,
             resampler=resampler,
             boundary_conditions=ubc,
-            work_mapper=mapper,
+            worker_mapper=mapper,
             reporters=reporters,
         )
 

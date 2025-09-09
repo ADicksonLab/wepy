@@ -1,7 +1,7 @@
 # Third Party Library
 import mdtraj as mdj
 import numpy as np
-import simtk.unit as unit
+import openmm.unit as unit
 
 # First Party Library
 from wepy.util.mdtraj import json_to_mdtraj_topology, mdtraj_to_json_topology

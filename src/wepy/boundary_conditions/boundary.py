@@ -17,11 +17,8 @@ from copy import deepcopy
 # Third Party Library
 import numpy as np
 
-# First Party Library
-from wepy.walker import Walker
 
-
-class BoundaryConditions(object):
+class BoundaryConditions:
     """Abstract base class for conveniently making compliant boundary condition classes.
 
     Includes empty record group definitions and useful getters for those.

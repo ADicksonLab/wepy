@@ -1,7 +1,7 @@
 # First Party Library
-from wepy_tools.sim_makers.openmm.lennard_jones import LennardJonesPairOpenMMSimMaker
-from wepy_tools.sim_makers.openmm.lysozyme import LysozymeImplicitOpenMMSimMaker
-from wepy_tools.sim_makers.openmm.sim_maker import (
+from .lennard_jones import LennardJonesPairOpenMMSimMaker
+from .lysozyme import LysozymeImplicitOpenMMSimMaker
+from .sim_maker import (
     OpenMMSimMaker,
     OpenMMToolsTestSysSimMaker,
 )
@@ -9,7 +9,6 @@ from wepy_tools.sim_makers.openmm.sim_maker import (
 __all__ = [
     "LennardJonesPairOpenMMSimMaker",
     "LysozymeImplicitOpenMMSimMaker",
-] + [  # the base classes
     "OpenMMSimMaker",
     "OpenMMToolsTestSysSimMaker",
 ]

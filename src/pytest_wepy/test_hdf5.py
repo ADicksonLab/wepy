@@ -106,7 +106,7 @@ def test_WriteReadH5():
         runner=runner,
         resampler=resampler,
         boundary_conditions=rw_bc,
-        work_mapper=Mapper(),
+        worker_mapper=Mapper(),
         reporters=[hdf5_reporter],
     )
 
@@ -197,7 +197,7 @@ def makeRandomWalkH5(h5name, resampling=True, warping=True):
         runner=runner,
         resampler=resampler,
         boundary_conditions=rw_bc,
-        work_mapper=Mapper(),
+        worker_mapper=Mapper(),
         reporters=[hdf5_reporter],
     )
 

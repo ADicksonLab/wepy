@@ -5,7 +5,7 @@ logger = logging.getLogger(__name__)
 
 # Third Party Library
 import click
-import simtk.unit as unit
+import openmm.unit as unit
 from multiprocessing_logging import install_mp_handler
 
 # First Party Library
@@ -49,31 +49,24 @@ def cli(
 ):
     """Run a pre-parametrized wepy simulation.
 
-    \b
     Parameters
     ----------
 
-    \b
     SYSTEM : str
         Which pre-parametrized simulation to run should have the format: System/Runner-Platform
 
-    \b
     N_WALKERS : int
         Number of parallel trajectories to run
 
-    \b
     N_CYCLES : int
         How many cycles to run the simulation for
 
-    \b
     TAU : float
         Cycle simulation time in picoseconds
 
-    \b
     N_WORKERS : int
         Number of worker processes to run on
 
-    \b
     Available Systems
     -----------------
 
@@ -81,11 +74,9 @@ def cli(
 
     LysozymeImplicit : Lysozyme-xylene receptor ligand in implicit solvent (2621 atoms)
 
-    \b
     Available Runners/Platforms
     ---------------------------
 
-    \b
     OpenMM-
       Reference
       CPU
@@ -93,7 +84,6 @@ def cli(
       CUDA (GPU)
 
 
-    \b
     Available Work Mappers
     ----------------------
 
@@ -108,7 +98,6 @@ def cli(
     Mapper : non-parallel single-process implementation
 
 
-    \b
     Available Resamplers
     --------------------
 
@@ -118,13 +107,11 @@ def cli(
 
     REVO : Stateless and Binless algorithm that rewards in-ensemble novelty.
 
-    \b
     Examples
     --------
 
     python -m wepy_test_drive LennardJonesPair/OpenMM-CPU 20 10 2 4
 
-    \b
     Notes
     -----
 

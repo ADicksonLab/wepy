@@ -17,10 +17,10 @@ See the openmm.py module for an example.
 
 """
 
-# Third Party Library
+from typing import Protocol
 
 
-class Runner(object):
+class Runner(Protocol):
     """Abstract base class for the Runner interface."""
 
     def pre_cycle(self, **kwargs):
@@ -37,7 +37,7 @@ class Runner(object):
         """
 
         # by default just pass since subclasses need not implement this
-        pass
+        raise NotImplementedError(f"In {self.__class__.__name__}")
 
     def post_cycle(self, **kwargs):
         """Perform post-cycle behavior. run_segment will be called for each

@@ -105,7 +105,7 @@ def get_char_distance(dimension, num_walkers):
     mapper = Mapper()
     # running the simulation
     sim_manager = Manager(
-        init_walkers, runner=runner, resampler=resampler, work_mapper=mapper
+        init_walkers, runner=runner, resampler=resampler, worker_mapper=mapper
     )
 
     print("Running simulation")

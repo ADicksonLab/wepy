@@ -1,5 +1,4 @@
 # Standard Library
-import itertools as it
 import logging
 
 logger = logging.getLogger(__name__)
@@ -483,9 +482,9 @@ class Orchestrator:
 
         """
 
-        if any([
-            True if config_hash == h else False for h in self.configuration_hashes
-        ]):
+        if any(
+            [True if config_hash == h else False for h in self.configuration_hashes]
+        ):
             return True
         else:
             return False
@@ -498,9 +497,9 @@ class Orchestrator:
         config_hash = self.hash_snapshot(serialized_config)
 
         # check that the hash is not already in the snapshots
-        if any([
-            True if config_hash == md5 else False for md5 in self.configuration_hashes
-        ]):
+        if any(
+            [True if config_hash == md5 else False for md5 in self.configuration_hashes]
+        ):
             # just skip the rest of the function and return the hash
             return config_hash
 
@@ -514,9 +513,9 @@ class Orchestrator:
         snaphash = self.hash_snapshot(serial_configuration)
 
         # check that the hash is not already in the configurations
-        if any([
-            True if snaphash == md5 else False for md5 in self.configuration_hashes
-        ]):
+        if any(
+            [True if snaphash == md5 else False for md5 in self.configuration_hashes]
+        ):
             # just skip the rest of the function and return the hash
             return snaphash
 
@@ -645,7 +644,9 @@ class Orchestrator:
         get_run_record_query = """
         SELECT *
         FROM runs
-        """.format(fields=", ".join(self.RUN_SELECT_FIELDS))
+        """.format(
+            fields=", ".join(self.RUN_SELECT_FIELDS)
+        )
 
         cursor = self._db.cursor()
         cursor.execute(get_run_record_query)
@@ -658,7 +659,9 @@ class Orchestrator:
         SELECT {fields}
         FROM runs
         WHERE start_hash=? AND end_hash=?
-        """.format(fields=", ".join(self.RUN_SELECT_FIELDS))
+        """.format(
+            fields=", ".join(self.RUN_SELECT_FIELDS)
+        )
 
         params = (start_hash, end_hash)
 
@@ -904,7 +907,7 @@ class Orchestrator:
             boundary_conditions=start_snapshot.apparatus.filters[1],
             resampler=start_snapshot.apparatus.filters[2],
             # configuration options
-            work_mapper=configuration.work_mapper,
+            worker_mapper=configuration.work_mapper,
             reporters=configuration.reporters,
             sim_monitor=configuration.monitor,
         )
@@ -1262,9 +1265,9 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
     """
 
     if not osp.exists(host_path):
-        assert len(orchestrator_paths) > 1, (
-            "If the host path is a new orchestrator, must give at least 2 orchestrators to merge."
-        )
+        assert (
+            len(orchestrator_paths) > 1
+        ), "If the host path is a new orchestrator, must give at least 2 orchestrators to merge."
 
     # open the host orchestrator at the location which will have all
     # of the new things put into it from the other orchestrators. If
@@ -1307,9 +1310,9 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
         # snapshots themselves, we trust they are correct
         for snaphash in orch.snapshot_hashes:
             # check that the hash is not already in the snapshots
-            if any([
-                True if snaphash == md5 else False for md5 in new_orch.snapshot_hashes
-            ]):
+            if any(
+                [True if snaphash == md5 else False for md5 in new_orch.snapshot_hashes]
+            ):
                 # skip it and move on
                 continue
 
@@ -1323,10 +1326,12 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
             config_hash = orch.run_configuration_hash(*run_id)
 
             # check that the hash is not already in the snapshots
-            if any([
-                True if config_hash == md5 else False
-                for md5 in new_orch.configuration_hashes
-            ]):
+            if any(
+                [
+                    True if config_hash == md5 else False
+                    for md5 in new_orch.configuration_hashes
+                ]
+            ):
                 # skip it and move on
                 continue
 
@@ -1341,7 +1346,9 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
         # query to attach the foreign database
         attach_query = """
         ATTACH '{}' AS {}
-        """.format(orch_path, attached_table_name)
+        """.format(
+            orch_path, attached_table_name
+        )
 
         # query to update the runs tabel with new unique runs
         union_query = """
@@ -1351,12 +1358,16 @@ def reconcile_orchestrators(host_path, *orchestrator_paths):
         EXCEPT
         SELECT * FROM runs
         )
-        """.format(attached_table_name)
+        """.format(
+            attached_table_name
+        )
 
         # query to detach the table
         detach_query = """
         DETACH {}
-        """.format(attached_table_name)
+        """.format(
+            attached_table_name
+        )
 
         # then run the queries
 

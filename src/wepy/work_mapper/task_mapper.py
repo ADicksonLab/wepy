@@ -13,7 +13,6 @@ import traceback
 from warnings import warn
 
 # First Party Library
-from wepy.walker import Walker
 from wepy.work_mapper.mapper import (
     ABCWorkerMapper,
     Task,
@@ -66,7 +65,7 @@ class TaskMapper(ABCWorkerMapper):
         if walker_task_type is None:
             self._walker_task_type = WalkerTaskProcess
             warn("walker_task_type not given using the default base class")
-            logger.warn("walker_task_type not given using the default base class")
+            logger.warning("walker_task_type not given using the default base class")
         else:
             self._walker_task_type = walker_task_type
 
@@ -253,9 +252,9 @@ class TaskMapper(ABCWorkerMapper):
                     elif type(result) == tuple:
                         logger.debug("Received a results tuple")
 
-                        assert len(result) == 2, (
-                            "Result tuples should be only be (ID, pickle)"
-                        )
+                        assert (
+                            len(result) == 2
+                        ), "Result tuples should be only be (ID, pickle)"
 
                         result_id, payload = result
 
