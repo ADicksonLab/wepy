@@ -59,7 +59,6 @@ from wepy.resampling.resamplers.resampler import Resampler
 from wepy.reporter.reporter import Reporter
 from wepy.work_mapper.mapper import WorkerMapper
 from wepy.boundary_conditions.boundary import BoundaryConditions
-from wepy_tools.monitoring.prometheus import SimMonitor
 
 
 class Manager:
@@ -122,7 +121,6 @@ class Manager:
         resampler: Resampler | None = None,
         boundary_conditions: BoundaryConditions | None = None,
         reporters: Reporter | None = None,
-        sim_monitor: SimMonitor | None = None,
     ):
         """Constructor for Manager.
 
@@ -147,10 +145,6 @@ class Manager:
 
         reporters : list of objects implenting the Reporter interface, optional
             Reporters to be used. You should provide these if you want to keep data.
-
-        sim_monitor : SimMonitor object
-            An object implementing SimMonitor interface for providing
-            monitoring metrics of a simulation.
 
         Warnings
         --------
@@ -192,7 +186,7 @@ class Manager:
             self.work_mapper = worker_mapper
 
         ## Monitor
-        self.monitor = sim_monitor
+        self.monitor = None
 
         # used to have a record of the last report for the simulation
         # monitor without breaking the API. Ugly but I don't want to
@@ -496,9 +490,9 @@ class Manager:
 
         # check that all of the keys that are specified for this sim
         # manager are present
-        assert all(
-            [True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS]
-        )
+        assert all([
+            True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS
+        ])
 
         logger.info("Starting reporting")
         # report results to the reporters

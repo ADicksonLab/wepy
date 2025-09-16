@@ -693,7 +693,7 @@ def _iter_field_paths(grp):
     return field_paths
 
 
-class WepyHDF5(object):
+class WepyHDF5:
     """Wrapper for h5py interface to an HDF5 file object for creation and
     access of WepyHDF5 data.
 

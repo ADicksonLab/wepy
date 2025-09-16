@@ -37,7 +37,9 @@ class Runner(Protocol):
         """
 
         # by default just pass since subclasses need not implement this
-        raise NotImplementedError(f"In {self.__class__.__name__}")
+        # TODO: this should not be run if it is an abstract class. But it is running
+        # raise NotImplementedError(f"In {self.__class__.__name__}")
+        pass
 
     def post_cycle(self, **kwargs):
         """Perform post-cycle behavior. run_segment will be called for each
