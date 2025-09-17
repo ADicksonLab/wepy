@@ -239,7 +239,7 @@ class RandomwalkProfiler(object):
             init_walkers,
             runner=runner,
             resampler=self.resampler,
-            worker_mapper=Mapper(),
+            work_mapper=Mapper(),
             reporters=[hdf5_reporter],
         )
 

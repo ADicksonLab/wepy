@@ -79,8 +79,8 @@ class BaseContigTree:
         wepy_h5: WepyHDF5,
         continuations: ellipsis | list[tuple[int, int]] = Ellipsis,
         runs: ellipsis | list[int] = Ellipsis,
-        boundary_condition_class: BoundaryConditions | None = None,
-        decision_class: Decision | None = None,
+        boundary_condition_class: type[BoundaryConditions] | None = None,
+        decision_class: type[Decision] | None = None,
     ):
         """The only required argument is an WepyHDF5 object from which to draw
         data.
@@ -226,12 +226,12 @@ class BaseContigTree:
         return self._graph
 
     @property
-    def decision_class(self) -> Decision | None:
+    def decision_class(self) -> type[Decision] | None:
         """The decision class used to determine parental lineages."""
         return self._decision_class
 
     @property
-    def boundary_condition_class(self) -> BoundaryConditions | None:
+    def boundary_condition_class(self) -> type[BoundaryConditions] | None:
         """The boundary condition class is used to determine discontinuities in lineages."""
         return self._boundary_condition_class
 

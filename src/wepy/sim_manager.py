@@ -117,10 +117,11 @@ class Manager:
         self,
         init_walkers: list[Walker],
         runner: Runner | None = None,
-        worker_mapper: WorkerMapper | None = None,
+        work_mapper=None,
         resampler: Resampler | None = None,
-        boundary_conditions: BoundaryConditions | None = None,
+        boundary_conditions: type[BoundaryConditions] | None = None,
         reporters: Reporter | None = None,
+        sim_monitor=None,
     ):
         """Constructor for Manager.
 
@@ -133,7 +134,7 @@ class Manager:
         runner : object implementing the Runner interface
             The runner to be used for propagating sampling segments of walkers.
 
-        worker_mapper : object implementing the WorkerMapper interface
+        work_mapper : object implementing the WorkMapper interface
             The object that will be used to perform a set of runner
             segments in a cycle.
 
@@ -180,10 +181,10 @@ class Manager:
         else:
             self.reporters = reporters
 
-        if worker_mapper is None:
+        if work_mapper is None:
             self.work_mapper = Mapper()
         else:
-            self.work_mapper = worker_mapper
+            self.work_mapper = work_mapper
 
         ## Monitor
         self.monitor = None
@@ -257,7 +258,8 @@ class Manager:
         n_segment_steps: int,
         cycle_idx: int,
         runner_opts=None,
-    ) -> tuple[list[Walker], list[Any]]:
+    ) -> tuple[list[Walker], list[Runner | BoundaryConditions | Resampler]]:
+        # TODO: Replace list of Runner | BoundaryConditions | Resampler with tuple
         """Run a full cycle of weighted ensemble simulation using each
         component.
 
@@ -490,9 +492,9 @@ class Manager:
 
         # check that all of the keys that are specified for this sim
         # manager are present
-        assert all([
-            True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS
-        ])
+        assert all(
+            [True if rep_key in report else False for rep_key in self.REPORT_ITEM_KEYS]
+        )
 
         logger.info("Starting reporting")
         # report results to the reporters

@@ -907,7 +907,7 @@ class Orchestrator:
             boundary_conditions=start_snapshot.apparatus.filters[1],
             resampler=start_snapshot.apparatus.filters[2],
             # configuration options
-            worker_mapper=configuration.work_mapper,
+            work_mapper=configuration.work_mapper,
             reporters=configuration.reporters,
             sim_monitor=configuration.monitor,
         )
