@@ -94,7 +94,7 @@ class WepyHDF5Reporter(FileReporter):
             Mapping of trajectory field names to string specs
             for units.
 
-        sparse_fields : list of str, optional
+        sparse_fields : dict of str: int, optional
             List of trajectory fields that should be initialized as sparse.
 
         feature_shapes : dict of str: shape_spec, optional
@@ -207,7 +207,19 @@ class WepyHDF5Reporter(FileReporter):
         self.save_fields = save_fields
         # dictionary of sparse_field_name -> int : frequency of cycles
         # to save the field
-        self._sparse_fields = sparse_fields
+
+        # TODO: refine requirements of sparse fields. Do they need to
+        # be in the 'save_fields'?
+        
+        self._sparse_fields = (
+            {
+                field_name : freq
+                for field_name, freq
+                in sparse_fields.items()
+            }
+            if sparse_fields is not None
+            else {}
+        )
         self._feature_shapes = feature_shapes
         self._feature_dtypes = feature_dtypes
         self._n_dims = n_dims
