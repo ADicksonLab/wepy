@@ -273,9 +273,10 @@ class OpenMMRunner(Runner):
 
         """
 
-        assert isinstance(
-            platform, str
-        ), f"platform should be a string, not {type(platform)}"
+        if platform is not None:
+            assert isinstance(
+                platform, str
+            ), f"platform should be a string, not {type(platform)}"
 
         # we save the different components. However, if we are to make
         # this runner picklable we have to convert the SWIG objects to
