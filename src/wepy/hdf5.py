@@ -2996,14 +2996,16 @@ class WepyHDF5:
 
         field_paths = _iter_field_paths(dtypes_grp)
 
+        _NONE_STR = NONE_STR.encode()
+        
         dtypes = {}
         for field_path in field_paths:
             dtype_str = dtypes_grp[field_path][()]
             # if there is 'None' flag for the dtype then return None
-            if dtype_str == NONE_STR:
+            if dtype_str == _NONE_STR:
                 dtypes[field_path] = None
             else:
-                dtype_obj = json.loads(dtype_str)
+                dtype_obj = json.loads(dtype_str.decode())
                 dtype_obj = [tuple(d) for d in dtype_obj]
                 dtype = np.dtype(dtype_obj)
                 dtypes[field_path] = dtype
