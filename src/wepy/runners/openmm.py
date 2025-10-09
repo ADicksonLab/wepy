@@ -291,8 +291,7 @@ class OpenMMRunner(Runner):
 
         self.enforce_box = enforce_box
 
-        self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
-        # update with the user based enforce_box
+        self.getState_kwargs = {}
         if get_state_kwargs is not None:
             for k in get_state_kwargs:
                 self.getState_kwargs[k] = get_state_kwargs[k]
@@ -300,6 +299,10 @@ class OpenMMRunner(Runner):
             # override enforce_box option if specified in get_state_kwargs
             if "enforce_box" in get_state_kwargs:
                 self.enforce_box = get_state_kwargs["enforce_box"]
+
+        else:
+            self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
+
 
         self._cycle_platform = None
         self._cycle_platform_kwargs = None
