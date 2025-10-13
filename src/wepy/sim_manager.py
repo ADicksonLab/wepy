@@ -119,7 +119,7 @@ class Manager:
         runner: Runner | None = None,
         work_mapper=None,
         resampler: Resampler | None = None,
-        boundary_conditions: type[BoundaryConditions] | None = None,
+        boundary_conditions: BoundaryConditions | None = None,
         reporters: Reporter | None = None,
         sim_monitor=None,
     ):
