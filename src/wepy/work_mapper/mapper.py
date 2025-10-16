@@ -44,10 +44,6 @@ class ABCMapper(object):
     def attributes(self):
         return self._attributes
 
-    @attributes.getter
-    def attributes(self, key):
-        return self._attributes[key]
-
     def init(self, segment_func=None, **kwargs):
         """Runtime initialization and setting of function to map over walkers.
 
