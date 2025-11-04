@@ -94,63 +94,93 @@ def generate_state(work_dir, output_pref, cycle=0, next_input_pref=None, get_vel
 
     return new_state
 
-def generate_initial_state(coor_path, xsc_path, vel_path=None):
+def prepare_initial_states(work_dir, coor_paths, xsc_paths, vel_paths=[]):
     """Method for generating a wepy compliant state from NAMD
     output files.
 
     Parameters
     ----------
-
-    coor_path : str
-        The path to the .coor file.
-    xsc_path : str
-        The path to the .xsc file.
-    vel_path : str, optional
-        The path to the .vel file. Will be ignored if None.
+    work_dir : str
+        The working directory for the simulation.
+    coor_paths : List(str)
+        List of paths to the .coor files.
+    xsc_paths : List(str)
+        List of paths to the .xsc files.
+    vel_paths : List(str), optional
+        The paths to the .vel files. Will be ignored if empty.
 
     Returns
     -------
 
-    new_state : wepy.runners.namd.NAMDState object
-        A new state from the simulation state.
+    new_states : List(wepy.runners.namd.NAMDState object)
+        A list of states from the initial coor and xsc files.
 
     """
 
-    # make an empty state dict
-    state = {}
+    # make work_dir if it doesn't exist
+    if not os.path.exists(work_dir):
+        os.mkdir(work_dir)
 
-    # make filenames
-    with open(coor_path,'rb') as f:
-        natoms = np.fromfile(f,dtype=np.dtype('i'),count=1)[0]
-        pos = np.fromfile(f,dtype=np.dtype('d'),count=3*natoms)
+    new_states = []
+    for w_idx, coor_path in enumerate(coor_paths):
+        # set prefix
+        pref = f'walker{w_idx}_0'
 
-        # multiply by 0.1 to convert from angstroms to nanometers
-        state['positions'] = 0.1*pos.reshape(natoms,3)
+        # make an empty state dict
+        state = {}
 
-    # get box vectors
-    with open(xsc_path,'r') as f:
-        # skip the first two lines
-        tmp = f.readline()
-        tmp = f.readline()
-        # parse the third to get the box vectors
-        tmp = f.readline()
-        vals = tmp.split(' ')
-        state['box_vectors'] = np.array(vals[1:10],dtype=np.dtype('d')).reshape(3,3)
-
-    if vel_path is not None:
-        with open(vel_path,'rb') as f:
+        # make filenames
+        with open(coor_path,'rb') as f:
             natoms = np.fromfile(f,dtype=np.dtype('i'),count=1)[0]
-            vel = np.fromfile(f,dtype=np.dtype('d'),count=3*natoms)
+            pos = np.fromfile(f,dtype=np.dtype('d'),count=3*natoms)
 
-            # multiply by 0.1 to convert from angstroms/time to nanometers/time
-            state['velocities'] = 0.1*vel.reshape(natoms,3)
-    else:
-        state['velocities'] = None
-            
-    # make a WalkerState wrapper with this
-    new_state = WalkerState(**state)
+            # multiply by 0.1 to convert from angstroms to nanometers
+            state['positions'] = 0.1*pos.reshape(natoms,3)
 
-    return new_state
+        # copy coor file to work_dir
+        dest_coor_path = osp.join(work_dir,f'{pref}.coor')
+        shutil.copy(coor_path,dest_coor_path)
+
+        xsc_path = xsc_paths[w_idx]
+        # get box vectors
+        with open(xsc_path,'r') as f:
+            # skip the first two lines
+            tmp = f.readline()
+            tmp = f.readline()
+            # parse the third to get the box vectors
+            tmp = f.readline()
+            vals = tmp.split(' ')
+            state['box_vectors'] = np.array(vals[1:10],dtype=np.dtype('d')).reshape(3,3)
+
+        # copy xsc file to work_dir
+        dest_xsc_path = osp.join(work_dir,f'{pref}.xsc')
+        shutil.copy(xsc_path,dest_xsc_path)
+
+        if w_idx < len(vel_paths):
+            vel_path = vel_paths[w_idx]
+            if vel_path is not None:
+                with open(vel_path,'rb') as f:
+                    natoms = np.fromfile(f,dtype=np.dtype('i'),count=1)[0]
+                    vel = np.fromfile(f,dtype=np.dtype('d'),count=3*natoms)
+
+                    # multiply by 0.1 to convert from angstroms/time to nanometers/time
+                    state['velocities'] = 0.1*vel.reshape(natoms,3)
+
+                # copy vel file to work_dir
+                dest_vel_path = osp.join(work_dir,f'{pref}.vel')
+                shutil.copy(vel_path,dest_vel_path)
+            else:
+                state['velocities'] = None
+                
+        # add cycle and nextinput
+        state['cycle'] = 0
+        state['nextinput'] = pref
+
+        # make a WalkerState wrapper with this
+        new_state = WalkerState(**state)
+        new_states.append(new_state)
+
+    return new_states
 
     
 class NAMDRunner(Runner):
@@ -304,7 +334,24 @@ class NAMDRunner(Runner):
             
             # remove them
             for f in rm_files:
-                os.remove(f)            
+                os.remove(f)
+
+    def prep_initial_files(self, init_walkers):
+        """Prepares simulation files needed for initial walkers.
+
+        Parameters
+        ----------
+        init_walkers : list of wepy.runners.namd.NAMDWalker objects
+            The initial walkers for the simulation.
+
+        """
+        for walker in init_walkers:
+            assert isinstance(walker,NAMDWalker), "Error! init_walkers must be NAMDWalkers"
+
+
+
+        # no special files need to be prepared for NAMD
+        pass            
         
 
 class NAMDWalker(Walker):

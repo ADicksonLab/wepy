@@ -1,6 +1,6 @@
 from wepy.sim_manager import Manager
 from wepy.resampling.resamplers.resampler import NoResampler
-from wepy.runners.namd import NAMDRunner, NAMDWalker, generate_initial_state
+from wepy.runners.namd import NAMDRunner, NAMDWalker, prepare_initial_states
 
 from wepy.reporter.hdf5 import WepyHDF5Reporter
 from wepy.work_mapper.task_mapper import TaskMapper, WalkerTaskProcess
@@ -30,10 +30,14 @@ if __name__ == "__main__":
     init_weight = 1.0 / num_walkers
 
     # generate initial list of walkers
-    coor_path = 'inputs/init.coor'
-    xsc_path = 'inputs/init.xsc'
-    init_walkers = [generate_initial_state(coor_path, xsc_path, vel_path=None) for i in range(num_walkers)]
+    coor_paths = ['inputs/init.coor' for i in range(num_walkers)]
+    xsc_paths = ['inputs/init.xsc' for i in range(num_walkers)]
+        
+    init_walkers = prepare_initial_states(work_dir_path, coor_paths, xsc_paths, vel_paths=[])
 
+    # set up the initial files
+    runner.prep_initial_files(init_walkers)
+    
     resampler = NoResampler()
 
     hdf5_reporter = WepyHDF5Reporter(save_fields=('positions','box_vectors','colvar1','velocities'),
