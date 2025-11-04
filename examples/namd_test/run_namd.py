@@ -33,10 +33,8 @@ if __name__ == "__main__":
     coor_paths = ['inputs/init.coor' for i in range(num_walkers)]
     xsc_paths = ['inputs/init.xsc' for i in range(num_walkers)]
         
-    init_walkers = prepare_initial_states(work_dir_path, coor_paths, xsc_paths, vel_paths=[])
-
-    # set up the initial files
-    runner.prep_initial_files(init_walkers)
+    init_states = prepare_initial_states(work_dir_path, coor_paths, xsc_paths, vel_paths=[])
+    init_walkers = [NAMDWalker(s,init_weight) for s in init_states]
     
     resampler = NoResampler()
 
