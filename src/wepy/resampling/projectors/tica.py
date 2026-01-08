@@ -76,13 +76,13 @@ class DistanceTICAProjector(Projector):
         else:
             dists = np.array([np.sqrt(np.sum(np.square(v))) for v in disp_vecs])
             
-        tranformed_dists = self.model.transform(dists)
-
-        # calculate projections
-        proj = np.zeros(self.ndim, tranformed_dists.shape[0])
-        for i in range(self.ndim):
-            proj[i] = np.dot(tranformed_dists[i], dists)
+        proj = self.model.transform(dists)
         
+        ## calculate projections
+        #proj = np.zeros(self.ndim, tranformed_dists.shape[0])
+        #for i in range(self.ndim):
+        #    proj[i] = np.dot(tranformed_dists[i], dists)
+        # 
         return proj
 
 class CoordTICAProjector(Projector):
