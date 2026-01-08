@@ -289,7 +289,6 @@ class OpenMMRunner(Runner):
         self.platform_kwargs = platform_kwargs
 
         self.enforce_box = enforce_box
-        self.get_parameter_derivs = get_parameter_derivs
         
         self.getState_kwargs = dict(GET_STATE_KWARG_DEFAULTS)
         # update with the user based enforce_box
