@@ -10,7 +10,6 @@ import numpy as np
 
 from wepy.resampling.projectors.projector import Projector
 from wepy.util.util import box_vectors_to_lengths_angles
-#from geomm.grouping import shorten_vec
 
 def shorten_vec(x, unitcell_side_lengths):
     """
@@ -32,6 +31,13 @@ def shorten_vec(x, unitcell_side_lengths):
 
 def build_coord_feature(state, ref_pos, idxs,):
 
+    # get the state from the simulation
+
+    # extract the position
+
+    # now use the same idxs to align
+
+    # return the aligned coords
     
     return aligned_feat_coord
     
@@ -56,12 +62,12 @@ class DistanceTICAProjector(Projector):
         """
 
         self.dist_idxs = np.array(dist_idxs)
-        self.model = tica_model
         self.periodic = periodic
 
+        self.model = tica_model
         # check for transform type functions
-        if hasattr(self.model, 'transform'):
-
+        #if hasattr(self.model, 'transform'):
+        #    
         self.ndim = self.model.dim
     
     def project(self, state):
@@ -78,11 +84,6 @@ class DistanceTICAProjector(Projector):
             
         proj = self.model.transform(dists)
         
-        ## calculate projections
-        #proj = np.zeros(self.ndim, tranformed_dists.shape[0])
-        #for i in range(self.ndim):
-        #    proj[i] = np.dot(tranformed_dists[i], dists)
-        # 
         return proj
 
 class CoordTICAProjector(Projector):
@@ -147,6 +148,7 @@ class CoordTICAProjector(Projector):
         proj : np.ndarray of shape (ntica,)
             TICA coordinates for this state.
         """
+        
         ## positions of selected atoms: (natoms, 3)
         #pos = state['positions'][self.atom_idxs].copy()
         ## 

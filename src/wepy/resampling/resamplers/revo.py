@@ -756,7 +756,7 @@ class REVOProjectionResampler(REVOResampler):
     for V_i that depends solely on walker i.
 
     As in the original REVO, this algorithm needs the following parameters:
-
+proximity_score
        pmin: the minimum statistical weight. REVO does not clone
        walkers with a weight less than pmin.
 
@@ -1262,7 +1262,7 @@ class REVOProjectionResampler(REVOResampler):
         resampler_data = [
             {
                 "walker_projections": np.ravel(np.array(projection_list)),
-                "walker_variations:": np.ravel(np.array(walker_variations)),
+                "walker_variations": np.ravel(np.array(walker_variations)),
                 "num_walkers": np.array([len(walkers)]),
                 "variation": np.array([variation]),
             }
