@@ -1808,7 +1808,7 @@ class Contig(ContigTree):
 
         """
 
-        return self.wepy_h5.contig_resampling_panel(self._contig_run_idxs)
+        return self.wepy_h5.run_contig_resampling_panel(self._contig_run_idxs)
 
     def parent_table(self, discontinuities=True):
         """Returns the full parent table for this contig.
