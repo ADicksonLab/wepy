@@ -123,11 +123,11 @@ class ProjectorDistance(Distance):
         
     """
     def __init__(self, projector):
-       """Construct a distance metric.
+        """Construct a distance metric.
 
         Parameters
         ----------
-
+        
         projector : A Projector object, which implementes the project function 
         """
         
