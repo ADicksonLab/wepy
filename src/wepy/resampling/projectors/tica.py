@@ -1,82 +1,17 @@
 """Projectors into a pre-trained tICA space.
 """
-# Standard Library
+
 import logging
-
-logger = logging.getLogger(__name__)
-
-# Third Party Library
 import numpy as np
 
-# geomm functions
 from geomm.grouping import group_pair
 from geomm.superimpose import superimpose
 
-# wepy functions
 from wepy.resampling.projectors.projector import Projector
 from wepy.util.util import box_vectors_to_lengths_angles
 
+logger = logging.getLogger(__name__)
 
-def aligned(coords, ref_coords,unitcell_length, alignment_idxs, pair_idx1,pair_idx2):
-
-    """For a frame from a trajectory this function does a bunch of operations
-    systematically:
-    (i) First moves pair_idx2 coordinates to the image of the periodic unitcell that minimizes the 
-    difference between the centers of geometry between the pair_idx2 and pair_idx1 (e.g. a protein and ligand).
-    (ii) Then, centers the set of coordinates around a set of alingment atom indices.
-    (iii) Finally superimpose all the frames on top of a reference frame. (alignment)
-
-
-    This uses the geomm group pair function, followed by centering of grouped snapshots and then again
-    geomm superimpose function.
-    Unlike the 'aligned_frames' function, it only operates over a single frame (not the entire trajectory)
-
-    Parameters
-    ----------
-
-    coords : arraylike
-        The coordinates array of the frame of the particles you will be transforming.
-        (group pairing followed by centering followed by superimpose/alignment)
-
-    ref_coords: arraylike
-        Output of the ref_centered_pose function
-        Centered reference frame coordinates to be used in superimpose
-
-    unitcell_length : arraylike 
-        The lengths of the sides of a rectangular unitcell.
-
-    alignment_idxs : arraylike 
-        Collection of the indices which will be used to center the snapshot
-        and align them against the ref pose.
-        Please ensure that the same indices are used while centering the reference pose too.
-
-    pair_idx1 : arraylike 
-        Collection of the indices that define that member of the pair.
-
-    pair_idxs2 : arraylike
-        Collection of the indices that define that member of the pair.
-
-    Returns
-    -------
-
-    superimposed_pos : arrays
-        Transformed coordinates of the frame.
-        Transformation: group pairing followed by centering followed by superimpose/alignment.
-
-    """
-
-
-
-    assert coords.shape[1] == 3, "coordinates are not of 3 dimensions"
-    assert coords.shape[0] == ref_coords.shape[0], "Number of atoms does not match between reference and provided coords"
-
-    grouped_pos = group_pair(coords, unitcell_length, pair_idx1, pair_idx2)
-    centroid = np.average(grouped_pos[alignment_idxs], axis =0)
-    grouped_centered_pos = grouped_pos - centroid
-
-    superimposed_pos, _ , _ = superimpose(ref_coords,grouped_centered_pos, idxs=alignment_idxs)
-
-    return superimposed_pos
 
 def shorten_vecs(disp_vecs, box_lengths):
     """
@@ -105,13 +40,85 @@ def shorten_vecs(disp_vecs, box_lengths):
     # this should always work, np.round(0.6) = 1, np.round(-0.6) = -1 and np.round(0.2)=0.
 
 
+def aligned_frame_for_coord_tica(
+    coords,
+    ref_coords,
+    unitcell_length,
+    alignment_idxs,
+    pair_idx1,
+    pair_idx2,
+    important_idxs=None,
+    return_full_aligned=False,
+):
+    """Single-frame version of the calc-feature alignment logic.
+
+    This mirrors the behavior of feature_extraction.aligned_frames for a
+    single coordinate frame so the tICA projector does not need to import
+    aligned_frames from feature_extraction.py.
+    """
+
+    coords = np.asarray(coords)
+    ref_coords = np.asarray(ref_coords)
+    alignment_idxs = np.asarray(alignment_idxs, dtype=int)
+    pair_idx1 = np.asarray(pair_idx1, dtype=int)
+    pair_idx2 = np.asarray(pair_idx2, dtype=int)
+
+    if important_idxs is not None:
+        important_idxs = np.asarray(important_idxs, dtype=int)
+
+    if coords.ndim != 2 or coords.shape[1] != 3:
+        raise ValueError("coords must have shape (n_atoms, 3)")
+
+    grouped_pos = group_pair(coords, unitcell_length, pair_idx1, pair_idx2)
+
+    centroid = np.average(grouped_pos[alignment_idxs], axis=0)
+    grouped_centered_pos = grouped_pos - centroid
+
+    if important_idxs is not None:
+        grouped_centered_pos_imp = grouped_centered_pos[important_idxs]
+        align_imp_idxs = np.arange(grouped_centered_pos_imp.shape[0])
+
+        if grouped_centered_pos_imp.shape[0] != ref_coords.shape[0]:
+            raise ValueError(
+                "Number of important atoms does not match between reference and provided coords"
+            )
+
+        superimposed_imp, rotation_matrix, _ = superimpose(
+            ref_coords,
+            grouped_centered_pos_imp,
+            idxs=align_imp_idxs,
+        )
+
+        if return_full_aligned:
+            full_aligned = np.dot(grouped_centered_pos, rotation_matrix)
+            return full_aligned
+        else:
+            return superimposed_imp
+
+    else:
+        if coords.shape[0] != ref_coords.shape[0]:
+            raise ValueError(
+                "Number of atoms does not match between reference and provided coords"
+            )
+
+        superimposed_pos, rotation_matrix, _ = superimpose(
+            ref_coords,
+            grouped_centered_pos,
+            idxs=alignment_idxs,
+        )
+
+        if return_full_aligned:
+            return np.dot(grouped_centered_pos, rotation_matrix)
+        else:
+            return superimposed_pos
+
+
 class DistanceTICAProjector(Projector):
     """
     Projects a state into a predefined TICA space, using a set of distances as intermediate features.
     """
 
     def __init__(self, dist_idxs, tica_model, periodic=True):
-
         """Construct a DistanceTICA projector.
 
         Parameters
@@ -129,58 +136,62 @@ class DistanceTICAProjector(Projector):
         
         """
 
-        self.dist_idxs = np.array(dist_idxs)
+        self.dist_idxs = np.asarray(dist_idxs, dtype=int)
         self.periodic = periodic
-
         self.model = tica_model
-        #check if the model has .transform object/attribute 
-        # hasattr(self.model, 'transform'):
-
         self.ndim = self.model.dim
-    
+
     def project(self, state):
 
-        # get all the displacement vectors
-        disp_vecs = state['positions'][self.dist_idxs[:,0]] - state['positions'][self.dist_idxs[:,1]]
+
+        disp_vecs = state['positions'][self.dist_idxs[:, 0]] - state['positions'][self.dist_idxs[:, 1]]
 
         if self.periodic:
-            box_lengths, _ = box_vectors_to_lengths_angles(state["box_vectors"])
+            box_lengths, _ = box_vectors_to_lengths_angles(state['box_vectors'])
             disp_vecs = shorten_vecs(disp_vecs, box_lengths)
 
         dists = np.linalg.norm(disp_vecs, axis=1)
-        
-        #print(f'Dist: {dists}')
         proj = self.model.transform(dists)
-
+        
         print(f'Proj: {proj}')
+		
         return proj
 
 
 class CoordTICAProjector(Projector):
-    """Projects a state into a predefined TICA space, using selected
-    Cartesian coordinates (e.g., CA atoms or backbone atoms) as features.
-
-    The feature vector is constructed by taking the positions of a
-    fixed set of atoms and flattening them to shape (natoms*3,).
+    """Projects a state into a predefined tICA space using the exact
+    alignment and coordinate-feature construction path from
+    calc_coord_features_singleref.py file (from the MD_Interpret library).
     """
 
-    def __init__(self, alignment_idxs, atom_idxs, tica_model, ref_centered_pos, periodic=True):
+    def __init__(
+        self,
+        alignment_idxs,
+        atom_idxs,
+        tica_model,
+        ref_centered_pos,
+        pair_idx1=None,
+        pair_idx2=None,
+        periodic=True,
+    ):
+
         """
         Parameters
         ----------
         alignment_idxs: array-like of shape (align_atoms,)
-            Indices of atoms whose coordinates are used as the reference for 
-            alignment of the frames. These atoms MUST match the atoms that
-            were used to align the frames before tica model training.
+            Indices of atoms whose coordinates are used as the reference to center 
+	    the grouped frames. These atoms MUST match the atoms that
+            were used to center the frames before aligning the coords for tica training.
 
         atom_idxs : array-like of shape (natoms,)
-            Indices of the atoms whose coordinates are used as features.
+            Indices of the atoms whose coordinates to superimpose and 
+	    then extracted as as features.
             The order MUST match the order used when training TICA.
 
         
-        model: Deeptime or equivalent object 
+        tica_model: Deeptime or equivalent object 
             It MUST have a transform function, which 
-            will be used to transform the distances into tica space.
+            will be used to transform the aligned coordinates into tica space.
 
         ref_centered_pos: arraylike
             MUST FOLLOW some conditions:
@@ -193,58 +204,44 @@ class CoordTICAProjector(Projector):
 
         """
 
-        self.atom_idxs = np.asarray(atom_idxs, dtype=int)
-        self.alignment_idxs = np.array(alignment_idxs, dtype=int)
-        self.ref_centered_pose = ref_centered_pos
 
+
+        self.alignment_idxs = np.asarray(alignment_idxs, dtype=int)
+        self.atom_idxs = np.asarray(atom_idxs, dtype=int)
+        self.ref_centered_pose = np.asarray(ref_centered_pos)
+        self.pair_idx1 = np.asarray(pair_idx1 if pair_idx1 is not None else alignment_idxs, dtype=int)
+        self.pair_idx2 = np.asarray(pair_idx2 if pair_idx2 is not None else atom_idxs, dtype=int)
         self.periodic = periodic
         self.model = tica_model
-        #check if the model has .transform object/attribute 
-        # hasattr(self.model, 'transform'):
         self.ndim = self.model.dim
 
-        #natoms = self.atom_idxs.shape[0]
-        #nfeat = natoms * 3
-
+        if self.ref_centered_pose.shape[0] != self.atom_idxs.shape[0]:
+            raise ValueError(
+                "ref_centered_pos and atom_idxs must represent the same number of atoms "
+                "for coordinate-tICA projection."
+            )
 
     def project(self, state):
-        """
-        Project the given walker state into TICA space.
-
-        Parameters
-        ----------
-        state : dict-like
-            Must contain 'positions' with shape (N, 3) and, if
-            periodic=True, 'box_vectors'.
-
-        Returns
-        -------
-        proj : np.ndarray of shape (ntica,)
-            TICA coordinates for this state.
-        """
-        
-        
         if self.periodic:
-            box_lengths, _ = box_vectors_to_lengths_angles(state["box_vectors"])
+            box_lengths, _ = box_vectors_to_lengths_angles(state['box_vectors'])
+        else:
+            box_lengths = np.array([1.0e9, 1.0e9, 1.0e9], dtype=float)
 
-            pos_aligned = aligned(coords = state['positions'],
-                                            ref_coords = self.ref_centered_pose,
-                                            unitcell_length = box_lengths,
-                                            alignment_idxs = self.alignment_idxs,
-                                            pair_idx1 = self.alignment_idxs,
-                                            pair_idx2 = self.atom_idxs)
+        feat_coords = aligned_frame_for_coord_tica(
+            coords=state['positions'],
+            ref_coords=self.ref_centered_pose,
+            unitcell_length=box_lengths,
+            alignment_idxs=self.alignment_idxs,
+            pair_idx1=self.pair_idx1,
+            pair_idx2=self.pair_idx2,
+            important_idxs=self.atom_idxs,
+            return_full_aligned=False,
+        )
 
-
-        else: # Discuss with Alex
-            centroid = np.average(state['positions'][self.alignment_idxs], axis =0)
-            centered_pos = state['positions'] - centroid
-            pos_aligned, _ , _ = superimpose(self.ref_centered_pose, centered_pos, idxs=self.alignment_idxs)
-
-
-        feat_coord = pos_aligned[self.atom_idxs].reshape(1, -1) 
-        # without reshape it is still not in the input shape for the parent tica model 
-        # the parent tica model is trained on a flattened array.
-
+        
+        feat_coord = feat_coords.reshape(1, -1)
+        
         proj = self.model.transform(feat_coord)
-
+        print(f'Proj: {proj}')
         return proj
+
