@@ -656,7 +656,7 @@ class REVOResampler(CloneMergeResampler):
         -------
         distance_matrix : list of arraylike of shape (num_walkers)
 
-        images : list of image obeject
+        images : list of image object
 
         """
         # initialize an all-to-all matrix, with 0.0 for self distances
@@ -682,6 +682,7 @@ class REVOResampler(CloneMergeResampler):
             dist_mat[j][i] = dist
 
         return [walker_dists for walker_dists in dist_mat], images
+
 
     def resample(self, walkers):
         """Resamples walkers based on REVO algorithm

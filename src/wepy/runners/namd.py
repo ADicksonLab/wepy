@@ -17,6 +17,7 @@ import logging
 import time
 import os.path as osp
 import os
+import re
 import shutil
 import subprocess
 import glob
@@ -25,7 +26,19 @@ import numpy as np
 from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
 from wepy.work_mapper.worker import Worker
-
+def readState(fname):
+    with open(fname, "r") as f:
+        lines = f.readlines()
+    d = dict()
+    for cur, line in enumerate(lines):
+        if "name" in line:
+            n = line.strip().split()[1]
+            #a little sloppy/lazy but there really should be no cases with 0 or 2+ triggers
+            stateLine = lines[cur+1]
+            state = np.array(stateLine.split()[1:], dtype=float) #!!! how will this work with eg quaternion output colvars
+            #print(state)
+            d[n] = state
+    return d
 def generate_state(work_dir, output_pref, cycle=0, next_input_pref=None, get_velocities=False):
     """Method for generating a wepy compliant state from a NAMD
     simulation and obtaining data about the last segment of dynamics.
@@ -84,7 +97,12 @@ def generate_state(work_dir, output_pref, cycle=0, next_input_pref=None, get_vel
 
             # multiply by 0.1 to convert from angstroms/time to nanometers/time
             state['velocities'] = 0.1*vel.reshape(natoms,3)
-
+    colvars_name = output_pref + '.colvars.state'
+    colvars_path = osp.join(work_dir, colvars_name)
+    if osp.exists(colvars_path):
+        colvar_d = readState(colvars_path)
+        for k in colvar_d.keys():
+            state[k] = colvar_d[k]
     # add cycle and next_input
     state['cycle'] = cycle
     state['nextinput'] = next_input_pref
@@ -94,7 +112,7 @@ def generate_state(work_dir, output_pref, cycle=0, next_input_pref=None, get_vel
 
     return new_state
 
-def prepare_initial_states(work_dir, coor_paths, xsc_paths, vel_paths=[]):
+def prepare_initial_states(work_dir, coor_paths, xsc_paths, vel_paths=[], extra_fields=[]):
     """Method for generating a wepy compliant state from NAMD
     output files.
 
@@ -136,6 +154,7 @@ def prepare_initial_states(work_dir, coor_paths, xsc_paths, vel_paths=[]):
 
             # multiply by 0.1 to convert from angstroms to nanometers
             state['positions'] = 0.1*pos.reshape(natoms,3)
+            #(state['positions'])
 
         # copy coor file to work_dir
         dest_coor_path = osp.join(work_dir,f'{pref}.coor')
@@ -175,6 +194,9 @@ def prepare_initial_states(work_dir, coor_paths, xsc_paths, vel_paths=[]):
         # add cycle and nextinput
         state['cycle'] = 0
         state['nextinput'] = pref
+
+        for key in extra_fields:
+            state[key] = None
 
         # make a WalkerState wrapper with this
         new_state = WalkerState(**state)
@@ -236,7 +258,7 @@ class NAMDRunner(Runner):
 
         self.cycle_cache = cycle_cache
 
-    def run_segment(self, walker, segment_length, walker_idx=-1, DeviceIndex=0):
+    def run_segment(self, walker, segment_length, cycle_idx=-1,walker_idx=-1, DeviceIndex=0, extra_field_func=None):
         """Run dynamics for the walker.
 
         Parameters
@@ -274,8 +296,10 @@ class NAMDRunner(Runner):
 
         # actually run the simulation
         steps_start = time.time()
+        #cmd = self.runcmd.split(' ') + [new_conf_file_name] + ['&']
         cmd = self.runcmd.split(' ') + [new_conf_file_name]
-
+        #cmd = self.runcmd.split(' ') + [new_conf_file_name]
+        print(cmd)
         # use current environment, but change CUDA_VISIBLE_DEVICES
         new_env = os.environ.copy()
         new_env['CUDA_VISIBLE_DEVICES'] = DeviceIndex
@@ -284,7 +308,8 @@ class NAMDRunner(Runner):
 
         f_out = open(out_file,'w')
         f_err = open(err_file,'w')
-        completed_process = subprocess.run(cmd, cwd=self.work_dir, env=new_env, stdout=f_out, stderr=f_err)
+        print(self.work_dir, cmd, os.getcwd())
+        completed_process = subprocess.run(cmd, stdout=f_out, stderr=f_err)
         f_out.close()
         f_err.close()
 
@@ -292,12 +317,6 @@ class NAMDRunner(Runner):
         steps_time = steps_end - steps_start
         logging.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
 
-        get_state_start = time.time()
-        
-        
-        get_state_end = time.time()
-        get_state_time = get_state_end - get_state_start
-        logging.info("Getting context state time: {}".format(get_state_time))
 
         # generate the new state/walker
         new_state = generate_state(self.work_dir,
@@ -305,6 +324,18 @@ class NAMDRunner(Runner):
                                    cycle=thiscycle,
                                    next_input_pref=output_pref,
                                    get_velocities=self.get_vel)
+
+        get_state_start = time.time()
+        
+        #Get the state!
+        if extra_field_func != None:
+            #We assume extra_field_func will return a dictionary, with keys and values.
+            d = extra_field_func()
+            for k in d.keys():
+                new_state[k] = d[k]
+        get_state_end = time.time()
+        get_state_time = get_state_end - get_state_start
+        logging.info("Getting context state time: {}".format(get_state_time))
 
         # create a new walker for this
         new_walker = NAMDWalker(new_state, walker.weight)
@@ -324,8 +355,10 @@ class NAMDRunner(Runner):
                 # find current cycle
                 log_files = glob.glob(osp.join(self.work_dir,'seg*.log'))
                 latest_file = max(log_files, key=osp.getctime)
-                curr_cycle = re.search('([0-9]+).log',latest_file)[1]
+                curr_cycle = int(re.search('([0-9]+).log',latest_file)[1])
+                print("curr_cycle is",curr_cycle, type(curr_cycle), "cycle cache is", type(self.cycle_cache))
                 to_del = curr_cycle - self.cycle_cache
+
             else:
                 to_del = current_cycle - self.cycle_cache
             
