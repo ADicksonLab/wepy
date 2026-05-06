@@ -1269,3 +1269,144 @@ proximity_score
         ]
 
         return resampled_walkers, resampling_data, resampler_data
+
+
+class tICAREVOResampler(REVOResampler):
+    r"""REVOResampler variant that stores tICA/projector values.
+
+    This class behaves like the standard REVOResampler, but additionally
+    stores the projector values returned by the distance metric for each
+    walker at every cycle.
+
+    Intended use:
+        - distance should be a ProjectorDistance-like object
+        - ProjectorDistance.image(state) should return projector.project(state)
+        - projector.project(state) may return any consistent numeric shape,
+          e.g. (ntica,) or (1, ntica)
+
+    The projector values are stored without squeezing or reshaping the
+    per-walker tICA projection. They are only flattened for HDF5 storage,
+    and the original stacked shape is stored in walker_projection_shape.
+    """
+
+    # Same resampling records as regular REVO
+    RESAMPLING_FIELDS = REVOResampler.RESAMPLING_FIELDS
+    RESAMPLING_SHAPES = REVOResampler.RESAMPLING_SHAPES
+    RESAMPLING_DTYPES = REVOResampler.RESAMPLING_DTYPES
+    RESAMPLING_RECORD_FIELDS = REVOResampler.RESAMPLING_RECORD_FIELDS
+
+    # Add walker_projections and walker_projection_shape to resampler records
+    RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + (
+        "num_walkers",
+        "distance_matrix",
+        "walker_projections",
+        "walker_projection_shape",
+        "variation",
+    )
+
+    RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + (
+        (1,),
+        Ellipsis,
+        Ellipsis,
+        Ellipsis,
+        (1,),
+    )
+
+    RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + (
+        int,
+        float,
+        float,
+        int,
+        float,
+    )
+
+    RESAMPLER_RECORD_FIELDS = CloneMergeResampler.RESAMPLER_RECORD_FIELDS + (
+        "variation",
+    )
+
+    def resample(self, walkers):
+        """Resamples walkers based on REVO and stores projector values.
+
+        Returns
+        -------
+        resampled_walkers : list
+            The walkers after clone/merge decisions are applied.
+
+        resampling_data : list of dict
+            Clone/merge decision records.
+
+        resampler_data : list of dict
+            Per-cycle resampler records, including:
+                - distance_matrix
+                - walker_projections
+                - walker_projection_shape
+                - num_walkers
+                - variation
+        """
+
+        # initialize the parameters
+        num_walkers = len(walkers)
+        walker_weights = [walker.weight for walker in walkers]
+
+        # Needs to be floats to do partial amps during variation calculations.
+        num_walker_copies = np.ones(num_walkers)
+
+        # Calculate distance matrix.
+        #
+        # Important:
+        # For ProjectorDistance, `images` are the projector values.
+        # We do not change their dimensions here.
+        distance_matrix, images = self._all_to_all_distance(walkers)
+
+        logger.info("distance_matrix")
+        logger.info("\n{}".format(str(np.array(distance_matrix))))
+
+        # Determine cloning and merging actions by maximizing REVO variation.
+        resampling_data, variation = self.decide(
+            walker_weights,
+            num_walker_copies,
+            distance_matrix,
+        )
+
+        # Convert target_idxs and decision_id to feature-vector arrays.
+        for record in resampling_data:
+            record["target_idxs"] = np.array(record["target_idxs"])
+            record["decision_id"] = np.array([record["decision_id"]])
+
+        # Actually do the cloning and merging of the walkers.
+        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
+
+        # Store projector values.
+        #
+        # This preserves the stacked shape of the projector outputs.
+        # Example:
+        #   If each walker projection is shape (ntica,),
+        #   projection_array.shape == (n_walkers, ntica)
+        #
+        #   If each walker projection is shape (1, ntica),
+        #   projection_array.shape == (n_walkers, 1, ntica)
+        #
+        # We flatten only for HDF5 storage and save the original shape.
+        try:
+            projection_array = np.asarray(images, dtype=float)
+        except ValueError as err:
+            raise ValueError(
+                "Could not convert projector images to a regular numeric array. "
+                "This usually means different walkers returned projections with "
+                "different shapes. For HDF5 storage, all walker projector outputs "
+                "must have the same shape."
+            ) from err
+
+        projection_shape = np.asarray(projection_array.shape, dtype=int)
+
+        resampler_data = [
+            {
+                "distance_matrix": np.ravel(np.asarray(distance_matrix, dtype=float)),
+                "walker_projections": np.ravel(projection_array),
+                "walker_projection_shape": projection_shape,
+                "num_walkers": np.array([num_walkers]),
+                "variation": np.array([variation]),
+            }
+        ]
+
+        return resampled_walkers, resampling_data, resampler_data

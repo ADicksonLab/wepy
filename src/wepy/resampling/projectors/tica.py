@@ -112,13 +112,12 @@ def aligned_frame_for_coord_tica(
         else:
             return superimposed_pos
 
-
 class DistanceTICAProjector(Projector):
     """
     Projects a state into a predefined TICA space, using a set of distances as intermediate features.
     """
 
-    def __init__(self, dist_idxs, tica_model, periodic=True):
+    def __init__(self, dist_idxs, tica_model, periodic=True,tica_weights=None):
         """Construct a DistanceTICA projector.
 
         Parameters
@@ -141,8 +140,17 @@ class DistanceTICAProjector(Projector):
         self.model = tica_model
         self.ndim = self.model.dim
 
-    def project(self, state):
+        if tica_weights is None:
+            self.tica_weights = np.ones(self.ndim, dtype=float)
+        else:
+            self.tica_weights = np.asarray(tica_weights, dtype=float)
+            if self.tica_weights.shape != (self.ndim,):
+                raise ValueError(
+                    f"tica_weights must have shape ({self.ndim},), "
+                    f"got {self.tica_weights.shape}"
+                )
 
+    def project(self, state):
 
         disp_vecs = state['positions'][self.dist_idxs[:, 0]] - state['positions'][self.dist_idxs[:, 1]]
 
@@ -152,10 +160,11 @@ class DistanceTICAProjector(Projector):
 
         dists = np.linalg.norm(disp_vecs, axis=1)
         proj = self.model.transform(dists)
-        
+
         print(f'Proj: {proj}')
-		
-        return proj
+        weighted_proj = self.tica_weights * proj
+
+        return weighted_proj
 
 
 class CoordTICAProjector(Projector):
@@ -173,19 +182,19 @@ class CoordTICAProjector(Projector):
         pair_idx1=None,
         pair_idx2=None,
         periodic=True,
-    ):
+        tica_weights=None):
 
         """
         Parameters
         ----------
         alignment_idxs: array-like of shape (align_atoms,)
             Indices of atoms whose coordinates are used as the reference to center 
-	    the grouped frames. These atoms MUST match the atoms that
+            the grouped frames. These atoms MUST match the atoms that
             were used to center the frames before aligning the coords for tica training.
 
         atom_idxs : array-like of shape (natoms,)
             Indices of the atoms whose coordinates to superimpose and 
-	    then extracted as as features.
+            then extracted as as features.
             The order MUST match the order used when training TICA.
 
         
@@ -221,6 +230,17 @@ class CoordTICAProjector(Projector):
                 "for coordinate-tICA projection."
             )
 
+        if tica_weights is None:
+            self.tica_weights = np.ones(self.ndim, dtype=float)
+        else:
+            self.tica_weights = np.asarray(tica_weights, dtype=float)
+            if self.tica_weights.shape != (self.ndim,):
+                raise ValueError(
+                    f"tica_weights must have shape ({self.ndim},), "
+                    f"got {self.tica_weights.shape}"
+                )
+
+
     def project(self, state):
         if self.periodic:
             box_lengths, _ = box_vectors_to_lengths_angles(state['box_vectors'])
@@ -238,10 +258,13 @@ class CoordTICAProjector(Projector):
             return_full_aligned=False,
         )
 
-        
+
         feat_coord = feat_coords.reshape(1, -1)
-        
+
         proj = self.model.transform(feat_coord)
         print(f'Proj: {proj}')
-        return proj
+
+        weighted_proj = self.tica_weights * proj
+
+        return weighted_proj
 
