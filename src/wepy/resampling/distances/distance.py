@@ -118,6 +118,28 @@ class XYEuclideanDistance(Distance):
     def image_distance(self, image_a, image_b):
         return np.sqrt((image_a[0] - image_b[0]) ** 2 + (image_a[1] - image_b[1]) ** 2)
 
+class ProjectorDistance(Distance):
+    """Take a projector as input 
+        
+    """
+    def __init__(self, projector):
+        """Construct a distance metric.
+
+        Parameters
+        ----------
+        
+        projector : A Projector object, which implementes the project function 
+        """
+        
+        self.projector = projector
+
+    def image(self, state):
+        return self.projector.project(state)
+        
+    def image_distance(self, image_a, image_b):
+        return np.sqrt(np.sum(np.square(image_a - image_b)))
+
+
 class AtomPairDistance(Distance):
     """Constructs a vector of atomic distances for each state.
     Distance is the root mean squared distance between the vectors.
