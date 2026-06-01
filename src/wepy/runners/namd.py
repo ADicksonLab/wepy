@@ -14,7 +14,6 @@ from copy import copy
 import random as rand
 from warnings import warn
 import logging
-
 logger = logging.getLogger(__name__)
 import time
 import os.path as osp
@@ -29,6 +28,7 @@ from wepy.walker import Walker, WalkerState
 from wepy.runners.runner import Runner
 from wepy.work_mapper.task_mapper import WalkerTaskProcess
 from wepy.work_mapper.worker import Worker
+
 def readState(fname):
     with open(fname, "r") as f:
         lines = f.readlines()
@@ -39,7 +39,6 @@ def readState(fname):
             #a little sloppy/lazy but there really should be no cases with 0 or 2+ triggers
             stateLine = lines[cur+1]
             state = np.array(stateLine.split()[1:], dtype=float) #!!! how will this work with eg quaternion output colvars
-            #print(state)
             d[n] = state
     return d
 def generate_state(work_dir, output_pref, cycle=0, next_input_pref=None, get_velocities=False):
@@ -239,7 +238,7 @@ class NAMDRunner(Runner):
         """
         #I'm... pretty sure that I don't need to reset runcmd here but.... might be worth checking
         self.runcmd = runcmd
-        print("on first call, runcmd is", runcmd)
+        logger.info(f"on first call, runcmd is {runcmd}")
         with open(conf_file_path,"r") as f:
             self.conf_text = f.read()
 
@@ -284,118 +283,54 @@ class NAMDRunner(Runner):
         
         run_segment_start = time.time()
 
-        # # set the kwargs that will be passed to getState
-        # tmp_getState_kwargs = getState_kwargs
-
-        # logger.info("Default 'getState_kwargs' in runner: " f"{self.getState_kwargs}")
-
-        # logger.info("'getState_kwargs' passed to 'run_segment' : " f"{getState_kwargs}")
-
-        # # start with the object value
-        # getState_kwargs = copy(self.getState_kwargs)
-        # if tmp_getState_kwargs is not None:
-        #     getState_kwargs.update(tmp_getState_kwargs)
-
-        # logger.info(
-        #     "After resolving 'getState_kwargs' that will be used are: "
-        #     f"{getState_kwargs}"
-        # )
-        # print(getState_kwargs)
-        # exit()
-        #getState_kwargs had better have cycle_idx and walker_idx. Otherwise I don't know what we are doing here.
 
         # build the conf file
         # grab information from walker
         nextinput = walker.state['nextinput']
         thiscycle = walker.state['cycle'] + 1
         output_pref = 'walker{0}_{1}'.format(walker_idx,thiscycle)
-        print("output_pref is", output_pref)
+        logger.info(f"output_pref is {output_pref}")
         ## Platform
 
-        # logger.info("Default 'platform' in runner: " f"{self.platform_name}")
-
-        # logger.info("pre_cycle set 'platform' in runner: " f"{self._cycle_platform}")
-
-        # logger.info("'platform' passed to 'run_segment' : " f"{platform}")
-
-        # logger.info("Default 'platform_kwargs' in runner: " f"{self.platform_kwargs}")
-
-        # logger.info(
-        #     "pre_cycle set 'platform_kwargs' in runner: "
-        #     f"{self._cycle_platform_kwargs}"
-        # )
-
-        # logger.info("'platform_kwargs' passed to 'run_segment' : " f"{platform_kwargs}")
-
-        # OpenMM business that does not seem to be relevant to what we need.
-        #Could we use platform as the NAMD path? And maybe the platform kwargs as arguments?
-        # platform_name, platform_kwargs = self._resolve_platform(
-        #     platform, platform_kwargs
-        # )
-
-        # logger.info("Resolved 'platform' : " f"{platform}")
-
-        # logger.info("Resolved 'platform_kwargs' : " f"{platform_kwargs}")
 
         # write new conf file
         tmp1 = self.conf_text.replace('TMP_INPUT_NAME',nextinput)
         tmp2 = tmp1.replace('TMP_NSTEPS',str(segment_length))
         new_conf = tmp2.replace('TMP_OUTPUT_NAME',output_pref)
         new_conf_file_name = osp.join(self.work_dir,'seg_{0}_{1}.conf'.format(walker_idx,thiscycle)) #!!!Could things be going wrong here?
-        print("new_conf_file_name is", new_conf_file_name)
+        logger.info(f"new_conf_file_name is {new_conf_file_name}")
         with open(new_conf_file_name,"w") as f:
             f.write(new_conf)
         # actually run the simulation
-        #For some reason, we are feeding in the & where wepy expects the configuration file
         steps_start = time.time()
-        #endsinampersand = self.runcmd.split()[-1] == "&"
         #If you are using a NAMDGPUWalkerTaskProcess, this can pass a DeviceIndex in.
         #this then lets us modify the run command to *only* use a single GPU.
-        print("REACHES PLATFORM IF")
         if platform_kwargs != None and "DeviceIndex" in platform_kwargs.keys():
-            # print(platform_kwargs)
-            # print(platform_kwargs["DeviceIndex"])
             temp_runcmd = self.runcmd + " +devices " + platform_kwargs["DeviceIndex"]
-            #self.runcmd += " +devices " + platform_kwargs["DeviceIndex"] #we're cutting this to avoid mutating the runcmd every time
         else:
             temp_runcmd = self.runcmd
-        print("PASSES PLATFORM IF")
-        #Claude's idea but it does seem like a nice enough way to build a non-& list of runcmd components
-        runcmd_parts = [p for p in temp_runcmd.split() if p != "&"]
-        print("REACHES IF STATEMENT")
-        # if endsinampersand:
-        #     print("I know I end in ampersand")
-        #     print("setting cmd to", runcmd_parts + [new_conf_file_name] + ["&"])
-        #     cmd = runcmd_parts + [new_conf_file_name] + ["&"]
-        #     #cmd = self.runcmd.split(' ')[:-1] + [new_conf_file_name] + ["&"]
-        #     #cmd = self.runcmd.split()[0:2] + self.runcmd.split()[-3:-1] + [new_conf_file_name] + ["&"]
-        # else:
-        print("ENTERS ELSE STATEMENT")
+        runcmd_parts = temp_runcmd.split()
         cmd = runcmd_parts + [new_conf_file_name]
-        #cmd = self.runcmd.split() + [new_conf_file_name]
-        print("runcmd is", self.runcmd)
-        #print("config file is", new_conf_file_name)
-        print("cmd is", cmd) 
+        #cmd = [temp_runcmd] + new_conf_file_name
+        
+        logger.info(f"runcmd is {self.runcmd}")
+        logger.info(f"cmd is {cmd}") 
 
-         #ok for some reason this no longer has the file included lol
         #If we wanted to make this non-blocking, we'd need to put an & at the end of the command, and then "wait" at the end
         out_file = osp.join(self.work_dir,'seg_{0}_{1}.log'.format(walker_idx,thiscycle))
         err_file = osp.join(self.work_dir,'seg_{0}_{1}.err'.format(walker_idx,thiscycle))
 
         f_out = open(out_file,'w')
         f_err = open(err_file,'w')
-        print(self.work_dir, cmd, os.getcwd())
-        #if endsinampersand:
-        #    print("This is the command string: %s"  %(" ".join(cmd)))
-        #    completed_process = subprocess.run(" ".join(cmd), stdout=f_out, stderr=f_err, shell=True)
-        #else:
+        logger.info(f"workdir: {self.work_dir}, cmd:{cmd}, currentworkingdirectory: {os.getcwd()}")
+
         completed_process = subprocess.run(cmd, stdout=f_out, stderr=f_err, shell=False) #we run here
         f_out.close()
         f_err.close()
         #Here we determine how long it took to run this - where exactly should we be waiting?
         steps_end = time.time()
         steps_time = steps_end - steps_start
-        logging.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
+        logger.info("Time to run {} sim steps: {}".format(segment_length, steps_time))
 
 
         # generate the new state/walker
@@ -415,25 +350,20 @@ class NAMDRunner(Runner):
                 new_state[k] = d[k]
         get_state_end = time.time()
         get_state_time = get_state_end - get_state_start
-        logging.info("Getting context state time: {}".format(get_state_time))
+        logger.info("Getting context state time: {}".format(get_state_time))
 
         # create a new walker for this
         new_walker = NAMDWalker(new_state, walker.weight)
 
         run_segment_end = time.time()
         run_segment_time = run_segment_end - run_segment_start
-        logging.info("Total internal run_segment time: {}".format(run_segment_time))
+        logger.info("Total internal run_segment time: {}".format(run_segment_time))
 
         return new_walker
 
     def post_cycle(self, current_cycle=None):
         """Clears files from the work directory."""
-        print("We have reached postcycle")
-        # if self.runcmd[-1] == "&":
-        #     print("runcmd ends with & - Wait request detected")
-        #     print("Entering wait at time: " + str(time.time()))
-        #     subprocess.run("wait", shell=True)
-        #     print("Exiting wait at time: " + str(time.time()))
+        logger.info("We have reached postcycle")
         if self.cycle_cache is not None:
 
             # determine which cycle to delete
@@ -442,7 +372,7 @@ class NAMDRunner(Runner):
                 log_files = glob.glob(osp.join(self.work_dir,'seg*.log'))
                 latest_file = max(log_files, key=osp.getctime)
                 curr_cycle = int(re.search('([0-9]+).log',latest_file)[1])
-                print("curr_cycle is",curr_cycle, type(curr_cycle), "cycle cache is", type(self.cycle_cache))
+                logger.info(f"curr_cycle is {curr_cycle}, {type(curr_cycle)}, cycle cache is {type(self.cycle_cache)}")
                 to_del = curr_cycle - self.cycle_cache
 
             else:
@@ -484,88 +414,6 @@ class NAMDWalker(Walker):
 
         super().__init__(state, weight)
 
-class NAMDGPUWorker(Worker):
-    """Worker for NAMD GPU simulations (CUDA or HIP platforms).
-    This is intended to be used with the wepy.work_mapper.WorkerMapper
-    work mapper class.
-    This class must be used in order to ensure NAMD runs jobs on the
-    appropriate GPU device.
-    """
-    NAME_TEMPLATE = "NAMDGPUWorker-{}"
-    """The name template the worker processes are named to substituting in
-    the process number."""
-     
-    def run_task(self, task):
-        print(task)
-        exit()
-        # get the platform
-        platform = self.mapper_attributes["platform"]
-
-        # get the device index from the attributes
-        device_id = self.mapper_attributes["device_ids"][self._worker_idx]
-
-        # make the platform kwargs dictionary
-        platform_options = {"DeviceIndex": str(device_id)}
-
-        logger.info(f"platform={platform}, platform_options={platform_options}")
-        return task(
-             platform=platform,
-             platform_kwargs=platform_options,
-        )
-
-# class NAMDCPUWorker(Worker):
-#     """Worker for NAMD GPU simulations (CUDA or OpenCL platforms).
-
-#     This is intended to be used with the wepy.work_mapper.WorkerMapper
-#     work mapper class.
-
-#     This class must be used in order to ensure NAMD runs jobs on the
-#     appropriate GPU device.
-
-#     """
-
-#     NAME_TEMPLATE = "NAMDCPUWorker-{}"
-#     """The name template the worker processes are named to substituting in
-#     the process number."""
-
-#     DEFAULT_NUM_THREADS = 1
-
-#     def __init__(self, *args, **kwargs):
-#         if "num_threads" not in kwargs:
-#             num_threads = self.DEFAULT_NUM_THREADS
-#         else:
-#             num_threads = kwargs.pop("num_threads")
-
-#         super().__init__(*args, num_threads=num_threads, **kwargs)
-
-#     def run_task(self, task):
-#         # documented in superclass
-
-#         # make the platform kwargs dictionary
-#         platform_options = {"Threads": str(self.attributes["num_threads"])}
-
-#         # run the task and pass in the DeviceIndex for NAMD to
-#         # assign work to the correct GPU
-#         return task(platform_kwargs=platform_options)
-
-# class NAMDCPUWalkerTaskProcess(WalkerTaskProcess):
-#     NAME_TEMPLATE = "NAMD_CPU_Walker_Task-{}"
-
-#     def run_task(self, task):
-#         if "num_threads" in self.mapper_attributes:
-#             num_threads = self.mapper_attributes["num_threads"]
-
-#             # make the platform kwargs dictionary
-#             platform_options = {"Threads": str(num_threads)}
-
-#             logger.info(f"Threads={num_threads}")
-
-#         else:
-#             platform_options = {}
-
-#         return task(
-#             platform_kwargs=platform_options,
-#         )
 
 class NAMDGPUWalkerTaskProcess(WalkerTaskProcess):
     NAME_TEMPLATE = "NAMD_GPU_Walker_Task-{}"
