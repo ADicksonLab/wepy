@@ -38,7 +38,7 @@ class Distance(object):
         """Constructor for Distance class."""
         pass
 
-    def image(state):
+    def image(self, state):
         """Compute the 'image' of a walker state which should be some
         transformation of the walker state that is more
         convenient. E.g. for precomputation of expensive operations or
