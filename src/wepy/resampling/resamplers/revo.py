@@ -1,8 +1,5 @@
 # Standard Library
 import itertools as it
-import logging
-
-logger = logging.getLogger(__name__)
 # Standard Library
 import multiprocessing as mulproc
 import random as rand
@@ -11,9 +8,7 @@ import random as rand
 import numpy as np
 
 # First Party Library
-from wepy.resampling.decisions.clone_merge import MultiCloneMergeDecision
 from wepy.resampling.resamplers.clone_merge import CloneMergeResampler
-from wepy.resampling.resamplers.resampler import Resampler
 
 
 class REVOResampler(CloneMergeResampler):
@@ -68,7 +63,11 @@ class REVOResampler(CloneMergeResampler):
        accumulation of too much weight in one walker.
 
        merge_dist: This is the merge-distance threshold. The distance
-        between merged walkers should be less than this value.
+        between merged walkers should be less than this value. It can be
+        disabled by setting it to ``None`` when ``n_merge_max`` is used.
+
+       n_merge_max: The maximum number of merge events in one resampling
+        cycle. If ``None``, the number of merges is not capped.
 
     The resample function, called during every cycle, takes the
     ensemble of walkers and performs the follow steps:
@@ -134,6 +133,8 @@ class REVOResampler(CloneMergeResampler):
         dist_exponent=4,
         seed=None,
         num_proc=1,
+        n_merge_max=5,
+        store_projections=True,
         **kwargs
     ):
         """Constructor for the REVO Resampler.
@@ -145,9 +146,22 @@ class REVOResampler(CloneMergeResampler):
           The distance exponent that modifies distance and weight novelty
           relative to each other in the variation equation.
 
-        merge_dist : float
+        merge_dist : float or None
             The merge distance threshold. Units should be the same as
-            the distance metric.
+            the distance metric. ``None`` disables distance filtering.
+
+        n_merge_max : int or None, default 5
+            Maximum number of accepted merge events per resampling cycle.
+            ``None`` leaves the number of merges uncapped. This can be used
+            as the resampling cutoff instead of ``merge_dist`` by passing
+            ``merge_dist=None``.
+
+        store_projections : bool, optional
+            Store the numeric values returned by ``distance.image`` as
+            ``walker_projections`` in the resampler record. This is intended
+            for projector-based distance metrics such as tICA distances.
+            The original stacked array shape is stored separately as
+            ``walker_projection_shape``. The default is ``True``.
 
         char_dist : float
             The characteristic distance value. It is calculated by
@@ -197,7 +211,6 @@ class REVOResampler(CloneMergeResampler):
             **kwargs
         )
 
-        assert merge_dist is not None, "Merge distance must be given."
         assert distance is not None, "Distance object must be given."
         assert char_dist is not None, "Characteristic distance value (d0) must be given"
         assert init_state is not None, "An initial state must be given."
@@ -206,8 +219,45 @@ class REVOResampler(CloneMergeResampler):
         self.lpmin = np.log(self.pmin / 100)
         self.dist_exponent = dist_exponent
 
-        self.merge_dist = merge_dist
+        self.merge_dist = np.inf if merge_dist is None else merge_dist
         self.merge_alg = merge_alg
+
+        if n_merge_max is not None:
+            if isinstance(n_merge_max, (bool, np.bool_)) or not isinstance(
+                n_merge_max, (int, np.integer)
+            ):
+                raise TypeError("n_merge_max must be a non-negative integer or None")
+            if n_merge_max < 0:
+                raise ValueError("n_merge_max must be non-negative")
+            n_merge_max = int(n_merge_max)
+        self.n_merge_max = n_merge_max
+
+        if not isinstance(store_projections, (bool, np.bool_)):
+            raise TypeError("store_projections must be a boolean")
+        self.store_projections = bool(store_projections)
+
+        if self.store_projections:
+            self.RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + (
+                "num_walkers",
+                "distance_matrix",
+                "walker_projections",
+                "walker_projection_shape",
+                "variation",
+            )
+            self.RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + (
+                (1,),
+                Ellipsis,
+                Ellipsis,
+                Ellipsis,
+                (1,),
+            )
+            self.RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + (
+                int,
+                float,
+                float,
+                int,
+                float,
+            )
 
         # the distance metric
         self.distance = distance
@@ -454,11 +504,12 @@ class REVOResampler(CloneMergeResampler):
         variations.append(variation)
 
         # maximize the variance through cloning and merging
-        logger.info("Starting variance optimization: {}".format(variation))
-
+        n_merges = 0
         productive = True
         while productive:
             productive = False
+            if self.n_merge_max is not None and n_merges >= self.n_merge_max:
+                break
             # find min and max walker_variationss, alter new_amp
 
             # initialize to None, we may not find one of each
@@ -531,6 +582,7 @@ class REVOResampler(CloneMergeResampler):
                     # if there are any walkers left, get the distances of
                     # the close walkers to the min walker_variations walker if that
                     # distance is less than the maximum merge distance
+                    closewalks_dists = []
                     if len(closewalks) > 0:
                         closewalks_dists = [
                             (distance_matrix[min_idx][i], i)
@@ -566,8 +618,6 @@ class REVOResampler(CloneMergeResampler):
 
                 if new_variation > variation:
                     variations.append(new_variation)
-
-                    logger.info("Variance move to {} accepted".format(new_variation))
 
                     productive = True
                     variation = new_variation
@@ -611,14 +661,13 @@ class REVOResampler(CloneMergeResampler):
                     # increase the number of clones that the cloned
                     # walker has
                     walker_clone_nums[max_idx] += 1
+                    n_merges += 1
 
                     # new variation for starting new stage
                     new_variation, walker_variations = self._calc_variation(
                         new_walker_weights, new_num_walker_copies, distance_matrix
                     )
                     variations.append(new_variation)
-
-                    logger.info("variance after selection: {}".format(new_variation))
 
                 # if not productive
                 else:
@@ -709,9 +758,6 @@ class REVOResampler(CloneMergeResampler):
         # calculate distance matrix
         distance_matrix, images = self._all_to_all_distance(walkers)
 
-        logger.info("distance_matrix")
-        logger.info("\n{}".format(str(np.array(distance_matrix))))
-
         # determine cloning and merging actions to be performed, by
         # maximizing the variation, i.e. the Decider
         resampling_data, variation = self.decide(
@@ -726,18 +772,30 @@ class REVOResampler(CloneMergeResampler):
         # actually do the cloning and merging of the walkers
         resampled_walkers = self.DECISION.action(walkers, [resampling_data])
 
-        # flatten the distance matrix and give the number of walkers
-        # as well for the resampler data, there is just one per cycle
-        resampler_data = [
-            {
-                "distance_matrix": np.ravel(np.array(distance_matrix)),
-                "num_walkers": np.array([len(walkers)]),
-                "variation": np.array([variation]),
-            }
-        ]
+        # There is one resampler record per cycle.
+        resampler_record = {
+            "distance_matrix": np.ravel(np.asarray(distance_matrix, dtype=float)),
+            "num_walkers": np.array([num_walkers]),
+            "variation": np.array([variation]),
+        }
+
+        if self.store_projections:
+            try:
+                projection_array = np.asarray(images, dtype=float)
+            except (TypeError, ValueError) as err:
+                raise ValueError(
+                    "store_projections=True requires distance.image(state) to "
+                    "return numeric arrays with a consistent shape for every walker"
+                ) from err
+
+            resampler_record["walker_projections"] = np.ravel(projection_array)
+            resampler_record["walker_projection_shape"] = np.asarray(
+                projection_array.shape, dtype=int
+            )
+
+        resampler_data = [resampler_record]
 
         return resampled_walkers, resampling_data, resampler_data
-
 class REVOProjectionResampler(REVOResampler):
     r"""Resampler implementing a modified REVO algorithm that works in a
     projection space.  The distance between walkers in the projection space
@@ -798,10 +856,12 @@ proximity_score
         "num_walkers",
         "walker_variations",
         "walker_projections",
+        "walker_projection_shape",
         "variation",
     )
     RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + (
         (1,),
+        Ellipsis,
         Ellipsis,
         Ellipsis,
         (1,),
@@ -810,6 +870,7 @@ proximity_score
         int,
         float,
         float,
+        int,
         float,
     )
 
@@ -829,6 +890,7 @@ proximity_score
         pmax=0.1,
         seed=None,
         num_proc=1,
+        n_merge_max=5,
         **kwargs
     ):
         """Constructor for the REVO Property Resampler.
@@ -836,10 +898,17 @@ proximity_score
         Parameters
         ----------
 
-        merge_dist : float
+        merge_dist : float or None
             The merge distance threshold. Will be compared with Euclidean
             distances between projection values, e.g.:
-            np.sqrt(np.sum(np.square(p1-p2))).
+            np.sqrt(np.sum(np.square(p1-p2))). ``None`` disables distance
+            filtering.
+
+        n_merge_max : int or None, default 5
+            Maximum number of accepted merge events per resampling cycle.
+            ``None`` leaves the number of merges uncapped. This can be used
+            as the resampling cutoff instead of ``merge_dist`` by passing
+            ``merge_dist=None``.
 
         projector : object implementing Project
             The object that projects walkers into a reduced dimensional space.
@@ -881,13 +950,22 @@ proximity_score
             **kwargs
         )
 
-        assert merge_dist is not None, "Merge distance must be given."
         assert projector is not None, "Projector object must be given."
         assert max_function is not None, "Maximization function must be given"
         assert init_state is not None, "An initial state must be given."
 
-        self.merge_dist = merge_dist
+        self.merge_dist = np.inf if merge_dist is None else merge_dist
         self.merge_alg = merge_alg
+
+        if n_merge_max is not None:
+            if isinstance(n_merge_max, (bool, np.bool_)) or not isinstance(
+                n_merge_max, (int, np.integer)
+            ):
+                raise TypeError("n_merge_max must be a non-negative integer or None")
+            if n_merge_max < 0:
+                raise ValueError("n_merge_max must be non-negative")
+            n_merge_max = int(n_merge_max)
+        self.n_merge_max = n_merge_max
 
         # the projector function
         self.projector = projector
@@ -989,11 +1067,12 @@ proximity_score
         variations.append(variation)
 
         # maximize the variance through cloning and merging
-        logger.info("Starting variance optimization: {}".format(variation))
-
+        n_merges = 0
         productive = True
         while productive:
             productive = False
+            if self.n_merge_max is not None and n_merges >= self.n_merge_max:
+                break
             # find min and max walker_variationss, alter new_amp
 
             # initialize to None, we may not find one of each
@@ -1066,6 +1145,7 @@ proximity_score
                     # if there are any walkers left, get the distances of
                     # the close walkers to the min walker_variations walker if that
                     # distance is less than the maximum merge distance
+                    closewalks_dists = []
                     if len(closewalks) > 0:
                         closewalks_dists = [
                             (distance_matrix[min_idx][i], i)
@@ -1101,8 +1181,6 @@ proximity_score
 
                 if new_variation > variation:
                     variations.append(new_variation)
-
-                    logger.info("Variance move to {} accepted".format(new_variation))
 
                     productive = True
                     variation = new_variation
@@ -1146,14 +1224,13 @@ proximity_score
                     # increase the number of clones that the cloned
                     # walker has
                     walker_clone_nums[max_idx] += 1
+                    n_merges += 1
 
                     # new variation for starting new stage
                     new_variation, walker_variations = self._calc_variation(
                         new_walker_weights, new_num_walker_copies, projection_list
                     )
                     variations.append(new_variation)
-
-                    logger.info("variance after selection: {}".format(new_variation))
 
                 # if not productive
                 else:
@@ -1261,150 +1338,12 @@ proximity_score
         # as well for the resampler data, there is just one per cycle
         resampler_data = [
             {
-                "walker_projections": np.ravel(np.array(projection_list)),
+                "walker_projections": np.ravel(np.asarray(projection_list)),
+                "walker_projection_shape": np.asarray(
+                    np.asarray(projection_list).shape, dtype=int
+                ),
                 "walker_variations": np.ravel(np.array(walker_variations)),
                 "num_walkers": np.array([len(walkers)]),
-                "variation": np.array([variation]),
-            }
-        ]
-
-        return resampled_walkers, resampling_data, resampler_data
-
-
-class tICAREVOResampler(REVOResampler):
-    r"""REVOResampler variant that stores tICA/projector values.
-
-    This class behaves like the standard REVOResampler, but additionally
-    stores the projector values returned by the distance metric for each
-    walker at every cycle.
-
-    Intended use:
-        - distance should be a ProjectorDistance-like object
-        - ProjectorDistance.image(state) should return projector.project(state)
-        - projector.project(state) may return any consistent numeric shape,
-          e.g. (ntica,) or (1, ntica)
-
-    The projector values are stored without squeezing or reshaping the
-    per-walker tICA projection. They are only flattened for HDF5 storage,
-    and the original stacked shape is stored in walker_projection_shape.
-    """
-
-    # Same resampling records as regular REVO
-    RESAMPLING_FIELDS = REVOResampler.RESAMPLING_FIELDS
-    RESAMPLING_SHAPES = REVOResampler.RESAMPLING_SHAPES
-    RESAMPLING_DTYPES = REVOResampler.RESAMPLING_DTYPES
-    RESAMPLING_RECORD_FIELDS = REVOResampler.RESAMPLING_RECORD_FIELDS
-
-    # Add walker_projections and walker_projection_shape to resampler records
-    RESAMPLER_FIELDS = CloneMergeResampler.RESAMPLER_FIELDS + (
-        "num_walkers",
-        "distance_matrix",
-        "walker_projections",
-        "walker_projection_shape",
-        "variation",
-    )
-
-    RESAMPLER_SHAPES = CloneMergeResampler.RESAMPLER_SHAPES + (
-        (1,),
-        Ellipsis,
-        Ellipsis,
-        Ellipsis,
-        (1,),
-    )
-
-    RESAMPLER_DTYPES = CloneMergeResampler.RESAMPLER_DTYPES + (
-        int,
-        float,
-        float,
-        int,
-        float,
-    )
-
-    RESAMPLER_RECORD_FIELDS = CloneMergeResampler.RESAMPLER_RECORD_FIELDS + (
-        "variation",
-    )
-
-    def resample(self, walkers):
-        """Resamples walkers based on REVO and stores projector values.
-
-        Returns
-        -------
-        resampled_walkers : list
-            The walkers after clone/merge decisions are applied.
-
-        resampling_data : list of dict
-            Clone/merge decision records.
-
-        resampler_data : list of dict
-            Per-cycle resampler records, including:
-                - distance_matrix
-                - walker_projections
-                - walker_projection_shape
-                - num_walkers
-                - variation
-        """
-
-        # initialize the parameters
-        num_walkers = len(walkers)
-        walker_weights = [walker.weight for walker in walkers]
-
-        # Needs to be floats to do partial amps during variation calculations.
-        num_walker_copies = np.ones(num_walkers)
-
-        # Calculate distance matrix.
-        #
-        # Important:
-        # For ProjectorDistance, `images` are the projector values.
-        # We do not change their dimensions here.
-        distance_matrix, images = self._all_to_all_distance(walkers)
-
-        logger.info("distance_matrix")
-        logger.info("\n{}".format(str(np.array(distance_matrix))))
-
-        # Determine cloning and merging actions by maximizing REVO variation.
-        resampling_data, variation = self.decide(
-            walker_weights,
-            num_walker_copies,
-            distance_matrix,
-        )
-
-        # Convert target_idxs and decision_id to feature-vector arrays.
-        for record in resampling_data:
-            record["target_idxs"] = np.array(record["target_idxs"])
-            record["decision_id"] = np.array([record["decision_id"]])
-
-        # Actually do the cloning and merging of the walkers.
-        resampled_walkers = self.DECISION.action(walkers, [resampling_data])
-
-        # Store projector values.
-        #
-        # This preserves the stacked shape of the projector outputs.
-        # Example:
-        #   If each walker projection is shape (ntica,),
-        #   projection_array.shape == (n_walkers, ntica)
-        #
-        #   If each walker projection is shape (1, ntica),
-        #   projection_array.shape == (n_walkers, 1, ntica)
-        #
-        # We flatten only for HDF5 storage and save the original shape.
-        try:
-            projection_array = np.asarray(images, dtype=float)
-        except ValueError as err:
-            raise ValueError(
-                "Could not convert projector images to a regular numeric array. "
-                "This usually means different walkers returned projections with "
-                "different shapes. For HDF5 storage, all walker projector outputs "
-                "must have the same shape."
-            ) from err
-
-        projection_shape = np.asarray(projection_array.shape, dtype=int)
-
-        resampler_data = [
-            {
-                "distance_matrix": np.ravel(np.asarray(distance_matrix, dtype=float)),
-                "walker_projections": np.ravel(projection_array),
-                "walker_projection_shape": projection_shape,
-                "num_walkers": np.array([num_walkers]),
                 "variation": np.array([variation]),
             }
         ]

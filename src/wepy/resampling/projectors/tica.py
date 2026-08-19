@@ -13,6 +13,56 @@ from wepy.util.util import box_vectors_to_lengths_angles
 logger = logging.getLogger(__name__)
 
 
+def _validate_index_array(name, indices, expected_columns=None):
+    """Return a validated, non-empty array of non-negative atom indices."""
+    index_array = np.asarray(indices)
+
+    if not np.issubdtype(index_array.dtype, np.integer):
+        raise TypeError(f"{name} must contain integer atom indices")
+
+    if expected_columns is None:
+        if index_array.ndim != 1:
+            raise ValueError(f"{name} must be a one-dimensional array")
+    elif index_array.ndim != 2 or index_array.shape[1] != expected_columns:
+        raise ValueError(
+            f"{name} must have shape (n, {expected_columns}), "
+            f"got {index_array.shape}"
+        )
+
+    if index_array.size == 0:
+        raise ValueError(f"{name} must not be empty")
+    if np.any(index_array < 0):
+        raise ValueError(f"{name} must contain only non-negative atom indices")
+
+    return index_array.astype(int, copy=False)
+
+
+def _validate_tica_model(tica_model):
+    """Validate the model interface used by the projector classes."""
+    if tica_model is None:
+        raise TypeError("tica_model must not be None")
+    if not callable(getattr(tica_model, "transform", None)):
+        raise TypeError("tica_model must provide a callable transform method")
+    if not hasattr(tica_model, "dim"):
+        raise TypeError("tica_model must provide a dim attribute")
+
+    ndim = tica_model.dim
+    if isinstance(ndim, (bool, np.bool_)) or not isinstance(
+        ndim, (int, np.integer)
+    ):
+        raise TypeError("tica_model.dim must be a positive integer")
+    if ndim <= 0:
+        raise ValueError("tica_model.dim must be a positive integer")
+
+    return int(ndim)
+
+
+def _validate_boolean(name, value):
+    if not isinstance(value, (bool, np.bool_)):
+        raise TypeError(f"{name} must be a boolean")
+    return bool(value)
+
+
 def shorten_vecs(disp_vecs, box_lengths):
     """
     Apply minimum-image convention to displacement vectors in an
@@ -117,7 +167,7 @@ class DistanceTICAProjector(Projector):
     Projects a state into a predefined TICA space, using a set of distances as intermediate features.
     """
 
-    def __init__(self, dist_idxs, tica_model, periodic=True,tica_weights=None):
+    def __init__(self, dist_idxs, tica_model, periodic=True, tica_weights=None):
         """Construct a DistanceTICA projector.
 
         Parameters
@@ -135,10 +185,12 @@ class DistanceTICAProjector(Projector):
         
         """
 
-        self.dist_idxs = np.asarray(dist_idxs, dtype=int)
-        self.periodic = periodic
+        self.dist_idxs = _validate_index_array(
+            "dist_idxs", dist_idxs, expected_columns=2
+        )
+        self.periodic = _validate_boolean("periodic", periodic)
         self.model = tica_model
-        self.ndim = self.model.dim
+        self.ndim = _validate_tica_model(self.model)
 
         if tica_weights is None:
             self.tica_weights = np.ones(self.ndim, dtype=float)
@@ -159,10 +211,25 @@ class DistanceTICAProjector(Projector):
             disp_vecs = shorten_vecs(disp_vecs, box_lengths)
 
         dists = np.linalg.norm(disp_vecs, axis=1)
+        print(
+            "DistanceTICAProjector transform input: "
+            f"ndim={dists.ndim}, shape={dists.shape}"
+        )
         proj = self.model.transform(dists)
+        projection_array = np.asarray(proj)
+        print(
+            "DistanceTICAProjector transform output: "
+            f"ndim={projection_array.ndim}, shape={projection_array.shape}"
+        )
 
-        print(f'Proj: {proj}')
-        weighted_proj = self.tica_weights * proj
+        if projection_array.ndim == 0 or projection_array.shape[-1] != self.ndim:
+            raise ValueError(
+                "tica_model.transform returned an output whose final dimension "
+                f"does not match tica_model.dim={self.ndim}: "
+                f"shape={projection_array.shape}"
+            )
+
+        weighted_proj = self.tica_weights * projection_array
 
         return weighted_proj
 
@@ -215,19 +282,32 @@ class CoordTICAProjector(Projector):
 
 
 
-        self.alignment_idxs = np.asarray(alignment_idxs, dtype=int)
-        self.atom_idxs = np.asarray(atom_idxs, dtype=int)
-        self.ref_centered_pose = np.asarray(ref_centered_pos)
-        self.pair_idx1 = np.asarray(pair_idx1 if pair_idx1 is not None else alignment_idxs, dtype=int)
-        self.pair_idx2 = np.asarray(pair_idx2 if pair_idx2 is not None else atom_idxs, dtype=int)
-        self.periodic = periodic
-        self.model = tica_model
-        self.ndim = self.model.dim
-
-        if self.ref_centered_pose.shape[0] != self.atom_idxs.shape[0]:
+        self.alignment_idxs = _validate_index_array("alignment_idxs", alignment_idxs)
+        self.atom_idxs = _validate_index_array("atom_idxs", atom_idxs)
+        missing_alignment_idxs = self.alignment_idxs[
+            ~np.isin(self.alignment_idxs, self.atom_idxs)
+        ]
+        if missing_alignment_idxs.size:
             raise ValueError(
-                "ref_centered_pos and atom_idxs must represent the same number of atoms "
-                "for coordinate-tICA projection."
+                "alignment_idxs must be contained in atom_idxs; missing atom "
+                f"indices: {missing_alignment_idxs.tolist()}"
+            )
+        self.ref_centered_pose = np.asarray(ref_centered_pos, dtype=float)
+        self.pair_idx1 = _validate_index_array(
+            "pair_idx1", pair_idx1 if pair_idx1 is not None else alignment_idxs
+        )
+        self.pair_idx2 = _validate_index_array(
+            "pair_idx2", pair_idx2 if pair_idx2 is not None else atom_idxs
+        )
+        self.periodic = _validate_boolean("periodic", periodic)
+        self.model = tica_model
+        self.ndim = _validate_tica_model(self.model)
+
+        expected_ref_shape = (self.atom_idxs.size, 3)
+        if self.ref_centered_pose.shape != expected_ref_shape:
+            raise ValueError(
+                f"ref_centered_pos must have shape {expected_ref_shape}, "
+                f"got {self.ref_centered_pose.shape}"
             )
 
         if tica_weights is None:
@@ -261,10 +341,24 @@ class CoordTICAProjector(Projector):
 
         feat_coord = feat_coords.reshape(1, -1)
 
+        print(
+            "CoordTICAProjector transform input: "
+            f"ndim={feat_coord.ndim}, shape={feat_coord.shape}"
+        )
         proj = self.model.transform(feat_coord)
-        print(f'Proj: {proj}')
+        projection_array = np.asarray(proj)
+        print(
+            "CoordTICAProjector transform output: "
+            f"ndim={projection_array.ndim}, shape={projection_array.shape}"
+        )
 
-        weighted_proj = self.tica_weights * proj
+        if projection_array.ndim == 0 or projection_array.shape[-1] != self.ndim:
+            raise ValueError(
+                "tica_model.transform returned an output whose final dimension "
+                f"does not match tica_model.dim={self.ndim}: "
+                f"shape={projection_array.shape}"
+            )
+
+        weighted_proj = self.tica_weights * projection_array
 
         return weighted_proj
-
