@@ -17,6 +17,30 @@ Second, is the OpenMMWalker which is identical to the Walker class
 except that it enforces the state is an actual instantiation of
 OpenMMState. Use of this is optional.
 
+DaskOpenMMRunner is an OpenMMRunner that keeps one Context alive
+between segments instead of building a new one each time, and
+OpenMMRunnerFactory is a picklable recipe for building one inside
+another process (used by wepy.work_mapper.dask_mapper). This runners is
+required for running OpenMM with DaskMapper and is built through OpenMMRunnerFactory.
+
+The platform and its properties (such as DeviceIndex) are fixed when
+DaskOpenMMRunner first builds its Context; asking for different ones
+later raises RuntimeError. If a segment fails, the Context is discarded
+and rebuilt on the next segment. Because the Context is reused, any
+field missing from a walker's state would keep the previous walker's
+value, so a state without positions raises ValueError and a state
+without velocities gets new velocities drawn at the runner's
+temperature.
+
+OpenMMRunnerFactory holds only serialized/plain data and used for building the runner 
+from the serialized data when it is called through WepyRunnerPlugin.
+
+The factory exists because OpenMM's System and Integrator cannot be
+sent to another process directly, so it stores them as XML text. Build
+one from live objects with OpenMMRunnerFactory.from_objects(system,
+integrator, topology, ...); calling it (factory()) returns a new
+DaskOpenMMRunner.
+
 Finally, is the OpenMMGPUWorker class. This is to be used as the
 worker type for the WorkerMapper work mapper. This is necessary to
 allow passing of the device index to OpenMM for which GPU device to
@@ -31,6 +55,7 @@ logger = logging.getLogger(__name__)
 import random as rand
 import time
 from copy import copy
+from types import SimpleNamespace
 from warnings import warn
 
 # Third Party Library
@@ -40,6 +65,7 @@ try:
     # Third Party Library
     import openmm as omm
     import openmm.app as omma
+    from openmm import Context, Platform, XmlSerializer
     import simtk.unit as unit
 except ModuleNotFoundError:
     raise ModuleNotFoundError(
@@ -607,6 +633,304 @@ class OpenMMRunner(Runner):
         new_state = OpenMMState(new_sim_state)
 
         return new_state
+
+
+def _state_has_field(sim_state, getter):
+    """True if the openmm.State carries this field."""
+    try:
+        getattr(sim_state, getter)()
+        return True
+    except Exception:
+        return False
+
+
+class DaskOpenMMRunner(OpenMMRunner):
+    """OpenMMRunner that keeps one Context alive for the life of the process 
+    for Dask tasks."""
+
+    def __init__(self, *args, temperature=None, **kwargs):
+        """Constructor for OpenMMRunner
+
+        Parameters
+        ----------
+        Parameters are those of OpenMMRunner, plus
+    
+        temperature : float (K) or openmm Quantity, optional
+            Used only to draw velocities for walkers whose state has none.
+            Defaults to integrator.getTemperature() when the integrator has it.
+        """
+        super().__init__(*args, **kwargs)
+        self._context = None
+        self._context_key = None
+
+        self._integrator_xml = XmlSerializer.serialize(self.integrator)
+
+        if temperature is None and hasattr(self.integrator, "getTemperature"):
+            temperature = self.integrator.getTemperature()
+        if temperature is not None and not unit.is_quantity(temperature):
+            temperature = temperature * unit.kelvin
+        self.temperature = temperature
+
+
+    def _get_context(self, platform_name, platform_kwargs):
+        """Build the Context on first use, then return the same one."""
+        key = (platform_name, tuple(sorted((platform_kwargs or {}).items())))
+
+        if self._context is not None:
+            if key != self._context_key:
+                raise RuntimeError(
+                    "context already built with {}, cannot switch to {}. "
+                    "Platform properties are fixed at Context creation.".format(
+                        self._context_key, key
+                    )
+                )
+            return self._context
+
+        if platform_name is None:
+            self._context = Context(self.system, self.integrator)
+        else:
+            platform = Platform.getPlatformByName(platform_name)
+            valid = set(platform.getPropertyNames())
+            props = {}
+            for name, value in (platform_kwargs or {}).items():
+                if name in valid:
+                    props[str(name)] = str(value)
+                else:
+                    warn(
+                        f"Platform kwargs given ({name} : {value}) "
+                        f"but is not valid for this platform ({platform_name})"
+                    )
+            self._context = Context(self.system, self.integrator, platform, props)
+
+        self._context_key = key
+        logger.info(
+            "built OpenMM context on platform %s", self._context.getPlatform().getName()
+        )
+
+        return self._context
+
+
+    def _reset_context(self):
+        """Throw away the Context and start again with a fresh integrator."""
+        self._context = None
+        self._context_key = None
+        self.integrator = XmlSerializer.deserialize(self._integrator_xml)
+        if hasattr(self.integrator, "setRandomNumberSeed"):
+            self.integrator.setRandomNumberSeed(0)
+
+
+    def cleanup(self, **kwargs):
+        """Free the Context (and its GPU memory)."""
+        self._context = None
+        self._context_key = None
+
+
+    def _load_state(self, context, state):
+        """Load a walker's state into the existing context.
+
+        Context.setState only copies the fields the State contains; anything
+        missing would keep the PREVIOUS walker's values. So missing positions
+        are an error and missing velocities are redrawn from the temperature.
+
+        Parameters
+        ----------    
+        context : OpenMM Context
+            Context that was previously initialized on the worker.
+        state: wepy.runners.openmm.OpenMMState
+            State of the current walker.
+
+        Raises
+        ------
+        TypeError
+            If the state is not an OpenMMState.
+        ValueError
+            If the state has no positions, or has no velocities and the
+            runner has no temperature to draw them from.
+        """
+        sim_state = getattr(state, "sim_state", None)
+        if sim_state is None:
+            raise TypeError("DaskOpenMMRunner needs walkers carrying an OpenMMState")
+        if not _state_has_field(sim_state, "getPositions"):
+            raise ValueError("walker state has no positions")
+
+        context.setState(sim_state)
+
+        if not _state_has_field(sim_state, "getVelocities"):
+            if self.temperature is None:
+                raise ValueError(
+                    "walker state has no velocities and the runner has no "
+                    "temperature; pass temperature= to DaskOpenMMRunner or use "
+                    "an integrator that implements getTemperature()"
+                )
+            logger.warning(
+                "walker state had no velocities; reassigning at %s", self.temperature
+            )
+            context.setVelocitiesToTemperature(self.temperature)
+
+
+    def run_segment(
+        self,
+        walker,
+        segment_length,
+        getState_kwargs=None,
+        platform=None,
+        platform_kwargs=None,
+        **kwargs,
+    ):
+        """Run one segment of dynamics for a walker, reusing this runner's Context.
+
+        Parameters
+        ----------
+        walker : object implementing the Walker interface
+            The walker for which dynamics will be propagated.
+
+        segment_length : int or float
+            The numerical value that specifies how much dynamics are to be run.
+
+        getState_kwargs : dict of str : bool, optional
+            Specify the key-word arguments to pass to
+            simulation.context.getState when getting simulation
+            states. If None defaults object values.
+
+        platform : str or None or Ellipsis
+            The specification for the computational platform to
+            use. If None will use the default for the runner and
+            ignore platform_kwargs. If Ellipsis forces the use of the
+            OpenMM default or environmentally defined platform. See
+            OpenMM documentation for all value but typical ones are:
+            Reference, CUDA, OpenCL. If value is None the automatic
+            platform determining mechanism in OpenMM will be used.
+
+        platform_kwargs : dict of str : bool, optional
+            key-values to set for a platform with
+            platform.setPropertyDefaultValue for this segment only.
+
+        Returns
+        -------
+        new_walker : OpenMMWalker
+            A new walker with the state after the segment and the same
+            weight as the input walker. The input walker is not changed.
+
+        Raises
+        ------
+        Exception
+            Any error from OpenMM while stepping or reading the state. The
+            Context is discarded first.
+        """
+        state_kwargs = copy(self.getState_kwargs)
+        if getState_kwargs is not None:
+            state_kwargs.update(getState_kwargs)
+
+        platform_name, platform_kwargs = self._resolve_platform(
+            platform, platform_kwargs
+        )
+        context = self._get_context(platform_name, platform_kwargs)
+
+        self._load_state(context, walker.state)
+
+        try:
+            self.integrator.step(segment_length)
+            new_state = self.generate_state(
+                SimpleNamespace(context=context), segment_length, walker, state_kwargs
+            )
+        except Exception:
+            self._reset_context()
+            raise
+
+        return OpenMMWalker(new_state, walker.weight)
+
+
+class OpenMMRunnerFactory:
+    """Picklable, no-argument callable that builds a DaskOpenMMRunner.
+
+    Holds only serialized/plain data (System and integrator as XML), so it
+    can be sent to another process and build the runner there. 
+
+    Parameters
+    ----------
+    system_xml : str 
+        Serialized OpenMM system.
+
+    integrator_xml : str 
+        Serialized OpenMM integrator.
+    
+    topology : simtk.openmm.app.Topology object
+        The topology for you system.
+
+    platform : str
+        The specification for the default computational platform
+        to use. Platform can also be set when run_segment is
+        called. If None uses OpenMM default platform, see OpenMM
+        documentation for all value but typical ones are:
+        Reference, CUDA, OpenCL. If value is None the automatic
+        platform determining mechanism in OpenMM will be used.
+
+    platform_kwargs : dict of str : bool, optional
+        key-values to set for a platform with
+        platform.setPropertyDefaultValue as the default for this
+        runner.
+
+    get_state_kwargs : dict of str : bool, optional
+        key-values to set for getting the state from the OpenMM context.
+        keys not included will use the values in GET_STATE_KWARG_DEFAULTS.
+        Will override the enforce_box flag.
+
+    temperature : float
+        System temperature. Needed just in case if the state has no velocities.
+    """
+
+    def __init__(
+        self,
+        system_xml,
+        integrator_xml,
+        topology,
+        platform="CUDA",
+        platform_kwargs=None,
+        get_state_kwargs=None,
+        temperature=None,
+    ):
+        self.system_xml = system_xml
+        self.integrator_xml = integrator_xml
+        self.topology = topology
+        self.platform = platform
+        self.platform_kwargs = platform_kwargs
+        self.get_state_kwargs = get_state_kwargs
+        self.temperature = temperature
+
+    @classmethod
+    def from_objects(cls, system, integrator, topology, **kwargs):
+        """Builds a DaskOpenmmRunner from OpenMM objects.
+
+        Parameters
+        ----------
+        system : simtk.openmm.System object
+            The system (forcefields) for the simulation.
+
+        topology : simtk.openmm.app.Topology object
+            The topology for you system.
+
+        integrator : subclass simtk.openmm.Integrator object
+            Integrator for propagating dynamics.
+        """
+        """Build a factory from live System and Integrator objects."""
+        return cls(
+            XmlSerializer.serialize(system),
+            XmlSerializer.serialize(integrator),
+            topology,
+            **kwargs,
+        )
+
+    def __call__(self):
+        """ Build a DaskOpenMMRunner from serialized data available within the factory itself."""
+        return DaskOpenMMRunner(
+            XmlSerializer.deserialize(self.system_xml),
+            self.topology,
+            XmlSerializer.deserialize(self.integrator_xml),
+            platform=self.platform,
+            platform_kwargs=self.platform_kwargs,
+            get_state_kwargs=self.get_state_kwargs,
+            temperature=self.temperature,
+        )
 
 
 class OpenMMState(WalkerState):
