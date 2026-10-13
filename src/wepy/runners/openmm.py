@@ -65,7 +65,6 @@ try:
     # Third Party Library
     import openmm as omm
     import openmm.app as omma
-    from openmm import Context, Platform, XmlSerializer
     import simtk.unit as unit
 except ModuleNotFoundError:
     raise ModuleNotFoundError(
@@ -663,7 +662,7 @@ class DaskOpenMMRunner(OpenMMRunner):
         self._context = None
         self._context_key = None
 
-        self._integrator_xml = XmlSerializer.serialize(self.integrator)
+        self._integrator_xml = omm.XmlSerializer.serialize(self.integrator)
 
         if temperature is None and hasattr(self.integrator, "getTemperature"):
             temperature = self.integrator.getTemperature()
@@ -687,9 +686,9 @@ class DaskOpenMMRunner(OpenMMRunner):
             return self._context
 
         if platform_name is None:
-            self._context = Context(self.system, self.integrator)
+            self._context = omm.Context(self.system, self.integrator)
         else:
-            platform = Platform.getPlatformByName(platform_name)
+            platform = omm.Platform.getPlatformByName(platform_name)
             valid = set(platform.getPropertyNames())
             props = {}
             for name, value in (platform_kwargs or {}).items():
@@ -700,7 +699,7 @@ class DaskOpenMMRunner(OpenMMRunner):
                         f"Platform kwargs given ({name} : {value}) "
                         f"but is not valid for this platform ({platform_name})"
                     )
-            self._context = Context(self.system, self.integrator, platform, props)
+            self._context = omm.Context(self.system, self.integrator, platform, props)
 
         self._context_key = key
         logger.info(
@@ -714,7 +713,7 @@ class DaskOpenMMRunner(OpenMMRunner):
         """Throw away the Context and start again with a fresh integrator."""
         self._context = None
         self._context_key = None
-        self.integrator = XmlSerializer.deserialize(self._integrator_xml)
+        self.integrator = omm.XmlSerializer.deserialize(self._integrator_xml)
         if hasattr(self.integrator, "setRandomNumberSeed"):
             self.integrator.setRandomNumberSeed(0)
 
@@ -914,8 +913,8 @@ class OpenMMRunnerFactory:
         """
         """Build a factory from live System and Integrator objects."""
         return cls(
-            XmlSerializer.serialize(system),
-            XmlSerializer.serialize(integrator),
+            omm.XmlSerializer.serialize(system),
+            omm.XmlSerializer.serialize(integrator),
             topology,
             **kwargs,
         )
@@ -923,9 +922,9 @@ class OpenMMRunnerFactory:
     def __call__(self):
         """ Build a DaskOpenMMRunner from serialized data available within the factory itself."""
         return DaskOpenMMRunner(
-            XmlSerializer.deserialize(self.system_xml),
+            omm.XmlSerializer.deserialize(self.system_xml),
             self.topology,
-            XmlSerializer.deserialize(self.integrator_xml),
+            omm.XmlSerializer.deserialize(self.integrator_xml),
             platform=self.platform,
             platform_kwargs=self.platform_kwargs,
             get_state_kwargs=self.get_state_kwargs,
