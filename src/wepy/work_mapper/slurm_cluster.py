@@ -6,7 +6,7 @@ script per task. This module makes those copies
 find each other and form one Dask cluster:
 
 - Task 0 (the "boss") starts the Dask scheduler plus one worker for its own
-  GPU, then runs the rest of the script (the simulation).
+  GPU, then runs the rest of the script.
 - Every other task (a "helper") becomes a single Dask worker and does nothing
   else.
 
@@ -84,7 +84,7 @@ def _host_ip(interface):
 
 
 def _scratch(rank):
-    """Node-local directory for a worker's put files and other scratch data."""
+    """Node-local directory for a worker's to put files and other scratch data."""
 
     base = os.environ.get("TMPDIR") or "/tmp"
     return os.path.join(base, "dask-{}-{}".format(os.environ.get("SLURM_JOB_ID", "nojob"), rank))

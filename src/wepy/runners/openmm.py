@@ -649,7 +649,7 @@ class DaskOpenMMRunner(OpenMMRunner):
     for Dask tasks."""
 
     def __init__(self, *args, temperature=None, **kwargs):
-        """Constructor for OpenMMRunner
+        """Constructor for DaskOpenMMRunner
 
         Parameters
         ----------
@@ -720,7 +720,7 @@ class DaskOpenMMRunner(OpenMMRunner):
 
 
     def cleanup(self, **kwargs):
-        """Free the Context (and its GPU memory)."""
+        """Free the Context."""
         self._context = None
         self._context_key = None
 
@@ -777,7 +777,7 @@ class DaskOpenMMRunner(OpenMMRunner):
         platform_kwargs=None,
         **kwargs,
     ):
-        """Run one segment of dynamics for a walker, reusing this runner's Context.
+        """Run one segment of dynamics for a walker, reusing this worker's Context.
 
         Parameters
         ----------
@@ -855,7 +855,7 @@ class OpenMMRunnerFactory:
         Serialized OpenMM integrator.
     
     topology : simtk.openmm.app.Topology object
-        The topology for you system.
+        The topology for the system.
 
     platform : str
         The specification for the default computational platform
